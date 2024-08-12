@@ -1,4 +1,4 @@
-# allinone_app
+# AllinOne App
 
 Allin One Level Marketing Service
 
