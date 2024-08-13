@@ -91,7 +91,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
       _isLoding = false;
     });
   //  snackBarMsgShow2(context);
-    const DashboardScreen().launch(context,
+     DashboardScreen().launch(context,
         isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
    // print('error $error');
   }
@@ -103,7 +103,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     // var pref = await SharedPreferences.getInstance();
     // pref.setBool(MobileSplashScreenState.keyLogin, true);
     //
-    const DashboardScreen().launch(context,
+     DashboardScreen().launch(context,
         isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
 

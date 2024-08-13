@@ -14,6 +14,8 @@ AppStore appStore = AppStore();
 BaseLanguage language = LanguageEn();
 List<UserData>? cachedUserData;
 
+
+
 Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(375, 812), // Set the design size for ScreenUtil
+      designSize: const Size(375, 812), // Set the design s4ze for ScreenUtil
       builder: (context, child) {
         return MaterialApp(
           title: 'ALL IN ONE',

@@ -1,6 +1,8 @@
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,7 +12,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-
+  int _currentIndex = 0;
+  final List<String> _imageUrls = [
+    'https://miro.medium.com/v2/resize:fit:1400/1*AxTSMdh-xZoluQ10nkqqrg.png',
+    'https://image.cnbcfm.com/api/v1/image/107176545-1673363415079-gettyimages-1406724005-dsc01807.jpeg?v=1673505592&w=929&h=523&vtcrop=y',
+    'https://cdn.phenompeople.com/CareerConnectResources/KIVKBRUS/images/MicrosoftTeams-image102[1920x927]web-1664813477508.jpg',
+  ];
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(
@@ -20,9 +27,120 @@ class HomeScreenState extends State<HomeScreen> {
       splitScreenMode: true,
     );
 
-    return const Scaffold();
+    return  Scaffold(
+      appBar: AppBar(
+        forceMaterialTransparency: true,
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
+        titleSpacing: 7.w,
+        toolbarHeight: 60.h,
+        leading: Padding(
+          padding: EdgeInsets.only(left: 8.w),
+          child: CircleAvatar(
+            radius: 20.0.r,
+            backgroundImage: const NetworkImage('https://miro.medium.com/v2/resize:fit:1400/1*AxTSMdh-xZoluQ10nkqqrg.png'),
+            backgroundColor: Colors.black,
+          ),
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    'Hello, AIO',
+                    style: GoogleFonts.roboto(
+                      fontSize: 16.0.sp,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black,
+                    ),
+                  ),
+                  Text(
+                    'Good Morning',
+                    textAlign: TextAlign.start,
+                    style: GoogleFonts.roboto(
+                      fontSize: 12.0.sp,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.notifications_active,
+                size: 22.0.sp,
+
+                color: Colors.black,
+              ),
+              onPressed: () {
+                // Handle notification icon tap
+              },
+            ),
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          _buildBannerSlider(),
+        ],
+      ),
+    );
 
   }
 
-
+  Widget _buildBannerSlider() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: CarouselSlider(
+              options: CarouselOptions(
+                height: 150.0.h,
+                autoPlay: true,
+                viewportFraction: 1.0, // To show only one slide at a time without any scaling
+                onPageChanged: (index, reason) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+              ),
+              items: _imageUrls.map((url) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Image.network(
+                      url,
+                      fit: BoxFit.cover,
+                      width: MediaQuery.of(context).size.width, // Take up the full width
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: _imageUrls.map((url) {
+              int index = _imageUrls.indexOf(url);
+              return Container(
+                width: 6.0.w,
+                height: 6.0.h,
+                margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _currentIndex == index
+                      ? Colors.black
+                      : Colors.grey,
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
 }

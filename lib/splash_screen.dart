@@ -73,6 +73,7 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+
           children: [
             const Spacer(),
             FadeTransition(

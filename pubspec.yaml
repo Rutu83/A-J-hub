@@ -42,10 +42,12 @@ dependencies:
   build_runner: ^2.4.8
   mobx_codegen: ^2.6.1
   mobx: ^2.2.0
+  text_scroll: ^0.2.0
   flutter_mobx: ^2.0.6+5
   html: ^0.15.4
+  carousel_slider: ^4.2.1
   country_picker: ^2.0.26
-  water_drop_nav_bar: ^2.2.2
+  stylish_bottom_bar: ^1.1.0
   lottie: ^3.1.2
 
 
@@ -74,7 +76,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
-  #   - images/a_dot_ham.jpeg
+    - images/lottie/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
