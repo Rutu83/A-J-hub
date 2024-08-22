@@ -1,6 +1,7 @@
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,6 +19,34 @@ class HomeScreenState extends State<HomeScreen> {
     'https://image.cnbcfm.com/api/v1/image/107176545-1673363415079-gettyimages-1406724005-dsc01807.jpeg?v=1673505592&w=929&h=523&vtcrop=y',
     'https://cdn.phenompeople.com/CareerConnectResources/KIVKBRUS/images/MicrosoftTeams-image102[1920x927]web-1664813477508.jpg',
   ];
+
+  final FlutterAppAuth appAuth = FlutterAppAuth();
+
+  final String clientId = '000f55c4e8b5451bae4d7f099bc93a7a';
+  final String redirectUri = 'https://ajsystem.in';
+  final String clientSecret = 'c6113899241a471aa8dae63ac9f24b27';
+
+  final List<String> scopes = ['user-library-read', 'user-read-email'];
+
+
+
+  Future<void> authenticate() async {
+    final AuthorizationTokenResponse? result = await appAuth.authorizeAndExchangeCode(
+      AuthorizationTokenRequest(
+        clientId,
+        redirectUri,
+        clientSecret: clientSecret,
+        scopes: scopes,
+      ),
+    );
+
+    if (result != null) {
+      print('Access Token: ${result.accessToken}');
+      // Store the access token securely for future use
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(

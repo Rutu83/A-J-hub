@@ -59,6 +59,14 @@ class DashboardScreenState extends State<DashboardScreen> {
                           color: Colors.red,
                           borderRadius: BorderRadius.circular(50),
                         ),
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/images/allinonenews.jpg',
+                            height: 80, // Match the height and width of the Container
+                            width: 80,
+                            fit: BoxFit.cover, // Ensures the image covers the entire container
+                          ),
+                        ),
                       ),
                       _buildMenuItem(Icons.card_giftcard, "Reward", 2),
                       _buildMenuItem(Icons.account_circle, "Account", 3),
