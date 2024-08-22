@@ -1,4 +1,5 @@
 
+import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -54,7 +55,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               SizedBox(height: 4.h),
               Text(
-                'divyabhachani07@gmail.com',
+                'divyabhachani08@gmail.com',
                 style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w400, color: Colors.black87),
               ),
               SizedBox(height: 10.h),
@@ -90,18 +91,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildOptionRow('Share', Icons.share),
               _buildOptionRow('About Us', Icons.info_outline),
               SizedBox(height: 25.h),
-              InkWell(
-                onTap: () async {
-
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 24.w),
-                  margin: EdgeInsets.symmetric(vertical: 16.h, horizontal: 32.w),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Center(
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 24.w),
+                margin: EdgeInsets.symmetric(vertical: 16.h, horizontal: 32.w),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Center(
+                  child: InkWell(
+                    onTap: () async {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                        ),
+                      );
+                    },
                     child: Text(
                       'Log out',
                       style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w600, color: Colors.white),

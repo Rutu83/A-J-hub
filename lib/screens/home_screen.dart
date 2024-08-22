@@ -20,7 +20,7 @@ class HomeScreenState extends State<HomeScreen> {
     'https://cdn.phenompeople.com/CareerConnectResources/KIVKBRUS/images/MicrosoftTeams-image102[1920x927]web-1664813477508.jpg',
   ];
 
-  final FlutterAppAuth appAuth = FlutterAppAuth();
+  final FlutterAppAuth appAuth = const FlutterAppAuth();
 
   final String clientId = '000f55c4e8b5451bae4d7f099bc93a7a';
   final String redirectUri = 'https://ajsystem.in';
@@ -114,13 +114,95 @@ class HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           _buildBannerSlider(),
+          _buildTrendingSection(),
+          _buildRecommendedSection(),
+          _buildTopPicksSection(),
         ],
       ),
     );
 
   }
 
-  Widget _buildBannerSlider() {
+  Widget _buildTrendingSection() {
+    return _buildHorizontalCardSection(
+      sectionTitle: 'Trending This Week',
+      items: [
+        _buildCardItem('Hiss - Rebirth of a Destroyer', '116M Plays'),
+        _buildCardItem('Maseeha Doctor', '25.9M Plays'),
+        _buildCardItem('Shoorveer', '292.7M Plays'),
+      ],
+    );
+  }
+
+  Widget _buildRecommendedSection() {
+    return _buildHorizontalCardSection(
+      sectionTitle: 'Because You Listened - Pyaar, Yaar Aur Dhokha',
+      items: [
+        _buildCardItem('The Guns of August', '9.4M Plays'),
+        _buildCardItem('Hiroshima', '15.2M Plays'),
+        _buildCardItem('The Histories', '19.9M Plays'),
+      ],
+    );
+  }
+
+  Widget _buildTopPicksSection() {
+    return _buildHorizontalCardSection(
+      sectionTitle: 'Top Picks for Divya Bhachani',
+      items: [
+        _buildCardItem('Super Yoddha', '192M Plays'),
+        _buildCardItem('Secret Ameezaada', ''),
+      ],
+    );
+  }
+
+  Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items}) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(sectionTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+
+              const Spacer(flex: 1,),
+              const Icon(Icons.arrow_forward_ios_rounded,color: Colors.grey,size: 20,)
+            ],
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 200,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: items,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardItem(String title, String plays) {
+    return Container(
+      width: 150,
+      margin: const EdgeInsets.only(right: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 100,
+            color: Colors.grey,
+          ),
+          const SizedBox(height: 10),
+          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          Text(plays, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+
+
+Widget _buildBannerSlider() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(

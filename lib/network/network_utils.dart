@@ -7,7 +7,9 @@ import 'package:allinone_app/utils/common.dart';
 import 'package:allinone_app/utils/configs.dart';
 import 'package:allinone_app/utils/constant.dart';
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:http/http.dart';
+// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 import 'package:nb_utils/nb_utils.dart';
 

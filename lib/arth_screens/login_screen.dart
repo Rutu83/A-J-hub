@@ -1,4 +1,5 @@
 import 'package:allinone_app/arth_screens/auth_admin_service.dart';
+import 'package:allinone_app/arth_screens/signup_screen.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1), // You can adjust the duration as needed
+      duration: const Duration(seconds: 1),
     );
   }
 
@@ -90,20 +91,12 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     setState(() {
       _isLoding = false;
     });
-  //  snackBarMsgShow2(context);
-     DashboardScreen().launch(context,
+    const DashboardScreen().launch(context,
         isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
-   // print('error $error');
   }
 
   Future<void> onLoginSuccessRedirection() async {
-    //print('secussess');
-
-    // snackBarMsgShow1(context);
-    // var pref = await SharedPreferences.getInstance();
-    // pref.setBool(MobileSplashScreenState.keyLogin, true);
-    //
-     DashboardScreen().launch(context,
+    const DashboardScreen().launch(context,
         isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
 
@@ -111,110 +104,95 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade200,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Spacer(),
-            Image.asset(
-              'assets/images/allinonenews.jpg',
-              height: 145.h,
-              width: 175.h,
-            ),
-            Text(
-              'Welcome to All In One App',
-              style: GoogleFonts.aBeeZee(
-                fontSize: 22.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 100.h,
               ),
-            ),
-            // Text(
-            //   'Welcome to AJ System',
-            //   style: GoogleFonts.aBeeZee(
-            //     fontSize: 10.0,
-            //     fontWeight: FontWeight.bold,
-            //     color: Colors.black,
-            //   ),
-            // ),
 
-            // Text(
-            //   'Empowering Marketers to Reach New Heights. Log in to manage your business efficiently and boost your sales.',
-            //   textAlign: TextAlign.center,
-            //   style: GoogleFonts.aBeeZee(
-            //     fontSize: 10.0,
-            //     fontWeight: FontWeight.bold,
-            //     color: Colors.black,
-            //   ),
-            // ),
-            const SizedBox(height: 40),
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _phoneController,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+              Image.asset(
+                'assets/images/allinonenews.jpg',
+                height: 145.h,
+                width: 175.h,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _isLoding ? null : () => _handleLogin(),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 50),
-                backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              Text(
+                'Welcome to All In One App',
+                style: GoogleFonts.aBeeZee(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
-              child: _isLoding
-                  ? const CircularProgressIndicator()
-                  : const Text('Login', style: TextStyle(color: Colors.white)),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                // Handle "Forgot Password" logic
-              },
-              child: const Text(
-                'Forgot Password?',
-                style: TextStyle(color: Color(0xFFFF0000)),
+              const SizedBox(height: 40),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _phoneController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your email';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _passwordController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your password';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const Spacer(),
-            const SizedBox(height: 20),
-          ],
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: _isLoding ? null : () => _handleLogin(),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: _isLoding
+                    ? const CircularProgressIndicator()
+                    : const Text('Login', style: TextStyle(color: Colors.white)),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () {
+                  // Handle "Forgot Password" logic
+                },
+                child: const Text(
+                  'Forgot Password?',
+                  style: TextStyle(color: Color(0xFFFF0000)),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SizedBox(
@@ -223,13 +201,12 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
           children: [
             InkWell(
               onTap: () {
-                // Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //         builder: (context) => const RegistrationScreen()));
+                Navigator.push(context, (MaterialPageRoute(builder: (context) =>const SignUpScreen())));
+
+                // Navigate to login screen or other appropriate action
               },
               child: Text(
-                "Don't have an account? Create",
+                "Already have an account? Login",
                 style: GoogleFonts.aclonica(
                   fontSize: 12.0,
                   fontWeight: FontWeight.bold,
