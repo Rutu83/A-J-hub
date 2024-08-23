@@ -1,5 +1,6 @@
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -41,7 +42,9 @@ class HomeScreenState extends State<HomeScreen> {
     );
 
     if (result != null) {
-      print('Access Token: ${result.accessToken}');
+      if (kDebugMode) {
+        print('Access Token: ${result.accessToken}');
+      }
       // Store the access token securely for future use
     }
   }
@@ -111,13 +114,15 @@ class HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          _buildBannerSlider(),
-          _buildTrendingSection(),
-          _buildRecommendedSection(),
-          _buildTopPicksSection(),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildBannerSlider(),
+            _buildTrendingSection(),
+            // _buildRecommendedSection(),
+            // _buildTopPicksSection(),
+          ],
+        ),
       ),
     );
 
@@ -130,14 +135,6 @@ class HomeScreenState extends State<HomeScreen> {
         _buildCardItem('Hiss - Rebirth of a Destroyer', '116M Plays'),
         _buildCardItem('Maseeha Doctor', '25.9M Plays'),
         _buildCardItem('Shoorveer', '292.7M Plays'),
-      ],
-    );
-  }
-
-  Widget _buildRecommendedSection() {
-    return _buildHorizontalCardSection(
-      sectionTitle: 'Because You Listened - Pyaar, Yaar Aur Dhokha',
-      items: [
         _buildCardItem('The Guns of August', '9.4M Plays'),
         _buildCardItem('Hiroshima', '15.2M Plays'),
         _buildCardItem('The Histories', '19.9M Plays'),
@@ -145,15 +142,28 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTopPicksSection() {
-    return _buildHorizontalCardSection(
-      sectionTitle: 'Top Picks for Divya Bhachani',
-      items: [
-        _buildCardItem('Super Yoddha', '192M Plays'),
-        _buildCardItem('Secret Ameezaada', ''),
-      ],
-    );
-  }
+  // Widget _buildRecommendedSection() {
+  //
+  //
+  //   return _buildHorizontalCardSection(
+  //     sectionTitle: 'Because You Listened - Pyaar, Yaar Aur Dhokha',
+  //     items: [
+  //       _buildCardItem('The Guns of August', '9.4M Plays'),
+  //       _buildCardItem('Hiroshima', '15.2M Plays'),
+  //       _buildCardItem('The Histories', '19.9M Plays'),
+  //     ],
+  //   );
+  // }
+  //
+  // Widget _buildTopPicksSection() {
+  //   return _buildHorizontalCardSection(
+  //     sectionTitle: 'Top Picks for Divya Bhachani',
+  //     items: [
+  //       _buildCardItem('Super Yoddha', '192M Plays'),
+  //       _buildCardItem("Secret Ameezaada", ''),
+  //     ],
+  //   );
+  // }
 
   Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items}) {
     return Padding(
@@ -190,12 +200,16 @@ class HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 100,
-            color: Colors.grey,
+            height: 200,
+
+            decoration: BoxDecoration(
+                color: Colors.grey,
+              borderRadius: BorderRadius.circular(12)
+            ),
           ),
-          const SizedBox(height: 10),
-          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-          Text(plays, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          // const SizedBox(height: 10),
+          // Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+          // Text(plays, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),
     );
@@ -234,6 +248,7 @@ Widget _buildBannerSlider() {
             ),
           ),
           Row(
+
             mainAxisAlignment: MainAxisAlignment.center,
             children: _imageUrls.map((url) {
               int index = _imageUrls.indexOf(url);

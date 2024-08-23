@@ -69,7 +69,7 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
     return Scaffold(
   //    backgroundColor: const Color(0xFF023b8a),
 
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -79,7 +79,7 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
             FadeTransition(
               opacity: _fadeInAnimation,
               child: Image.asset(
-                'assets/images/allinonenews.jpg',
+                'assets/images/aj3.jpg',
                 height: 220.h,
               ),
             ),

@@ -103,7 +103,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -115,9 +115,9 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
               ),
 
               Image.asset(
-                'assets/images/allinonenews.jpg',
-                height: 145.h,
-                width: 175.h,
+                'assets/images/aj3.jpg',
+                height: 150.h,
+                width: 180.h,
               ),
               Text(
                 'Welcome to All In One App',

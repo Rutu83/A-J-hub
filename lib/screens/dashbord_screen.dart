@@ -61,7 +61,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                         ),
                         child: ClipOval(
                           child: Image.asset(
-                            'assets/images/allinonenews.jpg',
+                            'assets/images/aj2.jpg',
                             height: 80, // Match the height and width of the Container
                             width: 80,
                             fit: BoxFit.cover, // Ensures the image covers the entire container

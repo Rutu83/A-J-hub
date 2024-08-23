@@ -188,14 +188,21 @@ class SignUpScreenState extends State<SignUpScreen> {
             padding: EdgeInsets.all(16.w),
             child: Column(
               children: [
-
+                SizedBox(height: 24.h),
 
                 Image.asset(
-                  'assets/images/allinonenews.jpg',
+                  'assets/images/aj3.jpg',
                   height: 145.h,
                   width: 175.h,
                 ),
-
+                Text(
+                  'Create An Account',
+                  style: GoogleFonts.aBeeZee(
+                    fontSize: 22.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
                 // Center(
                 //   child: Stack(
                 //     children: [
