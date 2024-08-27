@@ -1,6 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,19 +16,22 @@ class SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
   bool _isCityDropdownEnabled = false;
   String selectedCountryCode = '+91';
   String selectedCountry = 'India';
-  String selectedDropdown1 = 'item';
-  String selectedDropdown2 = 'item1';
   String selectedState = 'State';
   String selectedCity = 'City';
-  String selectedGender = 'Select Gender';
+  String selectedDropdown1 = 'Select Sponsor';
+  String selectedDropdown2 = 'Select Your Parent';
 
+  final List<String> states = ['Gujarat', 'Maharashtra', 'Karnataka'];
   final Map<String, List<String>> stateCityMap = {
-    'Gujarat': ['Ahmedabad', 'Anand', '	Bharuch','Bhavnagar', '	Gandhinagar', '	Banaskqantha'],
-    'Maharashtra': ['Hingoli', 'Satara', 'Pune','Yavatmal', 'Dharashiv', 'Mumbai Suburban district'],
-    'Karnataka': ['Bengaluru', 'Dharwad', 'Hassan','Ramanagara', 'Yadgir', 'Kolar'],
+    'Gujarat': ['Ahmedabad', 'Anand', 'Bharuch', 'Bhavnagar', 'Gandhinagar', 'Banaskantha'],
+    'Maharashtra': ['Hingoli', 'Satara', 'Pune', 'Yavatmal', 'Dharashiv', 'Mumbai Suburban district'],
+    'Karnataka': ['Bengaluru', 'Dharwad', 'Hassan', 'Ramanagara', 'Yadgir', 'Kolar'],
   };
 
   final Map<String, String> cityPinCodeMap = {
@@ -51,134 +51,12 @@ class SignUpScreenState extends State<SignUpScreen> {
   @override
   void initState() {
     super.initState();
-
   }
-
-
-
-  //
-  // Future<void> _registerUser() async {
-  //   // print('Starting registration process...');
-  //   //
-  //   //
-  //   //
-  //   // print(fullNameController);
-  //   // print(enagicEmailController);
-  //   // print(contactNumberController);
-  //   // print(bloodGroupController);
-  //   // print(homeAddressController);
-  //   // print(countryController);
-  //   // print(stateController);
-  //   // print(districtController);
-  //   // print(cityController);
-  //   // print(alternativeContactNumberController);
-  //   // print(birthDateController);
-  //   // print(dateOfBirthSpouseController);
-  //   // print(anniversaryDateController);
-  //   // print(teamIdController);
-  //   // print(genderController);
-  //   // print(statusController);
-  //   // print(roleController);
-  //   // print(cardNoController);
-  //   // print(howMuchDeviceController);
-  //   // print(userLevelController);
-  //   // print(teamNameController);
-  //   // print(teamLeaderNameController);
-  //   // print(leaderRankController);
-  //   // print(teamLeaderMobileController);
-  //   // print(professionTypeController);
-  //   // print(jobTypeController);
-  //   // print(businessNameController);
-  //   // print(passwordController);
-  //   // print(confirmpasswordController);
-  //
-  //
-  //   // Validate passwords match
-  //   if (passwordController.text != confirmpasswordController.text) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('Passwords do not match')),
-  //     );
-  //     return;
-  //   }
-  //
-  //   // Collect all form data
-  //   final formData = {
-  //     'teamname': teamNameController.text,
-  //     'full_name': fullNameController.text,
-  //     'enagic_email': enagicEmailController.text,
-  //     'contact_number': contactNumberController.text,
-  //     'blood_group': bloodGroupController.text,
-  //     'home_address': homeAddressController.text,
-  //     'country': countryController.text,
-  //     'state': stateController.text,
-  //     'district': districtController.text,
-  //     'city': cityController.text,
-  //     'alternative_contact_number': alternativeContactNumberController.text,
-  //     'birth_date': birthDateController.text,
-  //     'date_of_birth_spouse': dateOfBirthSpouseController.text,
-  //     'anniversary_date': anniversaryDateController.text,
-  //     'team_id': teamIdController.text,
-  //     'gender': genderController.text,
-  //     'status': statusController.text,
-  //     'role': roleController.text,
-  //     'card_no': cardNoController.text,
-  //     'how_much_device': howMuchDeviceController.text,
-  //     'user_level': userLevelController.text,
-  //     'team_leader_name': teamLeaderNameController.text,
-  //     'leader_rank': leaderRankController.text,
-  //     'team_leader_mobile': teamLeaderMobileController.text,
-  //     'profession_type': professionTypeController.text,
-  //     'job_type': jobTypeController.text,
-  //     'business_name': businessNameController.text,
-  //     'password': passwordController.text,
-  //     'confirm_password': confirmpasswordController.text,
-  //   };
-  //
-  //   const String apiUrl = 'https://ajsystem.in/api/register';
-  //
-  //   try {
-  //     final response = await http.post(
-  //       Uri.parse(apiUrl),
-  //       body: jsonEncode(formData),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //     );
-  //
-  //     print('Response status: ${response.statusCode}');
-  //     print('Response body: ${response.body}');
-  //
-  //     if (response.statusCode == 200) {
-  //       // ignore: use_build_context_synchronously
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Registered successfully')),
-  //       );
-  //
-  //       // ignore: use_build_context_synchronously
-  //       Navigator.pushReplacement(context, (MaterialPageRoute(builder: (context) => const LoginScreen())));
-  //       // Navigate or handle success
-  //     } else {
-  //       // ignore: use_build_context_synchronously
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(content: Text('Failed to register: ${response.body}')),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     print('Error: $e');
-  //     // ignore: use_build_context_synchronously
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('An error occurred. Please try again.')),
-  //     );
-  //   }
-  //
-  //
-  // }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
+      backgroundColor: Colors.white,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Container(
@@ -188,103 +66,22 @@ class SignUpScreenState extends State<SignUpScreen> {
             padding: EdgeInsets.all(16.w),
             child: Column(
               children: [
-                SizedBox(height: 24.h),
-
+                SizedBox(height: 15.h),
                 Image.asset(
                   'assets/images/aj3.jpg',
-                  height: 145.h,
-                  width: 175.h,
+                  height: 100.h,
+                  width: 100.h,
                 ),
-                Text(
-                  'Create An Account',
-                  style: GoogleFonts.aBeeZee(
-                    fontSize: 22.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                // Center(
-                //   child: Stack(
-                //     children: [
-                //       CircleAvatar(
-                //         radius: 50.r,
-                //         backgroundColor: Colors.grey.shade200,
-                //         child: ClipOval(
-                //           child: _profileImageUrl != null
-                //               ? Image.network(
-                //             _profileImageUrl!,
-                //             width: 100.r,
-                //             height: 100.r,
-                //             fit: BoxFit.cover,
-                //           )
-                //               : _profileImage != null
-                //               ? Image.file(
-                //             _profileImage!,
-                //             width: 100.r,
-                //             height: 100.r,
-                //             fit: BoxFit.cover,
-                //           )
-                //               : Icon(Icons.person,
-                //               size: 50.sp,
-                //               color: Colors.grey),
-                //         ),
-                //       ),
-                //       Positioned(
-                //         bottom: 0,
-                //         right: 0,
-                //         child: GestureDetector(
-                //           onTap:(){},
-                //           child: Container(
-                //             decoration: BoxDecoration(
-                //               color: Colors.white,
-                //               shape: BoxShape.circle,
-                //               boxShadow: [
-                //                 BoxShadow(
-                //                   color: Colors.grey.withOpacity(0.5),
-                //                   spreadRadius: 1,
-                //                   blurRadius: 5,
-                //                   offset: const Offset(0, 3),
-                //                 ),
-                //               ],
-                //             ),
-                //             child: Icon(Icons.edit,
-                //                 color: Colors.black, size: 20.sp),
-                //           ),
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
                 SizedBox(height: 24.h),
-                _buildTextField('First Name', 'First Name', true,
-                    _firstNameController),
+                _buildTextField('First Name', 'Enter First Name', true, _firstNameController),
                 SizedBox(height: 16.h),
-                // _buildTextField(
-                //     'Last Name', 'Last Name', true, _lastNameController),
-                // SizedBox(height: 16.h),
-                _buildTextField('Email', 'Email', true, _emailController,
-                    enabled: false),
+                _buildTextField('Email', 'Enter Your Email', true, _emailController, enabled: false),
                 SizedBox(height: 16.h),
                 _buildPhoneNumberField(),
                 SizedBox(height: 16.h),
-                // Row(
-                //   children: [
-                //     Expanded(
-                //         child: _buildDropdownField('Gender',
-                //             selectedGender, _selectGender, true)),
-                //     SizedBox(width: 16.w),
-                //     Expanded(
-                //         child: _buildDateField(
-                //             'Date of Birth', _dateController, true)),
-                //   ],
-                // ),
-                // SizedBox(height: 16.h),
-                _buildTextField('Address', 'Enter Your Address Here', true,
-                    _addressController,
-                    isMultiline: true),
+                _buildTextField('Address', 'Enter Your Address Here', true, _addressController, isMultiline: true),
                 SizedBox(height: 16.h),
-                _buildDropdownField(
-                    'Country', selectedCountry, _selectCountry, true),
+                _buildDropdownField('Country', selectedCountry, _selectCountry, true),
                 SizedBox(height: 16.h),
                 Row(
                   children: [
@@ -294,14 +91,16 @@ class SignUpScreenState extends State<SignUpScreen> {
                   ],
                 ),
                 SizedBox(height: 16.h),
-                _buildDropdownField(
-                    'Dropdown 1', selectedDropdown1, _selectCountry, true),
+                _buildDropdownField('Select Sponsor', selectedDropdown1, _selectDropdown1, true),
                 SizedBox(height: 16.h),
-                _buildDropdownField(
-                    'Dropdown 2', selectedDropdown2, _selectCountry, true),
+                _buildDropdownField('Select Your Parent', selectedDropdown2, _selectDropdown2, true),
+                SizedBox(height: 16.h),
+                _buildTextField('Password', 'Enter Your Password', true, _passwordController, isMultiline: false),
+                SizedBox(height: 16.h),
+                _buildTextField('Confirm Password', 'Confirm Your Password', true, _confirmPasswordController, isMultiline: false),
                 SizedBox(height: 24.h),
                 ElevatedButton(
-                  onPressed: (){},
+                  onPressed: () {},
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
                     backgroundColor: Colors.red,
@@ -309,7 +108,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child:  const Text('Sign up', style: TextStyle(color: Colors.white)),
+                  child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),
@@ -319,35 +118,18 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _buildTextField(String label, String hint, bool isRequired,
-      TextEditingController controller,
-      {bool isMultiline = false, bool isPhone = false, bool enabled = true}) {
+  Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller,
+      {bool isMultiline = false, bool enabled = true}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [        Row(
-        children: [
-          Text(
-            label,
-            style: GoogleFonts.roboto(
-              textStyle: TextStyle(
-                color: Colors.black,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          if (isRequired)
-            Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
-        ],
-      ),
-
+      children: [
         SizedBox(height: 4.h),
         Container(
-          height: 48.h,
+          height: isMultiline ? null : 48.h,
           alignment: Alignment.center,
           child: TextField(
             controller: controller,
-            keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
+            keyboardType: TextInputType.text,
             maxLines: isMultiline ? null : 1,
             enabled: enabled,
             decoration: InputDecoration(
@@ -384,21 +166,6 @@ class SignUpScreenState extends State<SignUpScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              'Phone Number',
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
-          ],
-        ),
         SizedBox(height: 4.h),
         Row(
           children: [
@@ -479,26 +246,12 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
+
+
   Widget _buildDropdownField(String label, String value, void Function() onTap, bool isRequired) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            if (isRequired)
-              Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
-          ],
-        ),
         SizedBox(height: 4.h),
         GestureDetector(
           onTap: onTap,
@@ -532,81 +285,25 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  // Widget _buildDateField(String label, TextEditingController controller, bool isRequired) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Row(
-  //         children: [
-  //           Text(
-  //             label,
-  //             style: GoogleFonts.roboto(
-  //               textStyle: TextStyle(
-  //                 color: Colors.black,
-  //                 fontSize: 14.sp,
-  //                 fontWeight: FontWeight.bold,
-  //               ),
-  //             ),
-  //           ),
-  //           if (isRequired)
-  //             Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
-  //         ],
-  //       ),
-  //       SizedBox(height: 4.h),
-  //       GestureDetector(
-  //         onTap: () async {
-  //
-  //
-  //         },
-  //         child: Container(
-  //           height: 48.h,
-  //           alignment: Alignment.center,
-  //           padding: EdgeInsets.symmetric(horizontal: 12.w),
-  //           decoration: BoxDecoration(
-  //             color: Colors.white,
-  //             border: Border.all(color: Colors.grey.shade400),
-  //             borderRadius: BorderRadius.circular(10.r),
-  //           ),
-  //           child: Row(
-  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //             children: [
-  //               Text(
-  //                 controller.text.isEmpty ? 'Select Date' : controller.text,
-  //                 style: GoogleFonts.roboto(
-  //                   textStyle: TextStyle(
-  //                     color: Colors.black,
-  //                     fontSize: 14.sp,
-  //                   ),
-  //                 ),
-  //               ),
-  //               const Icon(Icons.calendar_today, color: Colors.black),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget _buildStateDropdown() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              'State',
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
-          ],
-        ),
+        // Row(
+        //   children: [
+        //     Text(
+        //       'State',
+        //       style: GoogleFonts.roboto(
+        //         textStyle: TextStyle(
+        //           color: Colors.black,
+        //           fontSize: 14.sp,
+        //           fontWeight: FontWeight.bold,
+        //         ),
+        //       ),
+        //     ),
+        //     Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
+        //   ],
+        // ),
         SizedBox(height: 4.h),
         GestureDetector(
           onTap: () {
@@ -669,21 +366,21 @@ class SignUpScreenState extends State<SignUpScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Text(
-              'District',
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
-          ],
-        ),
+        // Row(
+        //   children: [
+        //     Text(
+        //       'District',
+        //       style: GoogleFonts.roboto(
+        //         textStyle: TextStyle(
+        //           color: Colors.black,
+        //           fontSize: 14.sp,
+        //           fontWeight: FontWeight.bold,
+        //         ),
+        //       ),
+        //     ),
+        //     Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
+        //   ],
+        // ),
         SizedBox(height: 4.h),
         GestureDetector(
           onTap: _isCityDropdownEnabled
@@ -749,43 +446,6 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-
-
-  //
-  // void _selectGender() {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Container(
-  //         padding: EdgeInsets.all(16.w),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: <Widget>[
-  //             ListTile(
-  //               title: const Text('Male'),
-  //               onTap: () {
-  //                 setState(() {
-  //                   selectedGender = 'Male';
-  //                 });
-  //                 Navigator.of(context).pop();
-  //               },
-  //             ),
-  //             ListTile(
-  //               title: const Text('Female'),
-  //               onTap: () {
-  //                 setState(() {
-  //                   selectedGender = 'Female';
-  //                 });
-  //                 Navigator.of(context).pop();
-  //               },
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   void _selectCountry() {
     showCountryPicker(
       context: context,
@@ -793,11 +453,17 @@ class SignUpScreenState extends State<SignUpScreen> {
       onSelect: (Country country) {
         setState(() {
           selectedCountry = country.name;
+          selectedCountryCode = '+${country.phoneCode}';
         });
       },
     );
   }
+
+  void _selectDropdown1() {
+    // Implement your dropdown 1 selection logic here
+  }
+
+  void _selectDropdown2() {
+    // Implement your dropdown 2 selection logic here
+  }
 }
-
-
-

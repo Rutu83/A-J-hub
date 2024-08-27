@@ -44,6 +44,7 @@ dependencies:
   mobx: ^2.2.0
   text_scroll: ^0.2.0
   image_picker: ^1.1.2
+  fl_chart: ^0.69.0
   flutter_mobx: ^2.0.6+5
   html: ^0.15.4
   carousel_slider: ^5.0.0
