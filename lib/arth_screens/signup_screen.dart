@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:intl/intl.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -14,10 +15,12 @@ class SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _dobController = TextEditingController();  // Added this for Date of Birth
+  final TextEditingController _ageController = TextEditingController();
+  String selectedGender = 'Select Gender';
 
   bool _isCityDropdownEnabled = false;
   String selectedCountryCode = '+91';
@@ -79,8 +82,14 @@ class SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(height: 16.h),
                 _buildPhoneNumberField(),
                 SizedBox(height: 16.h),
-                _buildTextField('Address', 'Enter Your Address Here', true, _addressController, isMultiline: true),
+                _buildDropdownField('Gender',
+                    selectedGender, _selectGender, true),
                 SizedBox(height: 16.h),
+                _buildDateOfBirthField(),
+                SizedBox(height: 16.h),
+                _buildTextField('Age', 'Enter Your Age', true, _ageController, enabled: false),
+                SizedBox(height: 16.h),
+
                 _buildDropdownField('Country', selectedCountry, _selectCountry, true),
                 SizedBox(height: 16.h),
                 Row(
@@ -117,6 +126,123 @@ class SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
+
+  void _selectGender() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                title: const Text('Male'),
+                onTap: () {
+                  setState(() {
+                    selectedGender = 'Male';
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                title: const Text('Female'),
+                onTap: () {
+                  setState(() {
+                    selectedGender = 'Female';
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+  Widget _buildDateOfBirthField() {
+    return GestureDetector(
+      onTap: () async {
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: DateTime.now(),
+          firstDate: DateTime(1900),
+          lastDate: DateTime.now(),
+        );
+        if (pickedDate != null) {
+          setState(() {
+            _dobController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+            _ageController.text = _calculateAge(pickedDate).toString(); // Update age automatically
+          });
+        }
+      },
+      child: AbsorbPointer(
+        child: Expanded(child: _buildTextField2('Date of Birth', 'Select Date of Birth', true, _dobController)),
+      ),
+    );
+  }
+
+  // Calculate Age based on Date of Birth
+  int _calculateAge(DateTime birthDate) {
+    DateTime currentDate = DateTime.now();
+    int age = currentDate.year - birthDate.year;
+    if (currentDate.month < birthDate.month || (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
+      age--;
+    }
+    return age;
+  }
+
+
+
+  Widget _buildTextField2(String label, String hint, bool isRequired, TextEditingController controller,
+      {bool isMultiline = false, bool enabled = true}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 4.h),
+        Container(
+          height: isMultiline ? null : 48.h,
+          alignment: Alignment.center,
+          child: TextField(
+            controller: controller,
+            keyboardType: TextInputType.text,
+            maxLines: isMultiline ? null : 1,
+            enabled: enabled,
+
+            decoration: InputDecoration(
+              hintText: hint,
+              suffixIcon: const Icon(Icons.calendar_month),
+              hintStyle: GoogleFonts.roboto(
+                textStyle: const TextStyle(
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+              fillColor: Colors.white,
+              filled: true,
+              contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: BorderSide(color: Colors.grey.shade400),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: BorderSide(color: Colors.grey.shade400),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.r),
+                borderSide: const BorderSide(color: Colors.black),
+              ),
+            ),
+          ),
+        ),
+
+      ],
+    );
+  }
+
 
   Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller,
       {bool isMultiline = false, bool enabled = true}) {
@@ -466,4 +592,6 @@ class SignUpScreenState extends State<SignUpScreen> {
   void _selectDropdown2() {
     // Implement your dropdown 2 selection logic here
   }
+
+
 }

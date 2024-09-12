@@ -1,4 +1,4 @@
-import 'package:allinone_app/screens/teamMember_list.dart';
+import 'package:allinone_app/screens/team_member_list.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
