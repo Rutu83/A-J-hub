@@ -3,6 +3,9 @@
         android:label="allinone_app"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/LaunchTheme">
+
+
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -5,15 +5,13 @@ import 'package:flutter/material.dart';
 
 
 // ignore: constant_identifier_names
-const APP_NAME = 'TeaCup';
+const APP_NAME = 'AJ HUB';
 // ignore: constant_identifier_names
-const APP_NAME_TAG_LINE = 'Business App';
+const APP_NAME_TAG_LINE = 'CUSTOMER APP';
 var defaultPrimaryColor = const Color(0xFF070707);
 
 // ignore: constant_identifier_names
-const DOMAIN_URL = 'https://ajsystem.in/api/';
-// ignore: constant_identifier_names
-const Playstore_URL = 'https://play.google.com/store/apps/details?id=com.mdinfotech.teacup.teacup';
+const DOMAIN_URL = 'https://ajhub.co.in/api/';
 // ignore: constant_identifier_names
 const BASE_URL = DOMAIN_URL;
 

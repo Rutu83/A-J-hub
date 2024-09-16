@@ -1,8 +1,13 @@
+// ignore_for_file: depend_on_referenced_packages
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -51,9 +56,30 @@ class SignUpScreenState extends State<SignUpScreen> {
 
   final bool _isLoading = false;
 
+
+  List<String> sponsors = [];
+  List<String> parents = [];
+
+  Future<void> fetchDropdownData() async {
+    final response = await http.get(Uri.parse('https://ajhub.co.in/search-user'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      setState(() {
+        // Assuming sponsor_id and parentId fields are used for filtering sponsors and parents
+        sponsors = data.map<String>((user) => user['username'].toString()).toList();
+        parents = data.map<String>((user) => user['username'].toString()).toList();
+      });
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    fetchDropdownData();  // Call the API when the screen initializes
   }
 
   @override
@@ -415,21 +441,21 @@ class SignUpScreenState extends State<SignUpScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Row(
-        //   children: [
-        //     Text(
-        //       'State',
-        //       style: GoogleFonts.roboto(
-        //         textStyle: TextStyle(
-        //           color: Colors.black,
-        //           fontSize: 14.sp,
-        //           fontWeight: FontWeight.bold,
-        //         ),
-        //       ),
-        //     ),
-        //     Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
-        //   ],
-        // ),
+        Row(
+          children: [
+            Text(
+              'State',
+              style: GoogleFonts.roboto(
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
+          ],
+        ),
         SizedBox(height: 4.h),
         GestureDetector(
           onTap: () {
@@ -492,21 +518,21 @@ class SignUpScreenState extends State<SignUpScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Row(
-        //   children: [
-        //     Text(
-        //       'District',
-        //       style: GoogleFonts.roboto(
-        //         textStyle: TextStyle(
-        //           color: Colors.black,
-        //           fontSize: 14.sp,
-        //           fontWeight: FontWeight.bold,
-        //         ),
-        //       ),
-        //     ),
-        //     Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
-        //   ],
-        // ),
+        Row(
+          children: [
+            Text(
+              'District',
+              style: GoogleFonts.roboto(
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Text('*', style: TextStyle(color: Colors.red, fontSize: 14.sp)),
+          ],
+        ),
         SizedBox(height: 4.h),
         GestureDetector(
           onTap: _isCityDropdownEnabled
@@ -585,13 +611,117 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
+
+
   void _selectDropdown1() {
-    // Implement your dropdown 1 selection logic here
+    TextEditingController searchController = TextEditingController();
+    List<String> filteredSponsors = sponsors;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: EdgeInsets.all(16.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'Search Sponsor',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: (value) {
+                      setModalState(() {
+                        filteredSponsors = sponsors
+                            .where((sponsor) =>
+                            sponsor.toLowerCase().contains(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                  ),
+                  Expanded(
+                    child: ListView(
+                      children: filteredSponsors.map((sponsor) {
+                        return ListTile(
+                          title: Text(sponsor),
+                          onTap: () {
+                            setState(() {
+                              selectedDropdown1 = sponsor;
+                            });
+                            Navigator.of(context).pop();
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+
+          },
+        );
+      },
+    );
   }
 
   void _selectDropdown2() {
-    // Implement your dropdown 2 selection logic here
+    TextEditingController searchController = TextEditingController();
+    List<String> filteredParents = parents;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: EdgeInsets.all(16.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'Search Parent',
+                      prefixIcon: Icon(Icons.search),
+                    ),
+                    onChanged: (value) {
+                      setModalState(() {
+                        filteredParents = parents
+                            .where((parent) =>
+                            parent.toLowerCase().contains(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                  ),
+                  Expanded(
+                    child: ListView(
+                      children: filteredParents.map((parent) {
+                        return ListTile(
+                          title: Text(parent),
+                          onTap: () {
+                            setState(() {
+                              selectedDropdown2 = parent;
+                            });
+                            Navigator.of(context).pop();
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
 
 }
+
+
+
