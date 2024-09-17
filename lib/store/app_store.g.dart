@@ -162,6 +162,19 @@ mixin _$AppStore on _AppStore, Store {
         .run(() => super.setName(val, isInitializing: isInitializing));
   }
 
+
+
+  late final _$setEmailAsyncAction =
+  AsyncAction('_AppStore.setemail', context: context);
+
+  @override
+  Future<void> setEmail(String val, {bool isInitializing = false}) {
+    return _$setEmailAsyncAction
+        .run(() => super.setEmail(val, isInitializing: isInitializing));
+  }
+
+
+
   late final _$setTokenAsyncAction =
       AsyncAction('_AppStore.setToken', context: context);
 
@@ -218,6 +231,7 @@ userEmail: ${userEmail},
 isLoading: ${isLoading},
 number: ${number},
 name: ${Name}
+email: ${Email}
     ''';
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:nb_utils/nb_utils.dart';
 
 /// DO NOT CHANGE THIS PACKAGE NAME
@@ -96,31 +98,32 @@ const DEFAULT_PASS = '12345678';
 //endregion
 
 //region THEME MODE TYPE
-// ignore: constant_identifier_names
+
 const THEME_MODE_LIGHT = 0;
 
-// ignore: constant_identifier_names
+
 const THEME_MODE_DARK = 1;
-// ignore: constant_identifier_names
+
 const THEME_MODE_SYSTEM = 2;
 //endregion
 
 // region Package Type
-// ignore: constant_identifier_names
+
 const PACKAGE_TYPE_SINGLE = 'single';
-// ignore: constant_identifier_names
+
 const PACKAGE_TYPE_MULTIPLE = 'multiple';
 //endregion
 
 //region SHARED PREFERENCES KEYS
-// ignore: constant_identifier_names
+
 const IS_FIRST_TIME = 'IsFirstTime';
-// ignore: constant_identifier_names
+
 const IS_LOGGED_IN = 'IS_LOGGED_IN';
-// ignore: constant_identifier_names
+
 const USER_ID = 'USER_ID';
-// ignore: constant_identifier_names
 const NAME = 'NAME';
+
+const EMAIL = 'EMAIL';
 // ignore: constant_identifier_names
 const VENDOR_TYPE = 'VENDOR_TYPE';
 // ignore: constant_identifier_names

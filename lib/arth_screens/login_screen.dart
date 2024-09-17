@@ -58,7 +58,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
 
     hideKeyboard(context);
     Map<String, String> request = {
-      'enagic_email': _phoneController.text.trim(),
+      'email': _phoneController.text.trim(),
       'password': _passwordController.text.trim(),
     };
 
@@ -91,8 +91,8 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     setState(() {
       _isLoding = false;
     });
-    const DashboardScreen().launch(context,
-        isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+    // const DashboardScreen().launch(context,
+    //     isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
 
   Future<void> onLoginSuccessRedirection() async {

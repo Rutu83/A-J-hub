@@ -1,5 +1,7 @@
 
 
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:allinone_app/utils/constant.dart';
 import 'package:mobx/mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -34,8 +36,11 @@ abstract class _AppStore with Store {
   String number = '';
 
   @observable
-  // ignore: non_constant_identifier_names
   String Name = '';
+
+
+  @observable
+  String Email = '';
 
   @action
   Future<void> setLoggedIn(bool val, {bool isInitializing = false}) async {
@@ -69,6 +74,18 @@ abstract class _AppStore with Store {
       //print("Error setting first name: $e");
     }
   }
+
+  @action
+  Future<void> setEmail(String val, {bool isInitializing = false}) async {
+    try {
+      Email = val;
+      if (!isInitializing) await setValue(EMAIL, val);
+    } catch (e) {
+      // Handle error
+      //print("Error setting first name: $e");
+    }
+  }
+
 
   @action
   Future<void> setToken(String val, {bool isInitializing = false}) async {

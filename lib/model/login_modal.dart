@@ -1,29 +1,28 @@
-
-
 import 'package:allinone_app/model/user_data_modal.dart';
 
 class LoginResponse {
   bool? success;
-  UserData? userData;
   String? message;
+  String? token;
+  UserData? userData;
 
-  LoginResponse({this.success, this.userData, this.message});
+  LoginResponse({this.success, this.message, this.token, this.userData});
 
   LoginResponse.fromJson(Map<String, dynamic> json) {
-    success = json['success'];
-    userData = json['data'] != null ? UserData.fromJson(json['data']) : null;
+    success = json['status'] == "success";  // Assuming success is based on the status field
     message = json['message'];
+    token = json['token'];
+    userData = json['user'] != null ? UserData.fromJson(json['user']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['success'] = success;
-    if (userData != null) {
-      data['data'] = userData!.toJson();
-    }
+    data['status'] = success == true ? "success" : "failure";
     data['message'] = message;
+    data['token'] = token;
+    if (userData != null) {
+      data['user'] = userData!.toJson();
+    }
     return data;
   }
 }
-
-

@@ -40,12 +40,12 @@ Map<String, String> buildHeaderTokens({
     header.putIfAbsent(HttpHeaders.contentTypeHeader,
         () => 'application/x-www-form-urlencoded');
     header.putIfAbsent(HttpHeaders.authorizationHeader,
-        () => 'Bearer ${extraKeys!['stripeKeyPayment']}');
+        () => '${extraKeys!['stripeKeyPayment']}');
   } else if (appStore.isLoggedIn &&
       extraKeys.containsKey('isFlutterWave') &&
       extraKeys['isFlutterWave']) {
     header.putIfAbsent(HttpHeaders.authorizationHeader,
-        () => "Bearer ${extraKeys!['flutterWaveSecretKey']}");
+        () => "${extraKeys!['flutterWaveSecretKey']}");
   } else if (appStore.isLoggedIn &&
       extraKeys.containsKey('isSadadPayment') &&
       extraKeys['isSadadPayment']) {
@@ -58,7 +58,7 @@ Map<String, String> buildHeaderTokens({
     header.putIfAbsent(
         HttpHeaders.contentTypeHeader, () => 'application/json; charset=utf-8');
     header.putIfAbsent(
-        HttpHeaders.authorizationHeader, () => appStore.token);
+        HttpHeaders.authorizationHeader, () => "${appStore.token}");
     header.putIfAbsent(
         HttpHeaders.acceptHeader, () => 'application/json; charset=utf-8');
   }

@@ -30,10 +30,12 @@ Future<LoginResponse> loginUser(Map request) async {
 }
 // save data to shared preferences
 Future<void> saveUserDataMobile(LoginResponse loginResponse, UserData data) async {
- if (data.token.validate().isNotEmpty) await appStore.setToken('');
-  await appStore.setToken(data.token.validate());
+ if (loginResponse.token.validate().isNotEmpty) await appStore.setToken('');
+  await appStore.setToken(loginResponse.token.validate());
   await appStore.setLoggedIn(true);
-  await appStore.setName(data.name.validate());
+  await appStore.setName(data.username.validate());
+  await appStore.setEmail(data.email.validate());
+
    appStore.setLoading(false);
   ///Set app configurations
   if (appStore.isLoggedIn) {

@@ -1,20 +1,24 @@
 class UserData {
-  String? token;
-  String? name;
+  int? id;
+  String? username;
+  String? email;
+  String? role;
 
-  UserData({this.token, this.name});
+  UserData({this.id, this.username, this.email, this.role});
 
   UserData.fromJson(Map<String, dynamic> json) {
-    token = json['token'];
-    name = json['name'];
+    id = json['id'];
+    username = json['username'];
+    email = json['email'];
+    role = json['role'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (token != null) data['token'] = token;
-    if (name != null) data['name'] = name;
-  //  data['token'] = this.token;
-   // data['name'] = this.name;
+    data['id'] = id;
+    data['username'] = username;
+    data['email'] = email;
+    data['role'] = role;
     return data;
   }
 }
