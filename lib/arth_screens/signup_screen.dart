@@ -37,7 +37,9 @@ class SignUpScreenState extends State<SignUpScreen> {
    bool _isLoading = false;
   List<String> sponsors = [];
   List<String> parents = [];
-
+   bool _isLoadingCountries = false;
+   bool _isLoadingStates = false;
+   bool _isLoadingCities = false;
   @override
   void initState() {
     super.initState();
@@ -47,43 +49,88 @@ class SignUpScreenState extends State<SignUpScreen> {
 
   // Fetch countries
   Future<void> fetchCountries() async {
-    final response = await http.get(Uri.parse('https://ajhub.co.in/get-states-regby-country/{countryId}'));
-    if (response.statusCode == 200) {
+    setState(() {
+      _isLoadingCountries = true; // Show loading for countries
+    });
+
+    try {
+      final response = await http.get(Uri.parse('https://ajhub.co.in/api/get-country'));
+      if (response.statusCode == 200) {
+        setState(() {
+          countries = json.decode(response.body);
+          _isLoadingCountries = false; // Stop loading
+        });
+      } else {
+        print(response.statusCode);
+        print(response.body);
+      }
+    } catch (e) {
+      print(e);
       setState(() {
-        countries = json.decode(response.body);  // Assuming the response is in JSON format
+        _isLoadingCountries = false; // Stop loading in case of error
       });
-    } else {
-      throw Exception('Failed to load countries');
     }
   }
 
+
+
+
   // Fetch states based on country selection
   Future<void> fetchStates(String countryId) async {
-    final response = await http.get(Uri.parse('https://ajhub.co.in/get-states-regby-country/91'));
-    if (response.statusCode == 200) {
+    setState(() {
+      _isLoadingStates = true; // Show loading for states
+    });
+
+    try {
+      final response = await http.get(Uri.parse('https://ajhub.co.in/get-states-regby-country/$countryId'));
+      if (response.statusCode == 200) {
+        setState(() {
+          states = json.decode(response.body);
+          cities = []; // Clear the cities when a new state is selected
+          selectedState = null;
+          selectedCity = null;
+          _isLoadingStates = false; // Stop loading
+        });
+      } else {
+        print(response.statusCode);
+        print(response.body);
+      //  throw Exception('Failed to load states');
+      }
+    } catch (e) {
+      print(e);
       setState(() {
-        states = json.decode(response.body); // Parse states from response
-        cities = []; // Clear the cities when a new state is selected
-        selectedState = null;
-        selectedCity = null;
+        _isLoadingStates = false; // Stop loading in case of error
       });
-    } else {
-      throw Exception('Failed to load states');
     }
   }
 
   // Fetch cities based on state selection
   Future<void> fetchCities(String stateId) async {
-    final response = await http.get(Uri.parse('https://ajhub.co.in/get-districts-regby-state/$stateId'));
-    if (response.statusCode == 200) {
+    setState(() {
+      _isLoadingCities = true; // Show loading for cities
+    });
+
+    try {
+      final response = await http.get(Uri.parse('https://ajhub.co.in/get-districts-regby-state/$stateId'));
+      if (response.statusCode == 200) {
+        setState(() {
+          cities = json.decode(response.body);
+          selectedCity = null;
+          _isLoadingCities = false; // Stop loading
+        });
+      } else {
+        throw Exception('Failed to load cities');
+      }
+    } catch (e) {
+      print(e);
       setState(() {
-        cities = json.decode(response.body); // Parse cities (districts) from response
-        selectedCity = null;
+        _isLoadingCities = false; // Stop loading in case of error
       });
-    } else {
-      throw Exception('Failed to load cities');
     }
   }
+
+
+
 
   Future<void> fetchDropdownData() async {
     final response = await http.get(Uri.parse('https://ajhub.co.in/search-user'));
@@ -138,9 +185,9 @@ class SignUpScreenState extends State<SignUpScreen> {
       "password_confirmation": _confirmPasswordController.text.trim(),
       "gender": selectedGender,
       "dob": _dobController.text,
-      "country_id": selectedCountry ?? '1',
-      "state": selectedState ?? 'Gujarat',
-      "district": selectedCity ?? 'Banaskantha',
+      "country_id": selectedCountry,
+      "state": selectedState,
+      "district": selectedCity,
       "sponsor": selectedDropdown1,
       "parent": selectedDropdown2,
     };
@@ -158,25 +205,28 @@ class SignUpScreenState extends State<SignUpScreen> {
       final responseData = json.decode(response.body);
       print(responseData);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful')));
-    } else if (response.statusCode == 500) {
+    } else {
       final responseData = json.decode(response.body);
       print(responseData);
+      print(response.statusCode);
 
-      // Check for specific error message and provide user-friendly feedback
       String errorMessage = responseData['message'] ?? 'An unexpected error occurred. Please try again later.';
 
-      // You can handle specific server error messages if needed
-      if (responseData['error'] != null && responseData['error'].contains('handleLevelIncome')) {
-        errorMessage = 'A server issue occurred during registration. Please contact support.';
+      // Additional error handling based on response status codes
+      if (response.statusCode == 500) {
+        if (responseData['error'] != null && responseData['error'].contains('handleLevelIncome')) {
+          errorMessage = 'A server issue occurred during registration. Please contact support.';
+        } else {
+          errorMessage = 'Server error. Please try again later.';
+        }
+      } else if (response.statusCode == 400) {
+        errorMessage = 'Validation error. Please check the input fields and try again.';
+      } else if (response.statusCode == 403) {
+        errorMessage = 'You are not authorized to perform this action.';
       }
 
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
-    } else {
-      print(response.statusCode);
-      print(response.body);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Failed')));
     }
-
 
 
     // Hide the loading indicator
@@ -224,9 +274,11 @@ class SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(height: 16.h),
 
                 // Country Dropdown
+                // Country Dropdown
                 DropdownButtonFormField<String>(
                   value: selectedCountry,
                   hint: const Text('Select Country'),
+                  isExpanded: true,
                   items: countries.map<DropdownMenuItem<String>>((country) {
                     return DropdownMenuItem<String>(
                       value: country['id'].toString(),
@@ -240,12 +292,15 @@ class SignUpScreenState extends State<SignUpScreen> {
                     fetchStates(value!);
                   },
                 ),
-                const SizedBox(height: 16),
+                if (_isLoadingCountries) const CircularProgressIndicator(),
+
+                SizedBox(height: 16.h),
 
                 // State Dropdown
                 DropdownButtonFormField<String>(
                   value: selectedState,
                   hint: const Text('Select State'),
+                  isExpanded: true,
                   items: states.map<DropdownMenuItem<String>>((state) {
                     return DropdownMenuItem<String>(
                       value: state['id'].toString(),
@@ -259,12 +314,15 @@ class SignUpScreenState extends State<SignUpScreen> {
                     fetchCities(value!);
                   },
                 ),
-                const SizedBox(height: 16),
+                if (_isLoadingStates) const CircularProgressIndicator(),
+
+                SizedBox(height: 16.h),
 
                 // City Dropdown
                 DropdownButtonFormField<String>(
                   value: selectedCity,
                   hint: const Text('Select City'),
+                  isExpanded: true,
                   items: cities.map<DropdownMenuItem<String>>((city) {
                     return DropdownMenuItem<String>(
                       value: city['id'].toString(),
@@ -277,6 +335,8 @@ class SignUpScreenState extends State<SignUpScreen> {
                     });
                   },
                 ),
+
+
                 SizedBox(height: 16.h),
 
                 // Autocomplete for Sponsor

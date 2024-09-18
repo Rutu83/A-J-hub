@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'package:allinone_app/arth_screens/login_screen.dart';
+import 'package:allinone_app/screens/dashbord_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +17,8 @@ class SplashScreen extends StatefulWidget {
 class SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeInAnimation;
-  static  const String keyLogin = 'login';
+  static const String keyLogin = 'login';
+
   @override
   void initState() {
     super.initState();
@@ -29,9 +33,6 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
     );
 
     _animationController.forward().then((_) {
-      // After animation completes, navigate to the login screen
-      //_navigateToLoginScreen();
-
       varToGo();
     });
   }
@@ -42,38 +43,40 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
     super.dispose();
   }
 
-  void varToGo() async{
+  void varToGo() async {
+    var sharePref = await SharedPreferences.getInstance();
+    var isLoggedIn = sharePref.getBool(keyLogin);
 
-    var  sharePref =await SharedPreferences.getInstance();
+    await Future.delayed(const Duration(seconds: 2)); // Delay for 2 seconds
 
-    var isloggedIn  =  sharePref.getBool(keyLogin);
+    if (isLoggedIn != null) {
 
-    Timer (const Duration (seconds:2),() {
-      if (isloggedIn != null) {
-        if (isloggedIn) {
-          Navigator.pushReplacement(context, MaterialPageRoute(
-              builder: (context) => const LoginScreen()));
-        }
-      } else {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()));
+
+      if(isLoggedIn){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DashboardScreen()),
+        );
+      }else{
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const LoginScreen()));
       }
-    }
 
-    );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context, designSize: const Size(360, 690), minTextAdapt: true);
     return Scaffold(
-  //    backgroundColor: const Color(0xFF023b8a),
-
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-
           children: [
             const Spacer(),
             FadeTransition(

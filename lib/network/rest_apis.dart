@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/model/login_modal.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
@@ -9,6 +10,26 @@ import 'package:allinone_app/network/network_utils.dart';
 import 'package:allinone_app/utils/configs.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:http/http.dart' as http;
+
+
+
+Future<void> clearPreferences() async {
+
+  await appStore.setToken('');
+  await appStore.setLoggedIn(false);
+
+
+  // TODO: Please do not remove this condition because this feature not supported on iOS.
+  // if (isAndroid) await OneSignal.shared.clearOneSignalNotifications();
+}
+
+
+
+
+
+
+
+
 
 
 // login
@@ -31,7 +52,7 @@ Future<LoginResponse> loginUser(Map request) async {
 // save data to shared preferences
 Future<void> saveUserDataMobile(LoginResponse loginResponse, UserData data) async {
  if (loginResponse.token.validate().isNotEmpty) await appStore.setToken('');
-  await appStore.setToken(loginResponse.token.validate());
+ appStore.setToken(loginResponse.token!);
   await appStore.setLoggedIn(true);
   await appStore.setName(data.username.validate());
   await appStore.setEmail(data.email.validate());
@@ -44,26 +65,117 @@ Future<void> saveUserDataMobile(LoginResponse loginResponse, UserData data) asyn
 }
 
 
+// get user profile
+Future<Map<String, dynamic>> getUserDetail() async {
+  try {
+    Map<String, dynamic> res;
+
+    res = await handleResponse(
+        await buildHttpResponse('profile', method: HttpMethodType.GET));
+    return res['user'];
+  } catch (e) {
+    appStore.setLoading(false);
+    rethrow;
+  }
+}
 
 
+Future<void> updateUserData(userIdn, {required String name, required String email, required String number, required String shopName, required String country, required String state, required String city, required String pincode, required String address, required onSuccess,required Null Function() onSuccesss,required onFail,required Null Function() onFaild}) async {
+  final token = appStore.token;
+  var userId = userIdn;
+  final url = Uri.parse('${BASE_URL}vendor/edit/$userId');
+  final userData = {
+    'name': name,
+    'email': email,
+    'number':number,
+    'country': country,
+    'state': state,
+    'city': city,
+    'pincode': pincode,
+    'address': address,
+  };
 
-// Sing up user
+  try {
+    final response = await http.put(
+      url,
+      body: jsonEncode(userData),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        HttpHeaders.authorizationHeader: token,
+      },
+    );
 
-Future<void> _registerUser() async {
-  const String apiUrl = '${BASE_URL}register';
+    if (response.statusCode == 200) {
 
-  final response = await http.post(
-    Uri.parse(apiUrl),
-    body: jsonEncode({
 
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  );
+      onSuccess();
+      onSuccesss();
+    } else {
+      onFail();
+      onFaild();
 
-  if (response.statusCode == 200) {
-  } else {
+    }
+  } catch (e) {
+    onFail();
+    onFaild();
 
   }
 }
+
+
+
+
+// Future<void> updateUserData(userIdn, {required String name, required String email, required String number, required String shopName, required String country, required String state, required String city, required String pincode, required String address, required onSuccess,required Null Function() onSuccesss,required onFail,required Null Function() onFaild}) async {
+//   final token = appStore.token;
+//   var userId = userIdn;
+//   final url = Uri.parse('${BASE_URL}vendor/edit/$userId');
+//   final userData = {
+//     'name': name,
+//     'email': email,
+//     'number':number,
+//     'shopName': shopName,
+//     'country': country,
+//     'state': state,
+//     'city': city,
+//     'pincode': pincode,
+//     'address': address,
+//   };
+//
+//   try {
+//     final response = await http.put(
+//       url,
+//       body: jsonEncode(userData),
+//       headers: {
+//         'Content-Type': 'application/json; charset=UTF-8',
+//         HttpHeaders.authorizationHeader: token,
+//       },
+//     );
+//
+//     if (response.statusCode == 200) {
+//
+//     //  appStore.setFirstName(name.toString());
+//      // appStore.setShopName(shopName.toString());
+//       onSuccess();
+//       onSuccesss();
+//     } else {
+//       onFail();
+//       onFaild();
+//
+//     }
+//   } catch (e) {
+//     onFail();
+//     onFaild();
+//
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+

@@ -1,6 +1,7 @@
 import 'package:allinone_app/arth_screens/auth_admin_service.dart';
 import 'package:allinone_app/arth_screens/signup_screen.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
+import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -22,7 +23,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
   bool isRemember = true;
   bool _isLoding = false;
   late AnimationController _animationController;
-  static const String keyLogin = 'login';
+
 
   @override
   void initState() {
@@ -91,11 +92,26 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     setState(() {
       _isLoding = false;
     });
+
+    Fluttertoast.showToast(
+        msg: error,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
+
     // const DashboardScreen().launch(context,
     //     isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
 
   Future<void> onLoginSuccessRedirection() async {
+
+    var pref = await SharedPreferences.getInstance();
+    pref.setBool(SplashScreenState.keyLogin, true);
+
     const DashboardScreen().launch(context,
         isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }

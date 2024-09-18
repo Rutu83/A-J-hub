@@ -1,21 +1,16 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/arth_screens/login_screen.dart';
-import 'package:allinone_app/main.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/common.dart';
-import 'package:allinone_app/utils/configs.dart';
 import 'package:allinone_app/utils/constant.dart';
 import 'package:flutter/material.dart';
-// ignore: depend_on_referenced_packages
-import 'package:http/http.dart';
-// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'package:allinone_app/main.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:nb_utils/nb_utils.dart';
-
-
-
-
 
 Map<String, String> buildHeaderTokens({
   Map? extraKeys,
@@ -38,14 +33,14 @@ Map<String, String> buildHeaderTokens({
       extraKeys.containsKey('isStripePayment') &&
       extraKeys['isStripePayment']) {
     header.putIfAbsent(HttpHeaders.contentTypeHeader,
-        () => 'application/x-www-form-urlencoded');
+            () => 'application/x-www-form-urlencoded');
     header.putIfAbsent(HttpHeaders.authorizationHeader,
-        () => '${extraKeys!['stripeKeyPayment']}');
+            () => '${extraKeys!['stripeKeyPayment']}');
   } else if (appStore.isLoggedIn &&
       extraKeys.containsKey('isFlutterWave') &&
       extraKeys['isFlutterWave']) {
     header.putIfAbsent(HttpHeaders.authorizationHeader,
-        () => "${extraKeys!['flutterWaveSecretKey']}");
+            () => "Bearer ${extraKeys!['flutterWaveSecretKey']}");
   } else if (appStore.isLoggedIn &&
       extraKeys.containsKey('isSadadPayment') &&
       extraKeys['isSadadPayment']) {
@@ -58,7 +53,7 @@ Map<String, String> buildHeaderTokens({
     header.putIfAbsent(
         HttpHeaders.contentTypeHeader, () => 'application/json; charset=utf-8');
     header.putIfAbsent(
-        HttpHeaders.authorizationHeader, () => "${appStore.token}");
+        HttpHeaders.authorizationHeader, () => appStore.token);
     header.putIfAbsent(
         HttpHeaders.acceptHeader, () => 'application/json; charset=utf-8');
   }
@@ -97,28 +92,28 @@ Future<String> refreshToken() async {
 
 
 
-Future<Response> buildHttpResponse(
-  String endPoint, {
-  HttpMethodType method = HttpMethodType.GET,
-  Map? request,
-  Map? extraKeys,
-}) async {
+Future<http.Response> buildHttpResponse(
+    String endPoint, {
+      HttpMethodType method = HttpMethodType.GET,
+      Map? request,
+      Map? extraKeys,
+    }) async {
   if (await isNetworkAvailable()) {
     var headers = buildHeaderTokens(extraKeys: extraKeys);
     Uri url = buildBaseUrl(endPoint);
 
-    Response response;
+    http.Response response;
 
     if (method == HttpMethodType.POST) {
       log('Request: ${jsonEncode(request)}');
       response =
-          await http.post(url, body: jsonEncode(request), headers: headers);
+      await http.post(url, body: jsonEncode(request), headers: headers);
     } else if (method == HttpMethodType.DELETE) {
-      response = await delete(url, headers: headers);
+      response = await http.delete(url, headers: headers);
     } else if (method == HttpMethodType.PUT) {
-      response = await put(url, body: jsonEncode(request), headers: headers);
+      response = await http.put(url, body: jsonEncode(request), headers: headers);
     } else {
-      response = await get(url, headers: headers);
+      response = await http.get(url, headers: headers);
     }
 
     log('Response (${method.name}) ${response.statusCode}: ${response.body}');
@@ -129,16 +124,16 @@ Future<Response> buildHttpResponse(
   }
 }
 
-Future handleResponse(Response response,
+Future handleResponse(http.Response response,
     {HttpResponseType httpResponseType = HttpResponseType.JSON,
-    bool? avoidTokenError,
-    bool? isSadadPayment}) async {
+      bool? avoidTokenError,
+      bool? isSadadPayment}) async {
   if (!await isNetworkAvailable()) {
     throw errorInternetNotAvailable;
   }
   if (response.statusCode == 401) {
-      redirectToLogin();
-    if (!avoidTokenError.validate()) LiveStream().emit(LIVESTREAM_TOKEN, true);
+    redirectToLogin();
+    if (!avoidTokenError.validate()) LiveStream().emit(TOKEN, true);
 
     throw language.lblTokenExpired;
   } else if (response.statusCode == 400) {
@@ -195,29 +190,31 @@ void redirectToLogin() async{
   // Remove specific keys
   await pref.remove(SplashScreenState.keyLogin);
   await pref.remove(TOKEN);
-  await pref.remove(NAME);
+  await pref.remove(ROLE);
+  await pref.remove(VENDOR_TYPE);
   await pref.remove(NUMBER);
-
+  await pref.remove(SHOP_NAME);
+  await pref.remove(TEA_PRICE);
+  await pref.remove(COFFEE_PRICE);
 
   // Or you can clear all keys
   // await pref.clear();
 
   // Reset appStore variables to default states
   await appStore.setToken('', isInitializing: true);
-  await appStore.setName('', isInitializing: true);
   await appStore.setNumber('', isInitializing: true);
 
 
   // Optionally, set loading state to false
   appStore.setLoading(false);
 
- await navigatorKeyNew.currentState!.push(
+  await navigatorKeyNew.currentState!.push(
     MaterialPageRoute(builder: (context) => const LoginScreen()),
   );
 }
 
 
-Future<Response> makeAuthenticatedRequest(
+Future<http.Response> makeAuthenticatedRequest(
     String endPoint, {
       HttpMethodType method = HttpMethodType.GET,
       Map? request,
@@ -236,10 +233,10 @@ Future<Response> makeAuthenticatedRequest(
 }
 
 
-Future<MultipartRequest> getMultiPartRequest(String endPoint,
+Future<http.MultipartRequest> getMultiPartRequest(String endPoint,
     {String? baseUrl}) async {
   String url = baseUrl ?? buildBaseUrl(endPoint).toString();
-  return MultipartRequest('POST', Uri.parse(url));
+  return http.MultipartRequest('POST', Uri.parse(url));
 }
 
 String parseStripeError(String response) {

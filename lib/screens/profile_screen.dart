@@ -1,9 +1,13 @@
 
 import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
+import 'package:allinone_app/screens/edit_profile.dart';
+import 'package:allinone_app/splash_screen.dart';
+import 'package:allinone_app/utils/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -20,6 +24,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
 
+    print(appStore.Email);
+    print(appStore.Name);
+    print(appStore.token);
   }
 
 
@@ -59,17 +66,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w400, color: Colors.black87),
               ),
               SizedBox(height: 10.h),
-              InkWell(
-                onTap: () {
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 5.h),
+                padding: const EdgeInsets.only(left: 15,right: 15,top: 15,bottom: 15),
+                decoration: BoxDecoration(
+                  color: Colors.grey.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: InkWell(
+                  onTap: () {
 
-                },
-                child: Container(
-                  margin: EdgeInsets.symmetric(vertical: 5.h),
-                  padding: const EdgeInsets.only(left: 15,right: 15,top: 15,bottom: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
+                    Navigator.push(context, (MaterialPageRoute(builder: (context)=> const EditProfile())));
+                  },
                   child: Row(
                     children: [
                       Text(
@@ -91,7 +99,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildOptionRow('Share', Icons.share),
               _buildOptionRow('About Us', Icons.info_outline),
               SizedBox(height: 25.h),
-              Container(
+            InkWell(
+              onTap: () async {
+                // Get SharedPreferences instance
+                var pref = await SharedPreferences.getInstance();
+
+
+                // Remove specific keys
+                await pref.remove(SplashScreenState.keyLogin);
+                await pref.remove(TOKEN); // TOKEN key should be defined somewhere in your code
+                await pref.remove(NAME);  // NAME key should be defined somewhere in your code
+                await pref.remove(EMAIL); // EMAIL key should be defined somewhere in your code
+
+
+                await appStore.setToken('', isInitializing: true); // Reset token
+                await appStore.setName('', isInitializing: true);  // Reset name
+                await appStore.setEmail('', isInitializing: true); // Reset email
+
+                appStore.setLoading(false); // Reset loading state
+
+                // Navigate to the login screen
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+
+
+              },
+              child: Container(
                 padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 24.w),
                 margin: EdgeInsets.symmetric(vertical: 16.h, horizontal: 32.w),
                 decoration: BoxDecoration(
@@ -99,23 +134,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Center(
-                  child: InkWell(
-                    onTap: () async {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'Log out',
-                      style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.w600, color: Colors.white),
+                  child: Text(
+                    'Log out',
+                    style: GoogleFonts.poppins(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 25.h),
+            ),
+
+            SizedBox(height: 25.h),
 
             ],
           ),

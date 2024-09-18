@@ -7,94 +7,84 @@ var appPackageName = isAndroid ? 'com.mdinfotech.teacup.teacup' : 'com.mdinfotec
 const String kregisterBox = "register_model";
 
 //region Common Configs
-// ignore: constant_identifier_names
+
 const DEFAULT_FIREBASE_PASSWORD = '12345678';
-// ignore: constant_identifier_names
+
 const DECIMAL_POINT = 2;
-// ignore: constant_identifier_names
+
 const PER_PAGE_ITEM = 20;
-// ignore: constant_identifier_names
+
 const PER_PAGE_CATEGORY_ITEM = 50;
-// ignore: constant_identifier_names
+
 const LABEL_TEXT_SIZE = 14;
-// ignore: constant_identifier_names
 const double SETTING_ICON_SIZE = 18;
-// ignore: constant_identifier_names
 const double CATEGORY_ICON_SIZE = 70;
-// ignore: constant_identifier_names
+
 const double SUBCATEGORY_ICON_SIZE = 45;
-// ignore: constant_identifier_names
+
 const APP_BAR_TEXT_SIZE = 18;
-// ignore: constant_identifier_names
+
 const MARK_AS_READ = 'markas_read';
-// ignore: constant_identifier_names
+
 const PERMISSION_STATUS = 'permissionStatus';
-// ignore: constant_identifier_names
+
 const USER_PASSWORD = 'USER_PASSWORD';
-// ignore: constant_identifier_names
+
 const ONESIGNAL_TAG_KEY = 'appType';
-// ignore: constant_identifier_names
+
 const ONESIGNAL_TAG_VALUE = 'userApp';
-// ignore: constant_identifier_names
+
 const PER_PAGE_CHAT_LIST_COUNT = 50;
 
-// ignore: constant_identifier_names
+
 const USER_NOT_CREATED = "User not created";
-// ignore: constant_identifier_names
+
 const USER_CANNOT_LOGIN = "User can't login";
-// ignore: constant_identifier_names
+
 const USER_NOT_FOUND = "User not found";
 
-// ignore: constant_identifier_names
+
 const BOOKING_TYPE_ALL = 'all';
-// ignore: constant_identifier_names
+
 const CATEGORY_LIST_ALL = "all";
 
-// ignore: constant_identifier_names
+
 const BOOKING_TYPE_USER_POST_JOB = 'user_post_job';
-// ignore: constant_identifier_names
+
 const BOOKING_TYPE_SERVICE = 'service';
 
-// ignore: constant_identifier_names
+
 const DONE = 'Done';
-// ignore: constant_identifier_names
+
 const SERVICE = 'service';
 
-// ignore: constant_identifier_names
+
 const PAYMENT_STATUS_PAID = 'paid';
 
-// ignore: constant_identifier_names
+
 const NOTIFICATION_TYPE_BOOKING = 'booking';
-// ignore: constant_identifier_names
+
 const NOTIFICATION_TYPE_POST_JOB = 'post_Job';
 //endregion
 
 //region LIVESTREAM KEYS
-// ignore: constant_identifier_names
-const LIVESTREAM_TOKEN = 'tokenStream';
-// ignore: constant_identifier_names
-const LIVESTREAM_UPDATE_ALL_STD_LIST = "UpdateAllStdList";
-// ignore: constant_identifier_names
-const LIVESTREAM_UPDATE_STD_SUBJECT_LIST = "LIVESTREAM_UPDATE_SUBJECT_LIST";
-// ignore: constant_identifier_names
-const LIVESTREAM_UPDATE_STD_CHAPTER_LIST = "LIVESTREAM_UPDATE_CHAPTER_LIST";
-// ignore: constant_identifier_names
-const LIVESTREAM_UPDATE_STD_TOPIC_LIST = "LIVESTREAM_UPDATE_TOPIC_LIST";
-// ignore: constant_identifier_names
-const LIVESTREAM_UPDATE_DASHBOARD = "streamUpdateDashboard";
-// ignore: constant_identifier_names
-const LIVESTREAM_START_TIMER = "startTimer";
-// ignore: constant_identifier_names
-const LIVESTREAM_PAUSE_TIMER = "pauseTimer";
-// ignore: constant_identifier_names
-const LIVESTREAM_UPDATE_BIDER = 'updateBiderData';
-//endregion
 
-//region default USER login
-// ignore: constant_identifier_names
-const DEFAULT_EMAIL = 'demo@user.com';
-// ignore: constant_identifier_names
-const DEFAULT_PASS = '12345678';
+
+const LIVESTREAM_UPDATE_ALL_STD_LIST = "UpdateAllStdList";
+
+const LIVESTREAM_UPDATE_STD_SUBJECT_LIST = "LIVESTREAM_UPDATE_SUBJECT_LIST";
+
+const LIVESTREAM_UPDATE_STD_CHAPTER_LIST = "LIVESTREAM_UPDATE_CHAPTER_LIST";
+
+const LIVESTREAM_UPDATE_STD_TOPIC_LIST = "LIVESTREAM_UPDATE_TOPIC_LIST";
+
+const LIVESTREAM_UPDATE_DASHBOARD = "streamUpdateDashboard";
+
+const LIVESTREAM_START_TIMER = "startTimer";
+
+const LIVESTREAM_PAUSE_TIMER = "pauseTimer";
+
+const LIVESTREAM_UPDATE_BIDER = 'updateBiderData';
 //endregion
 
 //region THEME MODE TYPE
@@ -121,33 +111,34 @@ const IS_FIRST_TIME = 'IsFirstTime';
 const IS_LOGGED_IN = 'IS_LOGGED_IN';
 
 const USER_ID = 'USER_ID';
+
 const NAME = 'NAME';
 
 const EMAIL = 'EMAIL';
-// ignore: constant_identifier_names
+
 const VENDOR_TYPE = 'VENDOR_TYPE';
-// ignore: constant_identifier_names
+
 const VENDOR = 'VENDOR';
-// ignore: constant_identifier_names
+
 const ROLE = 'ROLE';
-// ignore: constant_identifier_names
+
 const LAST_NAME = 'LAST_NAME';
-// ignore: constant_identifier_names
+
 const USER_STANDARD = 'USER_STANDARD';
-// ignore: constant_identifier_names
+
 const USER_MEDUIM = 'USER_MEDUIM';
-// ignore: constant_identifier_names
+
 const USER_EMAIL = 'USER_EMAIL';
 
-// ignore: constant_identifier_names
+
 const PROFILE_IMAGE = 'PROFILE_IMAGE';
-// ignore: constant_identifier_names
+
 const IS_REMEMBERED = "IS_REMEMBERED";
-// ignore: constant_identifier_names
+
 const TOKEN = 'TOKEN';
-// ignore: constant_identifier_names
+
 const USERNAME = 'USERNAME';
-// ignore: constant_identifier_names
+
 const DISPLAY_NAME = 'DISPLAY_NAME';
 // ignore: constant_identifier_names
 const CONTACT_NUMBER = 'CONTACT_NUMBER';
@@ -230,8 +221,8 @@ const APPLE_UID = 'APPLE_UID';
 const APPLE_GIVE_NAME = 'APPLE_GIVE_NAME';
 // ignore: constant_identifier_names
 const APPLE_FAMILY_NAME = 'APPLE_FAMILY_NAME';
-// ignore: constant_identifier_names
-const SADAD_PAYMENT_ACCESS_TOKEN = 'SADAD_PAYMENT_ACCESS_TOKEN';
+
+
 // ignore: constant_identifier_names
 const APPSTORE_URL = 'APPSTORE_URL';
 // ignore: constant_identifier_names

@@ -3,6 +3,7 @@ import 'package:allinone_app/local/languages.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/store/app_store.dart';
+import 'package:allinone_app/utils/common.dart';
 import 'package:allinone_app/utils/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,16 +14,24 @@ final GlobalKey<NavigatorState> navigatorKeyNew = GlobalKey<NavigatorState>();
 AppStore appStore = AppStore();
 BaseLanguage language = LanguageEn();
 List<UserData>? cachedUserData;
-
+Map<String,dynamic>? cachedData;
 
 
 Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
+  await initialize();
 
+  // set observer
+
+  localeLanguageList = languageList();
+
+  await appStore.setLoggedIn(getBoolAsync(IS_LOGGED_IN), isInitializing: true);
+  await appStore.setLoggedIn(getBoolAsync(IS_LOGGED_IN));
   if (appStore.isLoggedIn) {
     await appStore.setToken(getStringAsync(TOKEN), isInitializing: true);
     await appStore.setName(getStringAsync(NAME), isInitializing: true);
+    await appStore.setEmail(getStringAsync(EMAIL), isInitializing: true);
   }
 
   runApp(const MyApp());
