@@ -72,7 +72,7 @@ Future<Map<String, dynamic>> getUserDetail() async {
 
     res = await handleResponse(
         await buildHttpResponse('profile', method: HttpMethodType.GET));
-    return res['user'];
+    return res['profile'];
   } catch (e) {
     appStore.setLoading(false);
     rethrow;

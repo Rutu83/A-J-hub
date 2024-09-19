@@ -53,7 +53,7 @@ Map<String, String> buildHeaderTokens({
     header.putIfAbsent(
         HttpHeaders.contentTypeHeader, () => 'application/json; charset=utf-8');
     header.putIfAbsent(
-        HttpHeaders.authorizationHeader, () => appStore.token);
+        HttpHeaders.authorizationHeader, () =>' Bearer ${appStore.token}');
     header.putIfAbsent(
         HttpHeaders.acceptHeader, () => 'application/json; charset=utf-8');
   }

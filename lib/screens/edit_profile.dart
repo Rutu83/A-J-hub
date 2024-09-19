@@ -152,19 +152,12 @@ class _EditProfileState extends State<EditProfile> {
         print(userDetail);
       }
 
-      // setState(() {
-      //   UserId = userDetail['_id'];
-      //   _nameController.text = userDetail['name'] ?? '';
-      //   _emailController.text = userDetail['email'] ?? '';
-      //   _phoneController.text = userDetail['phone'] ?? '';
-      //   _shopeNameController.text = userDetail['shopName'] ?? '';
-      //   _countryController = userDetail['country'];
-      //   _stateController = userDetail['state'];
-      //   _cityController = userDetail['city'];
-      //   _pincodeController.text = userDetail['pincode']?.toString() ?? '';
-      //   _addressController.text = userDetail['address'] ?? '';
-      //   _isdataLoding = false;
-      // });
+      setState(() {
+        UserId = userDetail['_id'];
+        _nameController.text = userDetail['username'] ?? '';
+        _emailController.text = userDetail['Dipak Darji'] ?? '';
+
+      });
     } catch (e) {
 
       if (kDebugMode) {

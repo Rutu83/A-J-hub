@@ -1,11 +1,93 @@
+// ignore_for_file: depend_on_referenced_packages
+
+import 'dart:convert'; // Required for JSON parsing
+import 'package:allinone_app/main.dart';
+import 'package:http/http.dart' as http; // HTTP package
 import 'package:allinone_app/screens/team_member_list.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class BusinessScreen extends StatelessWidget {
+class BusinessScreen extends StatefulWidget {
   const BusinessScreen({super.key});
+
+  @override
+  _BusinessScreenState createState() => _BusinessScreenState();
+}
+
+class _BusinessScreenState extends State<BusinessScreen> {
+  Map<String, dynamic>? businessData;
+
+  // Future<void> fetchBusinessData() async {
+  //   final String url = 'https://ajhub.co.in/api/business-data';
+  //   final String token = appStore.token; // Replace with your actual token
+  //
+  //   try {
+  //     final response = await http.get(
+  //       Uri.parse(url),
+  //       headers: {
+  //         'Authorization': "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5ZDA2MGQ1Mi0yNDNlLTRhZWQtYmI1NC1hMjNkYmI2YTQ1YTEiLCJqdGkiOiJkZjgyYzUyYTVkZWU1OGU4ZmU4YTY5MzY5OWY4NmQzZWFjNDJiOTIyNTBhODE1MzcyZTZjNDBjNTdiNmQwNDEwZjhlNmQ1YjQ4ZjRkMjhlNyIsImlhdCI6MTcyNjcyMzM3Ni42NDg4ODgsIm5iZiI6MTcyNjcyMzM3Ni42NDg4OTIsImV4cCI6MTc0MjM2MTc3Ni42NDczNjQsInN1YiI6IjE5NSIsInNjb3BlcyI6W119.grqTTgxRszPAyTjCsLGn1GBJPPyeKnldXQAsu-v5roLIQcTXxRMOKA_Fug2aoCQk6kJ_SSwk7ZJ8JgT5Q2pPKeZ_D7ss59ondT6o9Z2OGn5ckLFDjoMIdHIMCSU7K8M1F70cy3BAHqawXWuiIMyZvkNqLRH8NTW5usoGgy2473s1306R2kuSjNVc9eU6TUNFa3baBfmwDYGAEP3AhMdc68AjSN2OhGWyqkjDge-IIeV6KJfhf4-6Rk3MX8vRsOiAj153hgnwR2_aCTVqeIt4JTDL403dcQN18GWqdONzaMA-QGtA4kvSaz0gnBSuG7o2r80wMf6qUxpJqys14FJ5uB84rVzY1bqU77mKfaeUuCRCa2QJYr5WBv6mF1zD8tCR2dTnGeqKs8ibmiHVMXELga1v3b2MD5xmLrFjXKDestcwIYz44FZCl6wL4MJCWmHlSLNzh0IDkn-oZQXMDgoqRwNzYdjUWFdZl93Jvn8lFZIeDczd1BHRq145qMTKPU4sufCp2ZanMvsrzGnnTY5tGnUx5sBND8oNJ3CuI0nui-6p7Ybatjou817gtMqFYwFEi9okVcXEpckY",
+  //       },
+  //     );
+  //
+  //     if (response.statusCode == 200) {
+  //       setState(() {
+  //         businessData = json.decode(response.body);
+  //       });
+  //     } else {
+  //       throw Exception('Failed to load business data');
+  //     }
+  //   } catch (e) {
+  //     print('Error: $e');
+  //   }
+  // }
+  //
+  //
+  //
+
+
+
+
+  Future<void> fetchBusinessData() async {
+    final String url = 'https://ajhub.co.in/api/business-data';
+    final String token = appStore.token; // Ensure this is your actual token
+
+
+    print('oooooo $token');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': "Bearer $token"},
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      print('Response headers: ${response.headers}');
+
+      if (response.statusCode == 200 && response.headers['content-type'] == 'application/json') {
+        setState(() {
+          businessData = json.decode(response.body);
+        });
+      } else {
+        throw Exception('Failed to load business data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+
+  }
+
+
+
+
+
+  @override
+  void initState() {
+    super.initState();
+    fetchBusinessData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +100,7 @@ class BusinessScreen extends StatelessWidget {
           style: TextStyle(color: Colors.black),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black), // Changed to black for visibility
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -215,36 +297,12 @@ class BusinessScreen extends StatelessWidget {
         );
       },
       child: Container(
-        //margin: const EdgeInsets.symmetric(horizontal: 30.0),
         alignment: Alignment.center,
         width: double.infinity,
         height: 55.0,
         decoration: BoxDecoration(
-          borderRadius:  BorderRadius.circular(8),
-          color: Colors.red
-          // gradient: LinearGradient(
-          //   colors: [
-          //     Colors.red[200]!,
-          //     Colors.red[900]!,
-          //   ],
-          // ),
-          // boxShadow: [
-          //   BoxShadow(
-          //     offset: const Offset(0, 0),
-          //     color: Colors.red[100]!,
-          //     blurRadius: 16.0,
-          //   ),
-          //   BoxShadow(
-          //     offset: const Offset(0, 0),
-          //     color: Colors.red[200]!,
-          //     blurRadius: 16.0,
-          //   ),
-          //   BoxShadow(
-          //     offset: const Offset(0, 0),
-          //     color: Colors.red[300]!,
-          //     blurRadius: 16.0,
-          //   ),
-          // ],
+          borderRadius: BorderRadius.circular(8),
+          color: Colors.red,
         ),
         child: const Text(
           "Team Member List",
@@ -285,7 +343,6 @@ class BusinessScreen extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _buildTeamMembersStats() {
     return Row(

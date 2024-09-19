@@ -66,15 +66,19 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     log(request);
 
     await loginCurrentAdminMobile(context, req: request).then((value) async {
+
       saveDataToAdminPreferenceMobile(context,
           loginResponse: value,
           parentUserData: value.userData!, onRedirectionClick: () {
             setState(() {
               _isLoding = false;
             });
+
+
             onLoginSuccessRedirection();
           });
       if (isRemember) {
+
         setValue(USER_EMAIL, _phoneController.text);
         setValue(USER_PASSWORD, _passwordController.text);
         await setValue(IS_REMEMBERED, isRemember);
@@ -111,7 +115,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
 
     var pref = await SharedPreferences.getInstance();
     pref.setBool(SplashScreenState.keyLogin, true);
-
+    print(',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,');
     const DashboardScreen().launch(context,
         isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
