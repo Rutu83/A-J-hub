@@ -79,7 +79,7 @@ Future<Map<String, dynamic>> getUserDetail() async {
   }
 }
 
-
+// update profile
 Future<void> updateUserData(userIdn, {required String name, required String email, required String number, required String shopName, required String country, required String state, required String city, required String pincode, required String address, required onSuccess,required Null Function() onSuccesss,required onFail,required Null Function() onFaild}) async {
   final token = appStore.token;
   var userId = userIdn;
@@ -123,52 +123,27 @@ Future<void> updateUserData(userIdn, {required String name, required String emai
 }
 
 
+// get business-data
+Future<Map<String, dynamic>> getBusinessDetail() async {
+  try {
+    Map<String, dynamic>? res;
 
+    // Check if the response is not null
+    res = await handleResponse(
+        await buildHttpResponse('business-data', method: HttpMethodType.GET));
 
-// Future<void> updateUserData(userIdn, {required String name, required String email, required String number, required String shopName, required String country, required String state, required String city, required String pincode, required String address, required onSuccess,required Null Function() onSuccesss,required onFail,required Null Function() onFaild}) async {
-//   final token = appStore.token;
-//   var userId = userIdn;
-//   final url = Uri.parse('${BASE_URL}vendor/edit/$userId');
-//   final userData = {
-//     'name': name,
-//     'email': email,
-//     'number':number,
-//     'shopName': shopName,
-//     'country': country,
-//     'state': state,
-//     'city': city,
-//     'pincode': pincode,
-//     'address': address,
-//   };
-//
-//   try {
-//     final response = await http.put(
-//       url,
-//       body: jsonEncode(userData),
-//       headers: {
-//         'Content-Type': 'application/json; charset=UTF-8',
-//         HttpHeaders.authorizationHeader: token,
-//       },
-//     );
-//
-//     if (response.statusCode == 200) {
-//
-//     //  appStore.setFirstName(name.toString());
-//      // appStore.setShopName(shopName.toString());
-//       onSuccess();
-//       onSuccesss();
-//     } else {
-//       onFail();
-//       onFaild();
-//
-//     }
-//   } catch (e) {
-//     onFail();
-//     onFaild();
-//
-//   }
-// }
+    // Handle the case where 'Response' is null or the expected structure isn't present
+    if (res == null || res['Response'] == null) {
+      throw Exception("Invalid or null response from API");
+    }
 
+    return res['Response'] as Map<String, dynamic>;
+  } catch (e) {
+    appStore.setLoading(false);
+    print('Error in getBusinessDetail: $e');
+    rethrow;  // Still rethrowing so the caller can handle the error
+  }
+}
 
 
 

@@ -1,6 +1,7 @@
 // ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously, avoid_print
 
 import 'dart:convert';
+import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -205,6 +206,18 @@ class SignUpScreenState extends State<SignUpScreen> {
       final responseData = json.decode(response.body);
       print(responseData);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful')));
+
+
+      Navigator.pushReplacement(context, (MaterialPageRoute(builder: (context)=> const LoginScreen())));
+
+    } if (response.statusCode == 201) {
+      final responseData = json.decode(response.body);
+      print(responseData);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful')));
+
+
+      Navigator.pushReplacement(context, (MaterialPageRoute(builder: (context)=> const LoginScreen())));
+
     } else {
       final responseData = json.decode(response.body);
       print(responseData);
@@ -274,67 +287,105 @@ class SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(height: 16.h),
 
                 // Country Dropdown
-                // Country Dropdown
-                DropdownButtonFormField<String>(
-                  value: selectedCountry,
-                  hint: const Text('Select Country'),
-                  isExpanded: true,
-                  items: countries.map<DropdownMenuItem<String>>((country) {
-                    return DropdownMenuItem<String>(
-                      value: country['id'].toString(),
-                      child: Text(country['name']),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCountry = value;
-                    });
-                    fetchStates(value!);
-                  },
-                ),
+                // Country Dropdown with Border and no underlin
                 if (_isLoadingCountries) const CircularProgressIndicator(),
 
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey), // Define the border color
+                    borderRadius: BorderRadius.circular(12), // Optional: add border radius
+                  ),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedCountry,
+                    hint: const Text('Select Country'),
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12), // Add padding inside the field
+                      border: InputBorder.none, // Remove the underline
+                    ),
+                    items: countries.map<DropdownMenuItem<String>>((country) {
+                      return DropdownMenuItem<String>(
+                        value: country['id'].toString(),
+                        child: Text(country['name']),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCountry = value;
+                      });
+                      fetchStates(value!);
+                    },
+                  ),
+                ),
+
+
                 SizedBox(height: 16.h),
 
-                // State Dropdown
-                DropdownButtonFormField<String>(
-                  value: selectedState,
-                  hint: const Text('Select State'),
-                  isExpanded: true,
-                  items: states.map<DropdownMenuItem<String>>((state) {
-                    return DropdownMenuItem<String>(
-                      value: state['id'].toString(),
-                      child: Text(state['name']),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedState = value;
-                    });
-                    fetchCities(value!);
-                  },
+                       if (_isLoadingStates) const CircularProgressIndicator(),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey), // Define the border color
+                    borderRadius: BorderRadius.circular(12), // Optional: add border radius
+                  ),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedState,
+                    hint: const Text('Select State'),
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12), // Add padding inside the field
+                      border: InputBorder.none, // Remove the underline
+                    ),
+                    items: states.map<DropdownMenuItem<String>>((state) {
+                      return DropdownMenuItem<String>(
+                        value: state['id'].toString(),
+                        child: Text(state['name']),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedState = value;
+                      });
+                      fetchCities(value!);
+                    },
+                  ),
                 ),
-                if (_isLoadingStates) const CircularProgressIndicator(),
+
 
                 SizedBox(height: 16.h),
 
-                // City Dropdown
-                DropdownButtonFormField<String>(
-                  value: selectedCity,
-                  hint: const Text('Select City'),
-                  isExpanded: true,
-                  items: cities.map<DropdownMenuItem<String>>((city) {
-                    return DropdownMenuItem<String>(
-                      value: city['id'].toString(),
-                      child: Text(city['name']),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCity = value;
-                    });
-                  },
+
+
+                if (_isLoadingCities) const CircularProgressIndicator(),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey), // Define the border color
+                    borderRadius: BorderRadius.circular(12), // Optional: add border radius
+                  ),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedCity,
+                    hint: const Text('Select City'),
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 12), // Add padding inside the field
+                      border: InputBorder.none, // Remove the underline
+                    ),
+                    items: cities.map<DropdownMenuItem<String>>((city) {
+                      return DropdownMenuItem<String>(
+                        value: city['id'].toString(),
+                        child: Text(city['name']),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCity = value;
+                      });
+                    },
+                  ),
                 ),
+
+
+
+
 
 
                 SizedBox(height: 16.h),

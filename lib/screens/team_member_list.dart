@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class TeamMemberList extends StatefulWidget {
-  const TeamMemberList({super.key});
+  final Map<String, dynamic> userData; // Use dynamic to handle loosely-typed data
+
+  const TeamMemberList({super.key, required this.userData});
 
   @override
   TeamMemberListState createState() => TeamMemberListState();
@@ -10,85 +12,77 @@ class TeamMemberList extends StatefulWidget {
 class TeamMemberListState extends State<TeamMemberList> {
   int selectedLevel = 1; // Default selected level
 
-  // Dummy data for users
-  final Map<int, List<Map<String, String>>> usersByLevel = {
-    1: [
-      {
-        'username': 'Bret',
-        'email': 'o335yh138h@example.net',
-        'phone': '01600000000',
-        'joinDate': '17 Dec, 2021',
-      },
-      {
-        'username': 'Karianne',
-        'email': 'pnt0a0brm@example.biz',
-        'phone': '4931709623',
-        'joinDate': '17 Dec, 2021',
-      },
-      {
-        'username': 'Kamren',
-        'email': 'c7tznxcsxh@example.net',
-        'phone': '8765432345',
-        'joinDate': '21 Jan, 2022',
-      },
-    ],
-    2: [
-      {
-        'username': 'Kamren',
-        'email': 'c7tznxcsxh@example.net',
-        'phone': '8765432345',
-        'joinDate': '21 Jan, 2022',
-      },
-    ],
-    // Add more dummy data for other levels
-  };
+  @override
+  void initState() {
+    super.initState();
+    // Ensure the first level is selected by default
+    selectedLevel = 1;
+
+
+    print(widget.userData);
+
+
+  }
 
   @override
   Widget build(BuildContext context) {
     final levels = List.generate(10, (index) => index + 1);
-    final users = usersByLevel[selectedLevel] ?? [];
+    // Cast the user data to the expected type
+    final users = (widget.userData['Level $selectedLevel'] as List?)
+        ?.map((user) => Map<String, String>.from(user as Map))
+        .toList() ??
+        []; // Ensure correct casting and handle null values
+
+
+
+
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-
         leading: InkWell(
-            onTap: (){
+            onTap: () {
               Navigator.pop(context);
             },
             child: const Icon(Icons.arrow_back_ios_new)),
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text('Ezra Mason' ),
-             Text('xx34Ft4jk532AA',
-               style: TextStyle(
-                 fontSize: 20, // Responsive text size
-                 color: Colors.black38,
-                 fontWeight: FontWeight.bold,
-               ),),
+            Text('Ezra Mason'),
+            Text(
+              'xx34Ft4jk532AA',
+              style: TextStyle(
+                fontSize: 20, // Responsive text size
+                color: Colors.black38,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
-
         actions: const [
           Padding(
             padding: EdgeInsets.all(8.0),
-            child: Icon(Icons.groups_outlined,size: 30,),
+            child: Icon(
+              Icons.groups_outlined,
+              size: 30,
+            ),
           ),
           Padding(
-            padding: EdgeInsets.only(right: 8,top: 8,bottom: 8),
-            child: Text('45',  style: TextStyle(
-              fontSize: 18, // Responsive text size
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),),
+            padding: EdgeInsets.only(right: 8, top: 8, bottom: 8),
+            child: Text(
+              '45',
+              style: TextStyle(
+                fontSize: 18, // Responsive text size
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
-           SizedBox(
-             width: 10,
-           )
+          SizedBox(
+            width: 10,
+          )
         ],
-
       ),
       body: Row(
         children: [
@@ -150,6 +144,7 @@ class TeamMemberListState extends State<TeamMemberList> {
                       itemCount: users.length,
                       itemBuilder: (context, index) {
                         final user = users[index];
+
                         return _buildUserRow(user, index, screenWidth);
                       },
                     ),
@@ -188,9 +183,9 @@ class TeamMemberListState extends State<TeamMemberList> {
           _buildVerticalDivider(),
           _buildUserCell(user['email'] ?? '', screenWidth),
           _buildVerticalDivider(),
-          _buildUserCell(user['phone'] ?? '', screenWidth),
+          _buildUserCell(user['phone_number'] ?? '', screenWidth), // Changed to 'phone_number' to match your data
           _buildVerticalDivider(),
-          _buildUserCell(user['joinDate'] ?? '', screenWidth),
+          _buildUserCell(user['created_at'] ?? '', screenWidth), // Changed to 'created_at' for join date
         ],
       ),
     );
