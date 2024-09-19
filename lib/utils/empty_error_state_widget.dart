@@ -5,7 +5,7 @@ class EmptyStateWidget extends StatelessWidget {
   final double? height;
   final double? width;
 
-  const EmptyStateWidget({this.height, this.width});
+  const EmptyStateWidget({super.key, this.height, this.width});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class ErrorStateWidget extends StatelessWidget {
   final double? height;
   final double? width;
 
-  const ErrorStateWidget({this.height, this.width});
+  const ErrorStateWidget({super.key, this.height, this.width});
 
   @override
   Widget build(BuildContext context) {

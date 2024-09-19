@@ -1,13 +1,19 @@
 
+// ignore_for_file: deprecated_member_use
+
 import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/edit_profile.dart';
 import 'package:allinone_app/splash_screen.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:allinone_app/utils/constant.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_share/flutter_share.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -24,14 +30,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
 
-    print(appStore.Email);
-    print(appStore.Name);
-    print(appStore.token);
+    if (kDebugMode) {
+      print(appStore.Email);
+      print(appStore.Name);
+      print(appStore.token);
+    }
   }
 
 
   @override
   Widget build(BuildContext context) {
+    Future<void> share() async {
+      String title =
+          'divya ${'has invited you to'} $APP_NAME';
+      String message =
+          '${"Experience the essence of India's tea culture with the Tea Cup App. Whether you're starting your day with a serene cup of tea or exploring bustling streets, our app seamlessly blends tradition with cutting-edge technology.With just a tap, effortlessly manage your tea and water bottle supplies. Our app calculates daily supply needs tailored to each customer, ensuring you're always well-stocked. Stay in control of your business with real-time revenue tracking, empowering you to make informed decisions on the fly.Say goodbye to complex billing procedures. With a simple click, generate monthly bills and deliver them directly to your customers' WhatsApp. Witness the joy on their faces as they receive hassle-free bills.Streamline your operations, enhance customer satisfaction, and embrace the perfect fusion of tradition and innovation with the Tea Cup App. Join us on this journey and elevate your tea business to new heights."} $APP_NAME ';
+      await FlutterShare.share(
+          title: title,
+          text: message,
+          linkUrl: Playstore_URL,
+          chooserTitle: 'Share with buddies');
+    }
+
+
     return Scaffold(
       backgroundColor: Colors.white,
       // appBar: AppBar(
@@ -43,9 +64,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       //   automaticallyImplyLeading: false,
       //   backgroundColor: Colors.white,
       // ),
-      body:  SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.only(left: 8.0,right: 8.0,top: 12.0,bottom: 100),
+          padding: const EdgeInsets.only(
+              left: 8.0, right: 8.0, top: 12.0, bottom: 100),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -53,39 +75,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
               CircleAvatar(
                 radius: 33.r,
                 backgroundColor: Colors.indigoAccent.withOpacity(0.2),
-                child: Icon(Icons.person_outline, size: 60.sp, color: Colors.red),
+                child: Icon(
+                    Icons.person_outline, size: 60.sp, color: Colors.red),
               ),
               SizedBox(height: 6.h),
               Text(
                 appStore.Name,
-                style: GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.w600),
+                style: GoogleFonts.poppins(
+                    fontSize: 22.sp, fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 4.h),
               Text(
                 'divyabhachani08@gmail.com',
-                style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.w400, color: Colors.black87),
+                style: GoogleFonts.poppins(fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black87),
               ),
               SizedBox(height: 10.h),
               Container(
                 margin: EdgeInsets.symmetric(vertical: 5.h),
-                padding: const EdgeInsets.only(left: 15,right: 15,top: 15,bottom: 15),
+                padding: const EdgeInsets.only(
+                    left: 15, right: 15, top: 15, bottom: 15),
                 decoration: BoxDecoration(
                   color: Colors.grey.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: InkWell(
                   onTap: () {
-
-                    Navigator.push(context, (MaterialPageRoute(builder: (context)=> const EditProfile())));
+                    Navigator.push(context, (MaterialPageRoute(
+                        builder: (context) => const EditProfile())));
                   },
                   child: Row(
                     children: [
                       Text(
                         'My Profile',
-                        style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w500),
+                        style: GoogleFonts.poppins(
+                            fontSize: 16.sp, fontWeight: FontWeight.w500),
                       ),
                       const Spacer(),
-                      Icon(Icons.arrow_forward_ios_outlined, color: Colors.black54, size: 18.sp),
+                      Icon(Icons.arrow_forward_ios_outlined,
+                          color: Colors.black54, size: 18.sp),
                     ],
                   ),
                 ),
@@ -95,58 +124,74 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildOptionRow('Transaction Report', Icons.receipt_long_rounded),
               _buildOptionRow('Income Report', Icons.receipt_long_rounded),
               _buildOptionRow('Change Password', Icons.lock_clock_outlined),
-              _buildOptionRow('Change Transaction Password', Icons.lock_clock_outlined),
-              _buildOptionRow('Share', Icons.share),
-              _buildOptionRow('About Us', Icons.info_outline),
+              _buildOptionRow(
+                  'Change Transaction Password', Icons.lock_clock_outlined),
+              InkWell(
+                  onTap: () {
+                    share();
+                  },
+                  child: _buildOptionRow('Share', Icons.share)),
+              InkWell(
+                  onTap: () {
+                    _launchURL();
+                  },
+                  child: _buildOptionRow('About Us', Icons.info_outline)),
               SizedBox(height: 25.h),
-            InkWell(
-              onTap: () async {
-                // Get SharedPreferences instance
-                var pref = await SharedPreferences.getInstance();
+              InkWell(
+                onTap: () async {
+                  // Get SharedPreferences instance
+                  var pref = await SharedPreferences.getInstance();
 
 
-                // Remove specific keys
-                await pref.remove(SplashScreenState.keyLogin);
-                await pref.remove(TOKEN); // TOKEN key should be defined somewhere in your code
-                await pref.remove(NAME);  // NAME key should be defined somewhere in your code
-                await pref.remove(EMAIL); // EMAIL key should be defined somewhere in your code
+                  // Remove specific keys
+                  await pref.remove(SplashScreenState.keyLogin);
+                  await pref.remove(
+                      TOKEN); // TOKEN key should be defined somewhere in your code
+                  await pref.remove(
+                      NAME); // NAME key should be defined somewhere in your code
+                  await pref.remove(
+                      EMAIL); // EMAIL key should be defined somewhere in your code
 
 
-                await appStore.setToken('', isInitializing: true); // Reset token
-                await appStore.setName('', isInitializing: true);  // Reset name
-                await appStore.setEmail('', isInitializing: true); // Reset email
+                  await appStore.setToken(
+                      '', isInitializing: true); // Reset token
+                  await appStore.setName(
+                      '', isInitializing: true); // Reset name
+                  await appStore.setEmail(
+                      '', isInitializing: true); // Reset email
 
-                appStore.setLoading(false); // Reset loading state
+                  appStore.setLoading(false); // Reset loading state
 
-                // Navigate to the login screen
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                );
-
-
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 24.w),
-                margin: EdgeInsets.symmetric(vertical: 16.h, horizontal: 32.w),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Center(
-                  child: Text(
-                    'Log out',
-                    style: GoogleFonts.poppins(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                  // Navigate to the login screen
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()),
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      vertical: 12.h, horizontal: 24.w),
+                  margin: EdgeInsets.symmetric(
+                      vertical: 16.h, horizontal: 32.w),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Center(
+                    child: Text(
+                      'Log out',
+                      style: GoogleFonts.poppins(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
 
-            SizedBox(height: 25.h),
+              SizedBox(height: 25.h),
 
             ],
           ),
@@ -157,7 +202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildOptionRow(String title, IconData icon) {
     return InkWell(
-      onTap: (){
+      onTap: () {
         // Navigator.push(
         //   context,
         //   MaterialPageRoute(
@@ -178,13 +223,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SizedBox(width: 12.w),
             Text(
               title,
-              style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w500),
+              style: GoogleFonts.poppins(
+                  fontSize: 16.sp, fontWeight: FontWeight.w500),
             ),
             const Spacer(),
-            Icon(Icons.arrow_forward_ios_outlined, color: Colors.black54, size: 18.sp),
+            Icon(Icons.arrow_forward_ios_outlined, color: Colors.black54,
+                size: 18.sp),
           ],
         ),
       ),
     );
+  }
+
+
+  _launchURL() async {
+    const url = 'https:website.com';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

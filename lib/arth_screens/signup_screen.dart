@@ -287,7 +287,6 @@ class SignUpScreenState extends State<SignUpScreen> {
                 SizedBox(height: 16.h),
 
                 // Country Dropdown
-                // Country Dropdown with Border and no underlin
                 if (_isLoadingCountries) const CircularProgressIndicator(),
 
                 Container(

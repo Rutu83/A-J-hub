@@ -3,6 +3,7 @@ import 'package:allinone_app/arth_screens/signup_screen.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -107,21 +108,29 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
         fontSize: 16.0
     );
 
-    // const DashboardScreen().launch(context,
-    //     isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+    const DashboardScreen().launch(context,
+        isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
 
   Future<void> onLoginSuccessRedirection() async {
 
     var pref = await SharedPreferences.getInstance();
     pref.setBool(SplashScreenState.keyLogin, true);
-    print(',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,');
+    if (kDebugMode) {
+      print(',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,');
+    }
     const DashboardScreen().launch(context,
         isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
 
   @override
   Widget build(BuildContext context) {
+
+
+
+
+
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(

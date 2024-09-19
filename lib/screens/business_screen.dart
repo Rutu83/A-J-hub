@@ -1,7 +1,8 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api
 
 import 'dart:convert'; // Required for JSON parsing
 import 'package:allinone_app/main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http; // HTTP package
 import 'package:allinone_app/screens/team_member_list.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -31,9 +32,11 @@ class _BusinessScreenState extends State<BusinessScreen> {
         },
       );
 
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      print('Response headers: ${response.headers}');
+      if (kDebugMode) {
+        print('Response status: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        print('Response headers: ${response.headers}');
+      }
 
       if (response.statusCode == 200 && response.headers['content-type'] == 'application/json') {
         setState(() {

@@ -53,7 +53,7 @@ Map<String, String> buildHeaderTokens({
     header.putIfAbsent(
         HttpHeaders.contentTypeHeader, () => 'application/json; charset=utf-8');
     header.putIfAbsent(
-        HttpHeaders.authorizationHeader, () =>' Bearer ${appStore.token}');
+        HttpHeaders.authorizationHeader, () =>'Bearer ${appStore.token}');
     header.putIfAbsent(
         HttpHeaders.acceptHeader, () => 'application/json; charset=utf-8');
   }
@@ -193,9 +193,6 @@ void redirectToLogin() async{
   await pref.remove(ROLE);
   await pref.remove(VENDOR_TYPE);
   await pref.remove(NUMBER);
-  await pref.remove(SHOP_NAME);
-  await pref.remove(TEA_PRICE);
-  await pref.remove(COFFEE_PRICE);
 
   // Or you can clear all keys
   // await pref.clear();

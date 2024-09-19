@@ -8,6 +8,7 @@ import 'package:allinone_app/model/login_modal.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
 import 'package:allinone_app/network/network_utils.dart';
 import 'package:allinone_app/utils/configs.dart';
+import 'package:flutter/foundation.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:http/http.dart' as http;
 
@@ -79,24 +80,24 @@ Future<Map<String, dynamic>> getUserDetail() async {
   }
 }
 
-// update profile
-Future<void> updateUserData(userIdn, {required String name, required String email, required String number, required String shopName, required String country, required String state, required String city, required String pincode, required String address, required onSuccess,required Null Function() onSuccesss,required onFail,required Null Function() onFaild}) async {
-  final token = appStore.token;
-  var userId = userIdn;
-  final url = Uri.parse('${BASE_URL}vendor/edit/$userId');
+Future<void> updateProfile({
+  required String name,
+  required String gender,
+  required String dob,
+  required Function() onSuccess,
+  required Function() onFail,
+}) async {
+  final token = appStore.token; // Assumes token is stored here
+  final url = Uri.parse('${BASE_URL}profile/update');
+
   final userData = {
-    'name': name,
-    'email': email,
-    'number':number,
-    'country': country,
-    'state': state,
-    'city': city,
-    'pincode': pincode,
-    'address': address,
+    'username': name,
+    'gender': gender,
+    'dob': dob,
   };
 
   try {
-    final response = await http.put(
+    final response = await http.patch(
       url,
       body: jsonEncode(userData),
       headers: {
@@ -108,17 +109,21 @@ Future<void> updateUserData(userIdn, {required String name, required String emai
     if (response.statusCode == 200) {
 
 
-      onSuccess();
-      onSuccesss();
-    } else {
-      onFail();
-      onFaild();
+      if (kDebugMode) {
+        print(response.body);
+      }
 
+      onSuccess(); // Call on success
+    } else {
+      if (kDebugMode) {
+        print(response.body);
+        print(response.statusCode);
+      }
+      onFail(); // Call on failure
     }
   } catch (e) {
-    onFail();
-    onFaild();
-
+    print(e);
+    onFail(); // Handle network or server error
   }
 }
 
