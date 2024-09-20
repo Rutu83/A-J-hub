@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class TeamMemberList extends StatefulWidget {
@@ -19,7 +20,9 @@ class TeamMemberListState extends State<TeamMemberList> {
     selectedLevel = 1;
 
 
-    print(widget.userData);
+    if (kDebugMode) {
+      print(widget.userData);
+    }
 
 
   }

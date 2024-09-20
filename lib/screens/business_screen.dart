@@ -2,6 +2,7 @@
 
 import 'dart:convert'; // Required for JSON parsing
 import 'package:allinone_app/main.dart';
+import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http; // HTTP package
 import 'package:allinone_app/screens/team_member_list.dart';
@@ -46,7 +47,9 @@ class _BusinessScreenState extends State<BusinessScreen> {
         throw Exception('Failed to load business data. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error: $e');
+      if (kDebugMode) {
+        print('Error: $e');
+      }
     }
   }
 
@@ -60,6 +63,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+
         centerTitle: true,
         backgroundColor: Colors.white,
         title: const Text(
@@ -75,20 +79,22 @@ class _BusinessScreenState extends State<BusinessScreen> {
         elevation: 0,
       ),
       body: businessData == null
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildSkeletonLoader()
           : SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              _buildIncomeRow(),
-              const SizedBox(height: 10),
-              _buildBenefitsAnalysis(),
-              const SizedBox(height: 15),
-              _buildLoginButton(context),
-              const SizedBox(height: 15),
-              _buildTeamMembersInfo(),
+             child: Padding(
+
+               padding: const EdgeInsets.only(left: 16.0,right: 16.0,top: 10.0,bottom: 100),
+               child: Column(
+                 mainAxisAlignment: MainAxisAlignment.start,
+                 children: [
+                   _buildIncomeRow(),
+                   const SizedBox(height: 10),
+                   _buildBenefitsAnalysis(),
+                   const SizedBox(height: 15),
+                   _buildLoginButton(context),
+                   const SizedBox(height: 15),
+                   _buildTeamMembersInfo(),
+
             ],
           ),
         ),
@@ -99,8 +105,16 @@ class _BusinessScreenState extends State<BusinessScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.11),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5), // Shadow color
+            spreadRadius: 2, // Spread radius
+            blurRadius: 5, // Blur radius
+            offset: const Offset(0, 3), // Offset in x and y direction
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,8 +133,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
               child: PieChart(
                 PieChartData(
                   sections: [
-                    _buildPieChartSection('Rating Income', Colors.red, 30),
-                    _buildPieChartSection('Team Income', Colors.blueAccent, 40),
+                    _buildPieChartSection('30.0%', Colors.red, 30),
+                    _buildPieChartSection('40.0%', Colors.blueAccent, 40),
                   ],
                   centerSpaceRadius: 40,
                   sectionsSpace: 2,
@@ -146,7 +160,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
       titleStyle: const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
-        color: Colors.black,
+        color: Colors.white,
       ),
     );
   }
@@ -188,17 +202,6 @@ class _BusinessScreenState extends State<BusinessScreen> {
               ),
             ),
           ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 23),
-          child: Text(
-            '0',
-            style: GoogleFonts.poppins(
-              fontSize: 17.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
         ),
       ],
     );
@@ -252,8 +255,16 @@ class _BusinessScreenState extends State<BusinessScreen> {
       height: 100,
       width: 200,
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.11),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5), // Shadow color
+            spreadRadius: 2, // Spread radius
+            blurRadius: 5, // Blur radius
+            offset: const Offset(0, 3), // Offset in x and y direction
+          ),
+        ],
       ),
       padding: const EdgeInsets.only(left: 12),
       child: Column(
@@ -293,8 +304,16 @@ class _BusinessScreenState extends State<BusinessScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.11),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5), // Shadow color
+            spreadRadius: 2, // Spread radius
+            blurRadius: 5, // Blur radius
+            offset: const Offset(0, 3), // Offset in x and y direction
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,29 +327,50 @@ class _BusinessScreenState extends State<BusinessScreen> {
           ),
           const SizedBox(height: 10),
           _buildTeamMembersStats(),
-          const Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Divider(),
-          ),
+          const SizedBox(height: 15),
         ],
       ),
     );
+
   }
 
   Widget _buildTeamMembersStats() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildStatItem(businessData?['todayTotalTeam'].toString() ?? '0', 'Today added'),
-        _buildStatItem(businessData?['lastWeekTotalTeam'].toString() ?? '0', 'Last week added'),
-        _buildStatItem(businessData?['thisMonthTotalTeam'].toString() ?? '0', 'This Month added'),
+        const SizedBox(height: 10,width: 10,),
+        Expanded(
+          child: _buildStatItem(businessData?['todayTotalTeam'].toString() ?? '0', 'Today\n added'),
+        ),
+        const SizedBox(height: 10,width: 10,),
+        Expanded(
+          child: _buildStatItem(businessData?['lastWeekTotalTeam'].toString() ?? '0', 'Last week\n added'),
+        ),
+        const SizedBox(height: 10,width: 10,),
+        Expanded(
+          child: _buildStatItem(businessData?['thisMonthTotalTeam'].toString() ?? '0', 'This Month\n added'),
+        ),
+        const SizedBox(height: 10,width: 10,),
       ],
     );
   }
 
   Widget _buildStatItem(String count, String label) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return Container(
+
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5), // Shadow color
+            spreadRadius: 2, // Spread radius
+            blurRadius: 5, // Blur radius
+            offset: const Offset(0, 3), // Offset in x and y direction
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(26.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -350,10 +390,46 @@ class _BusinessScreenState extends State<BusinessScreen> {
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
     );
   }
+
+
+
+  Widget _buildSkeletonLoader() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          _buildShimmerBox(height: 100, width: double.infinity), // Skeleton for income row
+          const SizedBox(height: 10),
+          _buildShimmerBox(height: 250, width: double.infinity), // Skeleton for pie chart
+          const SizedBox(height: 15),
+          _buildShimmerBox(height: 55, width: double.infinity), // Skeleton for login button
+          const SizedBox(height: 15),
+          _buildShimmerBox(height: 200, width: double.infinity), // Skeleton for team member info
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerBox({required double height, required double width}) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        height: height,
+        width: width,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
 }
 

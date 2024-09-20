@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:allinone_app/arth_screens/auth_admin_service.dart';
 import 'package:allinone_app/arth_screens/signup_screen.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
@@ -108,8 +110,8 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
         fontSize: 16.0
     );
 
-    const DashboardScreen().launch(context,
-        isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+    // const DashboardScreen().launch(context,
+    //     isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
 
   Future<void> onLoginSuccessRedirection() async {
