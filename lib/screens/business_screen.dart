@@ -57,6 +57,10 @@ class _BusinessScreenState extends State<BusinessScreen> {
   void initState() {
     super.initState();
     fetchBusinessData();
+
+    if (kDebugMode) {
+      print(businessData);
+    }
   }
 
   @override
@@ -244,7 +248,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildIncomeContainer('Total User Income', businessData?['directIncome'] ?? '0 OUSDT'),
+        _buildIncomeContainer('Total User Income', businessData?['directIncome'].toString() ?? '0 OUSDT'),
         _buildIncomeContainer('Total Income', businessData?['totalIncome'].toString() ?? '0 OUSDT'),
       ],
     );
@@ -321,7 +325,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              'Total Team members ${businessData?['totalTeam'] ?? '0'}',
+              'Total Team members ${businessData?['totalTeam'].toString() ?? '0'}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
