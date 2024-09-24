@@ -89,7 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildOptionRow('Change Password', Icons.lock, () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const ChangePasswordPage()));
               }),
-              _buildOptionRow('Change Transaction Password', Icons.lock_outline),
+              _buildOptionRow('Update Transaction', Icons.lock_outline),
               _buildOptionRow('Share', Icons.share, share),
               _buildOptionRow('About Us', Icons.info_outline, _launchURL),
 

@@ -244,7 +244,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildIncomeContainer('Total User Income', businessData?['directIncome'] ?? '0 OUSDT'),
+        _buildIncomeContainer('Direct Income', businessData?['directIncome'] ?? '0 OUSDT'),
         _buildIncomeContainer('Total Income', businessData?['totalIncome'].toString() ?? '0 OUSDT'),
       ],
     );
@@ -252,8 +252,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
 
   Widget _buildIncomeContainer(String title, String income) {
     return Container(
-      height: 100,
-      width: 200,
+      height: 90,
+      width: 170.w,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -321,7 +321,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              'Total Team members ${businessData?['totalTeam'] ?? '0'}',
+              'Total Team members ${businessData ?? '0'}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
@@ -340,15 +340,15 @@ class _BusinessScreenState extends State<BusinessScreen> {
       children: [
         const SizedBox(height: 10,width: 10,),
         Expanded(
-          child: _buildStatItem(businessData?['todayTotalTeam'].toString() ?? '0', 'Today\n added'),
+          child: _buildStatItem(businessData?['todayTotalTeam'].toString() ?? '0', 'Today\n Join'),
         ),
         const SizedBox(height: 10,width: 10,),
         Expanded(
-          child: _buildStatItem(businessData?['lastWeekTotalTeam'].toString() ?? '0', 'Last week\n added'),
+          child: _buildStatItem(businessData?['lastWeekTotalTeam'].toString() ?? '0', 'Direct Circle'),
         ),
         const SizedBox(height: 10,width: 10,),
         Expanded(
-          child: _buildStatItem(businessData?['thisMonthTotalTeam'].toString() ?? '0', 'This Month\n added'),
+          child: _buildStatItem(businessData?['thisMonthTotalTeam'].toString() ?? '0', 'Total Circle'),
         ),
         const SizedBox(height: 10,width: 10,),
       ],
