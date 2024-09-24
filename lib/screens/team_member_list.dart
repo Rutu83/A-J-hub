@@ -30,14 +30,14 @@ class TeamMemberListState extends State<TeamMemberList> {
   @override
   Widget build(BuildContext context) {
     final levels = List.generate(10, (index) => index + 1);
-    // Cast the user data to the expected type
-    final users = (widget.userData['Level $selectedLevel'] as List?)
+
+    // Access the list of users at Level 1, and take only the first user
+    final users = (widget.userData['Level 1'] as List?)
         ?.map((user) => Map<String, String>.from(user as Map))
-        .toList() ??
-        []; // Ensure correct casting and handle null values
+        .toList() ?? [];
 
-
-
+    // Check if there's at least one user and take only the first
+    final firstUser = users.isNotEmpty ? [users[0]] : [];
 
     final screenWidth = MediaQuery.of(context).size.width;
 
@@ -56,7 +56,7 @@ class TeamMemberListState extends State<TeamMemberList> {
             Text(
               'xx34Ft4jk532AA',
               style: TextStyle(
-                fontSize: 20, // Responsive text size
+                fontSize: 20,
                 color: Colors.black38,
                 fontWeight: FontWeight.bold,
               ),
@@ -76,23 +76,21 @@ class TeamMemberListState extends State<TeamMemberList> {
             child: Text(
               '45',
               style: TextStyle(
-                fontSize: 18, // Responsive text size
+                fontSize: 18,
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          SizedBox(
-            width: 10,
-          )
+          SizedBox(width: 10)
         ],
       ),
       body: Row(
         children: [
           // Level list on the left
           Container(
-            width: 70, // 20% of the screen width for levels list
-            color: Colors.white, // Background color for levels
+            width: 70,
+            color: Colors.white,
             child: ListView.builder(
               itemCount: levels.length,
               itemBuilder: (context, index) {
@@ -105,11 +103,11 @@ class TeamMemberListState extends State<TeamMemberList> {
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 23, horizontal: screenWidth * 0.02),
-                    color: selectedLevel == level ? Colors.red : Colors.transparent, // Highlight selected level
+                    color: selectedLevel == level ? Colors.red : Colors.transparent,
                     child: Text(
                       'Level $level',
                       style: TextStyle(
-                        fontSize: screenWidth * 0.03, // Responsive text size
+                        fontSize: screenWidth * 0.03,
                         color: selectedLevel == level ? Colors.white : Colors.black38,
                         fontWeight: FontWeight.bold,
                       ),
@@ -122,7 +120,7 @@ class TeamMemberListState extends State<TeamMemberList> {
           // User details list on the right
           Expanded(
             child: Container(
-              color: Colors.white, // Background color for user list
+              color: Colors.white,
               child: Column(
                 children: [
                   // Header
@@ -144,10 +142,9 @@ class TeamMemberListState extends State<TeamMemberList> {
                   // User rows
                   Expanded(
                     child: ListView.builder(
-                      itemCount: users.length,
+                      itemCount: firstUser.length,
                       itemBuilder: (context, index) {
-                        final user = users[index];
-
+                        final user = firstUser[index];
                         return _buildUserRow(user, index, screenWidth);
                       },
                     ),

@@ -96,9 +96,7 @@ Future<void> updateProfile({
 }) async {
 
 
-
-
-  final String authToken = appStore.token; // Fetch the stored token
+  final String authToken = appStore.token;
   const String apiUrl = 'https://ajhub.co.in/api/profile/update';
 
   final Map<String, dynamic> payload = {
@@ -112,7 +110,7 @@ Future<void> updateProfile({
       Uri.parse(apiUrl),
       headers: {
         "Content-Type": "application/json",
-        "Authorization": authToken, // Fix the token format with Bearer
+        "Authorization": "Bearer $authToken", // Fix the token format with Bearer
       },
       body: json.encode(payload),
     );

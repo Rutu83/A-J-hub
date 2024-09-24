@@ -1,4 +1,3 @@
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +28,6 @@ class HomeScreenState extends State<HomeScreen> {
 
   final List<String> scopes = ['user-library-read', 'user-read-email'];
 
-
-
   Future<void> authenticate() async {
     final AuthorizationTokenResponse? result = await appAuth.authorizeAndExchangeCode(
       AuthorizationTokenRequest(
@@ -49,7 +46,6 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(
@@ -59,13 +55,12 @@ class HomeScreenState extends State<HomeScreen> {
       splitScreenMode: true,
     );
 
-    return  Scaffold(
+    return Scaffold(
       appBar: AppBar(
         forceMaterialTransparency: true,
         surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
         titleSpacing: 7.w,
-        toolbarHeight: 60.h,
         leading: Padding(
           padding: EdgeInsets.only(left: 8.w),
           child: CircleAvatar(
@@ -104,7 +99,6 @@ class HomeScreenState extends State<HomeScreen> {
               icon: Icon(
                 Icons.notifications_active,
                 size: 22.0.sp,
-
                 color: Colors.black,
               ),
               onPressed: () {
@@ -115,22 +109,29 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildBannerSlider(),
-            _buildTrendingSection(),
-            // _buildRecommendedSection(),
-            // _buildTopPicksSection(),
-          ],
-        ),
-      ),
-    );
+              child: Column(
+                children: [
+                  _buildBannerSlider(),
+                  _buildNewReleasesSection(),
 
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  _buildPostersSection(),
+
+                  const SizedBox(
+                    height: 150,
+                  )
+                ],
+              ),
+            ),
+
+    );
   }
 
-  Widget _buildTrendingSection() {
+  Widget _buildNewReleasesSection() {
     return _buildHorizontalCardSection(
-      sectionTitle: 'Trending This Week',
+      sectionTitle: 'New Released',
       items: [
         _buildCardItem('Hiss - Rebirth of a Destroyer', '116M Plays'),
         _buildCardItem('Maseeha Doctor', '25.9M Plays'),
@@ -142,46 +143,36 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget _buildRecommendedSection() {
-  //
-  //
-  //   return _buildHorizontalCardSection(
-  //     sectionTitle: 'Because You Listened - Pyaar, Yaar Aur Dhokha',
-  //     items: [
-  //       _buildCardItem('The Guns of August', '9.4M Plays'),
-  //       _buildCardItem('Hiroshima', '15.2M Plays'),
-  //       _buildCardItem('The Histories', '19.9M Plays'),
-  //     ],
-  //   );
-  // }
-  //
-  // Widget _buildTopPicksSection() {
-  //   return _buildHorizontalCardSection(
-  //     sectionTitle: 'Top Picks for Divya Bhachani',
-  //     items: [
-  //       _buildCardItem('Super Yoddha', '192M Plays'),
-  //       _buildCardItem("Secret Ameezaada", ''),
-  //     ],
-  //   );
-  // }
+  Widget _buildPostersSection() {
+    return _buildHorizontalCardSection(
+      sectionTitle: 'Poster',
+      items: [
+        _buildCardItem2('Hiss - Rebirth of a Destroyer', '116M Plays'),
+        _buildCardItem2('Maseeha Doctor', '25.9M Plays'),
+        _buildCardItem2('Shoorveer', '292.7M Plays'),
+        _buildCardItem2('The Guns of August', '9.4M Plays'),
+        _buildCardItem2('Hiroshima', '15.2M Plays'),
+        _buildCardItem2('The Histories', '19.9M Plays'),
+      ],
+    );
+  }
 
   Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items}) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Text(sectionTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-
-              const Spacer(flex: 1,),
-              const Icon(Icons.arrow_forward_ios_rounded,color: Colors.grey,size: 20,)
+              Text(sectionTitle, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+              const Spacer(flex: 1),
+              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey, size: 20),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           SizedBox(
-            height: 200,
+            height: 200.h,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: items,
@@ -194,38 +185,56 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCardItem(String title, String plays) {
     return Container(
-      width: 150,
-      margin: const EdgeInsets.only(right: 10),
+      width: 140.w,
+      margin: EdgeInsets.only(right: 10.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 200,
-
+            height: 150.h,
             decoration: BoxDecoration(
-                color: Colors.grey,
-              borderRadius: BorderRadius.circular(12)
+              color: Colors.grey,
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
-          // const SizedBox(height: 10),
-          // Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-          // Text(plays, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          SizedBox(height: 10.h),
+          Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
         ],
       ),
     );
   }
 
+  Widget _buildCardItem2(String title, String plays) {
+    return Container(
+      width: 260.w,
+      margin: EdgeInsets.only(right: 10.w),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 150.h,
+            decoration: BoxDecoration(
+              color: Colors.grey,
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+          ),
+          SizedBox(height: 10.h),
+          Text(title, style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
 
-Widget _buildBannerSlider() {
+  Widget _buildBannerSlider() {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: EdgeInsets.all(8.0.w),
       child: Column(
         children: [
           SizedBox(
             width: MediaQuery.of(context).size.width,
             child: CarouselSlider(
               options: CarouselOptions(
-                height: 150.0.h,
+                height: 150.h,
                 autoPlay: true,
                 viewportFraction: 1.0, // To show only one slide at a time without any scaling
                 onPageChanged: (index, reason) {
@@ -248,19 +257,16 @@ Widget _buildBannerSlider() {
             ),
           ),
           Row(
-
             mainAxisAlignment: MainAxisAlignment.center,
             children: _imageUrls.map((url) {
               int index = _imageUrls.indexOf(url);
               return Container(
                 width: 6.0.w,
                 height: 6.0.h,
-                margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 2.0),
+                margin: EdgeInsets.symmetric(vertical: 5.0.h, horizontal: 2.0.w),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _currentIndex == index
-                      ? Colors.black
-                      : Colors.grey,
+                  color: _currentIndex == index ? Colors.black : Colors.grey,
                 ),
               );
             }).toList(),
