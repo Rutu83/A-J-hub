@@ -244,8 +244,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildIncomeContainer('Direct Income', businessData?['directIncome'] ?? '0 OUSDT'),
-        _buildIncomeContainer('Total Income', businessData?['totalIncome'].toString() ?? '0 OUSDT'),
+        _buildIncomeContainer('Direct Income', businessData?['business']['total_income'].toString() ?? '0'),
+        _buildIncomeContainer('Total Income', businessData?['business']['sponser_income'].toString() ?? '0'),
       ],
     );
   }
@@ -253,7 +253,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
   Widget _buildIncomeContainer(String title, String income) {
     return Container(
       height: 90,
-      width: 170.w,
+      width: 160.w,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -288,7 +288,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
             ],
           ),
           Text(
-            income,
+            '₹ ${income}',
             style: GoogleFonts.poppins(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,
@@ -321,7 +321,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              'Total Team members ${businessData ?? '0'}',
+              'Total Team Member : ${businessData?['business']['total_downline_count'] ?? '0'}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
@@ -340,15 +340,11 @@ class _BusinessScreenState extends State<BusinessScreen> {
       children: [
         const SizedBox(height: 10,width: 10,),
         Expanded(
-          child: _buildStatItem(businessData?['todayTotalTeam'].toString() ?? '0', 'Today\n Join'),
+          child: _buildStatItem(businessData?['business']['direct_team_count'].toString() ?? '0', 'Direct Circle'),
         ),
         const SizedBox(height: 10,width: 10,),
         Expanded(
-          child: _buildStatItem(businessData?['lastWeekTotalTeam'].toString() ?? '0', 'Direct Circle'),
-        ),
-        const SizedBox(height: 10,width: 10,),
-        Expanded(
-          child: _buildStatItem(businessData?['thisMonthTotalTeam'].toString() ?? '0', 'Total Circle'),
+          child: _buildStatItem(businessData?['business']['total_downline_count'].toString() ?? '0', 'Total Circle'),
         ),
         const SizedBox(height: 10,width: 10,),
       ],
