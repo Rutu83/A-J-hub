@@ -214,7 +214,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TeamMemberList(userData: businessData!['user']),
+              builder: (context) => TeamMemberList(userData: businessData!['business']['level_downline']),
             ),
           );
         }
@@ -244,8 +244,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _buildIncomeContainer('Direct Income', businessData?['business']['total_income'].toString() ?? '0'),
-        _buildIncomeContainer('Total Income', businessData?['business']['sponser_income'].toString() ?? '0'),
+        _buildIncomeContainer("1'st Circle Income", businessData?['business']['sponser_income'].toString() ?? '0'),
+        _buildIncomeContainer('Total Income', businessData?['business']['total_income'].toString() ?? '0'),
       ],
     );
   }
@@ -321,7 +321,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(
-              'Total Team Member : ${businessData?['business']['total_downline_count'] ?? '0'}',
+              'Total Circle Member : ${businessData?['business']['total_team_count'] ?? '0'}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
@@ -344,7 +344,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
         ),
         const SizedBox(height: 10,width: 10,),
         Expanded(
-          child: _buildStatItem(businessData?['business']['total_downline_count'].toString() ?? '0', 'Total Circle'),
+          child: _buildStatItem(businessData?['business']['total_team_count'].toString() ?? '0', 'Total Circle'),
         ),
         const SizedBox(height: 10,width: 10,),
       ],
