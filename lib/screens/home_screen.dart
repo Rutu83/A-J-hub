@@ -1,3 +1,4 @@
+import 'package:allinone_app/screens/category_topics.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +113,7 @@ class HomeScreenState extends State<HomeScreen> {
               child: Column(
                 children: [
                   _buildBannerSlider(),
-                  _buildNewReleasesSection(),
+                  _buildNewReleasesSection1(),
 
                   const SizedBox(
                     height: 20,
@@ -140,6 +141,121 @@ class HomeScreenState extends State<HomeScreen> {
         _buildCardItem('Hiroshima', '15.2M Plays'),
         _buildCardItem('The Histories', '19.9M Plays'),
       ],
+    );
+  }
+  Widget _buildNewReleasesSection1() {
+    return _buildHorizontalCardSection1(
+      sectionTitle: 'Animated Videos',
+      items: [
+        _buildCardItem1('Gandhi Jayanti', '116M Plays', 'assets/images/gandhi_jayanti.jpg'),
+        _buildCardItem1('Navratri Wishes', '25.9M Plays', 'assets/images/navratri_wishes.jpg'),
+        _buildCardItem1('Hot Deal', '292.7M Plays', 'assets/images/hot_deal.png'),
+        _buildCardItem1('Birthday', '9.4M Plays', 'assets/images/birthday.jpg'), // Using local asset
+        _buildCardItem1('Hanuman Dada', '15.2M Plays', 'assets/images/hanuman_dada.jpg'),
+        _buildCardItem1('Trending', '19.9M Plays', 'assets/images/trending.png'),
+      ],
+    );
+  }
+
+  Widget _buildCardItem1(String title, String plays, String imageUrl) {
+    return InkWell(
+      onTap: () {
+        // Navigate to the CategoryTopics screen when tapped
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CategoryTopics(title: title)),
+        );
+      },
+      child: Container(
+        width: 100.w,
+        margin: EdgeInsets.only(right: 10.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 100.w,
+              height: 100.w,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r), // Optional: rounded corners
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: imageUrl.startsWith('assets/')
+                    ? Image.asset(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                )
+                    : Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            SizedBox(height: 10.h),
+            Text(
+              title,
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildHorizontalCardSection1({required String sectionTitle, required List<Widget> items,}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Vertical bar with rounded corners
+              Container(
+                height: 26,
+                width: 6,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(5),
+                    bottom: Radius.circular(5),
+                  ),
+                ),
+              ),
+              SizedBox(width: 8), // Add some spacing between the bar and the text
+              // Section title
+              Text(
+                sectionTitle,
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              // "See All" text
+              Text(
+                'See All',
+                style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+              ),
+              // Arrow icon
+              const Icon(
+                Icons.arrow_right_outlined,
+                color: Colors.grey,
+                size: 25,
+              ),
+            ],
+          ),
+          SizedBox(height: 5.h),
+          SizedBox(
+            height: 130.h,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: items,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

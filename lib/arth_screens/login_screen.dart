@@ -110,8 +110,8 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
         fontSize: 16.0
     );
 
-    // const DashboardScreen().launch(context,
-    //     isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
+    const DashboardScreen().launch(context,
+        isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
 
   Future<void> onLoginSuccessRedirection() async {
