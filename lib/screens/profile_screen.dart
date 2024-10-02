@@ -1,6 +1,15 @@
+import 'package:allinone_app/arth_screens/login_screen.dart';
+import 'package:allinone_app/main.dart';
+import 'package:allinone_app/network/rest_apis.dart';
+import 'package:allinone_app/screens/edit_profile.dart';
+import 'package:allinone_app/splash_screen.dart';
+import 'package:allinone_app/utils/constant.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -10,12 +19,67 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  var UserId;
+  var totalDownline;
+  var directDownline;
+  var totalIncome;
+  bool _isLoading = true;
+  Map<String, dynamic> userData = {};
+  Future<Map<String, dynamic>>? futureUserDetail;
+  UniqueKey keyForStatus = UniqueKey();
+
+
+  @override
+  void initState() {
+    super.initState();
+    init();
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ));
+    fetchUserData();
+  }
+
+  void init() async {
+    futureUserDetail = getUserDetail();
+    if (kDebugMode) {
+      print('Hello User  $futureUserDetail');
+    }
+  }
+
+  void fetchUserData() async {
+    try {
+      Map<String, dynamic> userDetail = await getUserDetail();
+      if (kDebugMode) {
+        print('...........................................................');
+        print(userDetail);
+      }
+
+      setState(() {
+        UserId = userDetail['_id'];
+        totalDownline.text = userDetail['profile']['direct_team_count'] ?? '';
+        directDownline.text = userDetail['profile']['phone_number'] ?? '';
+        totalIncome = userDetail['gender'] ?? 'Select Gender';
+      });
+
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error fetching user data: $e");
+      }
+      setState(() {
+        _isLoading = false; // Ensure loading state is false even on error
+      });
+    }
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        child: Padding(
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 56.0),
           padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -31,9 +95,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () => Navigator.pop(context),
                     ),
                   ),
-                  Spacer(),  // Add spacer to move the name to the center
+                 SizedBox(width: 20.w,),  // Add spacer to move the name to the center
                   Text(
-                    "Ramesh Prajapati",  // Replace with user's name
+                    appStore.Name,  // Replace with user's name
                     style: GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.w600),
                   ),
                   Spacer(),  // Add spacer to balance layout
@@ -42,7 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               // Profile Section
               SizedBox(height: 20.h),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10,),
                 child: Row(
                   children: [
                     CircleAvatar(
@@ -60,11 +124,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Column(
                           children: [
                             Text(
-                              "AJ-6",
+                              "${totalIncome.toString()}",
                               style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.red),
                             ),
                             SizedBox(height: 3.h),
-                            Text("Your Rank", style: GoogleFonts.poppins(fontSize: 12.sp, color: Colors.black54)),
+                            Text("Total Income", style: GoogleFonts.poppins(fontSize: 12.sp, color: Colors.black54)),
                           ],
                         ),
                         SizedBox(width: 25.w),
@@ -72,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
 
                             Text(
-                              "71.2k",
+                              "${totalDownline.toString()}",
                               style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black),
                             ),
                             SizedBox(height: 3.h),
@@ -83,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Column(
                           children: [
                             Text(
-                              "2,552",
+                              "${directDownline.toString()}",
                               style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black),
                             ),
                             SizedBox(height: 3.h),
@@ -116,6 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildMenuOption(Icons.receipt_long_rounded, "Transaction Report"),
               _buildMenuOption(Icons.receipt_long_rounded, "Income Report"),
               _buildMenuOption(Icons.lock, "Change Password"),
+              _buildMenuOption(Icons.login, "Logout"),
               SizedBox(height: 30.h),
             ],
           ),
@@ -152,8 +217,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Function to build Menu Option
   Widget _buildMenuOption(IconData icon, String label) {
     return InkWell(
-      onTap: () {
-        // Handle navigation
+      onTap: () async{
+      if (label == "Logout") {
+        // Handle logout logic
+        var pref = await SharedPreferences.getInstance();
+
+        // Remove specific keys
+        await pref.remove(SplashScreenState.keyLogin);
+        await pref.remove(TOKEN);
+        await pref.remove(NAME);
+        await pref.remove(EMAIL);
+
+        // Reset app store data
+        await appStore.setToken('', isInitializing: true);
+        await appStore.setName('', isInitializing: true);
+        await appStore.setEmail('', isInitializing: true);
+
+        // Navigate to login
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+      } else if (label == "My Profile") {
+        // Navigate to the profile page
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfile()));
+      } else {
+        // Handle other options if needed
+        print("Other menu option clicked: $label");
+      }
       },
       child: Container(
         margin: EdgeInsets.only(top: 10.h),

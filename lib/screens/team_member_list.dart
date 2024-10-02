@@ -94,6 +94,7 @@ class TeamMemberListState extends State<TeamMemberList> {
       'uid': user['uid'].toString(),
       'total_team': user['total_team'].toString(),
       'total_income': user['total_income'].toString(),
+      'direct_team_count': user['direct_team_count'].toString(), // Correct key used here
       'total_team_count': user['total_team_count'].toString(), // Correct key used here
       'created_at': _formatDate(user['created_at']), // Format the created_at date
       'level': user['level'].toString(),
@@ -238,15 +239,17 @@ class TeamMemberListState extends State<TeamMemberList> {
                       padding: EdgeInsets.all(screenHeight * 0.01), // Responsive padding for the header
                       child: Row(
                         children: [
+                          _buildHeaderCell('JOINED AT', screenWidth),
                           _buildHeaderCell('NAME', screenWidth),
                           _buildVerticalDivider(),
                           _buildHeaderCell('UID', screenWidth),
+                          _buildVerticalDivider(),
+                          _buildHeaderCell('Direct Circle', screenWidth),
                           _buildVerticalDivider(),
                           _buildHeaderCell('TOTAL TEAM', screenWidth),
                           _buildVerticalDivider(),
                           _buildHeaderCell('TOTAL INCOME', screenWidth),
                           _buildVerticalDivider(),
-                          _buildHeaderCell('JOINED AT', screenWidth),
                         ],
                       ),
                     ),
@@ -291,15 +294,17 @@ class TeamMemberListState extends State<TeamMemberList> {
       padding: EdgeInsets.all(screenWidth * 0.02), // Responsive padding for user rows
       child: Row(
         children: [
+          _buildUserCell(user['created_at'] ?? '', screenWidth),
+          _buildVerticalDivider(),
           _buildUserCell(user['username'] ?? '', screenWidth),
           _buildVerticalDivider(),
           _buildUserCell(user['uid'] ?? '', screenWidth),
           _buildVerticalDivider(),
+          _buildUserCell(user['direct_team_count'] ?? '', screenWidth),
+          _buildVerticalDivider(),
           _buildUserCell(user['total_team_count'] ?? "", screenWidth),
           _buildVerticalDivider(),
           _buildUserCell(user['total_income'] ?? '', screenWidth),
-          _buildVerticalDivider(),
-          _buildUserCell(user['created_at'] ?? '', screenWidth),
         ],
       ),
     );

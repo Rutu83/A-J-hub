@@ -26,7 +26,6 @@ class _EditProfileState extends State<EditProfile> {
   final TextEditingController _stateController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   String selectedGender = 'Select Gender';
-
   String selectedCountryCode = '+91';
   String selectedDropdown1 = 'Select Sponsor';
   String selectedDropdown2 = 'Select Your Parent';
@@ -38,7 +37,6 @@ class _EditProfileState extends State<EditProfile> {
   Future<Map<String, dynamic>>? futureUserDetail;
   UniqueKey keyForStatus = UniqueKey();
 
-
   void navigateBack() {
     Navigator.pop(context);
     snackBarMsgShow(context);
@@ -46,8 +44,6 @@ class _EditProfileState extends State<EditProfile> {
 
   void tostMsgShow() {
     Navigator.pop(context);
-
-
     snackBarMsgShow1(context);
 
   }
@@ -78,13 +74,6 @@ class _EditProfileState extends State<EditProfile> {
   void dispose() {
     super.dispose();
   }
-
-
-
-
-
-
-
 
   void fetchUserData() async {
     try {
