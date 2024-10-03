@@ -1,3 +1,5 @@
+import 'package:allinone_app/screens/category_selected.dart';
+import 'package:allinone_app/screens/category_topics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
@@ -89,6 +91,391 @@ class CustomerScreenState extends State<CustomerScreen> {
   }
 
 
+
+
+  Widget _buildNewReleasesSection2() {
+    return _buildHorizontalCardSection2(
+      sectionTitle: 'Farm store',
+      items: [
+        _buildCardItem2('Farm store', '116M Plays',   'assets/images/framstore/framstore.jpg'),
+        _buildCardItem2('Farm store', '25.9M Plays',   'assets/images/framstore/framstore2.jpg'),
+        _buildCardItem2('Farm store', '292.7M Plays',  'assets/images/framstore/framstore3.jpg'),
+        _buildCardItem2('Farm store', '9.4M Plays',    'assets/images/framstore/framstore4.jpg'), // Using local asset
+        _buildCardItem2('Farm store', '15.2M Plays',  'assets/images/framstore/framstore5.jpg'),
+        _buildCardItem2('Farm store', '19.9M Plays',  'assets/images/framstore/framstore6.jpg'),
+        _buildCardItem2('Farm store', '19.9M Plays',  'assets/images/framstore/framstore7.jpg'),
+        _buildCardItem2('Farm store', '19.9M Plays', 'assets/images/framstore/framstore8.jpg'),
+        _buildCardItem2('Farm store', '19.9M Plays', 'assets/images/framstore/framstore9.jpg'),
+        _buildCardItem2('Farm store', '19.9M Plays', 'assets/images/framstore/framstore10.jpg'),
+        _buildCardItem2('Farm store', '19.9M Plays', 'assets/images/framstore/framstore11.jpg'),
+        _buildCardItem2('Farm store', '19.9M Plays', 'assets/images/framstore/framstore12.jpg'),
+        _buildCardItem2('Farm store', '19.9M Plays', 'assets/images/framstore/framstore13.jpg'),
+        _buildCardItem2('Farm store', '19.9M Plays', 'assets/images/framstore/framstore14.jpg'),
+      ],
+    );
+  }
+
+  Widget _buildNewReleasesSection3() {
+    return _buildHorizontalCardSection2(
+      sectionTitle: 'Mahadev',
+      items: [
+        _buildCardItem2('Mahadev', '116M Plays', 'assets/images/shiv/shiv.jpg'    ),
+        _buildCardItem2('Mahadev', '25.9M Plays', 'assets/images/shiv/shiv2.jpg'       ),
+        _buildCardItem2('Mahadev', '292.7M Plays','assets/images/shiv/shiv3.jpg'        ),
+        _buildCardItem2('Mahadev', '9.4M Plays', 'assets/images/shiv/shiv4.jpg'     ), // Using local asset
+        _buildCardItem2('Mahadev', '15.2M Plays', 'assets/images/shiv/shiv5.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv6.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv7.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv8.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv9.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv10.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv11.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv12.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv13.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv14.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv15.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv16.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv17.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv18.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv19.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv20.jpg'),
+        _buildCardItem2('Mahadev', '19.9M Plays', 'assets/images/shiv/shiv21.jpg'),
+      ],
+    );
+  }
+
+  Widget _buildNewReleasesSection4() {
+    return _buildHorizontalCardSection2(
+      sectionTitle: 'Marketing',
+      items: [
+        _buildCardItem2('Marketing', '116M Plays', 'assets/images/Marketing/Marketing.jpg'),
+        _buildCardItem2('Marketing', '25.9M Plays', 'assets/images/Marketing/Marketing2.jpg'),
+        _buildCardItem2('Marketing', '292.7M Plays', 'assets/images/Marketing/Marketing3.jpg'),
+        _buildCardItem2('Marketing', '9.4M Plays', 'assets/images/Marketing/Marketing4.jpg'), // Using local asset
+        _buildCardItem2('Marketing', '15.2M Plays', 'assets/images/Marketing/Marketing5.jpg'),
+        _buildCardItem2('Marketing', '19.9M Plays', 'assets/images/Marketing/Marketing6.jpg'),
+        _buildCardItem2('Marketing', '19.9M Plays', 'assets/images/Marketing/Marketing7.jpg'),
+        _buildCardItem2('Marketing', '19.9M Plays', 'assets/images/Marketing/Marketing8.jpg'),
+      ],
+    );
+  }
+
+  Widget _buildCardItem2(String title, String plays, String imageUrl) {
+    return InkWell(
+      onTap: () {
+        // Define the list of images to show based on the title
+        List<String> images;
+
+        if (title == 'Happy Navratri') {
+          images = [
+            'assets/images/navratri/navratri.jpg',
+            'assets/images/navratri/navratri2.jpg',
+            'assets/images/navratri/navratri3.jpg',
+            'assets/images/navratri/navratri4.jpg',
+            'assets/images/navratri/navratri5.jpg',
+            'assets/images/navratri/navratri6.jpg',
+            'assets/images/navratri/navratri7.jpg',
+            'assets/images/navratri/navratri8.jpg',
+            'assets/images/navratri/navratri9.jpg',
+            'assets/images/navratri/navratri10.jpg',
+            'assets/images/navratri/navratri11.jpg',
+            'assets/images/navratri/navratri12.jpg',
+            'assets/images/navratri/navratri13.jpg',
+            'assets/images/navratri/navratri14.jpg',
+          ];
+        } else if (title == 'Farm store') {
+          images = [
+               'assets/images/framstore/framstore.jpg',
+                'assets/images/framstore/framstore2.jpg',
+                'assets/images/framstore/framstore3.jpg',
+                'assets/images/framstore/framstore4.jpg',
+               'assets/images/framstore/framstore5.jpg',
+               'assets/images/framstore/framstore6.jpg',
+               'assets/images/framstore/framstore7.jpg',
+              'assets/images/framstore/framstore8.jpg',
+              'assets/images/framstore/framstore9.jpg',
+              'assets/images/framstore/framstore10.jpg',
+              'assets/images/framstore/framstore11.jpg' ,
+              'assets/images/framstore/framstore12.jpg' ,
+              'assets/images/framstore/framstore13.jpg' ,
+              'assets/images/framstore/framstore14.jpg',
+          ];
+        } else if (title == 'Mahadev') {
+          images = [
+          'assets/images/shiv/shiv.jpg',
+           'assets/images/shiv/shiv2.jpg',
+          'assets/images/shiv/shiv3.jpg',
+          'assets/images/shiv/shiv4.jpg',
+           'assets/images/shiv/shiv5.jpg',
+           'assets/images/shiv/shiv6.jpg',
+           'assets/images/shiv/shiv7.jpg',
+           'assets/images/shiv/shiv8.jpg',
+           'assets/images/shiv/shiv9.jpg',
+           'assets/images/shiv/shiv10.jpg',
+           'assets/images/shiv/shiv11.jpg',
+           'assets/images/shiv/shiv12.jpg',
+           'assets/images/shiv/shiv13.jpg',
+           'assets/images/shiv/shiv14.jpg' ,
+          ];
+        } else if (title == 'Marketing') {
+          images = [
+            'assets/images/Marketing/Marketing.jpg',
+             'assets/images/Marketing/Marketing2.jpg',
+             'assets/images/Marketing/Marketing3.jpg',
+            'assets/images/Marketing/Marketing4.jpg',
+             'assets/images/Marketing/Marketing5.jpg',
+             'assets/images/Marketing/Marketing6.jpg',
+             'assets/images/Marketing/Marketing7.jpg',
+             'assets/images/Marketing/Marketing8.jpg',
+
+          ];
+        }else {
+          images = []; // Default empty list if no matching title
+        }
+
+        // Navigate to the CategorySelected screen with the relevant images
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategorySelected(imagePaths: images),
+          ),
+        );
+      },
+      child: Container(
+        width: 140.w,
+        margin: EdgeInsets.only(right: 10.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 140.w,
+              height: 125.w,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r), // Optional: rounded corners
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: imageUrl.startsWith('assets/')
+                    ? Image.asset(
+                  imageUrl,
+                  fit: BoxFit.fill,
+                )
+                    : Image.network(
+                  imageUrl,
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items,}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Vertical bar with rounded corners
+              Container(
+                height: 26,
+                width: 6,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(5),
+                    bottom: Radius.circular(5),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8), // Add some spacing between the bar and the text
+              // Section title
+              Text(
+                sectionTitle,
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              // "See All" text
+
+              InkWell(
+                onTap: () {
+                  // Define the list of images to show based on the title
+                  List<Map<String, String>> images;
+
+                  if (sectionTitle == 'Happy Navratri') {
+
+                    images = [
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri2.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri3.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri4.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri5.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri6.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri7.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri8.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri9.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri10.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri11.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri12.jpg'},
+                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri13.jpg'},
+                      // Add more images as needed
+                    ];
+                  }   else if (sectionTitle == 'Farm store') {
+
+                    images = [
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore2.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore3.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore4.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore5.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore6.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore7.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore8.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore9.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore10.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore11.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore12.jpg'},
+                      {'title': 'Farm store', 'image': 'assets/images/framstore/framstore13.jpg'},
+                      // Add more images as needed
+                    ];
+                  }   else if (sectionTitle == 'Mahadev') {
+
+                    images = [
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv2.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv3.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv4.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv5.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv6.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv7.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv8.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv9.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv10.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv11.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv12.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv13.jpg'},
+                      {'title': 'Mahadev', 'image': 'assets/images/shiv/shiv14.jpg'},
+                      // Add more images as needed
+                    ];
+                  }    else if (sectionTitle == 'Marketing') {
+
+                    images = [
+                      {'title': 'Marketing', 'image': 'assets/images/Marketing/Marketing.jpg'},
+                      {'title': 'Marketing', 'image': 'assets/images/Marketing/Marketing2.jpg'},
+                      {'title': 'Marketing', 'image': 'assets/images/Marketing/Marketing3.jpg'},
+                      {'title': 'Marketing', 'image': 'assets/images/Marketing/Marketing4.jpg'},
+                      {'title': 'Marketing', 'image': 'assets/images/Marketing/Marketing5.jpg'},
+                      {'title': 'Marketing', 'image': 'assets/images/Marketing/Marketing6.jpg'},
+                      {'title': 'Marketing', 'image': 'assets/images/Marketing/Marketing7.jpg'},
+                      {'title': 'Marketing', 'image': 'assets/images/Marketing/Marketing8.jpg'},
+                      // Add more images as needed
+                    ];
+                  }else {
+                    images = []; // Default empty list if no matching title
+                  }
+
+                  // Navigate to the CategoryTopics screen with the relevant images
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CategoryTopics(
+                        title: sectionTitle,
+                        topics: images,
+                      ),
+                    ),
+                  );
+                },
+                child:   Text(
+                  'See All',
+                  style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+                ),
+              ),
+
+
+              // Arrow icon
+              const Icon(
+                Icons.arrow_right_outlined,
+                color: Colors.grey,
+                size: 25,
+              ),
+            ],
+          ),
+          SizedBox(height: 5.h),
+          SizedBox(
+            height: 120.h,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: items,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+
+  Widget _buildHorizontalCardSection1({required String sectionTitle, required List<Widget> items,}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              // Vertical bar with rounded corners
+              Container(
+                height: 26,
+                width: 6,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(5),
+                    bottom: Radius.circular(5),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8), // Add some spacing between the bar and the text
+              // Section title
+              Text(
+                sectionTitle,
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              // "See All" text
+              Text(
+                'See All',
+                style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+              ),
+              // Arrow icon
+              const Icon(
+                Icons.arrow_right_outlined,
+                color: Colors.grey,
+                size: 25,
+              ),
+            ],
+          ),
+          SizedBox(height: 5.h),
+          SizedBox(
+            height: 130.h,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: items,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
   Widget _buildNewReleasesSection1() {
     return _buildHorizontalCardSection1(
       sectionTitle: 'Animated Videos',
@@ -102,54 +489,6 @@ class CustomerScreenState extends State<CustomerScreen> {
       ],
     );
   }
-
-
-  Widget _buildNewReleasesSection2() {
-    return _buildHorizontalCardSection(
-      sectionTitle: 'Frame Store',
-      items: [
-        _buildCardItem('Hiss - Rebirth of a Destroyer', '116M Plays'),
-        _buildCardItem('Maseeha Doctor', '25.9M Plays'),
-        _buildCardItem('Shoorveer', '292.7M Plays'),
-        _buildCardItem('The Guns of August', '9.4M Plays'),
-        _buildCardItem('Hiroshima', '15.2M Plays'),
-        _buildCardItem('The Histories', '19.9M Plays'),
-      ],
-    );
-  }
-
-  Widget _buildNewReleasesSection3() {
-    return _buildHorizontalCardSection(
-      sectionTitle: 'Winners of Navratri Events',
-      items: [
-        _buildCardItem('Hiss - Rebirth of a Destroyer', '116M Plays'),
-        _buildCardItem('Maseeha Doctor', '25.9M Plays'),
-        _buildCardItem('Shoorveer', '292.7M Plays'),
-        _buildCardItem('The Guns of August', '9.4M Plays'),
-        _buildCardItem('Hiroshima', '15.2M Plays'),
-        _buildCardItem('The Histories', '19.9M Plays'),
-      ],
-    );
-  }
-
-  Widget _buildNewReleasesSection4() {
-    return _buildHorizontalCardSection(
-      sectionTitle: 'Marketing',
-      items: [
-        _buildCardItem('Hiss - Rebirth of a Destroyer', '116M Plays'),
-        _buildCardItem('Maseeha Doctor', '25.9M Plays'),
-        _buildCardItem('Shoorveer', '292.7M Plays'),
-        _buildCardItem('The Guns of August', '9.4M Plays'),
-        _buildCardItem('Hiroshima', '15.2M Plays'),
-        _buildCardItem('The Histories', '19.9M Plays'),
-      ],
-    );
-  }
-
-
-
-
-
 
   Widget _buildCardItem1(String title, String plays, String imageUrl) {
     return Container(
@@ -187,140 +526,4 @@ class CustomerScreenState extends State<CustomerScreen> {
       ),
     );
   }
-
-  Widget _buildCardItem(String title, String plays) {
-    return Container(
-      width: 140.w,
-      margin: EdgeInsets.only(right: 10.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 120.h,
-            decoration: BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildHorizontalCardSection1({required String sectionTitle, required List<Widget> items,}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Vertical bar with rounded corners
-              Container(
-                height: 26,
-                width: 6,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(5),
-                    bottom: Radius.circular(5),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8), // Add some spacing between the bar and the text
-              // Section title
-              Text(
-                sectionTitle,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-              ),
-              const Spacer(),
-              // "See All" text
-              Text(
-                'See All',
-                style: TextStyle(fontSize: 14.sp, color: Colors.grey),
-              ),
-              // Arrow icon
-              const Icon(
-                Icons.arrow_right_outlined,
-                color: Colors.grey,
-                size: 25,
-              ),
-            ],
-          ),
-          SizedBox(height: 5.h),
-          SizedBox(
-            height: 130.h,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: items,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items,}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Vertical bar with rounded corners
-              Container(
-                height: 26,
-                width: 6,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(5),
-                    bottom: Radius.circular(5),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8), // Add some spacing between the bar and the text
-              // Section title
-              Text(
-                sectionTitle,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-              ),
-              const Spacer(),
-              // "See All" text
-              Text(
-                'See All',
-                style: TextStyle(fontSize: 14.sp, color: Colors.grey),
-              ),
-              // Arrow icon
-              const Icon(
-                Icons.arrow_right_outlined,
-                color: Colors.grey,
-                size: 25,
-              ),
-            ],
-          ),
-          SizedBox(height: 5.h),
-          SizedBox(
-            height: 130.h,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: items,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-
-
-
-
 }

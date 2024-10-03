@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, use_build_context_synchronously, non_constant_identifier_names
+
 import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
@@ -12,7 +14,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -23,7 +25,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   var totalDownline;
   var directDownline;
   var totalIncome;
-  bool _isLoading = true;
   Map<String, dynamic> userData = {};
   Future<Map<String, dynamic>>? futureUserDetail;
   UniqueKey keyForStatus = UniqueKey();
@@ -66,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         print("Error fetching user data: $e");
       }
       setState(() {
-        _isLoading = false; // Ensure loading state is false even on error
+// Ensure loading state is false even on error
       });
     }
   }
@@ -100,7 +101,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     appStore.Name,  // Replace with user's name
                     style: GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.w600),
                   ),
-                  Spacer(),  // Add spacer to balance layout
+                  const Spacer(),  // Add spacer to balance layout
                 ],
               ),
               // Profile Section
@@ -114,17 +115,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: Colors.redAccent.withOpacity(0.8),
                       child: CircleAvatar(
                         radius: 33.r,
-                        backgroundImage: NetworkImage('https://your_image_link.com'), // Replace with user's profile picture
+                        backgroundImage: const NetworkImage('https://your_image_link.com'), // Replace with user's profile picture
                       ),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Column(
                           children: [
                             Text(
-                              "${totalIncome.toString()}",
+                              totalIncome.toString(),
                               style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.red),
                             ),
                             SizedBox(height: 3.h),
@@ -136,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
 
                             Text(
-                              "${totalDownline.toString()}",
+                              totalDownline.toString(),
                               style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black),
                             ),
                             SizedBox(height: 3.h),
@@ -147,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Column(
                           children: [
                             Text(
-                              "${directDownline.toString()}",
+                              directDownline.toString(),
                               style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black),
                             ),
                             SizedBox(height: 3.h),
@@ -196,7 +197,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(12.r),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 5)],
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 5)],
       ),
       child: Column(
         children: [
@@ -240,7 +241,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfile()));
       } else {
         // Handle other options if needed
-        print("Other menu option clicked: $label");
+        if (kDebugMode) {
+          print("Other menu option clicked: $label");
+        }
       }
       },
       child: Container(

@@ -72,7 +72,7 @@ class TeamMemberListState extends State<TeamMemberList> {
 
   // Function to format the income nicely (e.g. add commas or currency)
   String _formatIncome(double income) {
-    return NumberFormat.currency(symbol: '\₹ ', decimalDigits: 2).format(income);
+    return NumberFormat.currency(symbol: '₹ ', decimalDigits: 2).format(income);
   }
 
   @override
@@ -83,7 +83,7 @@ class TeamMemberListState extends State<TeamMemberList> {
     final levels = List.generate(10, (index) => index + 1);
 
     // Filter the users by selected level
-    final users = (widget.userData as List?)
+    final users = (widget.userData)
         ?.where((user) {
       var level = user['level'];
       // Check if level is already an integer or convert it to int
@@ -129,7 +129,7 @@ class TeamMemberListState extends State<TeamMemberList> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${appStore.Name}', // Display the name dynamically
+                appStore.Name, // Display the name dynamically
                 style: TextStyle(
                   fontSize: screenWidth * 0.021, // Responsive title font size
                 ),
@@ -151,7 +151,7 @@ class TeamMemberListState extends State<TeamMemberList> {
                       ),
                     ),
                     TextSpan(
-                      text: '${_formatIncome(selectedLevelIncome.toDouble())}',
+                      text: _formatIncome(selectedLevelIncome.toDouble()),
                       style: TextStyle(
                         fontSize: screenWidth * 0.018,
                         color: Colors.green, // Highlight income in green
@@ -181,7 +181,7 @@ class TeamMemberListState extends State<TeamMemberList> {
                       ),
                     ),
                     TextSpan(
-                      text: '${_formatIncome(totalIncome)}',
+                      text: _formatIncome(totalIncome),
                       style: TextStyle(
                         fontSize: screenWidth * 0.018,
                         color: Colors.green, // Highlight total income in green

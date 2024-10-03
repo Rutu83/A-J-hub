@@ -288,7 +288,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
             ],
           ),
           Text(
-            '₹ ${income}',
+            '₹ $income',
             style: GoogleFonts.poppins(
               fontSize: 14.sp,
               fontWeight: FontWeight.bold,

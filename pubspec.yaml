@@ -84,6 +84,15 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/navratri/
+    - assets/images/quotes/
+    - assets/images/poster/
+    - assets/images/gandhiji/
+    - assets/images/birthday/
+    - assets/images/hanuman/
+    - assets/images/framstore/
+    - assets/images/shiv/
+    - assets/images/Marketing/
 #    - images/lottie/
 
   # An image asset can refer to one or more resolution-specific "variants", see
