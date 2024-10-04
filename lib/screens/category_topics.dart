@@ -1,4 +1,5 @@
 import 'package:allinone_app/screens/category_selected.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class CategoryTopics extends StatelessWidget {
@@ -38,7 +39,9 @@ class CategoryTopics extends StatelessWidget {
                 List<String> images;
 
 
-                print(topicTitle);
+                if (kDebugMode) {
+                  print(topicTitle);
+                }
 
                 if (topicTitle == 'Navratri') {
                   images = [
@@ -173,6 +176,36 @@ class CategoryTopics extends StatelessWidget {
                     'assets/images/Marketing/Marketing6.jpg',
                     'assets/images/Marketing/Marketing7.jpg',
                     'assets/images/Marketing/Marketing8.jpg',
+
+                  ];
+                }else if (title == 'Anniversary') {
+                  images = [
+                    'assets/images/anniversary/anniversary.jpg',
+                    'assets/images/anniversary/anniversary2.jpg',
+                    'assets/images/anniversary/anniversary3.jpg',
+                    'assets/images/anniversary/anniversary4.jpg',
+                    'assets/images/anniversary/anniversary5.jpg',
+                    'assets/images/anniversary/anniversary6.jpg',
+                  ];
+                } else if (title == 'fligth') {
+                  images = [
+                    'assets/images/fligth/f.jpg',
+                    'assets/images/fligth/f2.jpg',
+                    'assets/images/fligth/f3.jpg',
+                    'assets/images/fligth/f4.jpg',
+                    'assets/images/fligth/f5.jpg',
+                    'assets/images/fligth/f6.jpg',
+                    'assets/images/fligth/f7.jpg',
+                    'assets/images/fligth/f8.jpg',
+                    'assets/images/fligth/f9.jpg',
+                    'assets/images/fligth/f10.jpg',
+                    'assets/images/fligth/f11.jpg',
+                    'assets/images/fligth/f12.jpg',
+                    'assets/images/fligth/f13.jpg',
+                    'assets/images/fligth/f14.jpg',
+                    'assets/images/fligth/f15.jpg',
+                    'assets/images/fligth/f16.jpg',
+                    'assets/images/fligth/f17.jpg',
 
                   ];
                 }else {

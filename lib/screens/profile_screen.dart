@@ -4,6 +4,7 @@ import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/edit_profile.dart';
+import 'package:allinone_app/screens/refer_earn.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
 import 'package:flutter/foundation.dart';
@@ -78,6 +79,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        forceMaterialTransparency: true,
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
+        titleSpacing: 7.w,
+        title:  Text(
+          'Profile',
+          style: GoogleFonts.roboto(
+            fontSize: 18.0.sp,
+            fontWeight: FontWeight.w400,
+            color: Colors.black,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Container(
           margin: const EdgeInsets.only(bottom: 56.0),
@@ -85,27 +100,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 10.h),
-              // Back Button
-              Row(
-                children: [
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child: IconButton(
-                      icon: Icon(Icons.arrow_back, size: 24.sp, color: Colors.black54),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                 SizedBox(width: 20.w,),  // Add spacer to move the name to the center
-                  Text(
-                    appStore.Name,  // Replace with user's name
-                    style: GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.w600),
-                  ),
-                  const Spacer(),  // Add spacer to balance layout
-                ],
-              ),
-              // Profile Section
-              SizedBox(height: 20.h),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10,),
                 child: Row(
@@ -180,6 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
               _buildMenuOption(Icons.receipt_long_rounded, "Transaction Report"),
               _buildMenuOption(Icons.receipt_long_rounded, "Income Report"),
+              _buildMenuOption(Icons.receipt_long_rounded, "Refer & Earn"),
               _buildMenuOption(Icons.lock, "Change Password"),
               _buildMenuOption(Icons.login, "Logout"),
               SizedBox(height: 30.h),
@@ -239,6 +234,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       } else if (label == "My Profile") {
         // Navigate to the profile page
         Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfile()));
+      } else if (label == "Refer & Earn") {
+
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const ReferEarn()));
       } else {
         // Handle other options if needed
         if (kDebugMode) {

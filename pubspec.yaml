@@ -42,6 +42,8 @@ dependencies:
   build_runner: ^2.4.8
   mobx_codegen: ^2.6.1
   mobx: ^2.2.0
+  reveal_on_scroll: ^0.0.3
+  dotted_border: ^2.1.0
   text_scroll: ^0.2.0
   image_picker: ^1.1.2
   fl_chart: ^0.69.0
@@ -94,6 +96,7 @@ flutter:
     - assets/images/shiv/
     - assets/images/Marketing/
     - assets/images/fligth/
+    - assets/images/anniversary/
 #    - images/lottie/
 
   # An image asset can refer to one or more resolution-specific "variants", see
