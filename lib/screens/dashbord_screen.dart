@@ -1,6 +1,7 @@
 import 'package:allinone_app/screens/customer_screen.dart';
 import 'package:allinone_app/screens/home_screen.dart';
 import 'package:allinone_app/screens/profile_screen.dart';
+import 'package:allinone_app/screens/business_screen.dart'; // Import the new screen
 import 'package:flutter/material.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -24,8 +25,8 @@ class DashboardScreenState extends State<DashboardScreen> {
             _selectedIndex = index;
           });
         },
-        children:   const [
-         HomeScreen(),
+        children: const [
+          HomeScreen(),
           CustomerScreen(),
           Center(
             child: Text(
@@ -33,7 +34,8 @@ class DashboardScreenState extends State<DashboardScreen> {
               style: TextStyle(fontSize: 24),
             ),
           ),
-          ProfileScreen()
+          ProfileScreen(),
+          BusinessScreen(), // Add the new screen here
         ],
       ),
       bottomSheet: Container(
@@ -50,21 +52,29 @@ class DashboardScreenState extends State<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       _buildMenuItem(Icons.home, "Home", 0),
-                      _buildMenuItem(Icons.business, "My Business", 1),
-                      Container(
-                        height: 80,
-                        width: 80,
-                        margin: const EdgeInsets.only(bottom: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(50),
-                        ),
-                        child: ClipOval(
-                          child: Image.asset(
-                            'assets/images/aj2.jpg',
-                            height: 80, // Match the height and width of the Container
-                            width: 80,
-                            fit: BoxFit.cover, // Ensures the image covers the entire container
+                      _buildMenuItem(Icons.business, "Category", 1),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedIndex = 4; // Update to navigate to the new screen
+                          });
+                          _pageController.jumpToPage(4); // Navigate to the new screen
+                        },
+                        child: Container(
+                          height: 80,
+                          width: 80,
+                          margin: const EdgeInsets.only(bottom: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/images/aj2.jpg',
+                              height: 80,
+                              width: 80,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),

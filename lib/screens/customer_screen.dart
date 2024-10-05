@@ -57,7 +57,7 @@ class CustomerScreenState extends State<CustomerScreen> {
         backgroundColor: Colors.white,
         titleSpacing: 7.w,
         title:  Text(
-          'Custom',
+          'Category',
           style: GoogleFonts.roboto(
             fontSize: 16.0.sp,
             fontWeight: FontWeight.w400,

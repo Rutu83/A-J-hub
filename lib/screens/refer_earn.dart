@@ -1,5 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -12,35 +13,57 @@ class ReferEarn extends StatefulWidget {
 }
 
 class _ReferEarnState extends State<ReferEarn> {
+
+
+  @override
+  void initState() {
+    super.initState();
+    // Set the status bar icon and text color to white and make it transparent
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // Makes status bar transparent
+      statusBarIconBrightness: Brightness.light, // Sets icons to light color (white)
+      statusBarBrightness: Brightness.dark, // For iOS devices, sets status bar content to dark
+    ));
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        forceMaterialTransparency: true,
-        surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
-        titleSpacing: 7.w,
-        title: Text(
-          'Refer & Earn',
-          style: GoogleFonts.roboto(
-            fontSize: 16.0.sp,
-            fontWeight: FontWeight.w400,
-            color: Colors.black,
-          ),
-        ),
-      ),
+
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildWalletBox("₹ 10,000", "Current Wallet", Colors.grey.shade50),
+
+            Stack(
+              children: [
+
+                Container(
+                  height: 270,
+                ),
+                Positioned(
+                  child:_buildAppBar(),
+                ),
+
+
+                Positioned(
+                  top: 100, // Adjust this value to control the position of the second container
+                  left: 0,
+                  right: 0,
+                  child: _buildCustomContainer(Colors.white, '₹1234', 'Label Text'),
+                ),
+              ],
+            ),
+
             _buildMessage(),
             _buildImage('assets/images/refer.jpg'),
             _buildCopyField(),
             _buildButton(),
 
-            SizedBox(
-              height: 10,
+            const SizedBox(
+              height: 30,
             ),
 
             InkWell(
@@ -53,6 +76,172 @@ class _ReferEarnState extends State<ReferEarn> {
             )
           ],
         ),
+      ),
+    );
+  }
+
+
+  Widget _buildCustomContainer(Color color, String amount, String label) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 8),
+      margin: const EdgeInsets.only(left: 27, right: 27),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(25.0),
+        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 5)],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Current Wallet',
+                    style: GoogleFonts.poppins(
+                        fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.red),
+                  ),
+                  const SizedBox(width: 3),
+                  const Icon(Icons.info_outline, color: Colors.red),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Text(
+                amount,
+                style: GoogleFonts.poppins(
+                    fontSize: 25.0, fontWeight: FontWeight.w700, color: Colors.red),
+              ),
+              const SizedBox(height: 10.0),
+
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  border: Border.all(color: Colors.red.shade200),
+                  borderRadius: const BorderRadius.all(Radius.circular(22))
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      label,
+                      style: GoogleFonts.poppins(
+                          fontSize: 12.0, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.red, size: 12),
+                  ],
+                ),
+              )
+
+            ],
+          ),
+          const SizedBox(
+            height: 100,
+            child: VerticalDivider(color: Colors.red, width: 2),
+          ),
+          Column(
+            children: [
+              Row(
+                children: [
+                  Text(
+                    'Current Wallet',
+                    style: GoogleFonts.poppins(
+                        fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.red),
+                  ),
+                  const SizedBox(width: 3),
+                  const Icon(Icons.info_outline, color: Colors.red),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Text(
+                amount,
+                style: GoogleFonts.poppins(
+                    fontSize: 25.0, fontWeight: FontWeight.w700, color: Colors.red),
+              ),
+              const SizedBox(height: 10.0),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    border: Border.all(color: Colors.red.shade200),
+                    borderRadius: const BorderRadius.all(Radius.circular(22))
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      label,
+                      style: GoogleFonts.poppins(
+                          fontSize: 12.0, fontWeight: FontWeight.bold, color: Colors.red),
+                    ),
+                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.red, size: 12),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildAppBar() {
+    return  Container(
+      width: double.infinity,
+      height: 170,
+      padding: const EdgeInsets.only(left: 10,right: 10,top: 30,bottom: 30),
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: const BorderRadius.only( bottomLeft: Radius.circular(400.0),bottomRight:  Radius.circular(10.0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2), // Shadow color with opacity
+            spreadRadius: 2, // Spread radius
+            blurRadius: 5, // Blur radius
+            offset: const Offset(0, 3), // Shadow offset: horizontal, vertical
+          ),
+        ],
+      ),
+
+
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+
+          InkWell(
+            onTap: (){
+              Navigator.pop(context);
+            },
+            child:  const Icon(Icons.arrow_back_sharp,color: Colors.white,size: 30,),
+          ),
+
+          const Text('Refer & Earn',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20),),
+
+
+          Container(
+            height: 40,
+            width: 40,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(30)),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2), // Shadow color with opacity
+                  spreadRadius: 2, // Spread radius
+                  blurRadius: 5, // Blur radius
+                  offset: const Offset(0, 3), // Shadow offset: horizontal, vertical
+                ),
+              ],
+            ),
+            child: Image.asset(
+              'assets/images/wallet.png',
+            ),
+          ),
+
+
+          //  const Icon(Icons.wallet,color: Colors.white,size: 30,),
+        ],
       ),
     );
   }
@@ -92,92 +281,6 @@ class _ReferEarnState extends State<ReferEarn> {
     );
   }
 
-  Widget _buildWalletBox(String amount, String label, Color color) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 8),
-      margin: const EdgeInsets.only(left: 27,right: 27),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(25.r),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 5)],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Column(
-            children: [
-              Row(
-                children: [
-                  Text(
-                    'Current Wallet',
-                    style: GoogleFonts.poppins(
-                        fontSize: 16.sp, fontWeight: FontWeight.w500, color: Colors.red),
-                  ),
-                  const SizedBox(width: 3),
-                  const Icon(Icons.info_outline, color: Colors.red),
-                ],
-              ),
-              SizedBox(height: 10.h),
-              Text(
-                amount,
-                style: GoogleFonts.poppins(
-                    fontSize: 25.sp, fontWeight: FontWeight.w700, color: Colors.red),
-              ),
-              SizedBox(height: 10.h),
-              Row(
-                children: [
-                  Text(
-                    label,
-                    style: GoogleFonts.poppins(
-                        fontSize: 12.sp, fontWeight: FontWeight.bold, color: Colors.red),
-                  ),
-                  const Icon(Icons.arrow_forward_ios_rounded, color: Colors.red, size: 12),
-                ],
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 100,
-            child: VerticalDivider(color: Colors.red, width: 2),
-          ),
-          Column(
-            children: [
-              Row(
-                children: [
-                  Text(
-                    'Current Wallet',
-                    style: GoogleFonts.poppins(
-                        fontSize: 16.sp, fontWeight: FontWeight.w500, color: Colors.red),
-                  ),
-                  const SizedBox(width: 3),
-                  const Icon(Icons.info_outline, color: Colors.red),
-                ],
-              ),
-              SizedBox(height: 10.h),
-              Text(
-                amount,
-                style: GoogleFonts.poppins(
-                    fontSize: 25.sp, fontWeight: FontWeight.w700, color: Colors.red),
-              ),
-              SizedBox(height: 10.h),
-              Row(
-                children: [
-                  Text(
-                    label,
-                    style: GoogleFonts.poppins(
-                        fontSize: 12.sp, fontWeight: FontWeight.bold, color: Colors.red),
-                  ),
-                  const Icon(Icons.arrow_forward_ios_rounded, color: Colors.red, size: 12),
-                ],
-              )
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMessage() {
     return Container(
       width: double.infinity,
@@ -193,18 +296,19 @@ class _ReferEarnState extends State<ReferEarn> {
                 ),),
               Flexible(
                 child: Text(
-                  'The horizontal rule represents as rules are used only after main sections, and this.',
+                  'When your friends registers on the app , You receive ₹100, and your friend receives ₹100. As a AllInOne HUb Point',
                   softWrap: true,
                   style: TextStyle(
                       color: Colors.black26,
-                    fontWeight: FontWeight.bold
+                    fontWeight: FontWeight.bold,
+                      fontSize: 15
                   ),
                 ),
               ),
 
             ],
           ),
-          SizedBox(height: 20.h),
+          SizedBox(height: 18.h),
           const Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -214,11 +318,12 @@ class _ReferEarnState extends State<ReferEarn> {
                 ),),
               Flexible(
                 child: Text(
-                  'The horizontal rule represents a paragraph-level thematic break. Do not use in article content, as rules are used only after main sections, and this is automatic.',
+                  'When your friends pays for a premium package , You receive a 10% as a cash balance.',
                   softWrap: true,
                   style: TextStyle(
                     color: Colors.black26,
-                      fontWeight: FontWeight.bold
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15
                   ),
                 ),
               ),
@@ -238,7 +343,7 @@ class _ReferEarnState extends State<ReferEarn> {
       child: DottedBorder(
         color: Colors.red, // Border color
         strokeWidth: 1, // Border width
-        dashPattern: [6, 3], // Dash pattern: [dash length, space length]
+        dashPattern: const [6, 3], // Dash pattern: [dash length, space length]
         borderType: BorderType.RRect, // Rounded rectangle
         radius: const Radius.circular(12), // Border radius
         child: Container(
@@ -307,10 +412,10 @@ class _ReferEarnState extends State<ReferEarn> {
             borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2), // Shadow color with opacity
-                spreadRadius: 2, // Spread radius
+                color: Colors.black.withOpacity(0.1), // Shadow color with opacity
+                spreadRadius: 1, // Spread radius
                 blurRadius: 5, // Blur radius
-                offset: const Offset(0, 3), // Shadow offset: horizontal, vertical
+                offset: const Offset(0, 0), // Shadow offset: horizontal, vertical
               ),
             ],
           ),
