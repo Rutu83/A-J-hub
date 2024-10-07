@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -22,14 +23,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  var UserId;
+  var userId;
   var totalDownline;
   var directDownline;
   var totalIncome;
   Map<String, dynamic> userData = {};
   Future<Map<String, dynamic>>? futureUserDetail;
   UniqueKey keyForStatus = UniqueKey();
-  bool _isLoading = true; // New variable to track loading state
+  bool _isLoading = true;
+  bool _imageLoadFailed = false;
 
   @override
   void initState() {
@@ -44,39 +46,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void init() async {
     futureUserDetail = getUserDetail();
     if (kDebugMode) {
-      print('Hello User  $futureUserDetail');
+      print('User details fetched: $futureUserDetail');
     }
   }
 
   void fetchUserData() async {
     try {
       setState(() {
-        _isLoading = true; // Show loading indicator
+        _isLoading = true;
       });
 
       Map<String, dynamic> userDetail = await getUserDetail();
       if (kDebugMode) {
-        print('...........................................................');
-        print(userDetail);
+        print('User details: $userDetail');
       }
 
       setState(() {
-        UserId = userDetail['_id'];
+        userId = userDetail['_id'];
         totalDownline = userDetail['profile']['direct_team_count'] ?? '';
         directDownline = userDetail['profile']['phone_number'] ?? '';
         totalIncome = userDetail['gender'] ?? 'Select Gender';
-        _isLoading = false; // Hide loading indicator
+        _isLoading = false;
       });
     } catch (e) {
       if (kDebugMode) {
         print("Error fetching user data: $e");
       }
       setState(() {
-        _isLoading = false; // Hide loading indicator even if there is an error
+        _isLoading = false;
       });
     }
   }
-  bool _imageLoadFailed = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,70 +113,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Row(
                   children: [
-                  CircleAvatar(
-                  radius: 36.r,
-                  backgroundColor: Colors.redAccent.withOpacity(0.8),
-                  child: CircleAvatar(
-                    radius: 33.r,
-                    backgroundImage: _imageLoadFailed
-                        ? const AssetImage('assets/images/placeholder.jpg') // Use local placeholder image
-                        : const NetworkImage('https://your_valid_image_url.com') as ImageProvider, // Replace with a valid URL
-                    onBackgroundImageError: (_, __) {
-                      setState(() {
-                        _imageLoadFailed = true; // Set flag if image loading fails
-                      });
-                    },
-                  ),
-                  ),
-
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Column(
-                          children: [
-                            Text(
-                              (totalIncome ?? 0).toString(), // Use ?? to show 0 if totalIncome is null
-                              style: GoogleFonts.poppins(
-                                  fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.red),
-                            ),
-                            SizedBox(height: 3.h),
-                            Text("Total Income",
-                                style: GoogleFonts.poppins(
-                                    fontSize: 12.sp, color: Colors.black54)),
-                          ],
-                        ),
-                        SizedBox(width: 10.w),
-                        Column(
-                          children: [
-                            Text(
-                              (totalDownline ?? 0).toString(), // Use ?? to show 0 if totalDownline is null
-                              style: GoogleFonts.poppins(
-                                  fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black),
-                            ),
-                            SizedBox(height: 3.h),
-                            Text("Total Team",
-                                style: GoogleFonts.poppins(
-                                    fontSize: 12.sp, color: Colors.black54)),
-                          ],
-                        ),
-                        SizedBox(width: 10.w),
-                        Column(
-                          children: [
-                            Text(
-                              (directDownline ?? 0).toString(), // Use ?? to show 0 if directDownline is null
-                              style: GoogleFonts.poppins(
-                                  fontSize: 16.sp, fontWeight: FontWeight.w600, color: Colors.black),
-                            ),
-                            SizedBox(height: 3.h),
-                            Text("Direct Joins",
-                                style: GoogleFonts.poppins(
-                                    fontSize: 12.sp, color: Colors.black54)),
-                          ],
-                        ),
-                      ],
+                    CircleAvatar(
+                      radius: 36.r,
+                      backgroundColor: Colors.redAccent.withOpacity(0.8),
+                      child: CircleAvatar(
+                        radius: 33.r,
+                        backgroundImage: _imageLoadFailed
+                            ? const AssetImage('assets/images/placeholder.jpg')
+                            : const NetworkImage('https://www.google.co.in/') as ImageProvider,
+                        onBackgroundImageError: (_, __) {
+                          setState(() {
+                            _imageLoadFailed = true;
+                          });
+                        },
+                      ),
                     ),
-
+                    const Spacer(),
+                    _buildInfoColumn(totalIncome, "Total Income", Colors.red),
+                    SizedBox(width: 10.w),
+                    _buildInfoColumn(totalDownline, "Total Team", Colors.black),
+                    SizedBox(width: 10.w),
+                    _buildInfoColumn(directDownline, "Direct Joins", Colors.black),
                   ],
                 ),
               ),
@@ -188,19 +146,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
               SizedBox(height: 20.h),
-              _buildMenuOption(Icons.person, "My Profile"),
-              _buildMenuOption(Icons.picture_as_pdf, "Plan PDF"),
-              _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
-              _buildMenuOption(Icons.receipt_long_rounded, "Transaction Report"),
-              _buildMenuOption(Icons.receipt_long_rounded, "Income Report"),
-              _buildMenuOption(Icons.receipt_long_rounded, "Refer & Earn"),
-              _buildMenuOption(Icons.lock, "Change Password"),
-              _buildMenuOption(Icons.login, "Logout"),
+              _buildMenuOptions(),
               SizedBox(height: 30.h),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildInfoColumn(dynamic value, String label, Color color) {
+    return Column(
+      children: [
+        Text(
+          (value ?? 0).toString(),
+          style: GoogleFonts.poppins(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+        SizedBox(height: 3.h),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 12.sp,
+            color: Colors.black54,
+          ),
+        ),
+      ],
     );
   }
 
@@ -217,65 +191,216 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Text(
             amount,
             style: GoogleFonts.poppins(
-                fontSize: 18.sp, fontWeight: FontWeight.w700, color: Colors.white),
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
           SizedBox(height: 5.h),
           Text(
             label,
             style: GoogleFonts.poppins(
-                fontSize: 14.sp, fontWeight: FontWeight.w500, color: Colors.white),
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMenuOption(IconData icon, String label) {
-    return InkWell(
-      onTap: () async {
-        if (label == "Logout") {
-          var pref = await SharedPreferences.getInstance();
-          await pref.remove(SplashScreenState.keyLogin);
-          await pref.remove(TOKEN);
-          await pref.remove(NAME);
-          await pref.remove(EMAIL);
-          await appStore.setToken('', isInitializing: true);
-          await appStore.setName('', isInitializing: true);
-          await appStore.setEmail('', isInitializing: true);
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-        } else if (label == "My Profile") {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => const EditProfile()));
-        } else if (label == "Refer & Earn") {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => const ReferEarn()));
-        } else {
-          if (kDebugMode) {
-            print("Other menu option clicked: $label");
+  Widget _buildMenuOptions() {
+    return Column(
+      children: [
+        _buildMenuOption(Icons.person, "My Profile"),
+        _buildMenuOption(Icons.picture_as_pdf, "Plan PDF"),
+        _buildMenuOption(Icons.contact_mail_outlined, "Contact Us"),
+        _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.google.co.in/'),
+        _buildMenuOption(Icons.account_balance_outlined, "KYC Details",'https://www.google.co.in/'),
+        _buildMenuOption(Icons.privacy_tip_outlined, "Privacy Policy", 'https://www.google.co.in/'),
+        _buildMenuOption(Icons.help_center_outlined, "Help & Support"),
+        _buildMenuOption(Icons.transfer_within_a_station, "Transaction Report",'https://www.google.co.in/'),
+        _buildMenuOption(Icons.report_gmailerrorred, "Income Report",'https://www.google.co.in/'),
+        _buildMenuOption(Icons.receipt_long_rounded, "Our Product & Service",'https://www.google.co.in/'),
+        _buildMenuOption(Icons.money, "Refer & Earn"),
+        _buildMenuOption(Icons.delete_outline, "Delete Account"),
+        _buildMenuOption(Icons.lock, "Change Password"),
+        _buildMenuOption(Icons.login, "Logout"),
+      ],
+    );
+  }
+
+  Widget _buildMenuOption(IconData icon, String label, [String? url]) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: () async {
+          if (label == "Logout") {
+            var pref = await SharedPreferences.getInstance();
+            await pref.remove(SplashScreenState.keyLogin);
+            await pref.remove(TOKEN);
+            await pref.remove(NAME);
+            await pref.remove(EMAIL);
+            await appStore.setToken('', isInitializing: true);
+            await appStore.setName('', isInitializing: true);
+            await appStore.setEmail('', isInitializing: true);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+            );
+          } else if (label == "Delete Account") {
+            _showDeleteAccountDialog();
+          } else if (url != null) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => WebViewScreen(url: url)),
+            );
+          } else if (label == "My Profile") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const EditProfile()),
+            );
+          } else if (label == "Refer & Earn") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ReferEarn()),
+            );
+          } else {
+            if (kDebugMode) {
+              print("Other menu option clicked: $label");
+            }
           }
-        }
-      },
-      child: Container(
-        margin: EdgeInsets.only(top: 10.h),
-        padding: EdgeInsets.all(15.w),
-        decoration: BoxDecoration(
-          color: Colors.grey.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8.r),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.red, size: 22.sp),
-            SizedBox(width: 12.w),
-            Text(
-              label,
-              style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w500),
-            ),
-            const Spacer(),
-            Icon(Icons.arrow_forward_ios_outlined, color: Colors.black54, size: 18.sp),
-          ],
+        },
+        child: Container(
+          padding: EdgeInsets.all(15.w),
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(8.r),
+          ),
+          child: Row(
+            children: [
+              Icon(icon, color: Colors.red, size: 22.sp),
+              SizedBox(width: 12.w),
+              Text(
+                label,
+                style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w500),
+              ),
+              const Spacer(),
+              Icon(Icons.arrow_forward_ios_outlined, color: Colors.black54, size: 18.sp),
+            ],
+          ),
         ),
       ),
     );
   }
+
+
+  void _showDeleteAccountDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Account'),
+          content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop(); // Close the dialog
+                // Perform delete account logic here
+             //   await _deleteAccount();
+              },
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Future<void> _deleteAccount() async {
+  //   try {
+  //     // Implement the logic to delete the account
+  //     // For example, you can make an API call to delete the account
+  //     var response = await deleteUserAccountApi(); // Placeholder for actual API call
+  //     if (response) {
+  //       // Navigate to the login screen or show a success message
+  //       Navigator.pushReplacement(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => const LoginScreen()),
+  //       );
+  //     } else {
+  //       // Show an error message if deletion failed
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         const SnackBar(content: Text('Failed to delete account. Please try again.')),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     if (kDebugMode) {
+  //       print("Error deleting account: $e");
+  //     }
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text('An error occurred. Please try again.')),
+  //     );
+  //   }
+  // }
+
 }
+
+
+
+
+
+class WebViewScreen extends StatelessWidget {
+  final String url;
+
+  const WebViewScreen({required this.url, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            // Update loading bar or progress indicator
+          },
+          onPageStarted: (String url) {
+            // Show loader when page starts loading
+          },
+          onPageFinished: (String url) {
+            // Hide loader when page finishes loading
+          },
+          onHttpError: (HttpResponseError error) {
+            // Handle HTTP errors
+          },
+          onWebResourceError: (WebResourceError error) {
+            // Handle resource errors
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            if (request.url.startsWith('https://www.youtube.com/')) {
+              return NavigationDecision.prevent; // Prevent navigation to YouTube URLs
+            }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(url));
+
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+      ),
+      body: WebViewWidget(controller: controller),
+    );
+  }
+}
+

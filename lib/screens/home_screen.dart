@@ -121,6 +121,12 @@ class HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             _buildBannerSlider(),
+
+            _buildButtons(),
+
+
+            _buildBanner('assets/images/banner.jpg'),
+            const SizedBox(height: 10),
             _buildNewReleasesSection1(),
             const SizedBox(height: 10),
             _buildNewReleasesSection2(),
@@ -131,6 +137,125 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+
+  Widget _buildButtons() {
+    return Card(
+      color: Colors.white,
+      elevation: 6, // Adds a shadow to give a card effect
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12), // Rounded corners
+      ),
+      margin: const EdgeInsets.all(12),
+      child: Container(
+        padding: const EdgeInsets.all(12), // Adds padding inside the card
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            Column(
+              mainAxisSize: MainAxisSize.min, // Allows the column to have a uniform size
+              children: [
+                Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(33), // Rounded corners
+                  ),
+                  child: const Icon(Icons.person_add, color: Colors.white),
+                ),
+                const SizedBox(height: 8), // Adds spacing between the icon and the text
+                const Text('Invite Friend'),
+              ],
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(33), // Rounded corners
+                  ),
+                  child: const Icon(Icons.card_giftcard, color: Colors.white),
+                ),
+                const SizedBox(height: 8),
+                const Text('Membership'),
+              ],
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(33), // Rounded corners
+                  ),
+                  child: const Icon(Icons.info_outline, color: Colors.white),
+                ),
+                const SizedBox(height: 8),
+                const Text('System Intro...'),
+              ],
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(33), // Rounded corners
+                  ),
+                  child: const Icon(Icons.business_sharp, color: Colors.white),
+                ),
+                const SizedBox(height: 8),
+                const Text('City Partner'),
+              ],
+            ),
+
+            // Container(
+            //   height: 50,
+            //   width: 50,
+            //   decoration: BoxDecoration(
+            //     color: Colors.red,
+            //     borderRadius: BorderRadius.circular(33), // Rounded corners
+            //   ),
+            //   child: const Icon(Icons.arrow_drop_down_circle_outlined, color: Colors.white),
+            // ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
+  Widget _buildBanner(String imageUrl) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.r), // Rounded corners
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.r), // Same border radius as the container
+        child: imageUrl.startsWith('assets/')
+            ? Image.asset(
+          imageUrl,
+          fit: BoxFit.fill,
+        )
+            : Image.network(
+          imageUrl,
+          fit: BoxFit.fill,
+        ),
+      ),
+    );
+  }
+
+
+
 
   Widget _buildNewReleasesSection1() {
     return _buildHorizontalCardSection1(

@@ -44,6 +44,7 @@ dependencies:
   mobx: ^2.2.0
   reveal_on_scroll: ^0.0.3
   dotted_border: ^2.1.0
+  webview_flutter: ^4.8.0
   text_scroll: ^0.2.0
   image_picker: ^1.1.2
   fl_chart: ^0.69.0

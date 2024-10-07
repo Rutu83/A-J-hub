@@ -78,7 +78,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                           ),
                         ),
                       ),
-                      _buildMenuItem(Icons.card_giftcard, "Reward", 2),
+                      _buildMenuItem(Icons.card_giftcard, "Opportunity", 2),
                       _buildMenuItem(Icons.account_circle, "Account", 3),
                     ],
                   ),
