@@ -3,7 +3,9 @@
 import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
+import 'package:allinone_app/screens/contact_us.dart';
 import 'package:allinone_app/screens/edit_profile.dart';
+import 'package:allinone_app/screens/help_support.dart';
 import 'package:allinone_app/screens/refer_earn.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
@@ -201,6 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             label,
             style: GoogleFonts.poppins(
               fontSize: 14.sp,
+
               fontWeight: FontWeight.w500,
               color: Colors.white,
             ),
@@ -220,8 +223,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.account_balance_outlined, "KYC Details",'https://www.google.co.in/'),
         _buildMenuOption(Icons.privacy_tip_outlined, "Privacy Policy", 'https://www.google.co.in/'),
         _buildMenuOption(Icons.help_center_outlined, "Help & Support"),
-        _buildMenuOption(Icons.transfer_within_a_station, "Transaction Report",'https://www.google.co.in/'),
-        _buildMenuOption(Icons.report_gmailerrorred, "Income Report",'https://www.google.co.in/'),
         _buildMenuOption(Icons.receipt_long_rounded, "Our Product & Service",'https://www.google.co.in/'),
         _buildMenuOption(Icons.money, "Refer & Earn"),
         _buildMenuOption(Icons.delete_outline, "Delete Account"),
@@ -265,6 +266,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ReferEarn()),
+            );
+          } else if (label == "Contact Us") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ContactUs()),
+            );
+          } else if (label == "Help & Support") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HelpSupport()),
             );
           } else {
             if (kDebugMode) {
