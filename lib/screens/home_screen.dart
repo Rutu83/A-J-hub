@@ -1,5 +1,6 @@
 import 'package:allinone_app/screens/category_selected.dart';
 import 'package:allinone_app/screens/category_topics.dart';
+import 'package:allinone_app/screens/charity_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -200,22 +201,29 @@ class HomeScreenState extends State<HomeScreen> {
                 const Text('System Intro...'),
               ],
             ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(33), // Rounded corners
+
+            InkWell(
+              onTap: (){
+                Navigator.push(context, (MaterialPageRoute(builder: (context)=>const CharityScreen())));
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 50,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(33), // Rounded corners
+                    ),
+                    child: const Icon(Icons.business_sharp, color: Colors.white),
                   ),
-                  child: const Icon(Icons.business_sharp, color: Colors.white),
-                ),
-                const SizedBox(height: 8),
-                const Text('City Partner'),
-              ],
-            ),
+                  const SizedBox(height: 8),
+                  const Text('Charity'),
+                ],
+              ),
+            )
+
 
             // Container(
             //   height: 50,

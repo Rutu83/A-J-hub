@@ -19,13 +19,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   final TextEditingController _newPasswordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
-  bool _isPasswordVisible = false; // Control visibility of the password
-  bool _isConfirmPasswordVisible = false; // Control visibility of the confirm password
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   late String _authToken;
 
   @override
   void dispose() {
-    // Dispose controllers to avoid memory leaks
     _currentPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
