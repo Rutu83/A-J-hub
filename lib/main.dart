@@ -1,7 +1,7 @@
 import 'package:allinone_app/local/language_en.dart';
 import 'package:allinone_app/local/languages.dart';
+import 'package:allinone_app/model/business_mode.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
-import 'package:allinone_app/screens/charity_screen.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/store/app_store.dart';
 import 'package:allinone_app/utils/common.dart';
@@ -16,6 +16,7 @@ AppStore appStore = AppStore();
 BaseLanguage language = LanguageEn();
 List<UserData>? cachedUserData;
 Map<String,dynamic>? cachedData;
+List<BusinessModal>? cachedDashbord;
 
 
 Future<void> main() async {
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
             ),
             textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
           ),
-          home: const CharityPage(),
+          home: const SplashScreen(),
         );
       },
     );

@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:allinone_app/main.dart';
+import 'package:allinone_app/model/business_mode.dart';
 import 'package:allinone_app/model/login_modal.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
 import 'package:allinone_app/network/network_utils.dart';
@@ -53,13 +54,13 @@ Future<LoginResponse> loginUser(Map request) async {
 
 // save data to shared preferences
 Future<void> saveUserDataMobile(LoginResponse loginResponse, UserData data) async {
- if (loginResponse.token.validate().isNotEmpty) await appStore.setToken('');
- appStore.setToken(loginResponse.token!);
+  if (loginResponse.token.validate().isNotEmpty) await appStore.setToken('');
+  appStore.setToken(loginResponse.token!);
   await appStore.setLoggedIn(true);
   await appStore.setName(data.username.validate());
   await appStore.setEmail(data.email.validate());
 
-   appStore.setLoading(false);
+  appStore.setLoading(false);
   ///Set app configurations
   if (appStore.isLoggedIn) {
     //getAppConfigurations();
@@ -134,7 +135,7 @@ Future<void> updateProfile({
       if (kDebugMode) {
         print(errorMessage);
       }
-   //   _showSnackBar(context, errorMessage, Colors.red);
+      //   _showSnackBar(context, errorMessage, Colors.red);
       if (kDebugMode) {
         print('Error: ${response.body}');
         print('Status Code: ${response.statusCode}');
@@ -155,33 +156,24 @@ Future<void> updateProfile({
 
 
 
-
 // get business-data
-Future<Map<String, dynamic>> getBusinessDetail() async {
+Future<List<BusinessModal>> getBusinessData({required List<BusinessModal>? businessmodal}) async {
   try {
-    Map<String, dynamic>? res;
+    BusinessModal res;
 
-    // Check if the response is not null
-    res = await handleResponse(
-        await buildHttpResponse('business-data', method: HttpMethodType.GET));
+    res = BusinessModal.fromJson(await handleResponse(await buildHttpResponse('business-data', method: HttpMethodType.GET)));
+    businessmodal!.clear();
+    businessmodal.add(res);
+    // lastPageCallback?.call(res.data.validate().length != PER_PAGE_ITEM);
+    //
+    cachedDashbord = cachedDashbord;
 
-    // Handle the case where 'Response' is null or the expected structure isn't present
-    if (res == null || res['Response'] == null) {
-      throw Exception("Invalid or null response from API");
-    }
+    appStore.setLoading(false);
 
-    return res['Response'] as Map<String, dynamic>;
+    return businessmodal;
   } catch (e) {
     appStore.setLoading(false);
-    if (kDebugMode) {
-      print('Error in getBusinessDetail: $e');
-    }
-    rethrow;  // Still rethrowing so the caller can handle the error
+
+    rethrow;
   }
 }
-
-
-
-
-
-
