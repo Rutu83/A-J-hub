@@ -1,6 +1,7 @@
 import 'package:allinone_app/local/language_en.dart';
 import 'package:allinone_app/local/languages.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
+import 'package:allinone_app/screens/charity_screen.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/store/app_store.dart';
 import 'package:allinone_app/utils/common.dart';
@@ -58,7 +59,7 @@ class MyApp extends StatelessWidget {
             ),
             textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
           ),
-          home: const SplashScreen(),
+          home: const CharityPage(),
         );
       },
     );

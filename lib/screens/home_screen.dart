@@ -204,7 +204,7 @@ class HomeScreenState extends State<HomeScreen> {
 
             InkWell(
               onTap: (){
-                Navigator.push(context, (MaterialPageRoute(builder: (context)=>const CharityScreen())));
+                Navigator.push(context, (MaterialPageRoute(builder: (context)=>  CharityPage())));
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
