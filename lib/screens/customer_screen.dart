@@ -317,14 +317,14 @@ class CustomerScreenState extends State<CustomerScreen> {
         );
       },
       child: Container(
-        width: 140.w,
+        width: 160.w,
         margin: EdgeInsets.only(right: 10.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
               width: 140.w,
-              height: 125.w,
+              height: 121.w,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r), // Optional: rounded corners
               ),
@@ -557,17 +557,6 @@ class CustomerScreenState extends State<CustomerScreen> {
                 style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
-              // "See All" text
-              // Text(
-              //   'See All',
-              //   style: TextStyle(fontSize: 14.sp, color: Colors.grey),
-              // ),
-              // // Arrow icon
-              // const Icon(
-              //   Icons.arrow_right_outlined,
-              //   color: Colors.grey,
-              //   size: 25,
-              // ),
             ],
           ),
           SizedBox(height: 5.h),

@@ -1,5 +1,6 @@
 import 'package:allinone_app/screens/customer_screen.dart';
 import 'package:allinone_app/screens/home_screen.dart';
+import 'package:allinone_app/screens/oportunity.dart';
 import 'package:allinone_app/screens/profile_screen.dart';
 import 'package:allinone_app/screens/business_screen.dart'; // Import the new screen
 import 'package:flutter/material.dart';
@@ -33,12 +34,7 @@ class DashboardScreenState extends State<DashboardScreen> {
         children: const [
           HomeScreen(),
           CustomerScreen(),
-          Center(
-            child: Text(
-              'Rewards Page',
-              style: TextStyle(fontSize: 24),
-            ),
-          ),
+          OportunityScreen(),
           ProfileScreen(),
           BusinessScreen(), // Add the new screen here
         ],

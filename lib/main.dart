@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
             ),
             textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
           ),
-          home: const CharityPage(),
+          home: const SplashScreen(),
         );
       },
     );
