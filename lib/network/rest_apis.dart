@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/model/business_mode.dart';
+import 'package:allinone_app/model/categories_mode.dart';
 import 'package:allinone_app/model/login_modal.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
 import 'package:allinone_app/network/network_utils.dart';
@@ -174,6 +175,29 @@ Future<List<BusinessModal>> getBusinessData({required List<BusinessModal>? busin
   } catch (e) {
     appStore.setLoading(false);
 
+    rethrow;
+  }
+}
+
+
+
+
+// get Categories
+Future<CategoriesResponse> getCategories() async {
+  try {
+    final responseJson = await handleResponse(await buildHttpResponse('getCategories', method: HttpMethodType.GET));
+    final res = CategoriesResponse.fromJson(responseJson);
+
+    // If you want to cache the result
+    cachedHome = cachedHome ?? []; // Initialize if null
+    cachedHome?.clear();
+    cachedHome?.add(res);
+
+    appStore.setLoading(false);
+
+    return res; // Return a single CategoriesResponse
+  } catch (e) {
+    appStore.setLoading(false);
     rethrow;
   }
 }

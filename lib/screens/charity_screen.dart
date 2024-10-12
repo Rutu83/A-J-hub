@@ -193,7 +193,7 @@ class CharityPageState extends State<CharityPage> with SingleTickerProviderState
           alignment: Alignment.centerRight,
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: const BorderRadius.all(Radius.circular(12)),
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
             boxShadow: [
               BoxShadow(
                 color: Colors.grey.withOpacity(0.2), // Shadow color
