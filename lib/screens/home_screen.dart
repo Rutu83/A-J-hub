@@ -1,9 +1,12 @@
+import 'package:allinone_app/model/categories_mode.dart';
+import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/category_selected.dart';
 import 'package:allinone_app/screens/category_topics.dart';
 import 'package:allinone_app/screens/charity_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,8 +22,8 @@ class HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   final List<String> _imageUrls = [
     'https://cdn1.tripoto.com/media/filter/tst/img/2052077/Image/1695366505_main4.jpg.webp',
-    'https://idolkart.com/cdn/shop/articles/What_happened_to_Krishna_s_body_after_death.jpg?v=1701867366&width=800',
-    'https://indianexpress.com/wp-content/uploads/2019/01/netaji.jpg',
+    'https://idolkart.com/cdn/shop/articles/What_happened_to_Krishna_s_body_after_death.jpg',
+    'https://www.financialexpress.com/wp-content/uploads/2023/01/netaji.jpg',
   ];
   final FlutterAppAuth appAuth = const FlutterAppAuth();
   final String clientId = '000f55c4e8b5451bae4d7f099bc93a7a';
@@ -28,10 +31,28 @@ class HomeScreenState extends State<HomeScreen> {
   final String clientSecret = 'c6113899241a471aa8dae63ac9f24b27';
   final List<String> scopes = ['user-library-read', 'user-read-email'];
 
+  Future<List<CategoriesResponse>>? futureBusiness;
+  CategoriesResponse? businessData;
+
   @override
   void initState() {
     super.initState();
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ));
+    fetchBusinessData(); // Fetch the data without expecting a future return
   }
+
+  Future<void> fetchBusinessData() async {
+    try {
+      final data = await getCategories();
+      businessData = data; // Store the fetched CategoriesResponse
+    } catch (e) {
+      throw Exception('Failed to load business data: $e');
+    }
+  }
+
+
 
   @override
   void dispose() {
@@ -204,7 +225,7 @@ class HomeScreenState extends State<HomeScreen> {
 
             InkWell(
               onTap: (){
-                Navigator.push(context, (MaterialPageRoute(builder: (context)=>  CharityPage())));
+                Navigator.push(context, (MaterialPageRoute(builder: (context)=>  const CharityPage())));
               },
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -224,16 +245,6 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             )
 
-
-            // Container(
-            //   height: 50,
-            //   width: 50,
-            //   decoration: BoxDecoration(
-            //     color: Colors.red,
-            //     borderRadius: BorderRadius.circular(33), // Rounded corners
-            //   ),
-            //   child: const Icon(Icons.arrow_drop_down_circle_outlined, color: Colors.white),
-            // ),
           ],
         ),
       ),
