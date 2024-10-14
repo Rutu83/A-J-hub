@@ -1,8 +1,10 @@
-import 'package:allinone_app/model/categories_mode.dart';
+import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
+import 'package:allinone_app/model/subcategory_model.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/category_selected.dart';
 import 'package:allinone_app/screens/category_topics.dart';
 import 'package:allinone_app/screens/charity_screen.dart';
+import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,9 +32,15 @@ class HomeScreenState extends State<HomeScreen> {
   final String redirectUri = 'https://ajsystem.in';
   final String clientSecret = 'c6113899241a471aa8dae63ac9f24b27';
   final List<String> scopes = ['user-library-read', 'user-read-email'];
+  bool isLoading = true; // State to manage loading
+  bool hasError = false; // State to manage error
+  String errorMessage = ''; // Error message to show in case of error
 
-  Future<List<CategoriesResponse>>? futureBusiness;
-  CategoriesResponse? businessData;
+  Future<SubcategoryResponse>? futureSubcategory;
+  SubcategoryResponse? subcategoryData;
+
+  Future<List<CategoriesWithSubcategoriesResponse>>? futureCategories;
+  CategoriesWithSubcategoriesResponse? categoriesData;
 
   @override
   void initState() {
@@ -40,18 +48,38 @@ class HomeScreenState extends State<HomeScreen> {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
-    fetchBusinessData(); // Fetch the data without expecting a future return
+
+    fetchCategoriesData();
+    fetchSubcategoryData();
+  //  fetchBusinessData(); // Fetch the data without expecting a future return
   }
 
-  Future<void> fetchBusinessData() async {
+  Future<void> fetchSubcategoryData() async {
     try {
-      final data = await getCategories();
-      businessData = data; // Store the fetched CategoriesResponse
+      final data = await getSubCategories(); // Fetch data from API
+      setState(() {
+        subcategoryData = data;
+        isLoading = false; // Stop loading once data is fetched
+      });
     } catch (e) {
-      throw Exception('Failed to load business data: $e');
+      setState(() {
+        hasError = true;
+        errorMessage = 'Failed to load data: $e'; // Capture error message
+        isLoading = false;
+      });
     }
   }
 
+  Future<void> fetchCategoriesData() async {
+    try {
+      final data = await getCategoriesWithSubcategories();
+      setState(() {
+        categoriesData = data; // Store the fetched CategoriesWithSubcategoriesResponse
+      });
+    } catch (e) {
+      throw Exception('Failed to load categories data: $e');
+    }
+  }
 
 
   @override
@@ -148,11 +176,84 @@ class HomeScreenState extends State<HomeScreen> {
             _buildNewReleasesSection1(),
             const SizedBox(height: 10),
             _buildNewReleasesSection2(),
-            _buildNewReleasesSection3(),
+            isLoading ? _buildSkeletonLoading() : _buildContent(),
             _buildPostersSection(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSkeletonLoading() {
+    // Skeleton shimmer effect while loading data
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        children: List.generate(5,
+              (index) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            child: Container(
+              height: 130.h,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (hasError) {
+      return Center(
+        child: Text(
+          errorMessage,
+          style: TextStyle(fontSize: 16.sp, color: Colors.red),
+        ),
+      );
+    }
+
+    if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
+      return Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(fontSize: 16.sp, color: Colors.black),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildSubcategorySections(),
+
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubcategorySections() {
+    List<Widget> sections = [];
+
+    for (var subcategory in subcategoryData!.subcategories) {
+      List<Widget> items = subcategory.images.map((imageUrl) {
+        return _buildCardItem2(
+          subcategory.name,
+          subcategory.plays,
+          imageUrl,
+        );
+      }).toList();
+
+      sections.add(
+        _buildHorizontalCardSection1(
+          sectionTitle: subcategory.name,
+          items: items,
+        ),
+      );
+    }
+
+    return Column(
+      children: sections,
     );
   }
 
@@ -249,21 +350,162 @@ class HomeScreenState extends State<HomeScreen> {
 
 
 
-  Widget _buildBanner(String imageUrl) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.r), // Rounded corners
+
+  Widget _buildNewReleasesSection2() {
+    if (categoriesData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    List<Widget> items = [];
+    String sectionTitle = 'Festival'; // Set the section title to 'Festival'
+
+    // Find the festival category
+    var festivalCategory = categoriesData!.categories.firstWhere(
+          (category) => category.name == 'festival',
+      orElse: () => CategoryWithSubcategory(name: 'No Festival', subcategories: []), // Default empty category
+    );
+
+    // Iterate through subcategories of the festival category
+    for (var subcategory in festivalCategory.subcategories) {
+      // Check if there are images
+      if (subcategory.images.isNotEmpty) {
+        // Add a card item with the first image only, but pass all images for navigation
+        items.add(_buildCardItem3(
+          subcategory.name,
+          subcategory.images, // Pass all images here
+        ));
+      }
+    }
+
+    return _buildHorizontalCardSection3(
+      sectionTitle: sectionTitle,
+      items: items,
+    );
+  }
+
+  Widget _buildHorizontalCardSection3({required String sectionTitle, required List<Widget> items}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                height: 26,
+                width: 6,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5), bottom: Radius.circular(5)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(sectionTitle, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+
+
+            ],
+          ),
+          SizedBox(height: 5.h),
+          SizedBox(
+            height: 105.h,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: items,
+            ),
+          ),
+        ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12.r), // Same border radius as the container
-        child: imageUrl.startsWith('assets/')
-            ? Image.asset(
-          imageUrl,
-          fit: BoxFit.fill,
-        )
-            : Image.network(
-          imageUrl,
-          fit: BoxFit.fill,
+    );
+  }
+
+  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                height: 26,
+                width: 6,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5), bottom: Radius.circular(5)),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(sectionTitle, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+              const Spacer(),
+              InkWell(
+                onTap: () {
+                  // Define navigation logic here
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryTopics(title: sectionTitle, topics: const [])));
+                },
+                child: Text('See All', style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
+              ),
+              const Icon(Icons.arrow_right_outlined, color: Colors.grey, size: 25),
+            ],
+          ),
+          SizedBox(height: 5.h),
+          SizedBox(
+            height: 105.h,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: items,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardItem3(String title, List<String> images) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategorySelected(imagePaths: images), // Pass all images
+          ),
+        );
+      },
+      child: Container(
+        width: 100.w,
+        margin: EdgeInsets.only(right: 10.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 100.w,
+              height: 100.w,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(color: Colors.grey.shade200), // Optional border
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: images.isNotEmpty
+                    ? Image.network(
+                  images[0], // Display the first image
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey.shade300, // Placeholder background
+                      child: const Icon(Icons.error), // Fallback for errors
+                    );
+                  },
+                )
+                    : Image.asset(
+                  'assets/images/placeholder.jpg',
+                  fit: BoxFit.cover, // Use cover to fill the area
+                ),
+              ),
+            ),
+
+          ],
         ),
       ),
     );
@@ -271,159 +513,49 @@ class HomeScreenState extends State<HomeScreen> {
 
 
 
-
   Widget _buildNewReleasesSection1() {
+    if (categoriesData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    List<Widget> items = [];
+    String sectionTitle = 'Upcoming'; // Set the section title to 'Upcoming'
+
+    // Find the upcoming category
+    var upcomingCategory = categoriesData!.categories.firstWhere(
+          (category) => category.name == 'upcoming',
+      orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
+    );
+
+    // Add subcategories if the upcoming category is found
+    for (var subcategory in upcomingCategory.subcategories) {
+      String imageUrl = 'assets/images/placeholder.jpg'; // Default image
+
+      // Get the first image from the subcategory's images
+      if (subcategory.images.isNotEmpty) {
+        imageUrl = subcategory.images[0]; // Use the first image URL if available
+      }
+
+      items.add(_buildCardItem1(
+        subcategory.name,
+        imageUrl, // Use the image URL from the subcategory
+        subcategory.images, // Pass all images to the card item
+      ));
+    }
+
     return _buildHorizontalCardSection1(
-      sectionTitle: 'Upcoming Category',
-      items: [
-        _buildCardItem1('Gandhi Jayanti', '116M Plays', 'assets/images/gandhi_jayanti.jpg'),
-        _buildCardItem1('Navratri Wishes', '25.9M Plays', 'assets/images/navratri_wishes.jpg'),
-        _buildCardItem1('Birthday', '9.4M Plays', 'assets/images/birthday.jpg'),
-        _buildCardItem1('Hanuman Dada', '15.2M Plays', 'assets/images/hanuman_dada.jpg'),
-        _buildCardItem1('Trending', '19.9M Plays', 'assets/images/trending.png'),
-      ],
+      sectionTitle: sectionTitle,
+      items: items,
     );
   }
 
-  Widget _buildNewReleasesSection2() {
-    return _buildHorizontalCardSection2(
-      sectionTitle: 'Happy Navratri',
-      items: [
-        _buildCardItem3('Happy Navratri', '116M Plays', 'assets/images/navratri/navratri.jpg'),
-        _buildCardItem3('Happy Navratri', '25.9M Plays', 'assets/images/navratri/navratri2.jpg'),
-        _buildCardItem3('Happy Navratri', '292.7M Plays', 'assets/images/navratri/navratri3.jpg'),
-        _buildCardItem3('Happy Navratri', '9.4M Plays', 'assets/images/navratri/navratri4.jpg'),
-        _buildCardItem3('Happy Navratri', '15.2M Plays', 'assets/images/navratri/navratri5.jpg'),
-        _buildCardItem3('Happy Navratri', '19.9M Plays', 'assets/images/navratri/navratri6.jpg'),
-        _buildCardItem3('Happy Navratri', '19.9M Plays', 'assets/images/navratri/navratri7.jpg'),
-        _buildCardItem3('Happy Navratri', '19.9M Plays', 'assets/images/navratri/navratri8.jpg'),
-        _buildCardItem3('Happy Navratri', '19.9M Plays', 'assets/images/navratri/navratri9.jpg'),
-        _buildCardItem3('Happy Navratri', '19.9M Plays', 'assets/images/navratri/navratri10.jpg'),
-        _buildCardItem3('Happy Navratri', '19.9M Plays', 'assets/images/navratri/navratri11.jpg'),
-        _buildCardItem3('Happy Navratri', '19.9M Plays', 'assets/images/navratri/navratri12.jpg'),
-        _buildCardItem3('Happy Navratri', '19.9M Plays', 'assets/images/navratri/navratri13.jpg'),
-        _buildCardItem3('Happy Navratri', '19.9M Plays', 'assets/images/navratri/navratri14.jpg'),
-      ],
-    );
-  }
-
-  Widget _buildNewReleasesSection3() {
-    return _buildHorizontalCardSection2(
-      sectionTitle: 'Quotes by Scientists',
-      items: [
-        _buildCardItem3('Quotes by Scientists', '116M Plays', 'assets/images/quotes/Quotes.jpg'),
-        _buildCardItem3('Quotes by Scientists', '25.9M Plays', 'assets/images/quotes/Quotes2.jpg'),
-        _buildCardItem3('Quotes by Scientists', '292.7M Plays', 'assets/images/quotes/Quotes3.jpg'),
-        _buildCardItem3('Quotes by Scientists', '9.4M Plays', 'assets/images/quotes/Quotes4.jpg'),
-        _buildCardItem3('Quotes by Scientists', '15.2M Plays', 'assets/images/quotes/Quotes5.jpg'),
-        _buildCardItem3('Quotes by Scientists', '19.9M Plays', 'assets/images/quotes/Quotes6.jpg'),
-        _buildCardItem3('Quotes by Scientists', '19.9M Plays', 'assets/images/quotes/Quotes7.jpg'),
-        _buildCardItem3('Quotes by Scientists', '19.9M Plays', 'assets/images/quotes/Quotes8.jpg'),
-        _buildCardItem3('Quotes by Scientists', '19.9M Plays', 'assets/images/quotes/Quotes9.jpg'),
-        _buildCardItem3('Quotes by Scientists', '19.9M Plays', 'assets/images/quotes/Quotes10.jpg'),
-        _buildCardItem3('Quotes by Scientists', '19.9M Plays', 'assets/images/quotes/Quotes11.jpg'),
-        _buildCardItem3('Quotes by Scientists', '19.9M Plays', 'assets/images/quotes/Quotes12.jpg'),
-        _buildCardItem3('Quotes by Scientists', '19.9M Plays', 'assets/images/quotes/Quotes13.jpg'),
-      ],
-    );
-  }
-
-  Widget _buildCardItem1(String title, String plays, String imageUrl) {
+  Widget _buildCardItem1(String title, String imageUrl, List<String> images) {
     return InkWell(
       onTap: () {
-        // Define the list of images to show based on the title
-        List<Map<String, String>> images;
-
-        if (title == 'Gandhi Jayanti') {
-          images = [
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji2.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji3.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji4.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji5.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji6.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji7.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji8.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji9.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji11.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji12.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji13.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji15.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji16.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji17.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji18.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji19.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji20.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji21.jpg'},
-            {'title': 'Gandhi Jayanti', 'image': 'assets/images/gandhiji/gandhiji14.jpg'},
-            // Add more images as needed
-          ];
-        } else if (title == 'Navratri Wishes') {
-          images = [
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri2.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri3.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri4.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri5.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri6.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri7.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri8.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri9.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri10.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri11.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri12.jpg'},
-            {'title': 'Navratri', 'image': 'assets/images/navratri/navratri13.jpg'},
-            // Add more images as needed
-          ];
-        }  else if (title == 'Birthday') {
-          images = [
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday2.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday3.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday4.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday5.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday6.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday7.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday8.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday9.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday10.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday11.jpg'},
-            {'title': 'Birthday', 'image': 'assets/images/birthday/birthday12.jpg'},
-            // Add more images as needed
-          ];
-        }  else if (title == 'Hanuman Dada') {
-          images = [
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman1.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman2.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman3.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman4.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman5.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman6.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman7.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman8.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman9.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman10.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman11.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman12.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman13.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman14.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman9.jpg'},
-            {'title': 'Hanuman Dada', 'image': 'assets/images/hanuman/hanuman10.jpg'},
-            // Add more images as needed
-          ];
-        }else {
-          images = []; // Default empty list if no matching title
-        }
-
-        // Navigate to the CategoryTopics screen with the relevant images
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategoryTopics(
-              title: title,
-              topics: images,
-            ),
+            builder: (context) => CategorySelected(imagePaths: images), // Pass all images
           ),
         );
       },
@@ -445,14 +577,26 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.r),
-                child: imageUrl.startsWith('assets/')
-                    ? Image.asset(
+                child: imageUrl.startsWith('http')
+                    ? Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey, // Placeholder color
+                      child: const Icon(Icons.error), // Error icon
+                    );
+                  },
                 )
-                    : Image.network(
-                  imageUrl,
+                    : Image.asset(
+                  imageUrl, // Load from assets
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey, // Placeholder color
+                      child: const Icon(Icons.error), // Error icon
+                    );
+                  },
                 ),
               ),
             ),
@@ -468,6 +612,10 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+
+
+
 
   Widget _buildHorizontalCardSection1({required String sectionTitle, required List<Widget> items}) {
     return Container(
@@ -514,112 +662,6 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                height: 26,
-                width: 6,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(5),
-                    bottom: Radius.circular(5),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(
-                sectionTitle,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-              ),
-              const Spacer(),
-              InkWell(
-                onTap: () {
-                  // Define the list of images to show based on the title
-                  List<Map<String, String>> images;
-
-                  if (sectionTitle == 'Quotes by Scientists') {
-                    images = [
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes2.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes3.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes4.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes5.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes6.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes7.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes8.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes9.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes10.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes11.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes12.jpg'},
-                      {'title': 'Quotes by Scientists', 'image': 'assets/images/quotes/Quotes13.jpg'},
-
-                      // Add more images as needed
-                    ];
-                  } else if (sectionTitle == 'Happy Navratri') {
-                    images = [
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri2.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri3.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri4.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri5.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri6.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri7.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri8.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri9.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri10.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri11.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri12.jpg'},
-                      {'title': 'Navratri', 'image': 'assets/images/navratri/navratri13.jpg'},
-                      // Add more images as needed
-                    ];
-                  }   else {
-                    images = []; // Default empty list if no matching title
-                  }
-
-                  // Navigate to the CategoryTopics screen with the relevant images
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CategoryTopics(
-                        title: sectionTitle,
-                        topics: images,
-                      ),
-                    ),
-                  );
-                },
-                child: Text(
-                  'See All',
-                  style: TextStyle(fontSize: 14.sp, color: Colors.grey),
-                ),
-              ),
-              const Icon(
-                Icons.arrow_right_outlined,
-                color: Colors.grey,
-                size: 25,
-              ),
-            ],
-          ),
-          SizedBox(height: 5.h),
-          SizedBox(
-            height: 105.h,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: items,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildPostersSection() {
     return _buildHorizontalCardSection(
       sectionTitle: 'Poster',
@@ -628,6 +670,51 @@ class HomeScreenState extends State<HomeScreen> {
         _buildCardItem2('Maseeha Doctor', '25.9M Plays', 'assets/images/poster/poster2.jpg'),
         _buildCardItem2('Shoorveer', '292.7M Plays', 'assets/images/poster/poster3.jpg'),
       ],
+    );
+  }
+  Widget _buildCardItem2(String title, String plays, String imageUrl) {
+    return InkWell(
+      onTap: () {
+        // Define the list of images to show based on the title
+        List<String> images = [imageUrl];
+
+        // Navigate to the CategorySelected screen with the relevant images
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategorySelected(imagePaths: images),
+          ),
+        );
+      },
+      child: Container(
+        width: 145.w,
+        margin: EdgeInsets.only(right: 10.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 130.w,
+              height: 115.w,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r), // Optional: rounded corners
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: imageUrl.startsWith('assets/')
+                    ? Image.asset(
+                  imageUrl,
+                  fit: BoxFit.fill,
+                )
+                    : Image.network(
+                  imageUrl,
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+
+          ],
+        ),
+      ),
     );
   }
 
@@ -653,115 +740,6 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildCardItem2(String title, String plays, String imagePath) {
-    return Container(
-      width: 260,
-      margin: const EdgeInsets.only(right: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 150,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              image: DecorationImage(
-                image: AssetImage(imagePath),
-                fit: BoxFit.fill,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-
-  Widget _buildCardItem3(String title, String plays, String imageUrl) {
-    return InkWell(
-      onTap: () {
-        // Define the list of images to show based on the title
-        List<String> images;
-
-        if (title == 'Happy Navratri') {
-          images = [
-            'assets/images/navratri/navratri.jpg',
-            'assets/images/navratri/navratri2.jpg',
-            'assets/images/navratri/navratri3.jpg',
-            'assets/images/navratri/navratri4.jpg',
-            'assets/images/navratri/navratri5.jpg',
-            'assets/images/navratri/navratri6.jpg',
-            'assets/images/navratri/navratri7.jpg',
-            'assets/images/navratri/navratri8.jpg',
-            'assets/images/navratri/navratri9.jpg',
-            'assets/images/navratri/navratri10.jpg',
-            'assets/images/navratri/navratri11.jpg',
-            'assets/images/navratri/navratri12.jpg',
-            'assets/images/navratri/navratri13.jpg',
-            'assets/images/navratri/navratri14.jpg',
-          ];
-        } else if (title == 'Quotes by Scientists') {
-          images = [
-            'assets/images/quotes/Quotes.jpg',
-            'assets/images/quotes/Quotes2.jpg',
-            'assets/images/quotes/Quotes3.jpg',
-            'assets/images/quotes/Quotes4.jpg',
-            'assets/images/quotes/Quotes5.jpg',
-            'assets/images/quotes/Quotes6.jpg',
-            'assets/images/quotes/Quotes7.jpg',
-            'assets/images/quotes/Quotes.jpg',
-            'assets/images/quotes/Quotes9.jpg',
-            'assets/images/quotes/Quotes10.jpg',
-            'assets/images/quotes/Quotes11.jpg',
-            'assets/images/quotes/Quotes12.jpg',
-            'assets/images/quotes/Quotes13.jpg',
-
-          ];
-        } else {
-          images = []; // Default empty list if no matching title
-        }
-
-        // Navigate to the CategorySelected screen with the relevant images
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images),
-          ),
-        );
-      },
-      child: Container(
-        width: 100.w,
-        margin: EdgeInsets.only(right: 10.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 100.w,
-              height: 100.w,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r), // Optional: rounded corners
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: imageUrl.startsWith('assets/')
-                    ? Image.asset(
-                  imageUrl,
-                  fit: BoxFit.fill,
-                )
-                    : Image.network(
-                  imageUrl,
-                  fit: BoxFit.fill,
-                ),
-              ),
-            ),
-
-          ],
-        ),
       ),
     );
   }

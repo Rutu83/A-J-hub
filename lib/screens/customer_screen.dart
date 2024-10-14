@@ -63,6 +63,10 @@ class CustomerScreenState extends State<CustomerScreen> {
       final data = await getSubCategories(); // Fetch data from API
       setState(() {
         subcategoryData = data;
+
+        if (kDebugMode) {
+          print('....................$subcategoryData');
+        }
         isLoading = false; // Stop loading once data is fetched
       });
     } catch (e) {
@@ -155,15 +159,14 @@ class CustomerScreenState extends State<CustomerScreen> {
   Widget _buildSubcategorySections() {
     List<Widget> sections = [];
 
-    // Loop through each subcategory and create a section
     for (var subcategory in subcategoryData!.subcategories) {
-      List<Widget> items = [
-        _buildCardItem2(
+      List<Widget> items = subcategory.images.map((imageUrl) {
+        return _buildCardItem2(
           subcategory.name,
           subcategory.plays,
-          subcategory.imageUrl,
-        ),
-      ];
+          imageUrl,
+        );
+      }).toList();
 
       sections.add(
         _buildHorizontalCardSection1(
@@ -177,6 +180,7 @@ class CustomerScreenState extends State<CustomerScreen> {
       children: sections,
     );
   }
+
 
   Widget _buildCardItem2(String title, String plays, String imageUrl) {
     return InkWell(

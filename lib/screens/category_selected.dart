@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class CategorySelected extends StatefulWidget {
@@ -14,6 +15,10 @@ class CategorySelectedState extends State<CategorySelected> {
 
   @override
   Widget build(BuildContext context) {
+    if (kDebugMode) {
+      print('....................${widget.imagePaths}');
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -52,12 +57,7 @@ class CategorySelectedState extends State<CategorySelected> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10.0),
-              child: Image.asset(
-                widget.imagePaths[selectedIndex],
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-              ),
+              child: _buildImage(widget.imagePaths[selectedIndex]),
             ),
           ),
           const SizedBox(height: 5.0),
@@ -76,7 +76,7 @@ class CategorySelectedState extends State<CategorySelected> {
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      selectedIndex = index;
+                      selectedIndex = index; // Update selected index
                     });
                   },
                   child: Stack(
@@ -95,12 +95,7 @@ class CategorySelectedState extends State<CategorySelected> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(22.0),
-                          child: Image.asset(
-                            widget.imagePaths[index],
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                          ),
+                          child: _buildImage(widget.imagePaths[index]),
                         ),
                       ),
                       if (selectedIndex == index)
@@ -123,5 +118,30 @@ class CategorySelectedState extends State<CategorySelected> {
         ],
       ),
     );
+  }
+
+  // Function to build image based on URL or asset path
+  Widget _buildImage(String path) {
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(child: Icon(Icons.error)); // Fallback for errors
+        },
+      );
+    } else {
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return const Center(child: Icon(Icons.error)); // Fallback for errors
+        },
+      );
+    }
   }
 }

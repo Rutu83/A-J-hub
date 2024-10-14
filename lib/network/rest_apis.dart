@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/model/business_mode.dart';
 import 'package:allinone_app/model/categories_mode.dart';
+import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
 import 'package:allinone_app/model/login_modal.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
@@ -204,6 +205,7 @@ Future<CategoriesResponse> getCategories() async {
 }
 
 
+// get sub category
 Future<SubcategoryResponse> getSubCategories() async {
   try {
     final responseJson = await handleResponse(await buildHttpResponse('subcategories', method: HttpMethodType.GET));
@@ -222,6 +224,30 @@ Future<SubcategoryResponse> getSubCategories() async {
     rethrow;
   }
 }
+
+
+// Fetch Categories With Subcategories
+Future<CategoriesWithSubcategoriesResponse> getCategoriesWithSubcategories() async {
+  try {
+    final responseJson = await handleResponse(await buildHttpResponse('categories-with-subcategories', method: HttpMethodType.GET));
+
+    // Expecting responseJson to be a List<dynamic>
+    final categoriesResponse = CategoriesWithSubcategoriesResponse.fromJson(responseJson);
+
+    // Cache the result if needed
+    cachedcategorywithsubcategory = cachedcategorywithsubcategory ?? []; // Initialize if null
+    cachedcategorywithsubcategory?.clear();
+    cachedcategorywithsubcategory?.add(categoriesResponse);
+
+    appStore.setLoading(false);
+
+    return categoriesResponse; // Return the categories response
+  } catch (e) {
+    appStore.setLoading(false);
+    rethrow; // Propagate the exception
+  }
+}
+
 
 
 

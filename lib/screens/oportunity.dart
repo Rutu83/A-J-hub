@@ -20,7 +20,7 @@ class _OportunityScreenState extends State<OportunityScreen> {
           ),
         ),
         // You can add more content here, such as text or buttons
-        child: Center(
+        child: const Center(
           child: Text(
             'Welcome to Opportunity Screen',
             style: TextStyle(
