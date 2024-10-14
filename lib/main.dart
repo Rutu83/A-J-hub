@@ -2,6 +2,7 @@ import 'package:allinone_app/local/language_en.dart';
 import 'package:allinone_app/local/languages.dart';
 import 'package:allinone_app/model/business_mode.dart';
 import 'package:allinone_app/model/categories_mode.dart';
+import 'package:allinone_app/model/subcategory_model.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/store/app_store.dart';
@@ -19,6 +20,7 @@ List<UserData>? cachedUserData;
 Map<String,dynamic>? cachedData;
 List<BusinessModal>? cachedDashbord;
 List<CategoriesResponse>? cachedHome;
+List<SubcategoryResponse>? cachedsubcategory;
 
 
 Future<void> main() async {

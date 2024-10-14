@@ -143,11 +143,7 @@ class HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             _buildBannerSlider(),
-
             _buildButtons(),
-
-
-            _buildBanner('assets/images/banner.jpg'),
             const SizedBox(height: 10),
             _buildNewReleasesSection1(),
             const SizedBox(height: 10),
