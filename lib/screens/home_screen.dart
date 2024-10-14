@@ -177,7 +177,8 @@ class HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 10),
             _buildNewReleasesSection2(),
             isLoading ? _buildSkeletonLoading() : _buildContent(),
-            _buildPostersSection(),
+            const SizedBox(height: 120),
+
           ],
         ),
       ),
@@ -560,8 +561,8 @@ class HomeScreenState extends State<HomeScreen> {
         );
       },
       child: Container(
-        width: 100.w,
-        margin: EdgeInsets.only(right: 10.w),
+        width: 101.w,
+        margin: EdgeInsets.only(right: 8.w),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.red.shade50),
           borderRadius: BorderRadius.circular(12.r),
@@ -570,8 +571,8 @@ class HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 100.w,
-              height: 100.w,
+              width: 90.w,
+              height: 90.w,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
               ),
@@ -600,7 +601,7 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 10.h),
+            SizedBox(height: 6.h),
             Text(
               title,
               style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
@@ -662,16 +663,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPostersSection() {
-    return _buildHorizontalCardSection(
-      sectionTitle: 'Poster',
-      items: [
-        _buildCardItem2('Hiss - Rebirth of a Destroyer', '116M Plays', 'assets/images/poster/poster1.jpg'),
-        _buildCardItem2('Maseeha Doctor', '25.9M Plays', 'assets/images/poster/poster2.jpg'),
-        _buildCardItem2('Shoorveer', '292.7M Plays', 'assets/images/poster/poster3.jpg'),
-      ],
-    );
-  }
+
   Widget _buildCardItem2(String title, String plays, String imageUrl) {
     return InkWell(
       onTap: () {
