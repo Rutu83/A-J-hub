@@ -66,14 +66,14 @@ class _ReferEarnState extends State<ReferEarn> {
               height: 30,
             ),
 
-            InkWell(
-              onTap: () => launchUrl(Uri.parse('https://www.google.com')),
-              child: Text(
-                'View Refer & Earn Policy',
-                style: TextStyle(decoration: TextDecoration.underline, color: Colors.red, fontSize: 14.0.sp,
-                  fontWeight: FontWeight.bold,),
-              ),
-            )
+            // InkWell(
+            // //  onTap: () => launchUrl(Uri.parse('https://www.ajhub.co.in/referernpage')),
+            //   child: Text(
+            //     'View Refer & Earn Policy',
+            //     style: TextStyle(decoration: TextDecoration.underline, color: Colors.red, fontSize: 14.0.sp,
+            //       fontWeight: FontWeight.bold,),
+            //   ),
+            // )
           ],
         ),
       ),

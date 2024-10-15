@@ -110,8 +110,6 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
         fontSize: 16.0
     );
 
-    // const DashboardScreen().launch(context,
-    //     isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
 
   Future<void> onLoginSuccessRedirection() async {
@@ -127,11 +125,6 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
-
-
-
-
-
 
     return Scaffold(
       backgroundColor: Colors.white,

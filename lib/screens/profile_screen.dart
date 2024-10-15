@@ -221,11 +221,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.person_outline, "My Profile"),
         _buildMenuOption(Icons.picture_as_pdf, "Plan PDF"),
         _buildMenuOption(Icons.contact_mail_outlined, "Contact Us"),
-        _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.google.co.in/'),
+        _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.ajhub.co.in/term-condition'),
         _buildMenuOption(Icons.account_balance_outlined, "KYC Details",'https://www.google.co.in/'),
-        _buildMenuOption(Icons.privacy_tip_outlined, "Privacy Policy", 'https://www.google.co.in/'),
+        _buildMenuOption(Icons.privacy_tip_outlined, "Privacy Policy", 'https://www.ajhub.co.in/policy'),
         _buildMenuOption(Icons.help_center_outlined, "Help & Support"),
         _buildMenuOption(Icons.receipt_long_rounded, "Our Product & Service",'https://www.google.co.in/'),
+        _buildMenuOption(Icons.local_police_outlined, "Refund & Policy",'https://www.ajhub.co.in/refund-policy'),
         _buildMenuOption(Icons.money, "Refer & Earn"),
         _buildMenuOption(Icons.delete_outline, "Delete Account"),
         _buildMenuOption(Icons.lock_outline, "Change Password"),
@@ -330,9 +331,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop(); // Close the dialog
-                // Perform delete account logic here
-             //   await _deleteAccount();
+                Navigator.of(context).pop();
               },
               child: const Text('Delete', style: TextStyle(color: Colors.red)),
             ),
@@ -386,9 +385,7 @@ class WebViewScreen extends StatelessWidget {
 
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-      ),
+
       body: WebViewWidget(controller: controller),
     );
   }
