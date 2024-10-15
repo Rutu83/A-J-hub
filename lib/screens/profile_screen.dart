@@ -3,6 +3,7 @@
 import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
+import 'package:allinone_app/screens/change_password_screen.dart';
 import 'package:allinone_app/screens/contact_us.dart';
 import 'package:allinone_app/screens/edit_profile.dart';
 import 'package:allinone_app/screens/help_support.dart';
@@ -105,51 +106,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       )
           : SingleChildScrollView(
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 56.0),
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 36.r,
-                      backgroundColor: Colors.redAccent.withOpacity(0.8),
-                      child: CircleAvatar(
-                        radius: 33.r,
-                        backgroundImage: _imageLoadFailed
-                            ? const AssetImage('assets/images/placeholder.jpg')
-                            : const NetworkImage('https://www.google.co.in/') as ImageProvider,
-                        onBackgroundImageError: (_, __) {
-                          setState(() {
-                            _imageLoadFailed = true;
-                          });
-                        },
+               child: Container(
+                 margin: const EdgeInsets.only(bottom: 56.0),
+                 padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+                 child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.center,
+                   children: [
+                     Padding(
+                       padding: const EdgeInsets.symmetric(horizontal: 10),
+                       child: Row(
+                         children: [
+                           CircleAvatar(
+                             radius: 36.r,
+                             backgroundColor: Colors.redAccent.withOpacity(0.8),
+                             child: CircleAvatar(
+                               radius: 33.r,
+                               backgroundImage: _imageLoadFailed
+                                   ? const AssetImage('assets/images/placeholder.jpg')
+                                   : const NetworkImage('https://www.google.co.in/') as ImageProvider,
+                               onBackgroundImageError: (_, __) {
+                                 setState(() {
+                                   _imageLoadFailed = true;
+                                 });
+                               },
+                             ),
+                           ),
+                           const Spacer(),
+                           _buildInfoColumn(totalIncome, "Total Income", Colors.red),
+                           SizedBox(width: 10.w),
+                           _buildInfoColumn(totalDownline, "Total Team", Colors.black),
+                           SizedBox(width: 10.w),
+                           _buildInfoColumn(directDownline, "Direct Joins", Colors.black),
+                         ],
+                       ),
                       ),
+                    SizedBox(height: 20.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildWalletBox("₹ 10,000", "Current Wallet", Colors.red),
+                        _buildWalletBox("₹ 2,500", "Bonus Wallet", Colors.red),
+                      ],
                     ),
-                    const Spacer(),
-                    _buildInfoColumn(totalIncome, "Total Income", Colors.red),
-                    SizedBox(width: 10.w),
-                    _buildInfoColumn(totalDownline, "Total Team", Colors.black),
-                    SizedBox(width: 10.w),
-                    _buildInfoColumn(directDownline, "Direct Joins", Colors.black),
-                  ],
-                ),
-              ),
-              SizedBox(height: 20.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildWalletBox("₹ 10,000", "Current Wallet", Colors.red),
-                  _buildWalletBox("₹ 2,500", "Bonus Wallet", Colors.red),
-                ],
-              ),
-              SizedBox(height: 20.h),
-              _buildMenuOptions(),
-              SizedBox(height: 30.h),
+                    SizedBox(height: 20.h),
+                    _buildMenuOptions(),
+                    SizedBox(height: 30.h),
             ],
           ),
         ),
@@ -210,13 +211,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
+
     );
   }
 
   Widget _buildMenuOptions() {
     return Column(
       children: [
-        _buildMenuOption(Icons.person, "My Profile"),
+        _buildMenuOption(Icons.person_outline, "My Profile"),
         _buildMenuOption(Icons.picture_as_pdf, "Plan PDF"),
         _buildMenuOption(Icons.contact_mail_outlined, "Contact Us"),
         _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.google.co.in/'),
@@ -226,7 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.receipt_long_rounded, "Our Product & Service",'https://www.google.co.in/'),
         _buildMenuOption(Icons.money, "Refer & Earn"),
         _buildMenuOption(Icons.delete_outline, "Delete Account"),
-        _buildMenuOption(Icons.lock, "Change Password"),
+        _buildMenuOption(Icons.lock_outline, "Change Password"),
         _buildMenuOption(Icons.login, "Logout"),
       ],
     );
@@ -276,6 +278,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const HelpSupport()),
+            );
+          }else if (label == "Change Password") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
             );
           } else {
             if (kDebugMode) {
@@ -334,34 +341,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
   }
-
-  // Future<void> _deleteAccount() async {
-  //   try {
-  //     // Implement the logic to delete the account
-  //     // For example, you can make an API call to delete the account
-  //     var response = await deleteUserAccountApi(); // Placeholder for actual API call
-  //     if (response) {
-  //       // Navigate to the login screen or show a success message
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(builder: (context) => const LoginScreen()),
-  //       );
-  //     } else {
-  //       // Show an error message if deletion failed
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Failed to delete account. Please try again.')),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print("Error deleting account: $e");
-  //     }
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text('An error occurred. Please try again.')),
-  //     );
-  //   }
-  // }
-
 }
 
 

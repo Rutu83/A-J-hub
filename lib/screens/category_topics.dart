@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class CategoryTopics extends StatelessWidget {
   final String title;
-  final List<Map<String, String>> topics;
+  final List<Map<String, String>> topics; // Changed to List<Map<String, String>>
 
   const CategoryTopics({super.key, required this.title, required this.topics});
 
@@ -24,7 +24,7 @@ class CategoryTopics extends StatelessWidget {
             crossAxisCount: 3,
             crossAxisSpacing: 10.0,
             mainAxisSpacing: 10.0,
-            childAspectRatio: 1, // Adjusted aspect ratio for square items
+            childAspectRatio: 1,
           ),
           itemCount: topics.length,
           itemBuilder: (context, index) {
@@ -65,26 +65,26 @@ class CategoryTopics extends StatelessWidget {
                   borderRadius: BorderRadius.circular(22.0),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20.0),
-                  child: imageUrl.startsWith('http') // Check if it's a URL
-                      ? Image.network(
-                    imageUrl,
-                    fit: BoxFit.fill,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey.shade300,
-                        child: const Icon(Icons.error), // Fallback icon
-                      );
+                      borderRadius: BorderRadius.circular(20.0),
+                      child: imageUrl.startsWith('http') // Check if it's a URL
+                          ? Image.network(
+                             imageUrl,
+                             fit: BoxFit.fill,
+                             errorBuilder: (context, error, stackTrace) {
+                               return Container(
+                                 color: Colors.grey.shade300,
+                                 child: const Icon(Icons.error), // Fallback icon
+                          );
                     },
                   )
                       : Image.asset(
-                    imageUrl,
-                    fit: BoxFit.fill,
-                    width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey.shade300,
-                        child: const Icon(Icons.error), // Fallback icon
+                           imageUrl,
+                           fit: BoxFit.fill,
+                           width: double.infinity,
+                           errorBuilder: (context, error, stackTrace) {
+                             return Container(
+                               color: Colors.grey.shade300,
+                               child: const Icon(Icons.error), // Fallback icon
                       );
                     },
                   ),

@@ -242,13 +242,33 @@ class HomeScreenState extends State<HomeScreen> {
           subcategory.name,
           subcategory.plays,
           imageUrl,
+          subcategory.images, // Pass the entire list of images here
         );
       }).toList();
 
+      // Create a list of maps for topics
+      List<Map<String, String>> topicMaps = subcategory.images.map((imageUrl) {
+        return {
+          'image': imageUrl,
+          'title': subcategory.name, // Adjust as needed if titles differ
+        };
+      }).toList();
+
       sections.add(
-        _buildHorizontalCardSection1(
+        _buildHorizontalCardSection2(
           sectionTitle: subcategory.name,
           items: items,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CategoryTopics(
+                  title: subcategory.name,
+                  topics: topicMaps, // Pass the list of maps
+                ),
+              ),
+            );
+          },
         ),
       );
     }
@@ -257,6 +277,8 @@ class HomeScreenState extends State<HomeScreen> {
       children: sections,
     );
   }
+
+
 
 
   Widget _buildButtons() {
@@ -420,7 +442,12 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
+// Modify the horizontal card section to accept the onTap parameter
+  Widget _buildHorizontalCardSection2({
+    required String sectionTitle,
+    required List<Widget> items,
+    required VoidCallback onTap, // Add the onTap parameter
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
@@ -441,10 +468,7 @@ class HomeScreenState extends State<HomeScreen> {
               Text(sectionTitle, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
               const Spacer(),
               InkWell(
-                onTap: () {
-                  // Define navigation logic here
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => CategoryTopics(title: sectionTitle, topics: const [])));
-                },
+                onTap: onTap, // Use the onTap passed as a parameter
                 child: Text('See All', style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
               ),
               const Icon(Icons.arrow_right_outlined, color: Colors.grey, size: 25),
@@ -462,6 +486,9 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+
+
 
   Widget _buildCardItem3(String title, List<String> images) {
     return InkWell(
@@ -664,17 +691,14 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
 
-  Widget _buildCardItem2(String title, String plays, String imageUrl) {
+  Widget _buildCardItem2(String title, String plays, String imageUrl, List<String> allImages) {
     return InkWell(
       onTap: () {
-        // Define the list of images to show based on the title
-        List<String> images = [imageUrl];
-
-        // Navigate to the CategorySelected screen with the relevant images
+        // Pass the entire list of images instead of just the single image
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images),
+            builder: (context) => CategorySelected(imagePaths: allImages), // Pass all images
           ),
         );
       },
@@ -703,38 +727,13 @@ class HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(sectionTitle, style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
-              const Spacer(flex: 1),
-              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey, size: 20),
-            ],
-          ),
-          SizedBox(height: 10.h),
-          SizedBox(
-            height: 200.h,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: items,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildBannerSlider() {
     return Padding(

@@ -1,4 +1,6 @@
-// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api, use_build_context_synchronously
+
+
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 
 import 'dart:convert';
 import 'package:allinone_app/main.dart';
@@ -10,10 +12,10 @@ class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
 
   @override
-  _ChangePasswordPageState createState() => _ChangePasswordPageState();
+   ChangePasswordPageState createState() =>  ChangePasswordPageState();
 }
 
-class _ChangePasswordPageState extends State<ChangePasswordPage> {
+class  ChangePasswordPageState extends State<ChangePasswordPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
@@ -98,15 +100,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
 
-
-
-
-
-
-
-
-
-
   Widget _buildPasswordTextField(String labelText, TextEditingController controller, {bool isConfirm = false}) {
     return TextFormField(
       controller: controller,
@@ -174,8 +167,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
-        title: const Text('Change Password', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.red,
+        centerTitle: true,
+        leading:  InkWell(
+          onTap: (){
+            Navigator.pop(context);
+          },
+          child: const Icon(Icons.arrow_back,color: Colors.white,),
+        ),
+        title: const Text('Change Password', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -185,17 +185,20 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Column(
               children: [
+                const SizedBox(height: 26.0),
                 SizedBox(
                   height: 300,
                   width: 300,
-                  child: Image.asset('assets/images/confitm_password.jpg'),
+                  child: Image.asset('assets/images/change_password.jpg'),
                 ),
+
+                const SizedBox(height: 16.0),
                 _buildPasswordTextField('Current Password', _currentPasswordController),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: 25.0),
                 _buildPasswordTextField('New Password', _newPasswordController),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: 25.0),
                 _buildPasswordTextField('Confirm Password', _confirmPasswordController, isConfirm: true),
-                const SizedBox(height: 20.0),
+                const SizedBox(height: 35.0),
                 InkWell(
                   onTap: _isLoading ? null : _changePassword,
                   child: Container(
@@ -204,6 +207,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.red,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2), // Shadow color
+                          spreadRadius: 2, // Spread radius
+                          blurRadius: 5, // Blur radius
+                          offset: const Offset(0, 3), // Offset for the shadow
+                        ),
+                      ],
                     ),
                     alignment: Alignment.center,
                     child: _isLoading

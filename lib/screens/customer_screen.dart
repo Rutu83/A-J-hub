@@ -1,6 +1,8 @@
+import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/category_selected.dart';
+import 'package:allinone_app/screens/category_topics.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +18,7 @@ class CustomerScreen extends StatefulWidget {
   CustomerScreenState createState() => CustomerScreenState();
 }
 
-class CustomerScreenState extends State<CustomerScreen> {
+class CustomerScreenState extends State<CustomerScreen> with SingleTickerProviderStateMixin {
   final FlutterAppAuth appAuth = const FlutterAppAuth();
 
   final String clientId = '000f55c4e8b5451bae4d7f099bc93a7a';
@@ -48,6 +50,10 @@ class CustomerScreenState extends State<CustomerScreen> {
       // Store the access token securely for future use
     }
   }
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  Future<List<CategoriesWithSubcategoriesResponse>>? futureCategories;
+  CategoriesWithSubcategoriesResponse? categoriesData;
 
   @override
   void initState() {
@@ -55,7 +61,17 @@ class CustomerScreenState extends State<CustomerScreen> {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    )..addListener(() {
+      setState(() {});
+    });
+
+    _animation = Tween<double>(begin: 1.0, end: 1.1).animate(_controller);
     fetchSubcategoryData();
+    fetchCategoriesData();
   }
 
   Future<void> fetchSubcategoryData() async {
@@ -75,6 +91,23 @@ class CustomerScreenState extends State<CustomerScreen> {
         errorMessage = 'Failed to load data: $e'; // Capture error message
         isLoading = false;
       });
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> fetchCategoriesData() async {
+    try {
+      final data = await getCategoriesWithSubcategories();
+      setState(() {
+        categoriesData = data; // Store the fetched CategoriesWithSubcategoriesResponse
+      });
+    } catch (e) {
+      throw Exception('Failed to load categories data: $e');
     }
   }
 
@@ -102,7 +135,18 @@ class CustomerScreenState extends State<CustomerScreen> {
           ),
         ),
       ),
-      body: isLoading ? _buildSkeletonLoading() : _buildContent(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+
+            _buildNewReleasesSection(),
+            const SizedBox(height: 10),
+            isLoading ? _buildSkeletonLoading() : _buildContent(),
+            const SizedBox(height: 120),
+
+          ],
+        ),
+      ),
     );
   }
 
@@ -161,17 +205,37 @@ class CustomerScreenState extends State<CustomerScreen> {
 
     for (var subcategory in subcategoryData!.subcategories) {
       List<Widget> items = subcategory.images.map((imageUrl) {
-        return _buildCardItem2(
+        return _buildCardItem(
           subcategory.name,
           subcategory.plays,
           imageUrl,
+          subcategory.images, // Pass the entire list of images here
         );
       }).toList();
 
+      // Create a list of maps for topics
+      List<Map<String, String>> topicMaps = subcategory.images.map((imageUrl) {
+        return {
+          'image': imageUrl,
+          'title': subcategory.name, // Adjust as needed if titles differ
+        };
+      }).toList();
+
       sections.add(
-        _buildHorizontalCardSection1(
+        _buildHorizontalCardSection(
           sectionTitle: subcategory.name,
           items: items,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CategoryTopics(
+                  title: subcategory.name,
+                  topics: topicMaps, // Pass the list of maps
+                ),
+              ),
+            );
+          },
         ),
       );
     }
@@ -182,17 +246,14 @@ class CustomerScreenState extends State<CustomerScreen> {
   }
 
 
-  Widget _buildCardItem2(String title, String plays, String imageUrl) {
+  Widget _buildCardItem(String title, String plays, String imageUrl, List<String> allImages) {
     return InkWell(
       onTap: () {
-        // Define the list of images to show based on the title
-        List<String> images = [imageUrl];
-
-        // Navigate to the CategorySelected screen with the relevant images
+        // Pass the entire list of images instead of just the single image
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images),
+            builder: (context) => CategorySelected(imagePaths: allImages), // Pass all images
           ),
         );
       },
@@ -221,14 +282,18 @@ class CustomerScreenState extends State<CustomerScreen> {
                 ),
               ),
             ),
-
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHorizontalCardSection1({required String sectionTitle, required List<Widget> items}) {
+// Modify the horizontal card section to accept the onTap parameter
+  Widget _buildHorizontalCardSection({
+    required String sectionTitle,
+    required List<Widget> items,
+    required VoidCallback onTap, // Add the onTap parameter
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
@@ -239,26 +304,25 @@ class CustomerScreenState extends State<CustomerScreen> {
             children: [
               Container(
                 height: 26,
-                width: 6,
+                width: 4,
                 decoration: const BoxDecoration(
                   color: Colors.red,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(5),
-                    bottom: Radius.circular(5),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(5), bottom: Radius.circular(5)),
                 ),
               ),
-              const SizedBox(width: 8), // Add some spacing between the bar and the text
-              Text(
-                sectionTitle,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-              ),
+              const SizedBox(width: 8),
+              Text(sectionTitle, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
               const Spacer(),
+              InkWell(
+                onTap: onTap, // Use the onTap passed as a parameter
+                child: Text('See All', style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
+              ),
+              const Icon(Icons.arrow_right_outlined, color: Colors.grey, size: 25),
             ],
           ),
           SizedBox(height: 5.h),
           SizedBox(
-            height: 130.h,
+            height: 105.h,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: items,
@@ -268,4 +332,167 @@ class CustomerScreenState extends State<CustomerScreen> {
       ),
     );
   }
+
+
+
+  Widget _buildNewReleasesSection() {
+    if (categoriesData == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    List<Widget> items = [];
+    String sectionTitle = 'Upcoming'; // Set the section title to 'Upcoming'
+
+    // Find the upcoming category
+    var upcomingCategory = categoriesData!.categories.firstWhere(
+          (category) => category.name == 'upcoming',
+      orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
+    );
+
+    // Add subcategories if the upcoming category is found
+    for (var subcategory in upcomingCategory.subcategories) {
+      String imageUrl = 'assets/images/placeholder.jpg'; // Default image
+
+      // Get the first image from the subcategory's images
+      if (subcategory.images.isNotEmpty) {
+        imageUrl = subcategory.images[0]; // Use the first image URL if available
+      }
+
+      items.add(_buildCardItem1(
+        subcategory.name,
+        imageUrl, // Use the image URL from the subcategory
+        subcategory.images, // Pass all images to the card item
+      ));
+    }
+
+    return _buildHorizontalCardSection2(
+      sectionTitle: sectionTitle,
+      items: items,
+    );
+  }
+
+  Widget _buildCardItem1(String title, String imageUrl, List<String> images) {
+    return GestureDetector(
+      onTapDown: (_) => _controller.forward(),
+      onTapUp: (_) {
+        _controller.reverse();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategorySelected(imagePaths: images), // Pass all images
+          ),
+        );
+      },
+      onTapCancel: () => _controller.reverse(),
+      child: Transform.scale(
+        scale: _animation.value,
+        child: Container(
+          width: 101.w,
+          margin: EdgeInsets.only(right: 8.w),
+          decoration: BoxDecoration(
+            // Add border here
+            //border: Border.all(color: Colors.blueAccent, width: 2), // Adjust color and width as needed
+            borderRadius: BorderRadius.circular(50.r), // Make it circular
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300), // Duration of the animation
+                curve: Curves.easeInOut,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.red.shade50, width: 2), // Border for the circular image
+                ),
+                child: ClipOval(
+                  child: SizedBox(
+                    width: 90.w, // Ensure width and height are equal for a circle
+                    height: 90.w,
+                    child: imageUrl.startsWith('http')
+                        ? Image.network(
+                           imageUrl,
+                           fit: BoxFit.cover,
+                           errorBuilder: (context, error, stackTrace) {
+                             return Container(
+                               color: Colors.grey, // Placeholder color
+                               child: const Icon(Icons.error), // Error icon
+                        );
+                      },
+                    )
+                        : Image.asset(
+                           imageUrl, // Load from assets
+                           fit: BoxFit.cover,
+                           errorBuilder: (context, error, stackTrace) {
+                             return Container(
+                               color: Colors.grey, // Placeholder color
+                               child: const Icon(Icons.error), // Error icon
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 6.h),
+              Text(
+                title,
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
+
+
+  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 5.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                height: 26,
+                width: 4,
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(5),
+                    bottom: Radius.circular(5),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                sectionTitle,
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          SizedBox(height: 5.h),
+          SizedBox(
+            height: 120.h,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: items,
+            ),
+          ),
+          SizedBox(height: 5.h),
+        ],
+      ),
+    );
+  }
+
 }
+
+
+
