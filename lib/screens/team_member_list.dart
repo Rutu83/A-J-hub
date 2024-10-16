@@ -111,7 +111,7 @@ class TeamMemberListState extends State<TeamMemberList> {
         body: Row(
           children: [
             // Level list on the left
-            Container(
+            SizedBox(
               width: screenWidth * 0.12,
               child: ListView.builder(
                 itemCount: levels.length,
