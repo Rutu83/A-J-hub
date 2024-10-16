@@ -217,7 +217,6 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       List<Map<String, String>> topicMaps = subcategory.images.map((imageUrl) {
         return {
           'image': imageUrl,
-          'title': subcategory.name, // Adjust as needed if titles differ
         };
       }).toList();
 
@@ -231,7 +230,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
               MaterialPageRoute(
                 builder: (context) => CategoryTopics(
                   title: subcategory.name,
-                  topics: topicMaps, // Pass the list of maps
+                  images: topicMaps, // Pass the list of maps
                 ),
               ),
             );
@@ -337,7 +336,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
   Widget _buildNewReleasesSection() {
     if (categoriesData == null) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildSkeletonLoader();
     }
 
     List<Widget> items = [];
@@ -368,6 +367,64 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     return _buildHorizontalCardSection2(
       sectionTitle: sectionTitle,
       items: items,
+    );
+  }
+
+
+  Widget _buildSkeletonLoader() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 26,
+                  width: 4,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5),
+                      bottom: Radius.circular(5),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 100.w,
+                  height: 16.h,
+                  color: Colors.white,
+                ),
+              ],
+            ),
+            SizedBox(height: 5.h),
+            SizedBox(
+              height: 120.h,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: 5, // Number of skeleton items
+                itemBuilder: (context, index) {
+                  return Container(
+                    width: 101.w,
+                    margin: EdgeInsets.only(right: 8.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(50.r), // Circular shape for skeleton
+                    ),
+                  );
+                },
+              ),
+            ),
+            SizedBox(height: 5.h),
+          ],
+        ),
+      ),
     );
   }
 

@@ -7,7 +7,7 @@ class BusinessModal {
   factory BusinessModal.fromJson(Map<String, dynamic> json) {
     return BusinessModal(
       status: json['status'],
-      business: Business.fromJson(json['business']),
+      business: json['business'] != null ? Business.fromJson(json['business']) : null, // Handle potential null
     );
   }
 
@@ -21,11 +21,11 @@ class BusinessModal {
 
 class Business {
   int totalTeamCount;
-  int totalIncome;
-  int sponserIncome;
+  double totalIncome;
+  double sponserIncome;
   int directTeamCount;
   int directIncome;
-  List<dynamic> levelDownline; // Change to specific type if known
+  List<LevelDownline> levelDownline;
   DateTime createdAt;
 
   Business({
@@ -40,13 +40,20 @@ class Business {
 
   factory Business.fromJson(Map<String, dynamic> json) {
     return Business(
-      totalTeamCount: json['total_team_count'],
-      totalIncome: json['total_income'],
-      sponserIncome: json['sponser_income'],
-      directTeamCount: json['direct_team_count'],
-      directIncome: json['direct_income'],
-      levelDownline: List<dynamic>.from(json['level_downline']),
-      createdAt: DateTime.parse(json['created_at']),
+      totalTeamCount: json['total_team_count'] ?? 0,
+      totalIncome: (json['total_income'] is String)
+          ? double.tryParse(json['total_income']) ?? 0.0
+          : (json['total_income'] ?? 0.0).toDouble(),
+      sponserIncome: (json['sponser_income'] is String)
+          ? double.tryParse(json['sponser_income']) ?? 0.0
+          : (json['sponser_income'] ?? 0.0).toDouble(),
+      directTeamCount: json['direct_team_count'] ?? 0,
+      directIncome: json['direct_income'] ?? 0,
+      levelDownline: (json['level_downline'] as List<dynamic>?)
+          ?.map((item) => LevelDownline.fromJson(item))
+          .toList() ??
+          [],
+      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()), // Default to now if null
     );
   }
 
@@ -57,7 +64,61 @@ class Business {
       'sponser_income': sponserIncome,
       'direct_team_count': directTeamCount,
       'direct_income': directIncome,
-      'level_downline': levelDownline,
+      'level_downline': levelDownline.map((item) => item.toJson()).toList(),
+      'created_at': createdAt.toIso8601String(),
+    };
+  }
+}
+
+class LevelDownline {
+  int level;
+  int userId;
+  String username;
+  String uid;
+  int directTeamCount;
+  int directIncome;
+  double totalIncome;
+  int totalTeamCount;
+  DateTime createdAt;
+
+  LevelDownline({
+    required this.level,
+    required this.userId,
+    required this.username,
+    required this.uid,
+    required this.directTeamCount,
+    required this.directIncome,
+    required this.totalIncome,
+    required this.totalTeamCount,
+    required this.createdAt,
+  });
+
+  factory LevelDownline.fromJson(Map<String, dynamic> json) {
+    return LevelDownline(
+      level: json['level'] ?? 0,
+      userId: json['user_id'] ?? 0,
+      username: json['username'] ?? '',
+      uid: json['uid'] ?? '',
+      directTeamCount: json['direct_team_count'] ?? 0,
+      directIncome: json['direct_income'] ?? 0,
+      totalIncome: (json['total_income'] is String)
+          ? double.tryParse(json['total_income']) ?? 0.0
+          : (json['total_income'] ?? 0.0).toDouble(),
+      totalTeamCount: json['total_team_count'] ?? 0,
+      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'level': level,
+      'user_id': userId,
+      'username': username,
+      'uid': uid,
+      'direct_team_count': directTeamCount,
+      'direct_income': directIncome,
+      'total_income': totalIncome,
+      'total_team_count': totalTeamCount,
       'created_at': createdAt.toIso8601String(),
     };
   }

@@ -250,7 +250,6 @@ class HomeScreenState extends State<HomeScreen> {
       List<Map<String, String>> topicMaps = subcategory.images.map((imageUrl) {
         return {
           'image': imageUrl,
-          'title': subcategory.name, // Adjust as needed if titles differ
         };
       }).toList();
 
@@ -264,7 +263,7 @@ class HomeScreenState extends State<HomeScreen> {
               MaterialPageRoute(
                 builder: (context) => CategoryTopics(
                   title: subcategory.name,
-                  topics: topicMaps, // Pass the list of maps
+                  images: topicMaps, // Pass the list of maps
                 ),
               ),
             );
@@ -376,7 +375,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _buildNewReleasesSection2() {
     if (categoriesData == null) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildSkeletonLoader();
     }
 
     List<Widget> items = [];
@@ -540,10 +539,34 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
 
+  Widget _buildSkeletonLoader() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        height: 120.h,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: 5, // Number of skeleton items
+          itemBuilder: (context, index) {
+            return Container(
+              width: 101.w,
+              margin: EdgeInsets.only(right: 8.w),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 
   Widget _buildNewReleasesSection1() {
     if (categoriesData == null) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildSkeletonLoader();
     }
 
     List<Widget> items = [];

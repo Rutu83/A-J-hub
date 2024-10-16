@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ReferEarn extends StatefulWidget {
   const ReferEarn({super.key});
@@ -57,8 +56,9 @@ class _ReferEarnState extends State<ReferEarn> {
               ],
             ),
 
-            _buildMessage(),
-            _buildImage('assets/images/refer.jpg'),
+         //   _buildMessage(),
+            _buildImage('assets/images/refer_earn.png'),
+
             _buildCopyField(),
             _buildButton(),
 
@@ -248,92 +248,85 @@ class _ReferEarnState extends State<ReferEarn> {
 
   Widget _buildImage(String imageUrl) {
     return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.red.shade50),
-        borderRadius: BorderRadius.circular(12.r),
+      decoration: const BoxDecoration(
+    //    border: Border.all(color: Colors.red.shade50),
+    //    borderRadius: BorderRadius.circular(12.r),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 250.w,
-            height: 250.w,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12.r),
-              child: imageUrl.startsWith('assets/')
-                  ? Image.asset(
-                imageUrl,
-                fit: BoxFit.cover,
-              )
-                  : Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-              ),
-            ),
+      child: Container(
+        width: 300.w,
+        height: 400.w,
+        decoration: const BoxDecoration(
+        //  borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.r),
+          child: imageUrl.startsWith('assets/')
+              ? Image.asset(
+            imageUrl,
+            fit: BoxFit.fill,
+          )
+              : Image.network(
+            imageUrl,
+            fit: BoxFit.cover,
           ),
-
-
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildMessage() {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(left: 44,right: 44,top: 20,bottom: 5),
-      child: Column(
-        children: [
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('🔴  ',
-                style: TextStyle(
-                    fontSize: 11
-                ),),
-              Flexible(
-                child: Text(
-                  'When your friends registers on the app , You receive ₹100, and your friend receives ₹100. As a AllInOne HUb Point',
-                  softWrap: true,
-                  style: TextStyle(
-                      color: Colors.black26,
-                    fontWeight: FontWeight.bold,
-                      fontSize: 15
-                  ),
-                ),
-              ),
-
-            ],
-          ),
-          SizedBox(height: 18.h),
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('🔴  ',
-                style: TextStyle(
-                  fontSize: 11
-                ),),
-              Flexible(
-                child: Text(
-                  'When your friends pays for a premium package , You receive a 10% as a cash balance.',
-                  softWrap: true,
-                  style: TextStyle(
-                    color: Colors.black26,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15
-                  ),
-                ),
-              ),
-
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildMessage() {
+  //   return Container(
+  //     width: double.infinity,
+  //     margin: const EdgeInsets.only(left: 44,right: 44,top: 20,bottom: 5),
+  //     child: const Column(
+  //       children: [
+  //         Row(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Text('🔴  ',
+  //               style: TextStyle(
+  //                   fontSize: 11
+  //               ),),
+  //             Flexible(
+  //               child: Text(
+  //                 'When your friends registers on the app , You receive ₹100, and your friend receives ₹100. As a AllInOne HUb Point',
+  //                 softWrap: true,
+  //                 style: TextStyle(
+  //                     color: Colors.black26,
+  //                   fontWeight: FontWeight.bold,
+  //                     fontSize: 15
+  //                 ),
+  //               ),
+  //             ),
+  //
+  //           ],
+  //         ),
+  //         // SizedBox(height: 18.h),
+  //         // const Row(
+  //         //   crossAxisAlignment: CrossAxisAlignment.start,
+  //         //   children: [
+  //         //     Text('🔴  ',
+  //         //       style: TextStyle(
+  //         //         fontSize: 11
+  //         //       ),),
+  //         //     Flexible(
+  //         //       child: Text(
+  //         //         'When your friends pays for a premium package , You receive a 10% as a cash balance.',
+  //         //         softWrap: true,
+  //         //         style: TextStyle(
+  //         //           color: Colors.black26,
+  //         //             fontWeight: FontWeight.bold,
+  //         //             fontSize: 15
+  //         //         ),
+  //         //       ),
+  //         //     ),
+  //         //
+  //         //   ],
+  //         // ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildCopyField() {
     return Container(

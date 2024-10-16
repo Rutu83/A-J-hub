@@ -7,9 +7,11 @@ import 'package:allinone_app/screens/change_password_screen.dart';
 import 'package:allinone_app/screens/contact_us.dart';
 import 'package:allinone_app/screens/edit_profile.dart';
 import 'package:allinone_app/screens/help_support.dart';
+import 'package:allinone_app/screens/kyc_screen.dart';
 import 'package:allinone_app/screens/refer_earn.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
+import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -66,9 +68,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       setState(() {
         userId = userDetail['_id'];
-        totalDownline = userDetail['profile']['direct_team_count'] ?? '';
-        directDownline = userDetail['profile']['phone_number'] ?? '';
-        totalIncome = userDetail['gender'] ?? 'Select Gender';
+        totalDownline = userDetail['total_downline_count'] ?? '0';
+        directDownline = userDetail['direct_team_count'] ?? '0';
+
+        // Check if total_income is a String and convert it to int
+        String incomeString = userDetail['total_income'] ?? '0.0';
+        totalIncome = (double.tryParse(incomeString) ?? 0.0).toInt();
+
         _isLoading = false;
       });
     } catch (e) {
@@ -80,6 +86,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -100,11 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       body: _isLoading
-          ? const Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-        ),
-      )
+          ? _buildSkeletonLoader()
           : SingleChildScrollView(
                child: Container(
                  margin: const EdgeInsets.only(bottom: 56.0),
@@ -132,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                              ),
                            ),
                            const Spacer(),
-                           _buildInfoColumn(totalIncome, "Total Income", Colors.red),
+                           _buildInfoColumn(totalIncome, "Total Income", Colors.black),
                            SizedBox(width: 10.w),
                            _buildInfoColumn(totalDownline, "Total Team", Colors.black),
                            SizedBox(width: 10.w),
@@ -154,6 +158,108 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+
+  Widget _buildSkeletonLoader() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 72.r,
+                height: 72.r,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const Spacer(),
+              Column(
+                children: [
+                  Container(
+                    width: 50.w,
+                    height: 16.h,
+                    color: Colors.white,
+                  ),
+                  SizedBox(height: 5.h),
+                  Container(
+                    width: 70.w,
+                    height: 12.h,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+              SizedBox(width: 4.w),
+              Column(
+                children: [
+                  Container(
+                    width: 70.w,
+                    height: 16.h,
+                    color: Colors.white,
+                  ),
+                  SizedBox(height: 5.h),
+                  Container(
+                    width: 70.w,
+                    height: 12.h,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+              SizedBox(width: 4.w),
+              Column(
+                children: [
+                  Container(
+                    width: 70.w,
+                    height: 16.h,
+                    color: Colors.white,
+                  ),
+                  SizedBox(height: 5.h),
+                  Container(
+                    width: 70.w,
+                    height: 12.h,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SizedBox(height: 20.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Container(
+                width: 120.w,
+                height: 60.h,
+                color: Colors.white,
+              ),
+              Container(
+                width: 120.w,
+                height: 60.h,
+                color: Colors.white,
+              ),
+            ],
+          ),
+          SizedBox(height: 20.h),
+          Column(
+            children: List.generate(8, (index) {
+              return Container(
+                height: 50.h,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              );
+            }),
+          ),
+        ],
       ),
     );
   }
@@ -222,7 +328,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.picture_as_pdf, "Plan PDF"),
         _buildMenuOption(Icons.contact_mail_outlined, "Contact Us"),
         _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.ajhub.co.in/term-condition'),
-        _buildMenuOption(Icons.account_balance_outlined, "KYC Details",'https://www.google.co.in/'),
+        _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
         _buildMenuOption(Icons.privacy_tip_outlined, "Privacy Policy", 'https://www.ajhub.co.in/policy'),
         _buildMenuOption(Icons.help_center_outlined, "Help & Support"),
         _buildMenuOption(Icons.receipt_long_rounded, "Our Product & Service",'https://www.google.co.in/'),
@@ -285,6 +391,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
               context,
               MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
             );
+          }else if (label == "KYC Details") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const KycScreen()),
+            );
           } else {
             if (kDebugMode) {
               print("Other menu option clicked: $label");
@@ -314,7 +425,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
   void _showDeleteAccountDialog() {
     showDialog(
       context: context,
@@ -341,7 +451,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-
 
 
 
@@ -391,3 +500,11 @@ class WebViewScreen extends StatelessWidget {
   }
 }
 
+
+//
+//
+// Build scheduled during frame.
+//
+// While the widget tree was being built, laid out, and painted, a new frame was scheduled to rebuild the widget tree.
+//
+// This might be because setState() was called from a layout or paint callback. If a change is needed to the widget tree, it should be applied as the tree is being built. Scheduling a change for the subsequent frame instead results in an interface that lags behind by one frame. If this was done to make your build dependent on a size measured at layout time, consider using a LayoutBuilder, CustomSingleChildLayout, or CustomMultiChildLayout. If, on the other hand, the one frame delay is the desired effect, for example because this is an animation, consider scheduling the frame in a post-frame callback using SchedulerBinding.addPostFrameCallback or using an AnimationController to trigger the animation.

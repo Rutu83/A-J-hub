@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 class CategoryTopics extends StatelessWidget {
   final String title;
-  final List<Map<String, String>> topics; // Changed to List<Map<String, String>>
+  final List<Map<String, String>> images; // Renamed for clarity
 
-  const CategoryTopics({super.key, required this.title, required this.topics});
+  const CategoryTopics({super.key, required this.title, required this.images});
 
   @override
   Widget build(BuildContext context) {
@@ -26,38 +26,22 @@ class CategoryTopics extends StatelessWidget {
             mainAxisSpacing: 10.0,
             childAspectRatio: 1,
           ),
-          itemCount: topics.length,
+          itemCount: images.length,
           itemBuilder: (context, index) {
-            final topic = topics[index];
-            final imageUrl = topic['image']!; // Image URL or asset path
-            final topicTitle = topic['title']!;
-
-            // Map to store image lists based on titles
-            Map<String, List<String>> imagesMap = {
-              'Navratri': [
-                'assets/images/navratri/navratri.jpg',
-                'assets/images/navratri/navratri2.jpg',
-                // ... other images
-              ],
-              'Gandhi Jayanti': [
-                'assets/images/gandhiji/gandhiji.jpg',
-                // ... other images
-              ],
-              // Add other topics here
-            };
+            final imageData = images[index]; // Renamed for clarity
+            final imageUrl = imageData['image'] ?? ''; // Use imageData
 
             return InkWell(
               onTap: () {
-                List<String> images = imagesMap[topicTitle] ?? []; // Get images or empty list
+                // Pass all image URLs when navigating
+                List<String> allImageUrls = images.map((imgData) => imgData['image'] ?? '').toList();
 
-                if (images.isNotEmpty) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CategorySelected(imagePaths: images),
-                    ),
-                  );
-                }
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CategorySelected(imagePaths: allImageUrls),
+                  ),
+                );
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -65,26 +49,26 @@ class CategoryTopics extends StatelessWidget {
                   borderRadius: BorderRadius.circular(22.0),
                 ),
                 child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20.0),
-                      child: imageUrl.startsWith('http') // Check if it's a URL
-                          ? Image.network(
-                             imageUrl,
-                             fit: BoxFit.fill,
-                             errorBuilder: (context, error, stackTrace) {
-                               return Container(
-                                 color: Colors.grey.shade300,
-                                 child: const Icon(Icons.error), // Fallback icon
-                          );
+                  borderRadius: BorderRadius.circular(20.0),
+                  child: imageUrl.startsWith('http')
+                      ? Image.network(
+                         imageUrl,
+                         fit: BoxFit.fill,
+                         errorBuilder: (context, error, stackTrace) {
+                           return Container(
+                             color: Colors.grey.shade300,
+                             child: const Icon(Icons.error),
+                      );
                     },
                   )
                       : Image.asset(
-                           imageUrl,
-                           fit: BoxFit.fill,
-                           width: double.infinity,
-                           errorBuilder: (context, error, stackTrace) {
-                             return Container(
-                               color: Colors.grey.shade300,
-                               child: const Icon(Icons.error), // Fallback icon
+                          imageUrl,
+                          fit: BoxFit.fill,
+                          width: double.infinity,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey.shade300,
+                              child: const Icon(Icons.error),
                       );
                     },
                   ),

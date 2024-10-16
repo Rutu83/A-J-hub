@@ -122,7 +122,11 @@ class _BusinessScreenState extends State<BusinessScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          _buildTeamMembersStats(),
+
+          Padding(padding: const EdgeInsets.only(left: 5,right: 5),
+          child:   _buildTeamMembersStats() ,
+          ),
+
           const SizedBox(height: 15),
         ],
       ),
@@ -136,6 +140,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
         Expanded(
           child: _buildStatItem(businessData?.business?.directTeamCount.toString() ?? '0', 'Direct Circle'),
         ),
+        const SizedBox(width: 10,),
         Expanded(
           child: _buildStatItem(businessData?.business?.totalTeamCount.toString() ?? '0', 'Total Circle'),
         ),

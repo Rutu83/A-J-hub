@@ -44,7 +44,8 @@ class CharityPageState extends State<CharityPage> with SingleTickerProviderState
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
-              expandedHeight: 200.0,
+              toolbarHeight: 80,
+              expandedHeight: 250.0,
               floating: false,
               pinned: true,
               backgroundColor: Colors.white,
@@ -63,12 +64,14 @@ class CharityPageState extends State<CharityPage> with SingleTickerProviderState
                 ),
               ),
               bottom: TabBar(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
                 controller: _tabController,
                 labelColor: Colors.black,
                 indicatorColor: Colors.transparent,
                 unselectedLabelColor: Colors.black,
                 dividerColor: Colors.transparent,
                 overlayColor: WidgetStateProperty.all(Colors.transparent),
+                labelPadding: const EdgeInsets.all(2),
                 tabs: [
                   buildTab('Skill\nSchool', 0),
                   buildTab('Food', 1),
@@ -76,7 +79,7 @@ class CharityPageState extends State<CharityPage> with SingleTickerProviderState
                   buildTab('Child\nCare', 3),
                   buildTab('Indian\nGames', 4),
                 ],
-              ),
+              )
             ),
           ];
         },
@@ -97,20 +100,41 @@ class CharityPageState extends State<CharityPage> with SingleTickerProviderState
     );
   }
 
+
+
   Widget buildTab(String text, int index) {
     return Container(
-      padding: EdgeInsets.zero, // Remove any default padding
+      width: 100,
+      height: 80,
       decoration: BoxDecoration(
-        color: _tabController.index == index ? Colors.blue.shade300 : Colors.grey,
-        border: Border.all( color: _tabController.index == index ? Colors.blue.shade300 : Colors.grey,),
+        color: _tabController.index == index ? Colors.blue.shade300 : Colors.grey.shade50,
+        border: Border.all(
+          color: _tabController.index == index ? Colors.blue.shade300 : Colors.grey.shade500,
+        ),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Tab(
-        child: Center(
-          child: Text(
-            text,
-            textAlign: TextAlign.center,
-          )
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              text,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+
+                color: _tabController.index == index ? Colors.white : Colors.black54,
+              ),
+            ),
+            const SizedBox(height: 4), // Add space between text lines
+            Text(
+              '₹52465',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: _tabController.index == index ? Colors.white : Colors.black54,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -190,7 +214,7 @@ class CharityPageState extends State<CharityPage> with SingleTickerProviderState
         // Title aligned to the right
         Container(
           padding: const EdgeInsets.all(5),
-          alignment: Alignment.centerRight,
+          alignment: Alignment.centerLeft,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: const BorderRadius.all(Radius.circular(8)),
