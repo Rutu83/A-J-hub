@@ -120,13 +120,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                        padding: const EdgeInsets.symmetric(horizontal: 10),
                        child: Row(
                          children: [
-                           CircleAvatar(
-                             radius: 36.r,
-                             backgroundColor: Colors.redAccent.withOpacity(0.8),
+                           Container(
+                             width: 72.r, // Set this to radius * 2 + border width to account for the border
+                             height: 72.r,
+                             decoration: BoxDecoration(
+                               color: Colors.white, // Background color of the border
+                               shape: BoxShape.circle,
+                               border: Border.all(
+                                 color: Colors.red, // Border color
+                                 width: 3.0, // Border width
+                               ),
+                             ),
                              child: CircleAvatar(
                                radius: 33.r,
                                backgroundImage: _imageLoadFailed
-                                   ? const AssetImage('assets/images/placeholder.jpg')
+                                   ? const AssetImage('assets/images/aj1.jpg')
                                    : const NetworkImage('https://www.google.co.in/') as ImageProvider,
                                onBackgroundImageError: (_, __) {
                                  setState(() {
@@ -135,6 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                },
                              ),
                            ),
+
                            const Spacer(),
                            _buildInfoColumn(totalIncome, "Total Income", Colors.black),
                            SizedBox(width: 10.w),

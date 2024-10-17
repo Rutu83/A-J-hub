@@ -40,19 +40,19 @@ class _ReferEarnState extends State<ReferEarn> {
               children: [
 
                 Container(
-                  height: 270,
+                  height: 170,
                 ),
                 Positioned(
                   child:_buildAppBar(),
                 ),
 
-
-                Positioned(
-                  top: 100, // Adjust this value to control the position of the second container
-                  left: 0,
-                  right: 0,
-                  child: _buildCustomContainer(Colors.white, '₹1234', 'Label Text'),
-                ),
+                //
+                // Positioned(
+                //   top: 100, // Adjust this value to control the position of the second container
+                //   left: 0,
+                //   right: 0,
+                //   child: _buildCustomContainer(Colors.white, '₹1234', 'Label Text'),
+                // ),
               ],
             ),
 
@@ -187,7 +187,7 @@ class _ReferEarnState extends State<ReferEarn> {
   Widget _buildAppBar() {
     return  Container(
       width: double.infinity,
-      height: 170,
+      height: 130,
       padding: const EdgeInsets.only(left: 10,right: 10,top: 30,bottom: 30),
       decoration: BoxDecoration(
         color: Colors.red,
