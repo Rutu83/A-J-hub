@@ -16,11 +16,6 @@ class DashboardScreenState extends State<DashboardScreen> {
   final PageController _pageController = PageController();
   int _selectedIndex = 0;
 
-
-
-  // jay@gmail.com
-  // Jay@123456
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

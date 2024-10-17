@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -48,23 +49,21 @@ class HomeScreenState extends State<HomeScreen> {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
-
     fetchCategoriesData();
     fetchSubcategoryData();
-  //  fetchBusinessData(); // Fetch the data without expecting a future return
   }
 
   Future<void> fetchSubcategoryData() async {
     try {
-      final data = await getSubCategories(); // Fetch data from API
+      final data = await getSubCategories();
       setState(() {
         subcategoryData = data;
-        isLoading = false; // Stop loading once data is fetched
+        isLoading = false;
       });
     } catch (e) {
       setState(() {
         hasError = true;
-        errorMessage = 'Failed to load data: $e'; // Capture error message
+        errorMessage = 'Failed to load data: $e';
         isLoading = false;
       });
     }
@@ -74,12 +73,19 @@ class HomeScreenState extends State<HomeScreen> {
     try {
       final data = await getCategoriesWithSubcategories();
       setState(() {
-        categoriesData = data; // Store the fetched CategoriesWithSubcategoriesResponse
+        categoriesData = data;
+        if (kDebugMode) {
+          print(categoriesData);
+        }
       });
     } catch (e) {
-      throw Exception('Failed to load categories data: $e');
+      setState(() {
+        hasError = true;
+        errorMessage = 'Failed to load categories data: $e';
+      });
     }
   }
+
 
 
   @override
@@ -167,6 +173,8 @@ class HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+
+
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -185,100 +193,56 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSkeletonLoading() {
-    // Skeleton shimmer effect while loading data
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Column(
-        children: List.generate(5,
-              (index) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            child: Container(
-              height: 130.h,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    if (hasError) {
-      return Center(
-        child: Text(
-          errorMessage,
-          style: TextStyle(fontSize: 16.sp, color: Colors.red),
-        ),
-      );
-    }
-
-    if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
-      return Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(fontSize: 16.sp, color: Colors.black),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
+  Widget _buildBannerSlider() {
+    return Padding(
+      padding: EdgeInsets.all(8.0.w),
       child: Column(
         children: [
-          _buildSubcategorySections(),
-
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: CarouselSlider(
+              options: CarouselOptions(
+                height: 150.h,
+                autoPlay: true,
+                viewportFraction: 1.0,
+                onPageChanged: (index, reason) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+              ),
+              items: _imageUrls.map((url) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Image.network(
+                      url,
+                      fit: BoxFit.cover,
+                      width: MediaQuery.of(context).size.width,
+                    );
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: _imageUrls.map((url) {
+              int index = _imageUrls.indexOf(url);
+              return Container(
+                width: 6.0.w,
+                height: 6.0.h,
+                margin: EdgeInsets.symmetric(vertical: 5.0.h, horizontal: 2.0.w),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _currentIndex == index ? Colors.black : Colors.grey,
+                ),
+              );
+            }).toList(),
+          ),
         ],
       ),
     );
   }
-
-  Widget _buildSubcategorySections() {
-    List<Widget> sections = [];
-
-    for (var subcategory in subcategoryData!.subcategories) {
-      List<Widget> items = subcategory.images.map((imageUrl) {
-        return _buildCardItem2(
-          subcategory.name,
-          subcategory.plays,
-          imageUrl,
-          subcategory.images, // Pass the entire list of images here
-        );
-      }).toList();
-
-      // Create a list of maps for topics
-      List<Map<String, String>> topicMaps = subcategory.images.map((imageUrl) {
-        return {
-          'image': imageUrl,
-        };
-      }).toList();
-
-      sections.add(
-        _buildHorizontalCardSection2(
-          sectionTitle: subcategory.name,
-          items: items,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CategoryTopics(
-                  title: subcategory.name,
-                  images: topicMaps, // Pass the list of maps
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    }
-
-    return Column(
-      children: sections,
-    );
-  }
-
-
-
 
   Widget _buildButtons() {
     return Card(
@@ -370,31 +334,89 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildNewReleasesSection1() {
+    if (isLoading) {
+      return _buildSkeletonLoader(); // Show skeleton while loading
+    }
 
+    if (hasError) {
+      return SizedBox(
+        height: 100,
+        child: Center(
+          child: Text(
+            errorMessage,
+            style: TextStyle(fontSize: 16.sp, color: Colors.red),
+          ),
+        ),
+      );
+    }
 
-
-  Widget _buildNewReleasesSection2() {
     if (categoriesData == null) {
-      return _buildSkeletonLoader();
+      return SizedBox(
+        height: 100,
+        child: Center(
+          child: Text(
+            'Failed to load data.',
+            style: TextStyle(fontSize: 16.sp, color: Colors.red),
+          ),
+        ),
+      );
     }
 
     List<Widget> items = [];
-    String sectionTitle = 'Festival'; // Set the section title to 'Festival'
+    String sectionTitle = 'Upcoming';
+
+    // Find the upcoming category
+    var upcomingCategory = categoriesData!.categories.firstWhere(
+          (category) => category.name.toLowerCase() == 'upcoming',
+      orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
+    );
+
+    // Add subcategories if found
+    for (var subcategory in upcomingCategory.subcategories) {
+      String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/placeholder.jpg';
+
+      items.add(_buildCardItem1(
+        subcategory.name,
+        imageUrl,
+        subcategory.images,
+      ));
+    }
+
+    return _buildHorizontalCardSection1(
+      sectionTitle: sectionTitle,
+      items: items,
+    );
+  }
+
+  Widget _buildNewReleasesSection2() {
+    if (isLoading) {
+      return _buildSkeletonLoader(); // Show skeleton while loading
+    }
+
+    if (hasError) {
+      return Container(); // or handle error message accordingly
+    }
+
+    if (categoriesData == null) {
+      return Container();
+    }
+
+    List<Widget> items = [];
+    String sectionTitle = 'Festival';
 
     // Find the festival category
     var festivalCategory = categoriesData!.categories.firstWhere(
-          (category) => category.name == 'festival',
-      orElse: () => CategoryWithSubcategory(name: 'No Festival', subcategories: []), // Default empty category
+          (category) => category.name.toLowerCase() == 'festival',
+      orElse: () => CategoryWithSubcategory(name: 'No Festival', subcategories: []),
     );
 
     // Iterate through subcategories of the festival category
     for (var subcategory in festivalCategory.subcategories) {
-      // Check if there are images
       if (subcategory.images.isNotEmpty) {
-        // Add a card item with the first image only, but pass all images for navigation
         items.add(_buildCardItem3(
           subcategory.name,
-          subcategory.images, // Pass all images here
+          subcategory.images,
         ));
       }
     }
@@ -404,6 +426,107 @@ class HomeScreenState extends State<HomeScreen> {
       items: items,
     );
   }
+
+
+
+
+  Widget _buildContent() {
+    if (isLoading) {
+      return _buildSkeletonLoading(); // Show skeleton loading when data is loading
+    }
+
+    if (hasError) {
+      return Container(
+        height: 200,
+        width: 300,
+        decoration: const BoxDecoration(
+          //border: Border(top: BorderSide(color: Colors.grey.shade100))
+        ),
+        child: Lottie.asset('assets/animation/error_lottie.json'),
+      );// Show skeleton loading when data is loading
+    }
+
+    if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
+      return Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(fontSize: 16.sp, color: Colors.black),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildSubcategorySections(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkeletonLoading() {
+    // Skeleton shimmer effect while loading data
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        children: List.generate(5,
+              (index) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            child: Container(
+              height: 130.h,
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubcategorySections() {
+    List<Widget> sections = [];
+
+    for (var subcategory in subcategoryData!.subcategories) {
+      List<Widget> items = subcategory.images.map((imageUrl) {
+        return _buildCardItem2(
+          subcategory.name,
+          subcategory.plays,
+          imageUrl,
+          subcategory.images, // Pass the entire list of images here
+        );
+      }).toList();
+
+      // Create a list of maps for topics
+      List<Map<String, String>> topicMaps = subcategory.images.map((imageUrl) {
+        return {
+          'image': imageUrl,
+        };
+      }).toList();
+
+      sections.add(
+        _buildHorizontalCardSection2(
+          sectionTitle: subcategory.name,
+          items: items,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CategoryTopics(
+                  title: subcategory.name,
+                  images: topicMaps, // Pass the list of maps
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
+
+    return Column(
+      children: sections,
+    );
+  }
+
 
   Widget _buildHorizontalCardSection3({required String sectionTitle, required List<Widget> items}) {
     return Padding(
@@ -442,11 +565,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
 // Modify the horizontal card section to accept the onTap parameter
-  Widget _buildHorizontalCardSection2({
-    required String sectionTitle,
-    required List<Widget> items,
-    required VoidCallback onTap, // Add the onTap parameter
-  }) {
+  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items, required VoidCallback onTap, }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
@@ -485,9 +604,6 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-
-
 
   Widget _buildCardItem3(String title, List<String> images) {
     return InkWell(
@@ -538,67 +654,64 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   Widget _buildSkeletonLoader() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
-      child: Container(
-        height: 120.h,
+      child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 5, // Number of skeleton items
-          itemBuilder: (context, index) {
-            return Container(
-              width: 101.w,
-              margin: EdgeInsets.only(right: 8.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12.r),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 26,
+                  width: 4,
+                  decoration: const BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5),
+                      bottom: Radius.circular(5),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 100.w,
+                  height: 16.h,
+                  color: Colors.white,
+                ),
+              ],
+            ),
+            SizedBox(height: 5.h),
+            SizedBox(
+              height: 120.h,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: 5, // Number of skeleton items
+                itemBuilder: (context, index) {
+                  return Container(
+                    width: 101.w,
+                    margin: EdgeInsets.only(right: 8.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12.r), // Circular shape for skeleton
+                    ),
+                  );
+                },
               ),
-            );
-          },
+            ),
+            SizedBox(height: 5.h),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildNewReleasesSection1() {
-    if (categoriesData == null) {
-      return _buildSkeletonLoader();
-    }
 
-    List<Widget> items = [];
-    String sectionTitle = 'Upcoming'; // Set the section title to 'Upcoming'
-
-    // Find the upcoming category
-    var upcomingCategory = categoriesData!.categories.firstWhere(
-          (category) => category.name == 'upcoming',
-      orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
-    );
-
-    // Add subcategories if the upcoming category is found
-    for (var subcategory in upcomingCategory.subcategories) {
-      String imageUrl = 'assets/images/placeholder.jpg'; // Default image
-
-      // Get the first image from the subcategory's images
-      if (subcategory.images.isNotEmpty) {
-        imageUrl = subcategory.images[0]; // Use the first image URL if available
-      }
-
-      items.add(_buildCardItem1(
-        subcategory.name,
-        imageUrl, // Use the image URL from the subcategory
-        subcategory.images, // Pass all images to the card item
-      ));
-    }
-
-    return _buildHorizontalCardSection1(
-      sectionTitle: sectionTitle,
-      items: items,
-    );
-  }
 
   Widget _buildCardItem1(String title, String imageUrl, List<String> images) {
     return InkWell(
@@ -664,10 +777,6 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-
-
-
   Widget _buildHorizontalCardSection1({required String sectionTitle, required List<Widget> items}) {
     return Container(
       color: const Color(0xFFFFF5F5),
@@ -713,7 +822,6 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   Widget _buildCardItem2(String title, String plays, String imageUrl, List<String> allImages) {
     return InkWell(
       onTap: () {
@@ -757,55 +865,6 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
 
-
-  Widget _buildBannerSlider() {
-    return Padding(
-      padding: EdgeInsets.all(8.0.w),
-      child: Column(
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: CarouselSlider(
-              options: CarouselOptions(
-                height: 150.h,
-                autoPlay: true,
-                viewportFraction: 1.0,
-                onPageChanged: (index, reason) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-              ),
-              items: _imageUrls.map((url) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Image.network(
-                      url,
-                      fit: BoxFit.cover,
-                      width: MediaQuery.of(context).size.width,
-                    );
-                  },
-                );
-              }).toList(),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: _imageUrls.map((url) {
-              int index = _imageUrls.indexOf(url);
-              return Container(
-                width: 6.0.w,
-                height: 6.0.h,
-                margin: EdgeInsets.symmetric(vertical: 5.0.h, horizontal: 2.0.w),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _currentIndex == index ? Colors.black : Colors.grey,
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
 }
+
+
