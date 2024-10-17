@@ -26,7 +26,7 @@ class SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
-
+  bool isLocationError = false;
   String selectedGender = 'Select Gender';
   String? selectedCountry;
   String? selectedState;
@@ -44,7 +44,7 @@ class SignUpScreenState extends State<SignUpScreen> {
   bool _isLoadingCountries = false;
   bool _isLoadingStates = false;
   bool _isLoadingCities = false;
-
+  bool _isGenderError = false;
   @override
   void initState() {
     super.initState();
@@ -233,7 +233,12 @@ class SignUpScreenState extends State<SignUpScreen> {
                   SizedBox(height: 10.h),
                   _buildPhoneNumberField(),
                   SizedBox(height: 10.h),
-                  _buildDropdownField('Gender', selectedGender, _selectGender, true),
+                  _buildDropdownField(
+                      'Gender',
+                      selectedGender,
+                      _selectGender,
+                      true
+                  ),
                   SizedBox(height: 10.h),
                   _buildDateOfBirthField(),
                   SizedBox(height: 10.h),
@@ -266,11 +271,11 @@ class SignUpScreenState extends State<SignUpScreen> {
                   SizedBox(height: 24.h),
                   ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        // Proceed with form submission or any other action
+                      setState(() {
+                        _isGenderError = selectedGender == 'Select Gender';
+                      });
+                      if (_formKey.currentState!.validate() && !_isGenderError) {
                         _registerUser();
-                      } else {
-                        // If validation fails, do nothing or show a message
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -324,92 +329,108 @@ class SignUpScreenState extends State<SignUpScreen> {
   }
 
   Widget _buildPhoneNumberField() {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        GestureDetector(
-          onTap: () {
-            showCountryPicker(
-              context: context,
-              showPhoneCode: true,
-              onSelect: (Country country) {
-                setState(() {
-                  selectedCountryCode = '+${country.phoneCode}';
-                });
+        Row(
+          children: [
+            Padding(
+              padding: isLocationError ? const EdgeInsets.only(bottom: 24) : EdgeInsets.zero, // Add padding if error
+            child: GestureDetector(
+              onTap: () {
+                showCountryPicker(
+                  context: context,
+                  showPhoneCode: true,
+                  onSelect: (Country country) {
+                    setState(() {
+                      selectedCountryCode = '+${country.phoneCode}';
+                    });
+                  },
+                );
               },
-            );
-          },
-          child: Container(
-            height: 44.h,
-            padding: EdgeInsets.symmetric(horizontal: 12.w),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: Colors.grey.shade400),
-              borderRadius: BorderRadius.circular(10.r),
-            ),
-            child: Row(
-              children: [
-                Text(
-                  selectedCountryCode,
-                  style: GoogleFonts.roboto(
-                    textStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 12.sp,
+              child: Container(
+                height: 44.h,
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: isLocationError ?  Colors.red: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(10.r),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      selectedCountryCode,
+                      style: GoogleFonts.roboto(
+                        textStyle: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12.sp,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const Icon(Icons.arrow_drop_down, color: Colors.black),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(width: 8.w),
-        Expanded(
-          child: Container(
-            height: 45.h,
-            alignment: Alignment.center,
-            child: TextFormField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                hintText: 'Phone Number',
-                hintStyle: GoogleFonts.roboto(
-                  textStyle: const TextStyle(
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                fillColor: Colors.white,
-                filled: true,
-                contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                  borderSide: BorderSide(color: Colors.grey.shade400),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                  borderSide: BorderSide(color: Colors.grey.shade400),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                  borderSide: const BorderSide(color: Colors.black),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.r),
-                  borderSide: BorderSide(color: Colors.red.shade400),
+                    const Icon(Icons.arrow_drop_down, color: Colors.black),
+                  ],
                 ),
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter your phone number';
-                }
-                return null;
-              },
             ),
-          ),
+            ),
+
+            SizedBox(width: 8.w), // Space between country picker and phone number field
+            Expanded(
+              child: Container(
+                alignment: Alignment.center,
+                child: TextFormField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    hintText: 'Phone Number',
+                    hintStyle: GoogleFonts.roboto(
+                      textStyle: const TextStyle(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.r),
+                      borderSide: BorderSide(color: Colors.grey.shade400),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.r),
+                      borderSide: BorderSide(color: Colors.grey.shade400),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.r),
+                      borderSide: const BorderSide(color: Colors.black),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.r),
+                      borderSide: BorderSide(color: Colors.red.shade400),
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      setState(() {
+                        isLocationError = true;
+                      });
+                      return 'Please enter your phone number';
+                    }
+                    setState(() {
+                      isLocationError = false;
+                    });
+                    return null;
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
+
+
 
   Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller, {bool isMultiline = false, bool enabled = true}) {
     return TextFormField(
@@ -454,41 +475,12 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _buildDropdownField(String label, String value, void Function() onTap, bool isRequired) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 45.h,
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              value,
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(
-                  color: value == 'Select Gender' ? Colors.red : Colors.black,
-                  fontSize: 12.sp,
-                ),
-              ),
-            ),
-            const Icon(Icons.arrow_drop_down, color: Colors.black),
-          ],
-        ),
-      ),
-    );
-  }
+
+
 
   Widget _buildCountryDropdown() {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButtonFormField<String>(
@@ -496,7 +488,6 @@ class SignUpScreenState extends State<SignUpScreen> {
         hint: const Text('Select Country'),
         isExpanded: true,
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 12),
           border: InputBorder.none,
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.r),
@@ -536,16 +527,29 @@ class SignUpScreenState extends State<SignUpScreen> {
   Widget _buildStateDropdown() {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButtonFormField<String>(
         value: selectedState,
         hint: const Text('Select State'),
         isExpanded: true,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 12),
-          border: InputBorder.none,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(color: Colors.grey.shade400),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(color: Colors.red.shade400),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(color: Colors.grey.shade400),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: const BorderSide(color: Colors.black),
+          ),
         ),
         items: states.map<DropdownMenuItem<String>>((state) {
           return DropdownMenuItem<String>(
@@ -572,16 +576,29 @@ class SignUpScreenState extends State<SignUpScreen> {
   Widget _buildCityDropdown() {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
         borderRadius: BorderRadius.circular(12),
       ),
       child: DropdownButtonFormField<String>(
         value: selectedCity,
         hint: const Text('Select City'),
         isExpanded: true,
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 12),
-          border: InputBorder.none,
+        decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(color: Colors.grey.shade400),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(color: Colors.red.shade400),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(color: Colors.grey.shade400),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: const BorderSide(color: Colors.black),
+          ),
         ),
         items: cities.map<DropdownMenuItem<String>>((city) {
           return DropdownMenuItem<String>(
@@ -644,6 +661,40 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
+  Widget _buildDropdownField(String label, String value, void Function() onTap, bool isRequired) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 45.h,
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: _isGenderError ? Colors.red : Colors.grey.shade400,
+            width: 1.5,
+          ),
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              value,
+              style: GoogleFonts.roboto(
+                textStyle: TextStyle(
+                  color: _isGenderError ? Colors.red : Colors.black,
+                  fontSize: 12.sp,
+                ),
+              ),
+            ),
+            const Icon(Icons.arrow_drop_down, color: Colors.black),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _selectGender() {
     showModalBottomSheet(
       context: context,
@@ -658,6 +709,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                 onTap: () {
                   setState(() {
                     selectedGender = 'Male';
+                    _isGenderError = false;
                   });
                   Navigator.of(context).pop();
                 },
@@ -667,6 +719,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                 onTap: () {
                   setState(() {
                     selectedGender = 'Female';
+                    _isGenderError = false;
                   });
                   Navigator.of(context).pop();
                 },
@@ -677,6 +730,7 @@ class SignUpScreenState extends State<SignUpScreen> {
       },
     );
   }
+
 
   String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {

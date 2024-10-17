@@ -96,20 +96,26 @@ class DashboardScreenState extends State<DashboardScreen> {
         });
         _pageController.jumpToPage(index);
       },
-      child: Column(
-        children: [
-          Icon(icon,
+      child: Container(
+        width: 80, // Set a consistent width for all items
+        height: 100, // Set a consistent height for all items
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
               size: 30,
-              color: _selectedIndex == index ? Colors.red : Colors.grey),
-          const SizedBox(height: 5),
-          Text(
-            label,
-            style: TextStyle(
-              color: _selectedIndex == index ? Colors.red : Colors.black,
+              color: _selectedIndex == index ? Colors.red : Colors.grey,
             ),
-          ),
-          const SizedBox(height: 10),
-        ],
+            const SizedBox(height: 5),
+            Text(
+              label,
+              style: TextStyle(
+                color: _selectedIndex == index ? Colors.red : Colors.black,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
