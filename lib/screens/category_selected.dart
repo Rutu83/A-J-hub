@@ -17,9 +17,9 @@ class CategorySelectedState extends State<CategorySelected> {
 
   // Define the available frames
   final List<String> framePaths = [
-    'assets/images/fram1.png',  // Add other frames if needed
+    'assets/images/fram1.png',  // Add frame1
     'assets/images/fram2.png',
-    '/mnt/data/Yw7AIu5jct7REjp5Q2V5q2z2.png',  // The new frame image uploaded by you
+    '/mnt/data/Yw7AIu5jct7REjp5Q2V5q2z2.png',  // Other frame image path
   ];
 
   @override
@@ -56,6 +56,7 @@ class CategorySelectedState extends State<CategorySelected> {
             alignment: Alignment.center,
             children: [
               Container(
+                margin: EdgeInsets.all(6.0),
                 height: MediaQuery.of(context).size.height * 0.47,  // Adjust height of the image
                 width: MediaQuery.of(context).size.width,  // Full width to remove side gaps
                 child: ClipRRect(
@@ -63,7 +64,7 @@ class CategorySelectedState extends State<CategorySelected> {
                   child: _buildImage(widget.imagePaths[selectedIndex]),  // Fixed image
                 ),
               ),
-              // CarouselSlider to slide the frames over the fixed image
+              // Frame overlay (selected frame)
               Positioned.fill(
                 child: CarouselSlider.builder(
                   itemCount: framePaths.length,

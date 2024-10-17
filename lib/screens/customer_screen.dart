@@ -21,7 +21,6 @@ class CustomerScreen extends StatefulWidget {
 
 class CustomerScreenState extends State<CustomerScreen> with SingleTickerProviderStateMixin {
   final FlutterAppAuth appAuth = const FlutterAppAuth();
-
   final String clientId = '000f55c4e8b5451bae4d7f099bc93a7a';
   final String redirectUri = 'https://ajsystem.in';
   final String clientSecret = 'c6113899241a471aa8dae63ac9f24b27';
@@ -30,27 +29,9 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
   Future<SubcategoryResponse>? futureSubcategory;
   SubcategoryResponse? subcategoryData;
-  bool isLoading = true; // State to manage loading
-  bool hasError = false; // State to manage error
-  String errorMessage = ''; // Error message to show in case of error
-
-  Future<void> authenticate() async {
-    final AuthorizationTokenResponse? result = await appAuth.authorizeAndExchangeCode(
-      AuthorizationTokenRequest(
-        clientId,
-        redirectUri,
-        clientSecret: clientSecret,
-        scopes: scopes,
-      ),
-    );
-
-    if (result != null) {
-      if (kDebugMode) {
-        print('Access Token: ${result.accessToken}');
-      }
-      // Store the access token securely for future use
-    }
-  }
+  bool isLoading = true;
+  bool hasError = false;
+  String errorMessage = '';
   late AnimationController _controller;
   late Animation<double> _animation;
   Future<List<CategoriesWithSubcategoriesResponse>>? futureCategories;
@@ -77,19 +58,15 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
   Future<void> fetchSubcategoryData() async {
     try {
-      final data = await getSubCategories(); // Fetch data from API
+      final data = await getSubCategories();
       setState(() {
         subcategoryData = data;
-
-        if (kDebugMode) {
-          print('....................$subcategoryData');
-        }
-        isLoading = false; // Stop loading once data is fetched
+        isLoading = false;
       });
     } catch (e) {
       setState(() {
         hasError = true;
-        errorMessage = 'Failed to load data: $e'; // Capture error message
+        errorMessage = 'Failed to load data: $e';
         isLoading = false;
       });
     }
@@ -103,23 +80,22 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
   Future<void> fetchCategoriesData() async {
     setState(() {
-      isLoading = true; // Set loading to true before fetching data
+      isLoading = true;
     });
     try {
       final data = await getCategoriesWithSubcategories();
       setState(() {
-        categoriesData = data; // Store the fetched CategoriesWithSubcategoriesResponse
-        isLoading = false; // Stop loading once data is fetched
+        categoriesData = data;
+        isLoading = false;
       });
     } catch (e) {
       setState(() {
-        categoriesData = null; // Ensure categoriesData is null on error
-        isLoading = false; // Stop loading
+        categoriesData = null;
+        isLoading = false;
       });
       throw Exception('Failed to load categories data: $e');
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -148,12 +124,10 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             _buildNewReleasesSection(),
             const SizedBox(height: 10),
             isLoading ? _buildSkeletonLoading() : _buildContent(),
             const SizedBox(height: 120),
-
           ],
         ),
       ),
@@ -161,20 +135,19 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   }
 
   Widget _buildSkeletonLoading() {
-    // Skeleton shimmer effect while loading data
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Column(
-        children: List.generate(5,
-              (index) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        children: List.generate(5, (index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
             child: Container(
               height: 130.h,
               color: Colors.white,
             ),
-          ),
-        ),
+          );
+        }),
       ),
     );
   }
@@ -182,11 +155,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   Widget _buildContent() {
     if (hasError) {
       return Container(
-        height: 200,
-        width: 300,
-        decoration: const BoxDecoration(
-          //border: Border(top: BorderSide(color: Colors.grey.shade100))
-        ),
+        height: 200.h,
+        width: 300.w,
         child: Lottie.asset('assets/animation/error_lottie.json'),
       );
     }
@@ -221,11 +191,10 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
           subcategory.name,
           subcategory.plays,
           imageUrl,
-          subcategory.images, // Pass the entire list of images here
+          subcategory.images,
         );
       }).toList();
 
-      // Create a list of maps for topics
       List<Map<String, String>> topicMaps = subcategory.images.map((imageUrl) {
         return {
           'image': imageUrl,
@@ -242,7 +211,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
               MaterialPageRoute(
                 builder: (context) => CategoryTopics(
                   title: subcategory.name,
-                  images: topicMaps, // Pass the list of maps
+                  images: topicMaps,
                 ),
               ),
             );
@@ -256,15 +225,13 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-
   Widget _buildCardItem(String title, String plays, String imageUrl, List<String> allImages) {
     return InkWell(
       onTap: () {
-        // Pass the entire list of images instead of just the single image
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: allImages), // Pass all images
+            builder: (context) => CategorySelected(imagePaths: allImages),
           ),
         );
       },
@@ -276,9 +243,9 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
           children: [
             Container(
               width: 130.w,
-              height: 115.w,
+              height: 115.h,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r), // Optional: rounded corners
+                borderRadius: BorderRadius.circular(12.r),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.r),
@@ -299,14 +266,13 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-// Modify the horizontal card section to accept the onTap parameter
   Widget _buildHorizontalCardSection({
     required String sectionTitle,
     required List<Widget> items,
-    required VoidCallback onTap, // Add the onTap parameter
+    required VoidCallback onTap,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: EdgeInsets.symmetric(horizontal: 12.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -314,18 +280,21 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Container(
-                height: 26,
-                width: 4,
+                height: 26.h,
+                width: 4.w,
                 decoration: const BoxDecoration(
                   color: Colors.red,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(5), bottom: Radius.circular(5)),
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(sectionTitle, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+              SizedBox(width: 8.w),
+              Text(
+                sectionTitle,
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              ),
               const Spacer(),
               InkWell(
-                onTap: onTap, // Use the onTap passed as a parameter
+                onTap: onTap,
                 child: Text('See All', style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
               ),
               const Icon(Icons.arrow_right_outlined, color: Colors.grey, size: 25),
@@ -333,7 +302,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
           ),
           SizedBox(height: 5.h),
           SizedBox(
-            height: 105.h,
+            height: 135.h,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: items,
@@ -344,49 +313,40 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-
-
   Widget _buildNewReleasesSection() {
-    // Check for loading state
     if (isLoading) {
       return _buildSkeletonLoader();
     }
 
-    // Check if categoriesData is null or has errors
     if (categoriesData == null) {
-      return  SizedBox(
-          height: 100,
-          child: Center(
-            child: Text(
-              'Failed to load data.',
-              style: TextStyle(fontSize: 16.sp, color: Colors.red),
-            ),
-          )
+      return SizedBox(
+        height: 10.h,
+        child: Center(
+          child: Text(
+            'Failed to load data.',
+            style: TextStyle(fontSize: 16.sp, color: Colors.red),
+          ),
+        ),
       );
     }
 
     List<Widget> items = [];
-    String sectionTitle = 'Upcoming'; // Set the section title to 'Upcoming'
+    String sectionTitle = 'Upcoming';
 
-    // Find the upcoming category
     var upcomingCategory = categoriesData!.categories.firstWhere(
           (category) => category.name.toLowerCase() == 'upcoming',
       orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
     );
 
-    // Add subcategories if the upcoming category is found
     for (var subcategory in upcomingCategory.subcategories) {
-      String imageUrl = 'assets/images/placeholder.jpg'; // Default image
-
-      // Get the first image from the subcategory's images
-      if (subcategory.images.isNotEmpty) {
-        imageUrl = subcategory.images[0]; // Use the first image URL if available
-      }
+      String imageUrl = subcategory.images.isNotEmpty
+          ? subcategory.images[0]
+          : 'assets/images/placeholder.jpg';
 
       items.add(_buildCardItem1(
         subcategory.name,
-        imageUrl, // Use the image URL from the subcategory
-        subcategory.images, // Pass all images to the card item
+        imageUrl,
+        subcategory.images,
       ));
     }
 
@@ -396,14 +356,12 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-
-
   Widget _buildSkeletonLoader() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -412,8 +370,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
-                  height: 26,
-                  width: 4,
+                  height: 26.h,
+                  width: 4.w,
                   decoration: const BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.vertical(
@@ -422,7 +380,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8.w),
                 Container(
                   width: 100.w,
                   height: 16.h,
@@ -435,14 +393,14 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
               height: 120.h,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: 5, // Number of skeleton items
+                itemCount: 5,
                 itemBuilder: (context, index) {
                   return Container(
                     width: 101.w,
                     margin: EdgeInsets.only(right: 8.w),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(50.r), // Circular shape for skeleton
+                      borderRadius: BorderRadius.circular(50.r),
                     ),
                   );
                 },
@@ -463,7 +421,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images), // Pass all images
+            builder: (context) => CategorySelected(imagePaths: images),
           ),
         );
       },
@@ -474,42 +432,40 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
           width: 101.w,
           margin: EdgeInsets.only(right: 8.w),
           decoration: BoxDecoration(
-            // Add border here
-            //border: Border.all(color: Colors.blueAccent, width: 2), // Adjust color and width as needed
-            borderRadius: BorderRadius.circular(50.r), // Make it circular
+            borderRadius: BorderRadius.circular(50.r),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               AnimatedContainer(
-                duration: const Duration(milliseconds: 300), // Duration of the animation
+                duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.red.shade50, width: 2), // Border for the circular image
+                  border: Border.all(color: Colors.red.shade50, width: 2),
                 ),
                 child: ClipOval(
                   child: SizedBox(
-                    width: 90.w, // Ensure width and height are equal for a circle
+                    width: 90.w,
                     height: 90.w,
                     child: imageUrl.startsWith('http')
                         ? Image.network(
-                           imageUrl,
-                           fit: BoxFit.cover,
-                           errorBuilder: (context, error, stackTrace) {
-                             return Container(
-                               color: Colors.grey, // Placeholder color
-                               child: const Icon(Icons.error), // Error icon
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey,
+                          child: const Icon(Icons.error),
                         );
                       },
                     )
                         : Image.asset(
-                           imageUrl, // Load from assets
-                           fit: BoxFit.cover,
-                           errorBuilder: (context, error, stackTrace) {
-                             return Container(
-                               color: Colors.grey, // Placeholder color
-                               child: const Icon(Icons.error), // Error icon
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey,
+                          child: const Icon(Icons.error),
                         );
                       },
                     ),
@@ -530,13 +486,9 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-
-
-
-
   Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: EdgeInsets.symmetric(horizontal: 12.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -545,8 +497,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Container(
-                height: 26,
-                width: 4,
+                height: 26.h,
+                width: 4.w,
                 decoration: const BoxDecoration(
                   color: Colors.red,
                   borderRadius: BorderRadius.vertical(
@@ -555,7 +507,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Text(
                 sectionTitle,
                 style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
@@ -575,8 +527,4 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       ),
     );
   }
-
 }
-
-
-

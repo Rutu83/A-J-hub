@@ -1,18 +1,17 @@
 import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
-import 'package:allinone_app/network/rest_apis.dart';
-import 'package:allinone_app/screens/category_selected.dart';
-import 'package:allinone_app/screens/category_topics.dart';
 import 'package:allinone_app/screens/charity_screen.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:allinone_app/screens/category_selected.dart';
+import 'package:allinone_app/screens/category_topics.dart';
+
+import '../network/rest_apis.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,19 +27,10 @@ class HomeScreenState extends State<HomeScreen> {
     'https://idolkart.com/cdn/shop/articles/What_happened_to_Krishna_s_body_after_death.jpg',
     'https://www.financialexpress.com/wp-content/uploads/2023/01/netaji.jpg',
   ];
-  final FlutterAppAuth appAuth = const FlutterAppAuth();
-  final String clientId = '000f55c4e8b5451bae4d7f099bc93a7a';
-  final String redirectUri = 'https://ajsystem.in';
-  final String clientSecret = 'c6113899241a471aa8dae63ac9f24b27';
-  final List<String> scopes = ['user-library-read', 'user-read-email'];
-  bool isLoading = true; // State to manage loading
-  bool hasError = false; // State to manage error
-  String errorMessage = ''; // Error message to show in case of error
-
-  Future<SubcategoryResponse>? futureSubcategory;
+  bool isLoading = true;
+  bool hasError = false;
+  String errorMessage = '';
   SubcategoryResponse? subcategoryData;
-
-  Future<List<CategoriesWithSubcategoriesResponse>>? futureCategories;
   CategoriesWithSubcategoriesResponse? categoriesData;
 
   @override
@@ -86,30 +76,6 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<void> authenticate() async {
-    final AuthorizationTokenResponse? result = await appAuth.authorizeAndExchangeCode(
-      AuthorizationTokenRequest(
-        clientId,
-        redirectUri,
-        clientSecret: clientSecret,
-        scopes: scopes,
-      ),
-    );
-
-    if (result != null) {
-      if (kDebugMode) {
-        print('Access Token: ${result.accessToken}');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(
@@ -142,7 +108,7 @@ class HomeScreenState extends State<HomeScreen> {
                 children: <Widget>[
                   Text(
                     'Hello, AIO',
-                    style: GoogleFonts.roboto(
+                    style: TextStyle(
                       fontSize: 16.0.sp,
                       fontWeight: FontWeight.w400,
                       color: Colors.black,
@@ -151,7 +117,7 @@ class HomeScreenState extends State<HomeScreen> {
                   Text(
                     'Good Morning',
                     textAlign: TextAlign.start,
-                    style: GoogleFonts.roboto(
+                    style: TextStyle(
                       fontSize: 12.0.sp,
                       fontWeight: FontWeight.w400,
                       color: Colors.black,
@@ -173,8 +139,6 @@ class HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-
-
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -186,7 +150,6 @@ class HomeScreenState extends State<HomeScreen> {
             _buildNewReleasesSection2(),
             isLoading ? _buildSkeletonLoading() : _buildContent(),
             const SizedBox(height: 120),
-
           ],
         ),
       ),
@@ -247,101 +210,195 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildButtons() {
     return Card(
       color: Colors.white,
-      elevation: 6, // Adds a shadow to give a card effect
+      elevation: 6,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), // Rounded corners
+        borderRadius: BorderRadius.circular(12),
       ),
       margin: const EdgeInsets.all(12),
       child: Container(
-        padding: const EdgeInsets.all(12), // Adds padding inside the card
+        padding: const EdgeInsets.all(12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Column(
-              mainAxisSize: MainAxisSize.min, // Allows the column to have a uniform size
-              children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(33), // Rounded corners
-                  ),
-                  child: const Icon(Icons.person_add, color: Colors.white),
-                ),
-                const SizedBox(height: 8), // Adds spacing between the icon and the text
-                const Text('Invite Friend'),
-              ],
-            ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(33), // Rounded corners
-                  ),
-                  child: const Icon(Icons.card_giftcard, color: Colors.white),
-                ),
-                const SizedBox(height: 8),
-                const Text('Membership'),
-              ],
-            ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  height: 50,
-                  width: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(33), // Rounded corners
-                  ),
-                  child: const Icon(Icons.info_outline, color: Colors.white),
-                ),
-                const SizedBox(height: 8),
-                const Text('System Intro...'),
-              ],
-            ),
-
+            _buildButtonColumn(Icons.person_add, 'Invite Friend'),
+            _buildButtonColumn(Icons.card_giftcard, 'Membership'),
+            _buildButtonColumn(Icons.info_outline, 'System Intro...'),
             InkWell(
-              onTap: (){
-                Navigator.push(context, (MaterialPageRoute(builder: (context)=>  const CharityPage())));
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    height: 50,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(33), // Rounded corners
-                    ),
-                    child: const Icon(Icons.business_sharp, color: Colors.white),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CharityPage(),
                   ),
-                  const SizedBox(height: 8),
-                  const Text('Charity'),
-                ],
-              ),
-            )
-
+                );
+              },
+              child: _buildButtonColumn(Icons.business_sharp, 'Charity'),
+            ),
           ],
         ),
       ),
     );
   }
 
+  Widget _buildButtonColumn(IconData icon, String label) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          height: 50.h,
+          width: 50.w,
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(33),
+          ),
+          child: Icon(icon, color: Colors.white),
+        ),
+        const SizedBox(height: 8),
+        Text(label),
+      ],
+    );
+  }
+
+  // Single Card Layout Method with Optional Title
+  Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategorySelected(imagePaths: images),
+          ),
+        );
+      },
+      child: Container(
+        width: 101.w,
+        margin: EdgeInsets.only(right: 8.w),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.red.shade50),
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 90.w,
+              height: 90.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: imageUrl.startsWith('http')
+                    ? Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey,
+                      child: const Icon(Icons.error),
+                    );
+                  },
+                )
+                    : Image.asset(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey,
+                      child: const Icon(Icons.error),
+                    );
+                  },
+                ),
+              ),
+            ),
+            if (showTitle) SizedBox(height: 6.h),
+            if (showTitle)
+              Text(
+                title,
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Single Card Layout Method with Optional Title
+  Widget _buildCardItem2(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategorySelected(imagePaths: images),
+          ),
+        );
+      },
+      child: Container(
+        width: 120.w,
+        margin: EdgeInsets.only(right: 8.w),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.red.shade50),
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: imageUrl.startsWith('http')
+                    ? Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey,
+                      child: const Icon(Icons.error),
+                    );
+                  },
+                )
+                    : Image.asset(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey,
+                      child: const Icon(Icons.error),
+                    );
+                  },
+                ),
+              ),
+            ),
+            if (showTitle) SizedBox(height: 6.h),
+            if (showTitle)
+              Text(
+                title,
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   Widget _buildNewReleasesSection1() {
     if (isLoading) {
-      return _buildSkeletonLoader(); // Show skeleton while loading
+      return _buildSkeletonLoading();
     }
 
     if (hasError) {
       return SizedBox(
-        height: 100,
+        height: 100.h,
         child: Center(
           child: Text(
             errorMessage,
@@ -353,7 +410,7 @@ class HomeScreenState extends State<HomeScreen> {
 
     if (categoriesData == null) {
       return SizedBox(
-        height: 100,
+        height: 100.h,
         child: Center(
           child: Text(
             'Failed to load data.',
@@ -365,37 +422,27 @@ class HomeScreenState extends State<HomeScreen> {
 
     List<Widget> items = [];
     String sectionTitle = 'Upcoming';
-
-    // Find the upcoming category
     var upcomingCategory = categoriesData!.categories.firstWhere(
           (category) => category.name.toLowerCase() == 'upcoming',
       orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
     );
 
-    // Add subcategories if found
     for (var subcategory in upcomingCategory.subcategories) {
       String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/placeholder.jpg';
-
-      items.add(_buildCardItem1(
-        subcategory.name,
-        imageUrl,
-        subcategory.images,
-      ));
+      items.add(
+          _buildCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: true));
     }
 
-    return _buildHorizontalCardSection1(
-      sectionTitle: sectionTitle,
-      items: items,
-    );
+    return _buildHorizontalCardSection(sectionTitle: sectionTitle, items: items);
   }
 
   Widget _buildNewReleasesSection2() {
     if (isLoading) {
-      return _buildSkeletonLoader(); // Show skeleton while loading
+      return _buildSkeletonLoading();
     }
 
     if (hasError) {
-      return Container(); // or handle error message accordingly
+      return Container();
     }
 
     if (categoriesData == null) {
@@ -405,30 +452,77 @@ class HomeScreenState extends State<HomeScreen> {
     List<Widget> items = [];
     String sectionTitle = 'Festival';
 
-    // Find the festival category
     var festivalCategory = categoriesData!.categories.firstWhere(
           (category) => category.name.toLowerCase() == 'festival',
       orElse: () => CategoryWithSubcategory(name: 'No Festival', subcategories: []),
     );
 
-    // Iterate through subcategories of the festival category
     for (var subcategory in festivalCategory.subcategories) {
       if (subcategory.images.isNotEmpty) {
-        items.add(_buildCardItem3(
-          subcategory.name,
-          subcategory.images,
-        ));
+        items.add(_buildCardItem2(subcategory.name, subcategory.images[0], subcategory.images, showTitle: false));
       }
     }
 
-    return _buildHorizontalCardSection3(
-      sectionTitle: sectionTitle,
-      items: items,
+    return _buildHorizontalCardSection(sectionTitle: sectionTitle, items: items);
+  }
+
+  Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items}) {
+    return Container(
+      color: const Color(0xFFFFF5F5),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 26.h,
+                  width: 6.w,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5.r),
+                      bottom: Radius.circular(5.r),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  sectionTitle,
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 5.h),
+            SizedBox(
+              height: 130.h,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: items,
+              ),
+            ),
+            SizedBox(height: 5.h),
+          ],
+        ),
+      ),
     );
   }
 
-
-
+  Widget _buildSkeletonLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        children: List.generate(5, (index) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          child: Container(height: 140.h, color: Colors.white),
+        )),
+      ),
+    );
+  }
 
   Widget _buildContent() {
     if (isLoading) {
@@ -437,13 +531,11 @@ class HomeScreenState extends State<HomeScreen> {
 
     if (hasError) {
       return Container(
-        height: 200,
-        width: 300,
-        decoration: const BoxDecoration(
-          //border: Border(top: BorderSide(color: Colors.grey.shade100))
-        ),
+        height: 200.h,
+        width: 300.w,
+        decoration: const BoxDecoration(),
         child: Lottie.asset('assets/animation/error_lottie.json'),
-      );// Show skeleton loading when data is loading
+      );
     }
 
     if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
@@ -464,407 +556,25 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSkeletonLoading() {
-    // Skeleton shimmer effect while loading data
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Column(
-        children: List.generate(5,
-              (index) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-            child: Container(
-              height: 130.h,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildSubcategorySections() {
     List<Widget> sections = [];
 
     for (var subcategory in subcategoryData!.subcategories) {
       List<Widget> items = subcategory.images.map((imageUrl) {
-        return _buildCardItem2(
-          subcategory.name,
-          subcategory.plays,
-          imageUrl,
-          subcategory.images, // Pass the entire list of images here
-        );
+        return _buildCardItem2(subcategory.name, imageUrl, subcategory.images, showTitle: false);
       }).toList();
 
-      // Create a list of maps for topics
       List<Map<String, String>> topicMaps = subcategory.images.map((imageUrl) {
-        return {
-          'image': imageUrl,
-        };
+        return {'image': imageUrl};
       }).toList();
 
-      sections.add(
-        _buildHorizontalCardSection2(
-          sectionTitle: subcategory.name,
-          items: items,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CategoryTopics(
-                  title: subcategory.name,
-                  images: topicMaps, // Pass the list of maps
-                ),
-              ),
-            );
-          },
-        ),
-      );
+      sections.add(_buildHorizontalCardSection(
+        sectionTitle: subcategory.name,
+        items: items,
+      ));
     }
 
-    return Column(
-      children: sections,
-    );
+    return Column(children: sections);
   }
-
-
-  Widget _buildHorizontalCardSection3({required String sectionTitle, required List<Widget> items}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                height: 26,
-                width: 6,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(5), bottom: Radius.circular(5)),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(sectionTitle, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
-
-
-            ],
-          ),
-          SizedBox(height: 5.h),
-          SizedBox(
-            height: 105.h,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: items,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-// Modify the horizontal card section to accept the onTap parameter
-  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items, required VoidCallback onTap, }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                height: 26,
-                width: 6,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(5), bottom: Radius.circular(5)),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Text(sectionTitle, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
-              const Spacer(),
-              InkWell(
-                onTap: onTap, // Use the onTap passed as a parameter
-                child: Text('See All', style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
-              ),
-              const Icon(Icons.arrow_right_outlined, color: Colors.grey, size: 25),
-            ],
-          ),
-          SizedBox(height: 5.h),
-          SizedBox(
-            height: 105.h,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: items,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCardItem3(String title, List<String> images) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images), // Pass all images
-          ),
-        );
-      },
-      child: Container(
-        width: 100.w,
-        margin: EdgeInsets.only(right: 10.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 100.w,
-              height: 100.w,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: Colors.grey.shade200), // Optional border
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: images.isNotEmpty
-                    ? Image.network(
-                  images[0], // Display the first image
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey.shade300, // Placeholder background
-                      child: const Icon(Icons.error), // Fallback for errors
-                    );
-                  },
-                )
-                    : Image.asset(
-                  'assets/images/placeholder.jpg',
-                  fit: BoxFit.cover, // Use cover to fill the area
-                ),
-              ),
-            ),
-
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSkeletonLoader() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 5.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 26,
-                  width: 4,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(5),
-                      bottom: Radius.circular(5),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 100.w,
-                  height: 16.h,
-                  color: Colors.white,
-                ),
-              ],
-            ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: 120.h,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 5, // Number of skeleton items
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: 101.w,
-                    margin: EdgeInsets.only(right: 8.w),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12.r), // Circular shape for skeleton
-                    ),
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: 5.h),
-          ],
-        ),
-      ),
-    );
-  }
-
-
-
-  Widget _buildCardItem1(String title, String imageUrl, List<String> images) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images), // Pass all images
-          ),
-        );
-      },
-      child: Container(
-        width: 101.w,
-        margin: EdgeInsets.only(right: 8.w),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.red.shade50),
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 90.w,
-              height: 90.w,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: imageUrl.startsWith('http')
-                    ? Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey, // Placeholder color
-                      child: const Icon(Icons.error), // Error icon
-                    );
-                  },
-                )
-                    : Image.asset(
-                  imageUrl, // Load from assets
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey, // Placeholder color
-                      child: const Icon(Icons.error), // Error icon
-                    );
-                  },
-                ),
-              ),
-            ),
-            SizedBox(height: 6.h),
-            Text(
-              title,
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHorizontalCardSection1({required String sectionTitle, required List<Widget> items}) {
-    return Container(
-      color: const Color(0xFFFFF5F5),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 5.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 26,
-                  width: 6,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(5),
-                      bottom: Radius.circular(5),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  sectionTitle,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: 120.h,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: items,
-              ),
-            ),
-            SizedBox(height: 5.h),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCardItem2(String title, String plays, String imageUrl, List<String> allImages) {
-    return InkWell(
-      onTap: () {
-        // Pass the entire list of images instead of just the single image
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: allImages), // Pass all images
-          ),
-        );
-      },
-      child: Container(
-        width: 145.w,
-        margin: EdgeInsets.only(right: 10.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 130.w,
-              height: 115.w,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r), // Optional: rounded corners
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: imageUrl.startsWith('assets/')
-                    ? Image.asset(
-                  imageUrl,
-                  fit: BoxFit.fill,
-                )
-                    : Image.network(
-                  imageUrl,
-                  fit: BoxFit.fill,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
 
 }
-
-
