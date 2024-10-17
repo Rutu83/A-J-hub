@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -11,14 +12,18 @@ class CategorySelected extends StatefulWidget {
 }
 
 class CategorySelectedState extends State<CategorySelected> {
-  int selectedIndex = 0;
+  int selectedIndex = 0;  // Fixed image index
+  int selectedFrameIndex = 0;  // Index for sliding frames
+
+  // Define the available frames
+  final List<String> framePaths = [
+    'assets/images/fram1.png',  // Add other frames if needed
+    'assets/images/fram2.png',
+    '/mnt/data/Yw7AIu5jct7REjp5Q2V5q2z2.png',  // The new frame image uploaded by you
+  ];
 
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) {
-      print('....................${widget.imagePaths}');
-    }
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -46,23 +51,69 @@ class CategorySelectedState extends State<CategorySelected> {
       ),
       body: Column(
         children: [
-          // Display the selected image
-          Container(
-            margin: const EdgeInsets.all(12.0),
-            height: 350,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10.0),
-              child: _buildImage(widget.imagePaths[selectedIndex]),
-            ),
+          // Fixed Image with frame sliding applied
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height * 0.47,  // Adjust height of the image
+                width: MediaQuery.of(context).size.width,  // Full width to remove side gaps
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10.0),
+                  child: _buildImage(widget.imagePaths[selectedIndex]),  // Fixed image
+                ),
+              ),
+              // CarouselSlider to slide the frames over the fixed image
+              Positioned.fill(
+                child: CarouselSlider.builder(
+                  itemCount: framePaths.length,
+                  options: CarouselOptions(
+                    height: MediaQuery.of(context).size.height * 0.47,  // Frame slider height same as the image
+                    enableInfiniteScroll: false,  // Disable infinite scroll to avoid repeating frames
+                    enlargeCenterPage: false,  // Disable enlargement of frames in the center
+                    viewportFraction: 1.0,  // Show only one frame at a time
+                    onPageChanged: (index, reason) {
+                      setState(() {
+                        selectedFrameIndex = index;  // Update frame index
+                      });
+                    },
+                  ),
+                  itemBuilder: (context, index, realIndex) {
+                    return Image.asset(
+                      framePaths[index],  // Apply sliding frames over the fixed image
+                      fit: BoxFit.cover,  // Ensure the frame covers the image completely
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 5.0),
 
-          // Image Grid
+          // Dots Indicator for the frame slider
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: framePaths.asMap().entries.map((entry) {
+              return GestureDetector(
+                onTap: () => setState(() {
+                  selectedFrameIndex = entry.key;
+                }),
+                child: Container(
+                  width: 12.0,
+                  height: 12.0,
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: selectedFrameIndex == entry.key
+                        ? Colors.red
+                        : Colors.grey,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8.0),
+
+          // Image Grid for selecting different images (if needed)
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(8.0),
@@ -76,7 +127,7 @@ class CategorySelectedState extends State<CategorySelected> {
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      selectedIndex = index; // Update selected index
+                      selectedIndex = index;  // Update image
                     });
                   },
                   child: Stack(
