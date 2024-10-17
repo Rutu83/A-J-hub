@@ -17,13 +17,16 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class SignUpScreenState extends State<SignUpScreen> {
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController(); // Added this for Date of Birth
+  final TextEditingController _dobController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
+
   String selectedGender = 'Select Gender';
   String? selectedCountry;
   String? selectedState;
@@ -35,12 +38,13 @@ class SignUpScreenState extends State<SignUpScreen> {
   String selectedCountryCode = '+91';
   String selectedDropdown1 = 'Select Sponsor';
   String selectedDropdown2 = 'Select Your Parent';
-   bool _isLoading = false;
+  bool _isLoading = false;
   List<String> sponsors = [];
   List<String> parents = [];
-   bool _isLoadingCountries = false;
-   bool _isLoadingStates = false;
-   bool _isLoadingCities = false;
+  bool _isLoadingCountries = false;
+  bool _isLoadingStates = false;
+  bool _isLoadingCities = false;
+
   @override
   void initState() {
     super.initState();
@@ -48,10 +52,9 @@ class SignUpScreenState extends State<SignUpScreen> {
     fetchCountries();
   }
 
-  // Fetch countries
   Future<void> fetchCountries() async {
     setState(() {
-      _isLoadingCountries = true; // Show loading for countries
+      _isLoadingCountries = true;
     });
 
     try {
@@ -59,7 +62,7 @@ class SignUpScreenState extends State<SignUpScreen> {
       if (response.statusCode == 200) {
         setState(() {
           countries = json.decode(response.body);
-          _isLoadingCountries = false; // Stop loading
+          _isLoadingCountries = false;
         });
       } else {
         print(response.statusCode);
@@ -68,18 +71,14 @@ class SignUpScreenState extends State<SignUpScreen> {
     } catch (e) {
       print(e);
       setState(() {
-        _isLoadingCountries = false; // Stop loading in case of error
+        _isLoadingCountries = false;
       });
     }
   }
 
-
-
-
-  // Fetch states based on country selection
   Future<void> fetchStates(String countryId) async {
     setState(() {
-      _isLoadingStates = true; // Show loading for states
+      _isLoadingStates = true;
     });
 
     try {
@@ -87,28 +86,26 @@ class SignUpScreenState extends State<SignUpScreen> {
       if (response.statusCode == 200) {
         setState(() {
           states = json.decode(response.body);
-          cities = []; // Clear the cities when a new state is selected
+          cities = [];
           selectedState = null;
           selectedCity = null;
-          _isLoadingStates = false; // Stop loading
+          _isLoadingStates = false;
         });
       } else {
         print(response.statusCode);
         print(response.body);
-      //  throw Exception('Failed to load states');
       }
     } catch (e) {
       print(e);
       setState(() {
-        _isLoadingStates = false; // Stop loading in case of error
+        _isLoadingStates = false;
       });
     }
   }
 
-  // Fetch cities based on state selection
   Future<void> fetchCities(String stateId) async {
     setState(() {
-      _isLoadingCities = true; // Show loading for cities
+      _isLoadingCities = true;
     });
 
     try {
@@ -117,7 +114,7 @@ class SignUpScreenState extends State<SignUpScreen> {
         setState(() {
           cities = json.decode(response.body);
           selectedCity = null;
-          _isLoadingCities = false; // Stop loading
+          _isLoadingCities = false;
         });
       } else {
         throw Exception('Failed to load cities');
@@ -125,20 +122,16 @@ class SignUpScreenState extends State<SignUpScreen> {
     } catch (e) {
       print(e);
       setState(() {
-        _isLoadingCities = false; // Stop loading in case of error
+        _isLoadingCities = false;
       });
     }
   }
-
-
-
 
   Future<void> fetchDropdownData() async {
     final response = await http.get(Uri.parse('https://ajhub.co.in/search-user'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-
       setState(() {
         sponsors = data.map<String>((user) => user['username'].toString()).toList();
         parents = data.map<String>((user) => user['username'].toString()).toList();
@@ -148,110 +141,69 @@ class SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-
-
-
-
-
-
-
-
-
   Future<void> _registerUser() async {
-    // Validate fields (Example: Ensure passwords match)
-    if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
-      return;
-    }
-
     if (selectedDropdown1 == 'Select Sponsor' || selectedDropdown2 == 'Select Your Parent') {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select both Sponsor and Parent')));
       return;
     }
 
-    // Show a loading indicator
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Define the API URL
-    const String apiUrl = 'https://ajhub.co.in/api/register';
-
-    // Create the request payload
-    final Map<String, dynamic> payload = {
-      "username": _firstNameController.text,
-      "email": _emailController.text,
-      "phone_number": _phoneController.text,
-      "password": _passwordController.text.trim(),
-      "password_confirmation": _confirmPasswordController.text.trim(),
-      "gender": selectedGender,
-      "dob": _dobController.text,
-      "country_id": selectedCountry,
-      "state": selectedState,
-      "district": selectedCity,
-      "sponsor": selectedDropdown1,
-      "parent": selectedDropdown2,
-    };
-
-
-    // Send the POST request
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {"Content-Type": "application/json"},
-      body: json.encode(payload),
-    );
-
-
-    if (response.statusCode == 200) {
-      final responseData = json.decode(response.body);
-      print(responseData);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful')));
-
-
-      Navigator.pushReplacement(context, (MaterialPageRoute(builder: (context)=> const LoginScreen())));
-
-    } if (response.statusCode == 201) {
-      final responseData = json.decode(response.body);
-      print(responseData);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful')));
-
-
-      Navigator.pushReplacement(context, (MaterialPageRoute(builder: (context)=> const LoginScreen())));
-
-    } else {
-      final responseData = json.decode(response.body);
-      print(responseData);
-      print(response.statusCode);
-
-      String errorMessage = responseData['message'] ?? 'An unexpected error occurred. Please try again later.';
-
-      // Additional error handling based on response status codes
-      if (response.statusCode == 500) {
-        if (responseData['error'] != null && responseData['error'].contains('handleLevelIncome')) {
-          errorMessage = 'A server issue occurred during registration. Please contact support.';
-        } else {
-          errorMessage = 'Server error. Please try again later.';
-        }
-      } else if (response.statusCode == 400) {
-        errorMessage = 'Validation error. Please check the input fields and try again.';
-      } else if (response.statusCode == 403) {
-        errorMessage = 'You are not authorized to perform this action.';
+    if (_formKey.currentState!.validate()) {
+      if (_passwordController.text != _confirmPasswordController.text) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+        return;
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      setState(() {
+        _isLoading = true;
+      });
+
+      const String apiUrl = 'https://ajhub.co.in/api/register';
+      final Map<String, dynamic> payload = {
+        "username": _firstNameController.text,
+        "email": _emailController.text,
+        "phone_number": _phoneController.text,
+        "password": _passwordController.text.trim(),
+        "password_confirmation": _confirmPasswordController.text.trim(),
+        "gender": selectedGender,
+        "dob": _dobController.text,
+        "country_id": selectedCountry,
+        "state": selectedState,
+        "district": selectedCity,
+        "sponsor": selectedDropdown1,
+        "parent": selectedDropdown2,
+      };
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode(payload),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful')));
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+      } else {
+        final responseData = json.decode(response.body);
+        String errorMessage = responseData['message'] ?? 'An unexpected error occurred. Please try again later.';
+
+        if (response.statusCode == 500) {
+          errorMessage = responseData['error'] != null && responseData['error'].contains('handleLevelIncome')
+              ? 'A server issue occurred during registration. Please contact support.'
+              : 'Server error. Please try again later.';
+        } else if (response.statusCode == 400) {
+          errorMessage = 'Validation error. Please check the input fields and try again.';
+        } else if (response.statusCode == 403) {
+          errorMessage = 'You are not authorized to perform this action.';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
     }
-
-
-    // Hide the loading indicator
-    setState(() {
-      _isLoading = false;
-    });
   }
-
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -264,167 +216,74 @@ class SignUpScreenState extends State<SignUpScreen> {
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.all(16.w),
-            child: Column(
-              children: [
-                SizedBox(height: 15.h),
-                Image.asset(
-                  'assets/images/aj3.jpg',
-                  height: 100.h,
-                  width: 100.h,
-                ),
-                SizedBox(height: 24.h),
-                _buildTextField('First Name', 'Enter First Name', true, _firstNameController),
-                SizedBox(height: 16.h),
-                _buildTextField('Email', 'Enter Your Email', true, _emailController),
-                SizedBox(height: 16.h),
-                _buildPhoneNumberField(),
-                SizedBox(height: 16.h),
-                _buildDropdownField('Gender', selectedGender, _selectGender, true),
-                SizedBox(height: 16.h),
-                _buildDateOfBirthField(),
-                SizedBox(height: 16.h),
-                _buildTextField('Age', 'Enter Your Age', true, _ageController),
-                SizedBox(height: 16.h),
-
-                // Country Dropdown
-                if (_isLoadingCountries) const CircularProgressIndicator(),
-
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey), // Define the border color
-                    borderRadius: BorderRadius.circular(12), // Optional: add border radius
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  SizedBox(height: 20.h),
+                  Image.asset(
+                    'assets/images/aj3.jpg',
+                    height: 120.h,
+                    width: 120.h,
                   ),
-                  child: DropdownButtonFormField<String>(
-                    value: selectedCountry,
-                    hint: const Text('Select Country'),
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12), // Add padding inside the field
-                      border: InputBorder.none, // Remove the underline
-                    ),
-                    items: countries.map<DropdownMenuItem<String>>((country) {
-                      return DropdownMenuItem<String>(
-                        value: country['id'].toString(),
-                        child: Text(country['name']),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCountry = value;
-                      });
-                      fetchStates(value!);
+                  SizedBox(height: 10.h),
+                  _buildTextField('First Name', 'Enter First Name', true, _firstNameController),
+                  SizedBox(height: 10.h),
+                  _buildTextField('Email', 'Enter Your Email', true, _emailController),
+                  SizedBox(height: 10.h),
+                  _buildPhoneNumberField(),
+                  SizedBox(height: 10.h),
+                  _buildDropdownField('Gender', selectedGender, _selectGender, true),
+                  SizedBox(height: 10.h),
+                  _buildDateOfBirthField(),
+                  SizedBox(height: 10.h),
+                  _buildTextField('Age', 'Enter Your Age', true, _ageController),
+                  SizedBox(height: 10.h),
+                  if (_isLoadingCountries) const CircularProgressIndicator(),
+                  _buildCountryDropdown(),
+                  SizedBox(height: 10.h),
+                  if (_isLoadingStates) const CircularProgressIndicator(),
+                  _buildStateDropdown(),
+                  SizedBox(height: 10.h),
+                  if (_isLoadingCities) const CircularProgressIndicator(),
+                  _buildCityDropdown(),
+                  SizedBox(height: 10.h),
+                  _buildAutoCompleteField('Select Sponsor', sponsors, (String selection) {
+                    setState(() {
+                      selectedDropdown1 = selection;
+                    });
+                  }),
+                  SizedBox(height: 10.h),
+                  _buildAutoCompleteField('Select Your Parent', parents, (String selection) {
+                    setState(() {
+                      selectedDropdown2 = selection;
+                    });
+                  }),
+                  SizedBox(height: 10.h),
+                  _buildTextField('Password', 'Enter Your Password', true, _passwordController, isMultiline: false),
+                  SizedBox(height: 10.h),
+                  _buildTextField('Confirm Password', 'Confirm Your Password', true, _confirmPasswordController, isMultiline: false),
+                  SizedBox(height: 24.h),
+                  ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        // Proceed with form submission or any other action
+                        _registerUser();
+                      } else {
+                        // If validation fails, do nothing or show a message
+                      }
                     },
-                  ),
-                ),
-
-
-                SizedBox(height: 16.h),
-
-                       if (_isLoadingStates) const CircularProgressIndicator(),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey), // Define the border color
-                    borderRadius: BorderRadius.circular(12), // Optional: add border radius
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    value: selectedState,
-                    hint: const Text('Select State'),
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12), // Add padding inside the field
-                      border: InputBorder.none, // Remove the underline
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                    items: states.map<DropdownMenuItem<String>>((state) {
-                      return DropdownMenuItem<String>(
-                        value: state['id'].toString(),
-                        child: Text(state['name']),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedState = value;
-                      });
-                      fetchCities(value!);
-                    },
+                    child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
                   ),
-                ),
-
-
-                SizedBox(height: 16.h),
-
-
-
-                if (_isLoadingCities) const CircularProgressIndicator(),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey), // Define the border color
-                    borderRadius: BorderRadius.circular(12), // Optional: add border radius
-                  ),
-                  child: DropdownButtonFormField<String>(
-                    value: selectedCity,
-                    hint: const Text('Select City'),
-                    isExpanded: true,
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 12), // Add padding inside the field
-                      border: InputBorder.none, // Remove the underline
-                    ),
-                    items: cities.map<DropdownMenuItem<String>>((city) {
-                      return DropdownMenuItem<String>(
-                        value: city['id'].toString(),
-                        child: Text(city['name']),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedCity = value;
-                      });
-                    },
-                  ),
-                ),
-
-
-
-
-
-
-                SizedBox(height: 16.h),
-
-                // Autocomplete for Sponsor
-                _buildAutoCompleteField('Select Sponsor', sponsors, (String selection) {
-                  setState(() {
-                    selectedDropdown1 = selection;
-                  });
-                }),
-
-                SizedBox(height: 16.h),
-
-                // Autocomplete for Parent
-                _buildAutoCompleteField('Select Your Parent', parents, (String selection) {
-                  setState(() {
-                    selectedDropdown2 = selection;
-                  });
-                }),
-
-                SizedBox(height: 16.h),
-                _buildTextField('Password', 'Enter Your Password', true, _passwordController, isMultiline: false),
-                SizedBox(height: 16.h),
-                _buildTextField('Confirm Password', 'Confirm Your Password', true, _confirmPasswordController, isMultiline: false),
-                SizedBox(height: 24.h),
-                ElevatedButton(
-                  onPressed: () {
-
-                    _registerUser();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -457,7 +316,8 @@ class SignUpScreenState extends State<SignUpScreen> {
   int _calculateAge(DateTime birthDate) {
     DateTime currentDate = DateTime.now();
     int age = currentDate.year - birthDate.year;
-    if (currentDate.month < birthDate.month || (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
+    if (currentDate.month < birthDate.month ||
+        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
       age--;
     }
     return age;
@@ -479,7 +339,7 @@ class SignUpScreenState extends State<SignUpScreen> {
             );
           },
           child: Container(
-            height: 48.h,
+            height: 44.h,
             padding: EdgeInsets.symmetric(horizontal: 12.w),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -493,7 +353,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                   style: GoogleFonts.roboto(
                     textStyle: TextStyle(
                       color: Colors.black,
-                      fontSize: 14.sp,
+                      fontSize: 12.sp,
                     ),
                   ),
                 ),
@@ -505,9 +365,9 @@ class SignUpScreenState extends State<SignUpScreen> {
         SizedBox(width: 8.w),
         Expanded(
           child: Container(
-            height: 48.h,
+            height: 45.h,
             alignment: Alignment.center,
-            child: TextField(
+            child: TextFormField(
               controller: _phoneController,
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
@@ -533,7 +393,17 @@ class SignUpScreenState extends State<SignUpScreen> {
                   borderRadius: BorderRadius.circular(10.r),
                   borderSide: const BorderSide(color: Colors.black),
                 ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.r),
+                  borderSide: BorderSide(color: Colors.red.shade400),
+                ),
               ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your phone number';
+                }
+                return null;
+              },
             ),
           ),
         ),
@@ -541,47 +411,46 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller,
-      {bool isMultiline = false, bool enabled = true}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 4.h),
-        Container(
-          height: isMultiline ? null : 48.h,
-          alignment: Alignment.center,
-          child: TextField(
-            controller: controller,
-            keyboardType: TextInputType.text,
-            maxLines: isMultiline ? null : 1,
-            enabled: enabled,
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: GoogleFonts.roboto(
-                textStyle: const TextStyle(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              fillColor: Colors.white,
-              filled: true,
-              contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.r),
-                borderSide: BorderSide(color: Colors.grey.shade400),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.r),
-                borderSide: BorderSide(color: Colors.grey.shade400),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.r),
-                borderSide: const BorderSide(color: Colors.black),
-              ),
-            ),
-          ),
+  Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller, {bool isMultiline = false, bool enabled = true}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.text,
+      maxLines: isMultiline ? null : 1,
+      enabled: enabled,
+      validator: (value) {
+        if (isRequired && (value == null || value.isEmpty)) {
+          return 'Value can\'t be empty'; // Error message for empty fields
+        }
+        return null;
+      },
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        errorStyle: const TextStyle(
+          color: Colors.red, // Error message text color
+          fontSize: 12,
         ),
-      ],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.grey),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.grey),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.black),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+      ),
     );
   }
 
@@ -589,7 +458,7 @@ class SignUpScreenState extends State<SignUpScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 48.h,
+        height: 45.h,
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(horizontal: 12.w),
         decoration: BoxDecoration(
@@ -604,8 +473,8 @@ class SignUpScreenState extends State<SignUpScreen> {
               value,
               style: GoogleFonts.roboto(
                 textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14.sp,
+                  color: value == 'Select Gender' ? Colors.red : Colors.black,
+                  fontSize: 12.sp,
                 ),
               ),
             ),
@@ -616,8 +485,126 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _buildAutoCompleteField(
-      String label, List<String> items, Function(String) onSelected) {
+  Widget _buildCountryDropdown() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: selectedCountry,
+        hint: const Text('Select Country'),
+        isExpanded: true,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 12),
+          border: InputBorder.none,
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(color: Colors.red.shade400),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(color: Colors.grey.shade400),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: const BorderSide(color: Colors.black),
+          ),
+        ),
+        items: countries.map<DropdownMenuItem<String>>((country) {
+          return DropdownMenuItem<String>(
+            value: country['id'].toString(),
+            child: Text(country['name']),
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            selectedCountry = value;
+          });
+          fetchStates(value!);
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select a country';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildStateDropdown() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: selectedState,
+        hint: const Text('Select State'),
+        isExpanded: true,
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 12),
+          border: InputBorder.none,
+        ),
+        items: states.map<DropdownMenuItem<String>>((state) {
+          return DropdownMenuItem<String>(
+            value: state['id'].toString(),
+            child: Text(state['name']),
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            selectedState = value;
+          });
+          fetchCities(value!);
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select a state';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildCityDropdown() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: DropdownButtonFormField<String>(
+        value: selectedCity,
+        hint: const Text('Select City'),
+        isExpanded: true,
+        decoration: const InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 12),
+          border: InputBorder.none,
+        ),
+        items: cities.map<DropdownMenuItem<String>>((city) {
+          return DropdownMenuItem<String>(
+            value: city['id'].toString(),
+            child: Text(city['name']),
+          );
+        }).toList(),
+        onChanged: (value) {
+          setState(() {
+            selectedCity = value;
+          });
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please select a city';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  Widget _buildAutoCompleteField(String label, List<String> items, Function(String) onSelected) {
     return Autocomplete<String>(
       optionsBuilder: (TextEditingValue textEditingValue) {
         if (textEditingValue.text.isEmpty) {
@@ -631,7 +618,7 @@ class SignUpScreenState extends State<SignUpScreen> {
         onSelected(selection);
       },
       fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-        return TextField(
+        return TextFormField(
           controller: controller,
           focusNode: focusNode,
           decoration: InputDecoration(
@@ -641,7 +628,17 @@ class SignUpScreenState extends State<SignUpScreen> {
               borderRadius: BorderRadius.circular(10.r),
               borderSide: BorderSide(color: Colors.grey.shade400),
             ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.r),
+              borderSide: BorderSide(color: Colors.red.shade400), // Red border on error
+            ),
           ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select $label';
+            }
+            return null;
+          },
         );
       },
     );
@@ -679,5 +676,17 @@ class SignUpScreenState extends State<SignUpScreen> {
         );
       },
     );
+  }
+
+  String? validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email';
+    }
+    String pattern = r'^[^@]+@[^@]+\.[^@]+';
+    RegExp regex = RegExp(pattern);
+    if (!regex.hasMatch(value)) {
+      return 'Please enter a valid email';
+    }
+    return null;
   }
 }

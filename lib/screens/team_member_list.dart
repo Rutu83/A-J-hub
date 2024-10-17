@@ -33,8 +33,6 @@ class TeamMemberListState extends State<TeamMemberList> {
   @override
   void initState() {
     super.initState();
-
-    // Force landscape orientation
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,

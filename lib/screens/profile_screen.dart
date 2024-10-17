@@ -325,7 +325,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       children: [
         _buildMenuOption(Icons.person_outline, "My Profile"),
-        _buildMenuOption(Icons.picture_as_pdf, "Plan PDF"),
         _buildMenuOption(Icons.contact_mail_outlined, "Contact Us"),
         _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.ajhub.co.in/term-condition'),
         _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),

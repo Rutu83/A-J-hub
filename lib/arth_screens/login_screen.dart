@@ -5,7 +5,6 @@ import 'package:allinone_app/arth_screens/signup_screen.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,7 +25,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
   bool isRemember = true;
   bool _isLoding = false;
   late AnimationController _animationController;
-
+  bool _isPasswordVisible = false; // New state variable for password visibility
 
   @override
   void initState() {
@@ -69,7 +68,6 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     log(request);
 
     await loginCurrentAdminMobile(context, req: request).then((value) async {
-
       saveDataToAdminPreferenceMobile(context,
           loginResponse: value,
           parentUserData: value.userData!, onRedirectionClick: () {
@@ -77,11 +75,9 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
               _isLoding = false;
             });
 
-
             onLoginSuccessRedirection();
           });
       if (isRemember) {
-
         setValue(USER_EMAIL, _phoneController.text);
         setValue(USER_PASSWORD, _passwordController.text);
         await setValue(IS_REMEMBERED, isRemember);
@@ -101,31 +97,25 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
     });
 
     Fluttertoast.showToast(
-        msg: error,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0
+      msg: error,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
     );
-
   }
 
   Future<void> onLoginSuccessRedirection() async {
-
     var pref = await SharedPreferences.getInstance();
     pref.setBool(SplashScreenState.keyLogin, true);
-    if (kDebugMode) {
-      print(',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,');
-    }
     const DashboardScreen().launch(context,
         isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -134,17 +124,15 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 100.h,
-              ),
+              SizedBox(height: 100.h),
 
               Image.asset(
-                'assets/images/aj3.jpg',
+                'assets/images/app_logo2.png',
                 height: 150.h,
                 width: 180.h,
               ),
               Text(
-                'Welcome to All In One App',
+                'Welcome To Aj Hub App',
                 style: GoogleFonts.aBeeZee(
                   fontSize: 22.0,
                   fontWeight: FontWeight.bold,
@@ -156,37 +144,55 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                 key: _formKey,
                 child: Column(
                   children: [
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    SizedBox(
+                      height: 50, // Fixed height for the email field
+                      child: TextFormField(
+                        controller: _phoneController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your email';
+                          }
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        return null;
-                      },
                     ),
                     const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    SizedBox(
+                      height: 50, // Fixed height for the password field
+                      child: TextFormField(
+                        controller: _passwordController,
+                        obscureText: !_isPasswordVisible,
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordVisible = !_isPasswordVisible;
+                              });
+                            },
+                          ),
                         ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your password';
+                          }
+                          return null;
+                        },
                       ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        }
-                        return null;
-                      },
                     ),
                   ],
                 ),
@@ -220,17 +226,16 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
         ),
       ),
       bottomNavigationBar: SizedBox(
-        height: 46.h,
+        height: 80.h, // Adjust height if necessary
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center, // Center the content
           children: [
             InkWell(
               onTap: () {
-                Navigator.push(context, (MaterialPageRoute(builder: (context) =>const SignUpScreen())));
-
-                // Navigate to login screen or other appropriate action
+                Navigator.push(context, (MaterialPageRoute(builder: (context) => const SignUpScreen())));
               },
               child: Text(
-                "Already have an account? Login",
+                "Don't Have An Account? Create One",
                 style: GoogleFonts.aclonica(
                   fontSize: 12.0,
                   fontWeight: FontWeight.bold,
@@ -238,6 +243,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                 ),
               ),
             ),
+            const SizedBox(height: 8), // Added spacing
             Text(
               'Version 1.0.0',
               style: GoogleFonts.aclonica(
@@ -246,9 +252,22 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                 color: Colors.black,
               ),
             ),
+            const SizedBox(height: 8), // Added spacing
+            Text(
+              'Powered by - All in One',
+              style: GoogleFonts.aclonica(
+                fontSize: 10.0, // Increased size for better visibility
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+              textAlign: TextAlign.center, // Center the text
+            ),
           ],
         ),
       ),
+
     );
   }
+
 }
+

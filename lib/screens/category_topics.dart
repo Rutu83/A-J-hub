@@ -3,12 +3,31 @@ import 'package:flutter/material.dart';
 
 class CategoryTopics extends StatelessWidget {
   final String title;
-  final List<Map<String, String>> images; // Renamed for clarity
+  final List<Map<String, String>>? images; // Make images nullable
 
   const CategoryTopics({super.key, required this.title, required this.images});
 
   @override
   Widget build(BuildContext context) {
+    // Check if images data is null or empty
+    if (images == null || images!.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          forceMaterialTransparency: true,
+          surfaceTintColor: Colors.transparent,
+          elevation: 4.0,
+          shadowColor: Colors.grey.withOpacity(0.5),
+          title: Text(title),
+        ),
+        body: const Center(
+          child: Text(
+            'No images available.',
+            style: TextStyle(fontSize: 18, color: Colors.red),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         forceMaterialTransparency: true,
@@ -26,15 +45,15 @@ class CategoryTopics extends StatelessWidget {
             mainAxisSpacing: 10.0,
             childAspectRatio: 1,
           ),
-          itemCount: images.length,
+          itemCount: images!.length,
           itemBuilder: (context, index) {
-            final imageData = images[index]; // Renamed for clarity
+            final imageData = images![index]; // Renamed for clarity
             final imageUrl = imageData['image'] ?? ''; // Use imageData
 
             return InkWell(
               onTap: () {
                 // Pass all image URLs when navigating
-                List<String> allImageUrls = images.map((imgData) => imgData['image'] ?? '').toList();
+                List<String> allImageUrls = images!.map((imgData) => imgData['image'] ?? '').toList();
 
                 Navigator.push(
                   context,
@@ -52,23 +71,23 @@ class CategoryTopics extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20.0),
                   child: imageUrl.startsWith('http')
                       ? Image.network(
-                         imageUrl,
-                         fit: BoxFit.fill,
-                         errorBuilder: (context, error, stackTrace) {
-                           return Container(
-                             color: Colors.grey.shade300,
-                             child: const Icon(Icons.error),
+                    imageUrl,
+                    fit: BoxFit.fill,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey.shade300,
+                        child: const Icon(Icons.error),
                       );
                     },
                   )
                       : Image.asset(
-                          imageUrl,
-                          fit: BoxFit.fill,
-                          width: double.infinity,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey.shade300,
-                              child: const Icon(Icons.error),
+                    imageUrl,
+                    fit: BoxFit.fill,
+                    width: double.infinity,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        color: Colors.grey.shade300,
+                        child: const Icon(Icons.error),
                       );
                     },
                   ),

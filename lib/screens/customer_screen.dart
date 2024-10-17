@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 
 class CustomerScreen extends StatefulWidget {
   const CustomerScreen({super.key});
@@ -101,15 +102,24 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   }
 
   Future<void> fetchCategoriesData() async {
+    setState(() {
+      isLoading = true; // Set loading to true before fetching data
+    });
     try {
       final data = await getCategoriesWithSubcategories();
       setState(() {
         categoriesData = data; // Store the fetched CategoriesWithSubcategoriesResponse
+        isLoading = false; // Stop loading once data is fetched
       });
     } catch (e) {
+      setState(() {
+        categoriesData = null; // Ensure categoriesData is null on error
+        isLoading = false; // Stop loading
+      });
       throw Exception('Failed to load categories data: $e');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -171,11 +181,13 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
   Widget _buildContent() {
     if (hasError) {
-      return Center(
-        child: Text(
-          errorMessage,
-          style: TextStyle(fontSize: 16.sp, color: Colors.red),
+      return Container(
+        height: 200,
+        width: 300,
+        decoration: const BoxDecoration(
+          //border: Border(top: BorderSide(color: Colors.grey.shade100))
         ),
+        child: Lottie.asset('assets/animation/error_lottie.json'),
       );
     }
 
@@ -335,8 +347,22 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
 
   Widget _buildNewReleasesSection() {
-    if (categoriesData == null) {
+    // Check for loading state
+    if (isLoading) {
       return _buildSkeletonLoader();
+    }
+
+    // Check if categoriesData is null or has errors
+    if (categoriesData == null) {
+      return  SizedBox(
+          height: 100,
+          child: Center(
+            child: Text(
+              'Failed to load data.',
+              style: TextStyle(fontSize: 16.sp, color: Colors.red),
+            ),
+          )
+      );
     }
 
     List<Widget> items = [];
@@ -344,7 +370,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
     // Find the upcoming category
     var upcomingCategory = categoriesData!.categories.firstWhere(
-          (category) => category.name == 'upcoming',
+          (category) => category.name.toLowerCase() == 'upcoming',
       orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
     );
 
@@ -369,6 +395,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       items: items,
     );
   }
+
 
 
   Widget _buildSkeletonLoader() {

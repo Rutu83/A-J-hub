@@ -72,6 +72,10 @@ class _BusinessScreenState extends State<BusinessScreen> {
             }
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (snapshot.hasData) {
+            if (snapshot.data == null || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No business data available.'));
+            }
+            // Existing logic for building UI with snapshot.data
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0, bottom: 100),
