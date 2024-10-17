@@ -17,7 +17,6 @@ class BusinessScreen extends StatefulWidget {
   @override
   _BusinessScreenState createState() => _BusinessScreenState();
 }
-
 class _BusinessScreenState extends State<BusinessScreen> {
   Future<List<BusinessModal>>? futureBusiness;
   BusinessModal? businessData;
