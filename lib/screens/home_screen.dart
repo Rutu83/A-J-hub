@@ -9,7 +9,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:allinone_app/screens/category_selected.dart';
-import 'package:allinone_app/screens/category_topics.dart';
 
 import '../network/rest_apis.dart';
 
@@ -281,7 +280,7 @@ class HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 90.w,
+              width: 120.w,
               height: 90.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
@@ -340,7 +339,7 @@ class HomeScreenState extends State<HomeScreen> {
         width: 120.w,
         margin: EdgeInsets.only(right: 8.w),
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.red.shade50),
+        //  border: Border.all(color: Colors.red.shade50),
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: Column(
@@ -463,7 +462,7 @@ class HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    return _buildHorizontalCardSection(sectionTitle: sectionTitle, items: items);
+    return _buildHorizontalCardSection1(sectionTitle: sectionTitle, items: items);
   }
 
   Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items}) {
@@ -498,7 +497,53 @@ class HomeScreenState extends State<HomeScreen> {
             ),
             SizedBox(height: 5.h),
             SizedBox(
-              height: 130.h,
+              height: 120.h,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: items,
+              ),
+            ),
+            SizedBox(height: 5.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildHorizontalCardSection1({required String sectionTitle, required List<Widget> items}) {
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 26.h,
+                  width: 6.w,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5.r),
+                      bottom: Radius.circular(5.r),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  sectionTitle,
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 5.h),
+            SizedBox(
+              height: 110.h,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: items,
@@ -564,11 +609,11 @@ class HomeScreenState extends State<HomeScreen> {
         return _buildCardItem2(subcategory.name, imageUrl, subcategory.images, showTitle: false);
       }).toList();
 
-      List<Map<String, String>> topicMaps = subcategory.images.map((imageUrl) {
+      subcategory.images.map((imageUrl) {
         return {'image': imageUrl};
       }).toList();
 
-      sections.add(_buildHorizontalCardSection(
+      sections.add(_buildHorizontalCardSection1(
         sectionTitle: subcategory.name,
         items: items,
       ));

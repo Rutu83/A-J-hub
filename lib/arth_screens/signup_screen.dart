@@ -77,6 +77,7 @@ class SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> fetchStates(String countryId) async {
+
     setState(() {
       _isLoadingStates = true;
     });

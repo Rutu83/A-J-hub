@@ -2,7 +2,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 
 class ReferEarn extends StatefulWidget {
   const ReferEarn({super.key});
@@ -81,109 +81,109 @@ class _ReferEarnState extends State<ReferEarn> {
   }
 
 
-  Widget _buildCustomContainer(Color color, String amount, String label) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 8),
-      margin: const EdgeInsets.only(left: 27, right: 27),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(25.0),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 5)],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Column(
-            children: [
-              Row(
-                children: [
-                  Text(
-                    'Current Wallet',
-                    style: GoogleFonts.poppins(
-                        fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.red),
-                  ),
-                  const SizedBox(width: 3),
-                  const Icon(Icons.info_outline, color: Colors.red),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Text(
-                amount,
-                style: GoogleFonts.poppins(
-                    fontSize: 25.0, fontWeight: FontWeight.w700, color: Colors.red),
-              ),
-              const SizedBox(height: 10.0),
-
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  border: Border.all(color: Colors.red.shade200),
-                  borderRadius: const BorderRadius.all(Radius.circular(22))
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      label,
-                      style: GoogleFonts.poppins(
-                          fontSize: 12.0, fontWeight: FontWeight.bold, color: Colors.red),
-                    ),
-                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.red, size: 12),
-                  ],
-                ),
-              )
-
-            ],
-          ),
-          const SizedBox(
-            height: 100,
-            child: VerticalDivider(color: Colors.red, width: 2),
-          ),
-          Column(
-            children: [
-              Row(
-                children: [
-                  Text(
-                    'Current Wallet',
-                    style: GoogleFonts.poppins(
-                        fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.red),
-                  ),
-                  const SizedBox(width: 3),
-                  const Icon(Icons.info_outline, color: Colors.red),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Text(
-                amount,
-                style: GoogleFonts.poppins(
-                    fontSize: 25.0, fontWeight: FontWeight.w700, color: Colors.red),
-              ),
-              const SizedBox(height: 10.0),
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    border: Border.all(color: Colors.red.shade200),
-                    borderRadius: const BorderRadius.all(Radius.circular(22))
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      label,
-                      style: GoogleFonts.poppins(
-                          fontSize: 12.0, fontWeight: FontWeight.bold, color: Colors.red),
-                    ),
-                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.red, size: 12),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildCustomContainer(Color color, String amount, String label) {
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 8),
+  //     margin: const EdgeInsets.only(left: 27, right: 27),
+  //     decoration: BoxDecoration(
+  //       color: color,
+  //       borderRadius: BorderRadius.circular(25.0),
+  //       boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 5)],
+  //     ),
+  //     child: Row(
+  //       mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //       children: [
+  //         Column(
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 Text(
+  //                   'Current Wallet',
+  //                   style: GoogleFonts.poppins(
+  //                       fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.red),
+  //                 ),
+  //                 const SizedBox(width: 3),
+  //                 const Icon(Icons.info_outline, color: Colors.red),
+  //               ],
+  //             ),
+  //             const SizedBox(height: 10.0),
+  //             Text(
+  //               amount,
+  //               style: GoogleFonts.poppins(
+  //                   fontSize: 25.0, fontWeight: FontWeight.w700, color: Colors.red),
+  //             ),
+  //             const SizedBox(height: 10.0),
+  //
+  //             Container(
+  //               padding: const EdgeInsets.all(10),
+  //               decoration: BoxDecoration(
+  //                 color: Colors.red.shade50,
+  //                 border: Border.all(color: Colors.red.shade200),
+  //                 borderRadius: const BorderRadius.all(Radius.circular(22))
+  //               ),
+  //               child: Row(
+  //                 children: [
+  //                   Text(
+  //                     label,
+  //                     style: GoogleFonts.poppins(
+  //                         fontSize: 12.0, fontWeight: FontWeight.bold, color: Colors.red),
+  //                   ),
+  //                   const Icon(Icons.arrow_forward_ios_rounded, color: Colors.red, size: 12),
+  //                 ],
+  //               ),
+  //             )
+  //
+  //           ],
+  //         ),
+  //         const SizedBox(
+  //           height: 100,
+  //           child: VerticalDivider(color: Colors.red, width: 2),
+  //         ),
+  //         Column(
+  //           children: [
+  //             Row(
+  //               children: [
+  //                 Text(
+  //                   'Current Wallet',
+  //                   style: GoogleFonts.poppins(
+  //                       fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.red),
+  //                 ),
+  //                 const SizedBox(width: 3),
+  //                 const Icon(Icons.info_outline, color: Colors.red),
+  //               ],
+  //             ),
+  //             const SizedBox(height: 10.0),
+  //             Text(
+  //               amount,
+  //               style: GoogleFonts.poppins(
+  //                   fontSize: 25.0, fontWeight: FontWeight.w700, color: Colors.red),
+  //             ),
+  //             const SizedBox(height: 10.0),
+  //             Container(
+  //               padding: const EdgeInsets.all(10),
+  //               decoration: BoxDecoration(
+  //                   color: Colors.red.shade50,
+  //                   border: Border.all(color: Colors.red.shade200),
+  //                   borderRadius: const BorderRadius.all(Radius.circular(22))
+  //               ),
+  //               child: Row(
+  //                 children: [
+  //                   Text(
+  //                     label,
+  //                     style: GoogleFonts.poppins(
+  //                         fontSize: 12.0, fontWeight: FontWeight.bold, color: Colors.red),
+  //                   ),
+  //                   const Icon(Icons.arrow_forward_ios_rounded, color: Colors.red, size: 12),
+  //                 ],
+  //               ),
+  //             )
+  //           ],
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
   Widget _buildAppBar() {
     return  Container(
       width: double.infinity,

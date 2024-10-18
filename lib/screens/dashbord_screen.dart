@@ -96,7 +96,7 @@ class DashboardScreenState extends State<DashboardScreen> {
         });
         _pageController.jumpToPage(index);
       },
-      child: Container(
+      child: SizedBox(
         width: 80, // Set a consistent width for all items
         height: 100, // Set a consistent height for all items
         child: Column(

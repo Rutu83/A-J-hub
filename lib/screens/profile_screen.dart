@@ -3,6 +3,7 @@
 import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
+import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/change_password_screen.dart';
 import 'package:allinone_app/screens/contact_us.dart';
 import 'package:allinone_app/screens/edit_profile.dart';
@@ -334,6 +335,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       children: [
         _buildMenuOption(Icons.person_outline, "My Profile"),
+        _buildMenuOption(Icons.person_outline, "My Business"),
         _buildMenuOption(Icons.contact_mail_outlined, "Contact Us"),
         _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.ajhub.co.in/term-condition'),
         _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
@@ -378,6 +380,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const EditProfile()),
+            );
+          } else if (label == "My Business") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const BusinessList(businessName: '', ownerName: '', mobileNumber: '', email: '', address: '', selectedCategory: '', state: '',)),
             );
           } else if (label == "Refer & Earn") {
             Navigator.push(

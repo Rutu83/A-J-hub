@@ -4,7 +4,6 @@ import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/category_selected.dart';
 import 'package:allinone_app/screens/category_topics.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
@@ -154,7 +153,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
   Widget _buildContent() {
     if (hasError) {
-      return Container(
+      return SizedBox(
         height: 200.h,
         width: 300.w,
         child: Lottie.asset('assets/animation/error_lottie.json'),
@@ -235,15 +234,14 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
           ),
         );
       },
-      child: Container(
-        width: 145.w,
-        margin: EdgeInsets.only(right: 10.w),
+      child: SizedBox(
+        width: 120.w,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 130.w,
-              height: 115.h,
+              width: 110.w,
+              height: 100.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
               ),
@@ -302,7 +300,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
           ),
           SizedBox(height: 5.h),
           SizedBox(
-            height: 135.h,
+            height: 110.h,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: items,

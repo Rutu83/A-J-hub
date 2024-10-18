@@ -88,17 +88,8 @@ flutter:
   assets:
     - assets/images/
     - assets/animation/
-    - assets/images/navratri/
-    - assets/images/quotes/
-    - assets/images/poster/
-    - assets/images/gandhiji/
-    - assets/images/birthday/
-    - assets/images/hanuman/
-    - assets/images/framstore/
-    - assets/images/shiv/
-    - assets/images/Marketing/
-    - assets/images/fligth/
-    - assets/images/anniversary/
+    - assets/icons/
+
 #    - images/lottie/
 
   # An image asset can refer to one or more resolution-specific "variants", see
