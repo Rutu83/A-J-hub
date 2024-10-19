@@ -1,6 +1,7 @@
 import 'package:allinone_app/screens/business_form.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -24,12 +25,21 @@ class CategorySelectedState extends State<CategorySelected> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize ScreenUtil for responsive design
+    ScreenUtil.init(context);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Select Frame', style: TextStyle(color: Colors.black)),
+        title: Text(
+          'Select Frame',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 18.sp,  // Responsive font size
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.sp),  // Responsive icon size
           onPressed: () {
             Navigator.pop(context);
           },
@@ -38,13 +48,11 @@ class CategorySelectedState extends State<CategorySelected> {
           IconButton(
             icon: Image.asset(
               'assets/icons/editing.png',
-              width: 30.0,
-              height: 30.0,
+              width: 30.w,  // Responsive width
+              height: 30.h,  // Responsive height
               color: Colors.black,
             ),
             onPressed: () {
-              // Show dialog box for confirmation
-
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -53,24 +61,23 @@ class CategorySelectedState extends State<CategorySelected> {
               );
             },
           ),
-
           IconButton(
             icon: Image.asset(
               'assets/icons/download.png',
-              width: 35.0,
-              height: 35.0,
+              width: 35.w,  // Responsive width
+              height: 35.h,  // Responsive height
               color: Colors.black,
             ),
             onPressed: () {
               showModalBottomSheet(
                 context: context,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(30.0)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)),  // Responsive radius
                 ),
                 backgroundColor: Colors.white,
                 builder: (BuildContext context) {
                   return Padding(
-                    padding: const EdgeInsets.only(left: 20,right: 20,top: 10,bottom: 20),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),  // Responsive padding
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
@@ -78,51 +85,48 @@ class CategorySelectedState extends State<CategorySelected> {
 
                         Center(
                           child: Container(
-                            height: 6,
-                            width: 40,
+                            height: 6.h,  // Responsive height
+                            width: 40.w,  // Responsive width
                             decoration: BoxDecoration(
-                                color: Colors.grey,
-                              borderRadius: BorderRadius.circular(22)
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(22.r),  // Responsive radius
                             ),
                           ),
                         ),
-
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        SizedBox(height: 10.h),  // Responsive spacing
                         Row(
                           children: [
                             Container(
-                              height: 30,
-                              width: 4,
+                              height: 30.h,  // Responsive height
+                              width: 4.w,  // Responsive width
                               decoration: BoxDecoration(
                                 color: Colors.red,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(12.r),  // Responsive radius
                               ),
                             ),
-                            const SizedBox(width: 12.0),
-                            const Text(
+                            SizedBox(width: 12.w),  // Responsive spacing
+                            Text(
                               'Aj Hug Pro',
                               style: TextStyle(
-                                fontSize: 24.0,
+                                fontSize: 24.sp,  // Responsive font size
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12.0),
-                        const Center(
+                        SizedBox(height: 12.h),  // Responsive spacing
+                        Center(
                           child: Text(
                             'Watch a Video or Subscribe to save this \nTemplate',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              fontSize: 20.0,
+                              fontSize: 20.sp,  // Responsive font size
                               color: Colors.grey,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 20.0),
+                        SizedBox(height: 20.h),  // Responsive spacing
                         Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -131,11 +135,11 @@ class CategorySelectedState extends State<CategorySelected> {
                                 // Handle "Watch Video" action
                               },
                               child: Container(
-                                height: 100, // Set a fixed height
-                                width: double.infinity, // Set width to fill the available space
+                                height: 100.h,  // Responsive height
+                                width: double.infinity,  // Full width
                                 decoration: BoxDecoration(
                                   color: Colors.red.shade50,
-                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderRadius: BorderRadius.circular(15.r),  // Responsive radius
                                   boxShadow: const [
                                     BoxShadow(
                                       color: Colors.black26,
@@ -144,23 +148,23 @@ class CategorySelectedState extends State<CategorySelected> {
                                     ),
                                   ],
                                 ),
-                                padding: const EdgeInsets.all(16.0),
-                                child: const Row(
+                                padding: EdgeInsets.all(16.r),  // Responsive padding
+                                child: Row(
                                   children: [
-                                    Icon(Icons.play_circle_fill, size: 50, color: Colors.red),
-                                    SizedBox(width: 16.0), // Space between icon and text
+                                    Icon(Icons.play_circle_fill, size: 50.sp, color: Colors.red),  // Responsive icon size
+                                    SizedBox(width: 16.w),  // Responsive spacing
                                     Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
-                                      mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           'Watch Video',
-                                          style: TextStyle(fontSize: 16.0),
+                                          style: TextStyle(fontSize: 16.sp),  // Responsive font size
                                         ),
-                                        SizedBox(height: 4.0), // Space between the texts
+                                        SizedBox(height: 4.h),  // Responsive spacing
                                         Text(
-                                          'To Save This Template', // Updated to show a second line of text
-                                          style: TextStyle(fontSize: 14.0, color: Colors.grey),
+                                          'To Save This Template',
+                                          style: TextStyle(fontSize: 14.sp, color: Colors.grey),  // Responsive font size
                                         ),
                                       ],
                                     ),
@@ -168,18 +172,17 @@ class CategorySelectedState extends State<CategorySelected> {
                                 ),
                               ),
                             ),
-
-                            const SizedBox(height: 16.0), // Space between the buttons
+                            SizedBox(height: 16.h),  // Responsive spacing
                             GestureDetector(
                               onTap: () {
                                 // Handle "Save Template" action
                               },
                               child: Container(
-                                height: 100, // Set a fixed height
-                                width: double.infinity, // Set width to fill the available space
+                                height: 100.h,  // Responsive height
+                                width: double.infinity,  // Full width
                                 decoration: BoxDecoration(
                                   color: Colors.blue.shade50,
-                                  borderRadius: BorderRadius.circular(15.0),
+                                  borderRadius: BorderRadius.circular(15.r),  // Responsive radius
                                   boxShadow: const [
                                     BoxShadow(
                                       color: Colors.black26,
@@ -188,27 +191,27 @@ class CategorySelectedState extends State<CategorySelected> {
                                     ),
                                   ],
                                 ),
-                                padding: const EdgeInsets.all(16.0),
-                                child:  Row(
+                                padding: EdgeInsets.all(16.r),  // Responsive padding
+                                child: Row(
                                   children: [
                                     Image.asset(
                                       'assets/icons/crown.png',
-                                      width: 50, // Set the width for the crown icon
-                                      height: 50, // Set the height for the crown icon
+                                      width: 50.w,  // Responsive width for crown icon
+                                      height: 50.h,  // Responsive height for crown icon
                                     ),
-                                    const SizedBox(width: 16.0), // Space between icon and text
-                                    const Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
-                                      mainAxisAlignment: MainAxisAlignment.center, // Center vertically
+                                    SizedBox(width: 16.w),  // Responsive spacing
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Text(
                                           'Subscription',
-                                          style: TextStyle(fontSize: 16.0),
+                                          style: TextStyle(fontSize: 16.sp),  // Responsive font size
                                         ),
-                                        SizedBox(height: 4.0), // Space between the texts
+                                        SizedBox(height: 4.h),  // Responsive spacing
                                         Text(
-                                          'Unlock All Pro Template & Remove Ads', // Added descriptive text
-                                          style: TextStyle(fontSize: 14.0, color: Colors.grey),
+                                          'Unlock All Pro Template & Remove Ads',
+                                          style: TextStyle(fontSize: 14.sp, color: Colors.grey),  // Responsive font size
                                         ),
                                       ],
                                     ),
@@ -216,12 +219,9 @@ class CategorySelectedState extends State<CategorySelected> {
                                 ),
                               ),
                             ),
-
                           ],
                         ),
-
-
-                        const SizedBox(height: 20.0),
+                        SizedBox(height: 20.h),  // Responsive spacing
                       ],
                     ),
                   );
@@ -229,71 +229,68 @@ class CategorySelectedState extends State<CategorySelected> {
               );
             },
           ),
-
-
-
-          const SizedBox(
-            width: 10,
-          )
+          SizedBox(width: 10.w),  // Responsive spacing
         ],
-
       ),
       body: Column(
         children: [
           // Fixed Image with frame sliding applied
-      SizedBox(
-      height: MediaQuery.of(context).size.height * 0.506,  // Set a fixed height for the main container
-      width: MediaQuery.of(context).size.width,  // Full width to cover the screen
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Main image container with Positioned
-          Positioned(
-            left: 5,  // Set left positioning
-            right: 5,  // Set right positioning
-            top: 0,  // Optional: you can adjust top or bottom if needed
-            bottom: 0,  // Optional: ensure height consistency
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(2.0),  // Optional border radius for the main image
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.53,  // Adjust height of the image
-                width: MediaQuery.of(context).size.width - 10,  // Adjust width according to the left/right position
-                child: _buildImage(widget.imagePaths[selectedIndex]),  // Main image
-              ),
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.506,  // Responsive height for the main container
+            width: MediaQuery.of(context).size.width,  // Full width to cover the screen
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Main image container with Positioned
+                Positioned(
+                  left: 5.w,  // Responsive left positioning
+                  right: 5.w,  // Responsive right positioning
+                  top: 0,
+                  bottom: 0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8.r),  // Responsive border radius for the main image
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.53,  // Responsive height of the image
+                      width: MediaQuery.of(context).size.width - 10.w,  // Responsive width with positioning adjustment
+                      child: _buildImage(widget.imagePaths[selectedIndex]),  // Main image
+                    ),
+                  ),
+                ),
+                // Frame overlay (selected frame)
+                Positioned(
+                  left: 5.w,  // Match left position with main image
+                  right: 5.w,  // Match right position with main image
+                  top: 0,
+                  bottom: 0,
+                  child: CarouselSlider.builder(
+                    itemCount: framePaths.length,
+                    options: CarouselOptions(
+                      height: MediaQuery.of(context).size.height * 0.54,  // Match the height of the main image
+                      enableInfiniteScroll: false,
+                      enlargeCenterPage: false,
+                      viewportFraction: 1.0,  // Show only one frame at a time
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          selectedFrameIndex = index;
+                        });
+                      },
+                    ),
+                    itemBuilder: (context, index, realIndex) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: Image.asset(
+                          framePaths[index],
+                          fit: BoxFit.fitWidth,
+                          width: MediaQuery.of(context).size.width - 10.w,  // Ensure frame width matches the main image
+                          height: MediaQuery.of(context).size.height * 0.54,  // Ensure frame height matches the main image
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
-          // Frame overlay (selected frame)
-          Positioned(
-            left: 5,  // Match left position with main image
-            right: 5,  // Match right position with main image
-            top: 0,  // Same as the main image
-            bottom: 0,  // Same as the main image
-            child: CarouselSlider.builder(
-              itemCount: framePaths.length,
-              options: CarouselOptions(
-                height: MediaQuery.of(context).size.height * 0.54,  // Match the height of the main image
-                enableInfiniteScroll: false,  // Disable infinite scroll to avoid repeating frames
-                enlargeCenterPage: false,  // Disable enlargement of frames in the center
-                viewportFraction: 1.0,  // Show only one frame at a time
-                onPageChanged: (index, reason) {
-                  setState(() {
-                    selectedFrameIndex = index;  // Update frame index
-                  });
-                },
-              ),
-              itemBuilder: (context, index, realIndex) {
-                return Image.asset(
-                  framePaths[index],  // Apply the selected frame
-                  fit: BoxFit.fitWidth,  // Ensure the frame covers the image completely
-                  width: MediaQuery.of(context).size.width - 10,  // Ensure frame width matches the main image width with left/right positioning
-                  height: MediaQuery.of(context).size.height * 0.54,  // Ensure frame height matches the main image height
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    ),
           // Dots Indicator for the frame slider
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -303,36 +300,34 @@ class CategorySelectedState extends State<CategorySelected> {
                   selectedFrameIndex = entry.key;
                 }),
                 child: Container(
-                  width: 12.0,
-                  height: 12.0,
-                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                  width: 12.w,  // Responsive size for dots
+                  height: 12.h,  // Responsive size for dots
+                  margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),  // Responsive margins
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: selectedFrameIndex == entry.key
-                        ? Colors.red
-                        : Colors.grey,
+                    color: selectedFrameIndex == entry.key ? Colors.red : Colors.grey,
                   ),
                 ),
               );
             }).toList(),
           ),
-          const SizedBox(height: 8.0),
+          SizedBox(height: 8.h),  // Responsive spacing
 
           // Image Grid for selecting different images (if needed)
           Expanded(
             child: GridView.builder(
-              padding: const EdgeInsets.all(8.0),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              padding: EdgeInsets.all(8.r),  // Responsive padding
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                crossAxisSpacing: 12.0,
-                mainAxisSpacing: 12.0,
+                crossAxisSpacing: 12.w,  // Responsive spacing
+                mainAxisSpacing: 12.h,  // Responsive spacing
               ),
               itemCount: widget.imagePaths.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      selectedIndex = index;  // Update image
+                      selectedIndex = index;
                     });
                   },
                   child: Stack(
@@ -340,7 +335,7 @@ class CategorySelectedState extends State<CategorySelected> {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.0),
+                          borderRadius: BorderRadius.circular(15.r),  // Responsive border radius
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
@@ -350,18 +345,18 @@ class CategorySelectedState extends State<CategorySelected> {
                           ],
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(22.0),
+                          borderRadius: BorderRadius.circular(22.r),  // Responsive border radius
                           child: _buildImage(widget.imagePaths[index]),
                         ),
                       ),
                       if (selectedIndex == index)
-                        const Positioned(
-                          bottom: 5,
-                          right: 5,
+                        Positioned(
+                          bottom: 5.h,  // Responsive position for check icon
+                          right: 5.w,
                           child: Icon(
                             Icons.check_circle_rounded,
                             color: Colors.red,
-                            size: 28,
+                            size: 28.sp,  // Responsive icon size
                           ),
                         ),
                     ],
@@ -370,7 +365,7 @@ class CategorySelectedState extends State<CategorySelected> {
               },
             ),
           ),
-          const SizedBox(height: 8.0),
+          SizedBox(height: 8.h),  // Responsive spacing
         ],
       ),
     );
