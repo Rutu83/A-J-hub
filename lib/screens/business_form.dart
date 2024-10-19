@@ -143,7 +143,7 @@ class _BusinessFormState extends State<BusinessForm> {
 
   // Navigate to the category selection screen
   void _navigateToCategorySelection() async {
-    final selectedCategory = await Navigator.pushReplacement(
+  await Navigator.pushReplacement(
       context,
       MaterialPageRoute(
           builder: (context) => CategorySelectionScreen(
@@ -187,7 +187,7 @@ class _BusinessFormState extends State<BusinessForm> {
                     onTap: () {
                       _showImageSourceActionSheet(context);
                     },
-                    child: Container(
+                    child: SizedBox(
                       width: 110.w,
                       height: 100.h,
                       child: Stack(
