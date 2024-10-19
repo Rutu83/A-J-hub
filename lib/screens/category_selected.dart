@@ -237,7 +237,7 @@ class CategorySelectedState extends State<CategorySelected> {
         children: [
           // Fixed Image with frame sliding applied
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.506,  // Responsive height for the main container
+            height: MediaQuery.of(context).size.height * 0.450,  // Responsive height for the main container
             width: MediaQuery.of(context).size.width,  // Full width to cover the screen
             child: Stack(
               alignment: Alignment.center,
