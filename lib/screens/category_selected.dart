@@ -51,35 +51,6 @@ class CategorySelectedState extends State<CategorySelected> {
                   builder: (context) => const BusinessForm(), // Open BusinessForm
                 ),
               );
-              // showDialog(
-              //   context: context,
-              //   builder: (BuildContext context) {
-              //     return AlertDialog(
-              //       title: const Text('Confirmation'),
-              //       content: const Text('Are you sure you want to edit the data?'),
-              //       actions: <Widget>[
-              //         TextButton(
-              //           onPressed: () {
-              //             Navigator.of(context).pop(); // Close the dialog
-              //           },
-              //           child: const Text('Cancel'),
-              //         ),
-              //         TextButton(
-              //           onPressed: () {
-              //             Navigator.of(context).pop(); // Close the dialog
-              //             Navigator.push(
-              //               context,
-              //               MaterialPageRoute(
-              //                 builder: (context) => const BusinessForm(), // Open BusinessForm
-              //               ),
-              //             );
-              //           },
-              //           child: const Text('Yes'),
-              //         ),
-              //       ],
-              //     );
-              //   },
-              // );
             },
           ),
 
@@ -270,44 +241,59 @@ class CategorySelectedState extends State<CategorySelected> {
       body: Column(
         children: [
           // Fixed Image with frame sliding applied
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                margin: const EdgeInsets.all(6.0),
-                height: MediaQuery.of(context).size.height * 0.47,  // Adjust height of the image
-                width: MediaQuery.of(context).size.width,  // Full width to remove side gaps
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-                  child: _buildImage(widget.imagePaths[selectedIndex]),  // Fixed image
-                ),
+      SizedBox(
+      height: MediaQuery.of(context).size.height * 0.506,  // Set a fixed height for the main container
+      width: MediaQuery.of(context).size.width,  // Full width to cover the screen
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Main image container with Positioned
+          Positioned(
+            left: 5,  // Set left positioning
+            right: 5,  // Set right positioning
+            top: 0,  // Optional: you can adjust top or bottom if needed
+            bottom: 0,  // Optional: ensure height consistency
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(2.0),  // Optional border radius for the main image
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.53,  // Adjust height of the image
+                width: MediaQuery.of(context).size.width - 10,  // Adjust width according to the left/right position
+                child: _buildImage(widget.imagePaths[selectedIndex]),  // Main image
               ),
-              // Frame overlay (selected frame)
-              Positioned.fill(
-                child: CarouselSlider.builder(
-                  itemCount: framePaths.length,
-                  options: CarouselOptions(
-                    height: MediaQuery.of(context).size.height * 0.47,  // Frame slider height same as the image
-                    enableInfiniteScroll: false,  // Disable infinite scroll to avoid repeating frames
-                    enlargeCenterPage: false,  // Disable enlargement of frames in the center
-                    viewportFraction: 1.0,  // Show only one frame at a time
-                    onPageChanged: (index, reason) {
-                      setState(() {
-                        selectedFrameIndex = index;  // Update frame index
-                      });
-                    },
-                  ),
-                  itemBuilder: (context, index, realIndex) {
-                    return Image.asset(
-                      framePaths[index],  // Apply sliding frames over the fixed image
-                      fit: BoxFit.cover,  // Ensure the frame covers the image completely
-                    );
-                  },
-                ),
-              ),
-            ],
+            ),
           ),
-
+          // Frame overlay (selected frame)
+          Positioned(
+            left: 5,  // Match left position with main image
+            right: 5,  // Match right position with main image
+            top: 0,  // Same as the main image
+            bottom: 0,  // Same as the main image
+            child: CarouselSlider.builder(
+              itemCount: framePaths.length,
+              options: CarouselOptions(
+                height: MediaQuery.of(context).size.height * 0.54,  // Match the height of the main image
+                enableInfiniteScroll: false,  // Disable infinite scroll to avoid repeating frames
+                enlargeCenterPage: false,  // Disable enlargement of frames in the center
+                viewportFraction: 1.0,  // Show only one frame at a time
+                onPageChanged: (index, reason) {
+                  setState(() {
+                    selectedFrameIndex = index;  // Update frame index
+                  });
+                },
+              ),
+              itemBuilder: (context, index, realIndex) {
+                return Image.asset(
+                  framePaths[index],  // Apply the selected frame
+                  fit: BoxFit.fitWidth,  // Ensure the frame covers the image completely
+                  width: MediaQuery.of(context).size.width - 10,  // Ensure frame width matches the main image width with left/right positioning
+                  height: MediaQuery.of(context).size.height * 0.54,  // Ensure frame height matches the main image height
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    ),
           // Dots Indicator for the frame slider
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
