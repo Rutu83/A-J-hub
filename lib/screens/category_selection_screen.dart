@@ -15,7 +15,6 @@ class CategorySelectionScreen extends StatelessWidget {
     'Education': 'assets/icons/school.png',
     'Real Estate': 'assets/icons/house.png',
   };
-
   CategorySelectionScreen({
     super.key,
     required this.categories,
