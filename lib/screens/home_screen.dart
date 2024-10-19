@@ -142,8 +142,8 @@ class HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             _buildBannerSlider(),
-            _buildButtons(),
-            const SizedBox(height: 10),
+         //   _buildButtons(),
+          //  const SizedBox(height: 10),
             _buildNewReleasesSection1(),
             const SizedBox(height: 10),
             _buildNewReleasesSection2(),
@@ -176,10 +176,13 @@ class HomeScreenState extends State<HomeScreen> {
               items: _imageUrls.map((url) {
                 return Builder(
                   builder: (BuildContext context) {
-                    return Image.network(
-                      url,
-                      fit: BoxFit.cover,
-                      width: MediaQuery.of(context).size.width,
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(15.0), // Apply border radius here
+                      child: Image.network(
+                        url,
+                        fit: BoxFit.cover,
+                        width: MediaQuery.of(context).size.width,
+                      ),
                     );
                   },
                 );
@@ -205,6 +208,7 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
   Widget _buildButtons() {
     return Card(
@@ -244,14 +248,18 @@ class HomeScreenState extends State<HomeScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          height: 50.h,
-          width: 50.w,
+          height: 40.h, // Use a consistent height
+          width: 40.h,  // Set width equal to height
           decoration: BoxDecoration(
             color: Colors.red,
-            borderRadius: BorderRadius.circular(33),
+            borderRadius: BorderRadius.circular(20.h), // Half of the height (20.h)
           ),
-          child: Icon(icon, color: Colors.white),
+          child: Center( // Center the icon within the circle
+            child: Icon(icon, color: Colors.white),
+          ),
         ),
+
+
         const SizedBox(height: 8),
         Text(label),
       ],

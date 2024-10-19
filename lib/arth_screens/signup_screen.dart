@@ -27,17 +27,24 @@ class SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   bool isLocationError = false;
+  bool _isPhoneNumberValid = true;
+  bool _isPasswordValid = true;
+
+
+  bool _isEmailValid = true;  // Email validation flag
+
   String selectedGender = 'Select Gender';
   String? selectedCountry;
   String? selectedState;
   String? selectedCity;
-
+  bool _passwordsMatch = true;
   List<dynamic> countries = [];
   List<dynamic> states = [];
   List<dynamic> cities = [];
   String selectedCountryCode = '+91';
   String selectedDropdown1 = 'Select Sponsor';
   String selectedDropdown2 = 'Select Your Parent';
+
   bool _isLoading = false;
   List<String> sponsors = [];
   List<String> parents = [];
@@ -50,8 +57,346 @@ class SignUpScreenState extends State<SignUpScreen> {
     super.initState();
     fetchDropdownData(); // Call the API when the screen initializes
     fetchCountries();
+
+    _passwordController.addListener(_checkPasswords);
+    _confirmPasswordController.addListener(_checkPasswords);
+    _phoneController.addListener(_validatePhoneNumber);
+    _emailController.addListener(_validateEmail);
   }
 
+
+  void _showCountrySelectionSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allows full-screen scrolling behavior
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30.0), // Set top-left corner radius
+          topRight: Radius.circular(30.0), // Set top-right corner radius
+        ),
+      ),
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          expand: false, // Prevents expanding to full screen on its own
+          builder: (context, scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white, // Set background color to white
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30.0), // Ensure top-left corner is rounded
+                  topRight: Radius.circular(30.0), // Ensure top-right corner is rounded
+                ),
+              ),
+              child: Column(
+                children: [
+
+                  const SizedBox(
+                    height: 20,
+                  ),
+
+                  Container(
+                    height: 6,
+                    width: 50,
+                    decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(12)
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  // Title for the bottom sheet
+
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    child:   Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Select Country',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.separated(
+                      controller: scrollController, // Attach the scroll controller
+                      itemCount: countries.length,
+                      itemBuilder: (context, index) {
+                        final country = countries[index];
+                        return ListTile(
+                          title: Text(country['name']),
+                          onTap: () {
+                            setState(() {
+                              selectedCountry = country['name'];
+                            });
+                            fetchStates(country['id'].toString()); // Fetch states based on country selection
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const Divider( // Horizontal line between items
+                          thickness: 1,
+                          color: Colors.grey,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showStateSelectionSheet() {
+    if (selectedCountry == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a country first')),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allows full-screen scrolling behavior
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30.0), // Set top-left corner radius
+          topRight: Radius.circular(30.0), // Set top-right corner radius
+        ),
+      ),
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          expand: false, // Prevents expanding to full screen on its own
+          builder: (context, scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white, // Set background color to white
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30.0), // Ensure top-left corner is rounded
+                  topRight: Radius.circular(30.0), // Ensure top-right corner is rounded
+                ),
+              ),
+              child: Column(
+                children: [
+
+                  const SizedBox(
+                    height: 20,
+                  ),
+
+                  Container(
+                    height: 6,
+                    width: 50,
+                    decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(12)
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  // Title for the bottom sheet
+
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    child:   Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Select State',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+
+
+                  Expanded(
+                    child: ListView.separated(
+                      controller: scrollController, // Attach the scroll controller
+                      itemCount: states.length,
+                      itemBuilder: (context, index) {
+                        final state = states[index];
+                        return ListTile(
+                          title: Text(state['name']),
+                          onTap: () {
+                            setState(() {
+                              selectedState = state['name'];
+                            });
+                            fetchCities(state['id'].toString()); // Fetch cities based on state selection
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const Divider( // Horizontal line between items
+                          thickness: 1,
+                          color: Colors.grey,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showCitySelectionSheet() {
+    if (selectedState == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a state first')),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allows full-screen scrolling behavior
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30.0), // Set top-left corner radius
+          topRight: Radius.circular(30.0), // Set top-right corner radius
+        ),
+      ),
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          expand: false, // Prevents expanding to full screen on its own
+          builder: (context, scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                color: Colors.white, // Set background color to white
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30.0), // Ensure top-left corner is rounded
+                  topRight: Radius.circular(30.0), // Ensure top-right corner is rounded
+                ),
+              ),
+              child: Column(
+                children: [
+
+                  const SizedBox(
+                    height: 20,
+                  ),
+
+                  Container(
+                    height: 6,
+                    width: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(12)
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  // Title for the bottom sheet
+
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    child:   Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        'Select City',
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  Expanded(
+                    child: ListView.separated(
+                      controller: scrollController, // Attach the scroll controller
+                      itemCount: cities.length,
+                      itemBuilder: (context, index) {
+                        final city = cities[index];
+                        return ListTile(
+                          title: Text(city['name']),
+                          onTap: () {
+                            setState(() {
+                              selectedCity = city['name'];
+                            });
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                      separatorBuilder: (context, index) {
+                        return const Divider( // Horizontal line between items
+                          thickness: 1,
+                          color: Colors.grey,
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+
+
+
+  // Real-time email validation
+  void _validateEmail() {
+    setState(() {
+      _isEmailValid = _isValidEmail(_emailController.text);
+    });
+  }
+
+  // Email validation regex
+  bool _isValidEmail(String email) {
+    final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    return emailRegExp.hasMatch(email);
+  }
+
+
+
+  // Check passwords and validate password length
+  void _checkPasswords() {
+    setState(() {
+      _passwordsMatch = _passwordController.text == _confirmPasswordController.text;
+      _isPasswordValid = _passwordController.text.length >= 6;
+    });
+  }
+
+  @override
+  void dispose() {
+    // Dispose controllers when no longer needed to free up resources
+    _passwordController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+
+    super.dispose();
+  }
+
+  // Phone number validation logic
+  void _validatePhoneNumber() {
+    setState(() {
+      // Check if phone number is not empty and matches basic validation (adjust regex based on your needs)
+      _isPhoneNumberValid = _phoneController.text.isNotEmpty && _isValidPhoneNumber(_phoneController.text);
+    });
+  }
+
+  bool _isValidPhoneNumber(String phoneNumber) {
+    final phoneRegExp = RegExp(r'^\+?\d{10,15}$'); // Simple phone number validation (adjust as needed)
+    return phoneRegExp.hasMatch(phoneNumber);
+  }
   Future<void> fetchCountries() async {
     setState(() {
       _isLoadingCountries = true;
@@ -143,6 +488,17 @@ class SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _registerUser() async {
+    if (selectedCountry == null || selectedState == null || selectedCity == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select Country, State, and City')),
+      );
+      setState(() {
+        // Trigger validation errors
+        isLocationError = true;
+      });
+      return;
+    }
+
     if (selectedDropdown1 == 'Select Sponsor' || selectedDropdown2 == 'Select Your Parent') {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select both Sponsor and Parent')));
       return;
@@ -206,10 +562,12 @@ class SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Container(
@@ -223,14 +581,16 @@ class SignUpScreenState extends State<SignUpScreen> {
                 children: [
                   SizedBox(height: 20.h),
                   Image.asset(
-                    'assets/images/aj3.jpg',
+                    'assets/images/app_logo2.png',
                     height: 120.h,
                     width: 120.h,
                   ),
                   SizedBox(height: 10.h),
                   _buildTextField('First Name', 'Enter First Name', true, _firstNameController),
+
+
                   SizedBox(height: 10.h),
-                  _buildTextField('Email', 'Enter Your Email', true, _emailController),
+                  _buildEmailField(),
                   SizedBox(height: 10.h),
                   _buildPhoneNumberField(),
                   SizedBox(height: 10.h),
@@ -246,13 +606,27 @@ class SignUpScreenState extends State<SignUpScreen> {
                   _buildTextField('Age', 'Enter Your Age', true, _ageController),
                   SizedBox(height: 10.h),
                   if (_isLoadingCountries) const CircularProgressIndicator(),
-                  _buildCountryDropdown(),
+                  _buildCountryField(),
                   SizedBox(height: 10.h),
                   if (_isLoadingStates) const CircularProgressIndicator(),
-                  _buildStateDropdown(),
+                  _buildStateField(),
                   SizedBox(height: 10.h),
                   if (_isLoadingCities) const CircularProgressIndicator(),
-                  _buildCityDropdown(),
+                  _buildCityField(),
+
+                  SizedBox(height: 10.h),
+                  _buildPasswordField(),
+                  SizedBox(height: 10.h),
+                  _buildConfirmPasswordField(),
+                  if (!_passwordsMatch)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Text(
+                        'Passwords do not match',
+                        style: TextStyle(color: Colors.red.shade900, fontSize: 12.sp),
+                      ),
+                    ),
+
                   SizedBox(height: 10.h),
                   _buildAutoCompleteField('Select Sponsor', sponsors, (String selection) {
                     setState(() {
@@ -265,18 +639,26 @@ class SignUpScreenState extends State<SignUpScreen> {
                       selectedDropdown2 = selection;
                     });
                   }),
-                  SizedBox(height: 10.h),
-                  _buildTextField('Password', 'Enter Your Password', true, _passwordController, isMultiline: false),
-                  SizedBox(height: 10.h),
-                  _buildTextField('Confirm Password', 'Confirm Your Password', true, _confirmPasswordController, isMultiline: false),
+
                   SizedBox(height: 24.h),
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
+                        // Set error flags if these fields are not selected
+                        isLocationError = selectedCountry == null || selectedState == null || selectedCity == null;
                         _isGenderError = selectedGender == 'Select Gender';
                       });
-                      if (_formKey.currentState!.validate() && !_isGenderError) {
+
+                      // Check if all form fields are valid before processing registration
+                      if (_formKey.currentState!.validate() && !_isGenderError && !isLocationError) {
                         _registerUser();
+                      } else {
+                        // Display error if country, state, or city is not selected
+                        if (isLocationError) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Please select Country, State, and City')),
+                          );
+                        }
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -287,7 +669,8 @@ class SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
-                  ),
+                  )
+
                 ],
               ),
             ),
@@ -329,15 +712,14 @@ class SignUpScreenState extends State<SignUpScreen> {
     return age;
   }
 
+  // Phone number input field with real-time validation
   Widget _buildPhoneNumberField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Padding(
-              padding: isLocationError ? const EdgeInsets.only(bottom: 24) : EdgeInsets.zero, // Add padding if error
-            child: GestureDetector(
+            GestureDetector(
               onTap: () {
                 showCountryPicker(
                   context: context,
@@ -350,11 +732,10 @@ class SignUpScreenState extends State<SignUpScreen> {
                 );
               },
               child: Container(
-                height: 44.h,
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  border: Border.all(color: isLocationError ?  Colors.red: Colors.grey.shade400),
+                  border: Border.all(color: _isPhoneNumberValid ? Colors.grey.shade400 : Colors.red.shade900),
                   borderRadius: BorderRadius.circular(10.r),
                 ),
                 child: Row(
@@ -373,9 +754,11 @@ class SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
-            ),
+                const SizedBox(
+                  width: 8,
+                ),
 
-            SizedBox(width: 8.w), // Space between country picker and phone number field
+            // Phone Number Input Field
             Expanded(
               child: Container(
                 alignment: Alignment.center,
@@ -392,34 +775,29 @@ class SignUpScreenState extends State<SignUpScreen> {
                     ),
                     fillColor: Colors.white,
                     filled: true,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.r),
                       borderSide: BorderSide(color: Colors.grey.shade400),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: Colors.grey.shade400),
+                      borderSide: BorderSide(color: _isPhoneNumberValid ? Colors.grey.shade400 : Colors.red),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.r),
-                      borderSide: const BorderSide(color: Colors.black),
+                      borderSide: BorderSide(color: _isPhoneNumberValid ? Colors.black : Colors.red),
                     ),
                     errorBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: Colors.red.shade400),
+                      borderSide: BorderSide(color: Colors.red.shade900),
                     ),
+                    errorText: _isPhoneNumberValid ? null : 'Please enter a valid phone number',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      setState(() {
-                        isLocationError = true;
-                      });
                       return 'Please enter your phone number';
                     }
-                    setState(() {
-                      isLocationError = false;
-                    });
                     return null;
                   },
                 ),
@@ -432,24 +810,119 @@ class SignUpScreenState extends State<SignUpScreen> {
   }
 
 
+  Widget _buildPasswordField() {
+    return TextFormField(
+      controller: _passwordController,
 
-  Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller, {bool isMultiline = false, bool enabled = true}) {
+      decoration: InputDecoration(
+        labelText: 'Password',
+        hintText: 'Enter your password',
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+        labelStyle: TextStyle(
+            color: _passwordsMatch ? Colors.black : Colors.red.shade900
+        ),
+        errorText: !_isPasswordValid ? 'Password must be at least 6 characters long' : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: _isPasswordValid ? Colors.grey : Colors.red.shade900),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: _isPasswordValid ? Colors.black : Colors.red.shade900),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your password';
+        }
+        if (value.length < 6 && value.length > 12) {
+          return 'Password must be at least 6 characters long';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildConfirmPasswordField() {
+    return TextFormField(
+      controller: _confirmPasswordController,
+      obscureText: true, // For hiding password input
+      decoration: InputDecoration(
+        labelText: 'Confirm Password',
+        hintText: 'Re-enter your password',
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+        labelStyle: TextStyle(
+          color: _passwordsMatch ? Colors.black : Colors.red.shade900
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: _passwordsMatch ? Colors.grey : Colors.red.shade900, // Conditional border color
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: _passwordsMatch ? Colors.grey : Colors.red.shade900, // Conditional border color when enabled
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(
+            color: _passwordsMatch ? Colors.black : Colors.red.shade900, // Conditional border color when focused
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:  BorderSide(color: Colors.red.shade900),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide:  BorderSide(color: Colors.red.shade900),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please confirm your password';
+        }
+        if (value != _passwordController.text) {
+          return 'Passwords do not match';
+        }
+        return null;
+      },
+    );
+  }
+
+
+
+
+
+
+Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller,
+      {bool isMultiline = false, bool enabled = true, TextInputType keyboardType = TextInputType.text}) {
     return TextFormField(
       controller: controller,
-      keyboardType: TextInputType.text,
+      keyboardType: keyboardType,
       maxLines: isMultiline ? null : 1,
       enabled: enabled,
       validator: (value) {
         if (isRequired && (value == null || value.isEmpty)) {
-          return 'Value can\'t be empty'; // Error message for empty fields
+          return '$label can\'t be empty'; // Error message for empty fields
         }
         return null;
       },
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        errorStyle: const TextStyle(
-          color: Colors.red, // Error message text color
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+        labelStyle: const TextStyle(
+          color: Colors.black
+        ),
+        errorStyle:  TextStyle(
+          color: Colors.red.shade900, // Error message text color
           fontSize: 12,
         ),
         border: OutlineInputBorder(
@@ -466,11 +939,11 @@ class SignUpScreenState extends State<SignUpScreen> {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.red),
+          borderSide:  BorderSide(color: Colors.red.shade900),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.red),
+          borderSide:  BorderSide(color: Colors.red.shade900),
         ),
       ),
     );
@@ -478,149 +951,155 @@ class SignUpScreenState extends State<SignUpScreen> {
 
 
 
-
-  Widget _buildCountryDropdown() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: selectedCountry,
-        hint: const Text('Select Country'),
-        isExpanded: true,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.red.shade400),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.grey.shade400),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: const BorderSide(color: Colors.black),
-          ),
+  Widget _buildEmailField() {
+    return TextFormField(
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      decoration: InputDecoration(
+        labelText: 'Email',
+        hintText: 'Enter Your Email',
+        fillColor: Colors.white,
+        filled: true,
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.r),
+          borderSide: BorderSide(color: Colors.grey.shade400),
         ),
-        items: countries.map<DropdownMenuItem<String>>((country) {
-          return DropdownMenuItem<String>(
-            value: country['id'].toString(),
-            child: Text(country['name']),
-          );
-        }).toList(),
-        onChanged: (value) {
-          setState(() {
-            selectedCountry = value;
-          });
-          fetchStates(value!);
-        },
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please select a country';
-          }
-          return null;
-        },
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.r),
+          borderSide: BorderSide(color: _isEmailValid ? Colors.grey.shade400 : Colors.red.shade900),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.r),
+          borderSide: BorderSide(color: _isEmailValid ? Colors.black : Colors.red.shade900),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.r),
+          borderSide: BorderSide(color: Colors.red.shade900),
+        ),
+        errorText: _isEmailValid ? null : 'Please enter a valid email address',
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your email';
+        }
+        if (!_isValidEmail(value)) {
+          return 'Please enter a valid email address';
+        }
+        return null;
+      },
+    );
+  }
+
+
+
+
+
+  Widget _buildCountryField() {
+    return GestureDetector(
+      onTap: () => _showCountrySelectionSheet(),
+      child: Container(
+        height: 45.h,
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: isLocationError && selectedCountry == null ? Colors.red.shade900 : Colors.grey.shade400,
+            width: 1.5,
+          ),
+          borderRadius: BorderRadius.circular(10.r),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              selectedCountry != null ? selectedCountry! : 'Select Country',
+              style: GoogleFonts.roboto(
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12.sp,
+                ),
+              ),
+            ),
+            const Icon(Icons.arrow_drop_down, color: Colors.black),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStateDropdown() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: selectedState,
-        hint: const Text('Select State'),
-        isExpanded: true,
-        decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.grey.shade400),
+
+  Widget _buildStateField() {
+    return GestureDetector(
+      onTap: () => _showStateSelectionSheet(),
+      child: Container(
+        height: 45.h,
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: isLocationError && selectedState == null ? Colors.red.shade900  : Colors.grey.shade400,
+            width: 1.5,
           ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.red.shade400),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.grey.shade400),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: const BorderSide(color: Colors.black),
-          ),
+          borderRadius: BorderRadius.circular(10.r),
         ),
-        items: states.map<DropdownMenuItem<String>>((state) {
-          return DropdownMenuItem<String>(
-            value: state['id'].toString(),
-            child: Text(state['name']),
-          );
-        }).toList(),
-        onChanged: (value) {
-          setState(() {
-            selectedState = value;
-          });
-          fetchCities(value!);
-        },
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please select a state';
-          }
-          return null;
-        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              selectedState != null ? selectedState! : 'Select State',
+              style: GoogleFonts.roboto(
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12.sp,
+                ),
+              ),
+            ),
+            const Icon(Icons.arrow_drop_down, color: Colors.black),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildCityDropdown() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButtonFormField<String>(
-        value: selectedCity,
-        hint: const Text('Select City'),
-        isExpanded: true,
-        decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.grey.shade400),
+
+  Widget _buildCityField() {
+    return GestureDetector(
+      onTap: () => _showCitySelectionSheet(),
+      child: Container(
+        height: 45.h,
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: isLocationError && selectedCity == null ? Colors.red.shade900  : Colors.grey.shade400,
+            width: 1.5,
           ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.red.shade400),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: BorderSide(color: Colors.grey.shade400),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.r),
-            borderSide: const BorderSide(color: Colors.black),
-          ),
+          borderRadius: BorderRadius.circular(10.r),
         ),
-        items: cities.map<DropdownMenuItem<String>>((city) {
-          return DropdownMenuItem<String>(
-            value: city['id'].toString(),
-            child: Text(city['name']),
-          );
-        }).toList(),
-        onChanged: (value) {
-          setState(() {
-            selectedCity = value;
-          });
-        },
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Please select a city';
-          }
-          return null;
-        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              selectedCity != null ? selectedCity! : 'Select City',
+              style: GoogleFonts.roboto(
+                textStyle: TextStyle(
+                  color: Colors.black,
+                  fontSize: 12.sp,
+                ),
+              ),
+            ),
+            const Icon(Icons.arrow_drop_down, color: Colors.black),
+          ],
+        ),
       ),
     );
   }
+
+
 
   Widget _buildAutoCompleteField(String label, List<String> items, Function(String) onSelected) {
     return Autocomplete<String>(
@@ -648,7 +1127,7 @@ class SignUpScreenState extends State<SignUpScreen> {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(color: Colors.red.shade400), // Red border on error
+              borderSide: BorderSide(color: Colors.red.shade900 ), // Red border on error
             ),
           ),
           validator: (value) {
@@ -666,13 +1145,12 @@ class SignUpScreenState extends State<SignUpScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 45.h,
         alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-            color: _isGenderError ? Colors.red : Colors.grey.shade400,
+            color: _isGenderError ? Colors.red.shade900  : Colors.grey.shade400,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(10.r),
@@ -685,7 +1163,7 @@ class SignUpScreenState extends State<SignUpScreen> {
               style: GoogleFonts.roboto(
                 textStyle: TextStyle(
                   color: _isGenderError ? Colors.red : Colors.black,
-                  fontSize: 12.sp,
+                  fontSize: 14.sp,
                 ),
               ),
             ),
@@ -745,3 +1223,4 @@ class SignUpScreenState extends State<SignUpScreen> {
     return null;
   }
 }
+

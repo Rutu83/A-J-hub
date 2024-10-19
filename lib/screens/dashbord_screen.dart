@@ -44,7 +44,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.center, // Center items with less space between
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       _buildMenuItem(Icons.home, "Home", 0),
@@ -78,6 +78,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                       _buildMenuItem(Icons.account_circle, "Account", 3),
                     ],
                   ),
+
                 ],
               ),
             ),
