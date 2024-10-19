@@ -241,6 +241,7 @@ class CategorySelectedState extends State<CategorySelected> {
             child: Stack(
               alignment: Alignment.center,
               children: [
+
                 // Main image container with Positioned
                 Positioned(
                   left: 5.w,  // Responsive left positioning
