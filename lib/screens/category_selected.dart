@@ -115,7 +115,6 @@ class CategorySelectedState extends State<CategorySelected> {
                             ),
                           ],
                         ),
-
                         SizedBox(height: 12.h),  // Responsive spacing
                         Center(
                           child: Text(
