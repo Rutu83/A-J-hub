@@ -2,6 +2,7 @@ import 'package:allinone_app/screens/business_form.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -76,159 +77,177 @@ class CategorySelectedState extends State<CategorySelected> {
                 ),
                 backgroundColor: Colors.white,
                 builder: (BuildContext context) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),  // Responsive padding
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-
-                        Center(
-                          child: Container(
-                            height: 6.h,  // Responsive height
-                            width: 40.w,  // Responsive width
-                            decoration: BoxDecoration(
-                              color: Colors.grey,
-                              borderRadius: BorderRadius.circular(22.r),  // Responsive radius
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10.h),  // Responsive spacing
-                        Row(
-                          children: [
-                            Container(
-                              height: 30.h,  // Responsive height
-                              width: 4.w,  // Responsive width
+                  return SingleChildScrollView(  // Wrap Column with SingleChildScrollView
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),  // Responsive padding
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Center(
+                            child: Container(
+                              height: 6.h,  // Responsive height
+                              width: 40.w,  // Responsive width
                               decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(12.r),  // Responsive radius
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.circular(22.r),  // Responsive radius
                               ),
-                            ),
-                            SizedBox(width: 12.w),  // Responsive spacing
-                            Text(
-                              'Aj Hug Pro',
-                              style: TextStyle(
-                                fontSize: 24.sp,  // Responsive font size
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12.h),  // Responsive spacing
-                        Center(
-                          child: Text(
-                            'Watch a Video or Subscribe to save this \nTemplate',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 20.sp,  // Responsive font size
-                              color: Colors.grey,
                             ),
                           ),
-                        ),
-                        SizedBox(height: 20.h),  // Responsive spacing
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                // Handle "Watch Video" action
-                              },
-                              child: Container(
-                                height: 100.h,  // Responsive height
-                                width: double.infinity,  // Full width
+                          SizedBox(height: 20.h),  // Increased spacing for cleaner layout
+                          Row(
+                            children: [
+                              Container(
+                                height: 30.h,  // Responsive height
+                                width: 4.w,  // Responsive width
                                 decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
-                                  borderRadius: BorderRadius.circular(15.r),  // Responsive radius
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 6.0,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                padding: EdgeInsets.all(16.r),  // Responsive padding
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.play_circle_fill, size: 50.sp, color: Colors.red),  // Responsive icon size
-                                    SizedBox(width: 16.w),  // Responsive spacing
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Watch Video',
-                                          style: TextStyle(fontSize: 16.sp),  // Responsive font size
-                                        ),
-                                        SizedBox(height: 4.h),  // Responsive spacing
-                                        Text(
-                                          'To Save This Template',
-                                          style: TextStyle(fontSize: 14.sp, color: Colors.grey),  // Responsive font size
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(12.r),  // Responsive radius
                                 ),
                               ),
-                            ),
-                            SizedBox(height: 16.h),  // Responsive spacing
-                            GestureDetector(
-                              onTap: () {
-                                // Handle "Save Template" action
-                              },
-                              child: Container(
-                                height: 100.h,  // Responsive height
-                                width: double.infinity,  // Full width
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.shade50,
-                                  borderRadius: BorderRadius.circular(15.r),  // Responsive radius
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 6.0,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                padding: EdgeInsets.all(16.r),  // Responsive padding
-                                child: Row(
-                                  children: [
-                                    Image.asset(
-                                      'assets/icons/crown.png',
-                                      width: 50.w,  // Responsive width for crown icon
-                                      height: 50.h,  // Responsive height for crown icon
-                                    ),
-                                    SizedBox(width: 16.w),  // Responsive spacing
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Subscription',
-                                          style: TextStyle(fontSize: 16.sp),  // Responsive font size
-                                        ),
-                                        SizedBox(height: 4.h),  // Responsive spacing
-                                        Text(
-                                          'Unlock All Pro Template & Remove Ads',
-                                          style: TextStyle(fontSize: 14.sp, color: Colors.grey),  // Responsive font size
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                              SizedBox(width: 12.w),  // Responsive spacing
+                              Text(
+                                'Aj Hub Pro',
+                                style: TextStyle(
+                                  fontSize: 24.sp,  // Responsive font size
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
                                 ),
                               ),
+                            ],
+                          ),
+                          SizedBox(height: 20.h),  // Adjusted spacing for better alignment
+                          Center(
+                            child: Text(
+                              'Save this template or share it on social media!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18.sp,  // Responsive font size for cleaner text
+                                color: Colors.grey,
+                              ),
                             ),
-                          ],
-                        ),
-                        SizedBox(height: 20.h),  // Responsive spacing
-                      ],
+                          ),
+                          SizedBox(height: 20.h),  // Increased spacing for cleaner separation
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Download Image Option
+                              GestureDetector(
+                                onTap: () {
+                                  // Handle "Download Image" action
+                                },
+                                child: Container(
+                                  height: 70.h,  // Responsive height
+                                  width: double.infinity,  // Full width
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade50,
+                                    borderRadius: BorderRadius.circular(15.r),  // Responsive radius
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black26,
+                                        blurRadius: 6.0,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  padding: EdgeInsets.all(16.r),  // Responsive padding
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.download_rounded, size: 40.sp, color: Colors.green),  // Responsive icon size
+                                      SizedBox(width: 16.w),  // Responsive spacing
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Download Image',
+                                            style: TextStyle(
+                                              fontSize: 16.sp,  // Responsive font size
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          SizedBox(height: 3.h),  // Responsive spacing
+                                          Text(
+                                            'Save this template to your device',
+                                            style: TextStyle(
+                                              fontSize: 14.sp,  // Responsive font size
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 16.h),  // Responsive spacing
+                              // Share Option
+                              GestureDetector(
+                                onTap: () {
+                                  // Handle Share action
+                                  Share.share(
+                                    'Check out this template from Aj Hub Pro!',
+                                    subject: 'Aj Hub Pro Template',
+                                  );
+                                },
+                                child: Container(
+                                  height: 70.h,  // Responsive height
+                                  width: double.infinity,  // Full width
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue.shade50,
+                                    borderRadius: BorderRadius.circular(15.r),  // Responsive radius
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black26,
+                                        blurRadius: 6.0,
+                                        offset: Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  padding: EdgeInsets.all(16.r),  // Responsive padding
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.share_rounded, size: 40.sp, color: Colors.blue),  // Responsive icon size
+                                      SizedBox(width: 10.w),  // Responsive spacing
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Share Template',
+                                            style: TextStyle(
+                                              fontSize: 16.sp,  // Responsive font size
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          SizedBox(height: 3.h),  // Responsive spacing
+                                          Text(
+                                            'Share this template via social media',
+                                            style: TextStyle(
+                                              fontSize: 14.sp,  // Responsive font size
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20.h),  // Responsive spacing
+                        ],
+                      ),
                     ),
                   );
                 },
               );
             },
           ),
+
           SizedBox(width: 10.w),  // Responsive spacing
         ],
       ),
@@ -236,7 +255,7 @@ class CategorySelectedState extends State<CategorySelected> {
         children: [
           // Fixed Image with frame sliding applied
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.506,  // Responsive height for the main container
+            height: MediaQuery.of(context).size.height * 0.450,  // Responsive height for the main container
             width: MediaQuery.of(context).size.width,  // Full width to cover the screen
             child: Stack(
               alignment: Alignment.center,
