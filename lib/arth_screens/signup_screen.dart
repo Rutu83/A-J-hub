@@ -18,7 +18,8 @@ class SignUpScreen extends StatefulWidget {
 
 class SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-
+  bool _isPasswordVisible = false;  // Flag to toggle password visibility
+  bool _isConfirmPasswordVisible = false;  // Flag to toggle confirm password visibility
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -619,13 +620,14 @@ class SignUpScreenState extends State<SignUpScreen> {
                   SizedBox(height: 10.h),
                   _buildConfirmPasswordField(),
                   if (!_passwordsMatch)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16.0),
+                    Container(
+                      alignment: Alignment.centerLeft,
                       child: Text(
                         'Passwords do not match',
                         style: TextStyle(color: Colors.red.shade900, fontSize: 12.sp),
                       ),
                     ),
+
 
                   SizedBox(height: 10.h),
                   _buildAutoCompleteField('Select Sponsor', sponsors, (String selection) {
@@ -731,28 +733,45 @@ class SignUpScreenState extends State<SignUpScreen> {
                   },
                 );
               },
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: _isPhoneNumberValid ? Colors.grey.shade400 : Colors.red.shade900),
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      selectedCountryCode,
-                      style: GoogleFonts.roboto(
-                        textStyle: TextStyle(
-                          color: Colors.black,
-                          fontSize: 12.sp,
-                        ),
-                      ),
+              child: Column(
+                children: [
+
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: _isPhoneNumberValid ? Colors.grey.shade400 : Colors.red.shade900),
+                      borderRadius: BorderRadius.circular(10.r),
                     ),
-                    const Icon(Icons.arrow_drop_down, color: Colors.black),
-                  ],
-                ),
+                    child: Row(
+                      children: [
+                        Text(
+                          selectedCountryCode,
+                          style: GoogleFonts.roboto(
+                            textStyle: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12.sp,
+                            ),
+                          ),
+                        ),
+                        const Icon(Icons.arrow_drop_down, color: Colors.black),
+                      ],
+                    ),
+                  ),
+
+
+
+                  // Conditionally add padding or space if the phone number is invalid
+                  if (!_isPhoneNumberValid)
+                    Container(
+                      height: 29,
+                      width: 10,
+                   //  color: Colors.blue,
+                      // padding: EdgeInsets.only(bottom: 90.0),  // Add space at the bottom when error is shown
+                    ),
+                ],
               ),
+
             ),
                 const SizedBox(
                   width: 8,
@@ -813,14 +832,12 @@ class SignUpScreenState extends State<SignUpScreen> {
   Widget _buildPasswordField() {
     return TextFormField(
       controller: _passwordController,
-
+      obscureText: !_isPasswordVisible,  // Toggle visibility
       decoration: InputDecoration(
         labelText: 'Password',
         hintText: 'Enter your password',
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-        labelStyle: TextStyle(
-            color: _passwordsMatch ? Colors.black : Colors.red.shade900
-        ),
+        labelStyle: TextStyle(color: _passwordsMatch ? Colors.black : Colors.red.shade900),
         errorText: !_isPasswordValid ? 'Password must be at least 6 characters long' : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -833,12 +850,23 @@ class SignUpScreenState extends State<SignUpScreen> {
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: _isPasswordValid ? Colors.black : Colors.red.shade900),
         ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            color: Colors.grey,
+          ),
+          onPressed: () {
+            setState(() {
+              _isPasswordVisible = !_isPasswordVisible;  // Toggle visibility
+            });
+          },
+        ),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter your password';
         }
-        if (value.length < 6 && value.length > 12) {
+        if (value.length < 6) {
           return 'Password must be at least 6 characters long';
         }
         return null;
@@ -846,42 +874,38 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
+  // Confirm password field with eye icon
   Widget _buildConfirmPasswordField() {
     return TextFormField(
       controller: _confirmPasswordController,
-      obscureText: true, // For hiding password input
+      obscureText: !_isConfirmPasswordVisible,  // Toggle visibility
       decoration: InputDecoration(
         labelText: 'Confirm Password',
         hintText: 'Re-enter your password',
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-        labelStyle: TextStyle(
-          color: _passwordsMatch ? Colors.black : Colors.red.shade900
-        ),
+        labelStyle: TextStyle(color: _passwordsMatch ? Colors.black : Colors.red.shade900),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: _passwordsMatch ? Colors.grey : Colors.red.shade900, // Conditional border color
-          ),
+          borderSide: BorderSide(color: _passwordsMatch ? Colors.grey : Colors.red.shade900),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: _passwordsMatch ? Colors.grey : Colors.red.shade900, // Conditional border color when enabled
-          ),
+          borderSide: BorderSide(color: _passwordsMatch ? Colors.grey : Colors.red.shade900),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(
-            color: _passwordsMatch ? Colors.black : Colors.red.shade900, // Conditional border color when focused
+          borderSide: BorderSide(color: _passwordsMatch ? Colors.black : Colors.red.shade900),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            color: Colors.grey,
           ),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide:  BorderSide(color: Colors.red.shade900),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide:  BorderSide(color: Colors.red.shade900),
+          onPressed: () {
+            setState(() {
+              _isConfirmPasswordVisible = !_isConfirmPasswordVisible;  // Toggle visibility
+            });
+          },
         ),
       ),
       validator: (value) {
@@ -959,6 +983,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         labelText: 'Email',
         hintText: 'Enter Your Email',
         fillColor: Colors.white,
+        labelStyle: const TextStyle(color: Colors.black),
         filled: true,
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
         border: OutlineInputBorder(
@@ -1162,7 +1187,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
               value,
               style: GoogleFonts.roboto(
                 textStyle: TextStyle(
-                  color: _isGenderError ? Colors.red : Colors.black,
+                  color:  Colors.black,
                   fontSize: 14.sp,
                 ),
               ),

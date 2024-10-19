@@ -2,6 +2,7 @@
 
 import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
+import 'package:allinone_app/model/business_mode.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/change_password_screen.dart';
@@ -10,6 +11,7 @@ import 'package:allinone_app/screens/edit_profile.dart';
 import 'package:allinone_app/screens/help_support.dart';
 import 'package:allinone_app/screens/kyc_screen.dart';
 import 'package:allinone_app/screens/refer_earn.dart';
+import 'package:allinone_app/screens/team_member_list.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
@@ -38,6 +40,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   UniqueKey keyForStatus = UniqueKey();
   bool _isLoading = true;
   bool _imageLoadFailed = false;
+  Future<List<BusinessModal>>? futureBusiness;
+  BusinessModal? businessData;
+
 
   @override
   void initState() {
@@ -47,6 +52,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
       statusBarColor: Colors.transparent,
     ));
     fetchUserData();
+    futureBusiness = fetchBusinessData();
+  }
+
+
+  Future<List<BusinessModal>> fetchBusinessData() async {
+    try {
+      final data = await getBusinessData(businessmodal: []);
+      if (data.isNotEmpty) {
+        businessData = data.first; // Store the first item
+      }
+      return data;
+    } catch (e) {
+      throw Exception('Failed to load business data: $e');
+    }
   }
 
   void init() async {
@@ -336,6 +355,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         _buildMenuOption(Icons.person_outline, "My Profile"),
         _buildMenuOption(Icons.person_outline, "My Business"),
+        _buildMenuOption(Icons.list, "Business List"),
         _buildMenuOption(Icons.contact_mail_outlined, "Contact Us"),
         _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.ajhub.co.in/term-condition'),
         _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
@@ -381,7 +401,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
               context,
               MaterialPageRoute(builder: (context) => const EditProfile()),
             );
-          } else if (label == "My Business") {
+          } else if (label == "Business List") {
+            if (businessData != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TeamMemberList(userData: businessData!.business?.levelDownline),
+                ),
+              );
+            }
+          }  else if (label == "My Business") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const BusinessList(businessName: '', ownerName: '', mobileNumber: '', email: '', address: '', selectedCategory: '', state: '',)),

@@ -42,12 +42,7 @@ class _ContactUsState extends State<ContactUs> {
           //  buildImage('assets/images/contact_us.jpg'),
             buildTitle(),
             buildContactField(),
-            const SizedBox(
-              height: 20,
-            ),
-            const Text('OR'),
 
-            buildButton(),
           ],
         ),
       ),
@@ -157,13 +152,9 @@ class _ContactUsState extends State<ContactUs> {
   Widget buildContactField() {
     return Column(
       children: [
+
         buildContactContainer(
-          iconPath: 'assets/images/call.png',
-          contactInfo: '1111111111',
-          onTap: () => _launchUrl('tel:1111111111'), // Opens phone dialer
-        ),
-        buildContactContainer(
-          iconPath: 'assets/images/whatsapp.png',
+          iconPath: 'assets/icons/whatsapp.png',
           contactInfo: '8787878787',
           onTap: () => _launchUrl('https://wa.me/8787878787'), // Opens WhatsApp
         ),
