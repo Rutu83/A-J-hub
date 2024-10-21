@@ -27,13 +27,16 @@ class SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _searchStateController = TextEditingController();
+  final TextEditingController _searchCityController = TextEditingController();
+
+  List<dynamic> filteredCountries = [];
+  List<dynamic> filteredStates = [];
+  List<dynamic> filteredCities = [];
   bool isLocationError = false;
   bool _isPhoneNumberValid = true;
   bool _isPasswordValid = true;
-
-
   bool _isEmailValid = true;  // Email validation flag
-
   String selectedGender = 'Select Gender';
   String? selectedCountry;
   String? selectedState;
@@ -45,7 +48,6 @@ class SignUpScreenState extends State<SignUpScreen> {
   String selectedCountryCode = '+91';
   String selectedDropdown1 = 'Select Sponsor';
   String selectedDropdown2 = 'Select Your Parent';
-
   bool _isLoading = false;
   List<String> sponsors = [];
   List<String> parents = [];
@@ -53,17 +55,23 @@ class SignUpScreenState extends State<SignUpScreen> {
   bool _isLoadingStates = false;
   bool _isLoadingCities = false;
   bool _isGenderError = false;
+
   @override
   void initState() {
     super.initState();
-    fetchDropdownData(); // Call the API when the screen initializes
+    fetchDropdownData();
     fetchCountries();
+
+    // Initialize filtered lists to the complete list
+    filteredStates = states;
+    filteredCities = cities;
 
     _passwordController.addListener(_checkPasswords);
     _confirmPasswordController.addListener(_checkPasswords);
     _phoneController.addListener(_validatePhoneNumber);
     _emailController.addListener(_validateEmail);
   }
+
 
 
   void _showCountrySelectionSheet() {
@@ -90,11 +98,9 @@ class SignUpScreenState extends State<SignUpScreen> {
               ),
               child: Column(
                 children: [
-
                   const SizedBox(
                     height: 20,
                   ),
-
                   Container(
                     height: 6,
                     width: 50,
@@ -106,8 +112,6 @@ class SignUpScreenState extends State<SignUpScreen> {
                   const SizedBox(
                     height: 10,
                   ),
-                  // Title for the bottom sheet
-
                   Container(
                     alignment: Alignment.centerLeft,
                     child:   Padding(
@@ -163,95 +167,39 @@ class SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
+    // Reset the filteredStates list to show all states initially
+    setState(() {
+      filteredStates = states;
+    });
+
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Allows full-screen scrolling behavior
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30.0), // Set top-left corner radius
-          topRight: Radius.circular(30.0), // Set top-right corner radius
+          topLeft: Radius.circular(30.0),
+          topRight: Radius.circular(30.0),
         ),
       ),
       builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          expand: false, // Prevents expanding to full screen on its own
-          builder: (context, scrollController) {
-            return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white, // Set background color to white
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0), // Ensure top-left corner is rounded
-                  topRight: Radius.circular(30.0), // Ensure top-right corner is rounded
-                ),
-              ),
-              child: Column(
-                children: [
-
-                  const SizedBox(
-                    height: 20,
-                  ),
-
-                  Container(
-                    height: 6,
-                    width: 50,
-                    decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(12)
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  // Title for the bottom sheet
-
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    child:   Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Select State',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-
-
-                  Expanded(
-                    child: ListView.separated(
-                      controller: scrollController, // Attach the scroll controller
-                      itemCount: states.length,
-                      itemBuilder: (context, index) {
-                        final state = states[index];
-                        return ListTile(
-                          title: Text(state['name']),
-                          onTap: () {
-                            setState(() {
-                              selectedState = state['name'];
-                            });
-                            fetchCities(state['id'].toString()); // Fetch cities based on state selection
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                      separatorBuilder: (context, index) {
-                        return const Divider( // Horizontal line between items
-                          thickness: 1,
-                          color: Colors.grey,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
+        return _buildSearchableModalSheet(
+          'Select State',
+          _searchStateController,
+          filteredStates, // Use the filtered list for the UI
+              (state) {
+            setState(() {
+              selectedState = state['name'];
+            });
+            fetchCities(state['id'].toString());
+            Navigator.pop(context);
           },
         );
       },
     );
   }
+
+
+
 
   void _showCitySelectionSheet() {
     if (selectedState == null) {
@@ -261,88 +209,30 @@ class SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
+    // Reset the filteredCities list to show all cities initially
+    setState(() {
+      filteredCities = cities;
+    });
+
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Allows full-screen scrolling behavior
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30.0), // Set top-left corner radius
-          topRight: Radius.circular(30.0), // Set top-right corner radius
+          topLeft: Radius.circular(30.0),
+          topRight: Radius.circular(30.0),
         ),
       ),
       builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          expand: false, // Prevents expanding to full screen on its own
-          builder: (context, scrollController) {
-            return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white, // Set background color to white
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0), // Ensure top-left corner is rounded
-                  topRight: Radius.circular(30.0), // Ensure top-right corner is rounded
-                ),
-              ),
-              child: Column(
-                children: [
-
-                  const SizedBox(
-                    height: 20,
-                  ),
-
-                  Container(
-                    height: 6,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.circular(12)
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  // Title for the bottom sheet
-
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    child:   Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Select City',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  Expanded(
-                    child: ListView.separated(
-                      controller: scrollController, // Attach the scroll controller
-                      itemCount: cities.length,
-                      itemBuilder: (context, index) {
-                        final city = cities[index];
-                        return ListTile(
-                          title: Text(city['name']),
-                          onTap: () {
-                            setState(() {
-                              selectedCity = city['name'];
-                            });
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                      separatorBuilder: (context, index) {
-                        return const Divider( // Horizontal line between items
-                          thickness: 1,
-                          color: Colors.grey,
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
+        return _buildSearchableModalSheet(
+          'Select City',
+          _searchCityController,
+          filteredCities, // Use the filtered list for the UI
+              (city) {
+            setState(() {
+              selectedCity = city['name'];
+            });
+            Navigator.pop(context);
           },
         );
       },
@@ -352,6 +242,88 @@ class SignUpScreenState extends State<SignUpScreen> {
 
 
 
+  Widget _buildSearchableModalSheet(String title, TextEditingController searchController, List<dynamic> filteredItems, Function(dynamic) onSelect) {
+    return DraggableScrollableSheet(
+      expand: false,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30.0),
+              topRight: Radius.circular(30.0),
+            ),
+          ),
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              Container(
+                height: 6,
+                width: 50,
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search $title',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    // Update the filtered list based on the search input
+                    setState(() {
+                      filteredItems = filteredItems
+                          .where((item) => item['name']
+                          .toLowerCase()
+                          .contains(value.toLowerCase()))
+                          .toList();
+                    });
+                  },
+                ),
+              ),
+              Expanded(
+                child: ListView.separated(
+                  controller: scrollController,
+                  itemCount: filteredItems.length,
+                  itemBuilder: (context, index) {
+                    final item = filteredItems[index];
+                    return ListTile(
+                      title: Text(item['name']),
+                      onTap: () => onSelect(item),
+                    );
+                  },
+                  separatorBuilder: (context, index) {
+                    return const Divider(
+                      thickness: 1,
+                      color: Colors.grey,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   // Real-time email validation
   void _validateEmail() {
@@ -398,81 +370,69 @@ class SignUpScreenState extends State<SignUpScreen> {
     final phoneRegExp = RegExp(r'^\+?\d{10,15}$'); // Simple phone number validation (adjust as needed)
     return phoneRegExp.hasMatch(phoneNumber);
   }
-  Future<void> fetchCountries() async {
+  void fetchCountries() async {
     setState(() {
       _isLoadingCountries = true;
     });
-
     try {
       final response = await http.get(Uri.parse('https://ajhub.co.in/api/get-country'));
       if (response.statusCode == 200) {
         setState(() {
           countries = json.decode(response.body);
+          filteredCountries = countries;
           _isLoadingCountries = false;
         });
-      } else {
-        print(response.statusCode);
-        print(response.body);
       }
     } catch (e) {
-      print(e);
       setState(() {
         _isLoadingCountries = false;
       });
     }
   }
 
-  Future<void> fetchStates(String countryId) async {
-
+  void fetchStates(String countryId) async {
     setState(() {
       _isLoadingStates = true;
     });
-
     try {
       final response = await http.get(Uri.parse('https://ajhub.co.in/get-states-regby-country/$countryId'));
       if (response.statusCode == 200) {
+
+        print(response.body);
         setState(() {
-          states = json.decode(response.body);
-          cities = [];
-          selectedState = null;
-          selectedCity = null;
+          states = json.decode(response.body);  // Update the original states list
+          filteredStates = states;  // Also update the filtered states list to match the new data
           _isLoadingStates = false;
         });
-      } else {
-        print(response.statusCode);
-        print(response.body);
       }
     } catch (e) {
-      print(e);
       setState(() {
         _isLoadingStates = false;
       });
     }
   }
 
-  Future<void> fetchCities(String stateId) async {
+
+  void fetchCities(String stateId) async {
     setState(() {
       _isLoadingCities = true;
     });
-
     try {
       final response = await http.get(Uri.parse('https://ajhub.co.in/get-districts-regby-state/$stateId'));
       if (response.statusCode == 200) {
         setState(() {
-          cities = json.decode(response.body);
-          selectedCity = null;
+          cities = json.decode(response.body);  // Update the original cities list
+          filteredCities = cities;  // Also update the filtered cities list to match the new data
           _isLoadingCities = false;
         });
-      } else {
-        throw Exception('Failed to load cities');
       }
     } catch (e) {
-      print(e);
       setState(() {
         _isLoadingCities = false;
       });
     }
   }
+
 
   Future<void> fetchDropdownData() async {
     final response = await http.get(Uri.parse('https://ajhub.co.in/search-user'));
@@ -588,19 +548,12 @@ class SignUpScreenState extends State<SignUpScreen> {
                   ),
                   SizedBox(height: 10.h),
                   _buildTextField('First Name', 'Enter First Name', true, _firstNameController),
-
-
                   SizedBox(height: 10.h),
                   _buildEmailField(),
                   SizedBox(height: 10.h),
                   _buildPhoneNumberField(),
                   SizedBox(height: 10.h),
-                  _buildDropdownField(
-                      'Gender',
-                      selectedGender,
-                      _selectGender,
-                      true
-                  ),
+                  _buildDropdownField('Gender', selectedGender, _selectGender, true),
                   SizedBox(height: 10.h),
                   _buildDateOfBirthField(),
                   SizedBox(height: 10.h),
@@ -614,7 +567,6 @@ class SignUpScreenState extends State<SignUpScreen> {
                   SizedBox(height: 10.h),
                   if (_isLoadingCities) const CircularProgressIndicator(),
                   _buildCityField(),
-
                   SizedBox(height: 10.h),
                   _buildPasswordField(),
                   SizedBox(height: 10.h),
@@ -714,7 +666,6 @@ class SignUpScreenState extends State<SignUpScreen> {
     return age;
   }
 
-  // Phone number input field with real-time validation
   Widget _buildPhoneNumberField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -758,16 +709,10 @@ class SignUpScreenState extends State<SignUpScreen> {
                       ],
                     ),
                   ),
-
-
-
-                  // Conditionally add padding or space if the phone number is invalid
                   if (!_isPhoneNumberValid)
-                    Container(
+                    const SizedBox(
                       height: 29,
                       width: 10,
-                   //  color: Colors.blue,
-                      // padding: EdgeInsets.only(bottom: 90.0),  // Add space at the bottom when error is shown
                     ),
                 ],
               ),
@@ -828,7 +773,6 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-
   Widget _buildPasswordField() {
     return TextFormField(
       controller: _passwordController,
@@ -874,7 +818,6 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  // Confirm password field with eye icon
   Widget _buildConfirmPasswordField() {
     return TextFormField(
       controller: _confirmPasswordController,
@@ -919,11 +862,6 @@ class SignUpScreenState extends State<SignUpScreen> {
       },
     );
   }
-
-
-
-
-
 
 Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller,
       {bool isMultiline = false, bool enabled = true, TextInputType keyboardType = TextInputType.text}) {
@@ -973,8 +911,6 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
     );
   }
 
-
-
   Widget _buildEmailField() {
     return TextFormField(
       controller: _emailController,
@@ -1016,10 +952,6 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
     );
   }
 
-
-
-
-
   Widget _buildCountryField() {
     return GestureDetector(
       onTap: () => _showCountrySelectionSheet(),
@@ -1053,7 +985,6 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
       ),
     );
   }
-
 
   Widget _buildStateField() {
     return GestureDetector(
@@ -1089,7 +1020,6 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
     );
   }
 
-
   Widget _buildCityField() {
     return GestureDetector(
       onTap: () => _showCitySelectionSheet(),
@@ -1123,8 +1053,6 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
       ),
     );
   }
-
-
 
   Widget _buildAutoCompleteField(String label, List<String> items, Function(String) onSelected) {
     return Autocomplete<String>(
@@ -1235,7 +1163,6 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
     );
   }
 
-
   String? validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your email';
@@ -1248,4 +1175,6 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
     return null;
   }
 }
+
+
 

@@ -111,6 +111,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
         surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
         titleSpacing: 7.w,
+        centerTitle: true,
         title: Text(
           'Category',
           style: GoogleFonts.roboto(
