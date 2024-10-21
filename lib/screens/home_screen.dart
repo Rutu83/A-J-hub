@@ -1,6 +1,5 @@
 import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
-import 'package:allinone_app/screens/charity_screen.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -210,61 +209,61 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
 
-  Widget _buildButtons() {
-    return Card(
-      color: Colors.white,
-      elevation: 6,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      margin: const EdgeInsets.all(12),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildButtonColumn(Icons.person_add, 'Invite Friend'),
-            _buildButtonColumn(Icons.card_giftcard, 'Membership'),
-            _buildButtonColumn(Icons.info_outline, 'System Intro...'),
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CharityPage(),
-                  ),
-                );
-              },
-              child: _buildButtonColumn(Icons.business_sharp, 'Charity'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildButtons() {
+  //   return Card(
+  //     color: Colors.white,
+  //     elevation: 6,
+  //     shape: RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.circular(12),
+  //     ),
+  //     margin: const EdgeInsets.all(12),
+  //     child: Container(
+  //       padding: const EdgeInsets.all(12),
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //         children: [
+  //           _buildButtonColumn(Icons.person_add, 'Invite Friend'),
+  //           _buildButtonColumn(Icons.card_giftcard, 'Membership'),
+  //           _buildButtonColumn(Icons.info_outline, 'System Intro...'),
+  //           InkWell(
+  //             onTap: () {
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                   builder: (context) => const CharityPage(),
+  //                 ),
+  //               );
+  //             },
+  //             child: _buildButtonColumn(Icons.business_sharp, 'Charity'),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _buildButtonColumn(IconData icon, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          height: 40.h, // Use a consistent height
-          width: 40.h,  // Set width equal to height
-          decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(20.h), // Half of the height (20.h)
-          ),
-          child: Center( // Center the icon within the circle
-            child: Icon(icon, color: Colors.white),
-          ),
-        ),
-
-
-        const SizedBox(height: 8),
-        Text(label),
-      ],
-    );
-  }
+  // Widget _buildButtonColumn(IconData icon, String label) {
+  //   return Column(
+  //     mainAxisSize: MainAxisSize.min,
+  //     children: [
+  //       Container(
+  //         height: 40.h, // Use a consistent height
+  //         width: 40.h,  // Set width equal to height
+  //         decoration: BoxDecoration(
+  //           color: Colors.red,
+  //           borderRadius: BorderRadius.circular(20.h), // Half of the height (20.h)
+  //         ),
+  //         child: Center( // Center the icon within the circle
+  //           child: Icon(icon, color: Colors.white),
+  //         ),
+  //       ),
+  //
+  //
+  //       const SizedBox(height: 8),
+  //       Text(label),
+  //     ],
+  //   );
+  // }
 
   // Single Card Layout Method with Optional Title
   Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {

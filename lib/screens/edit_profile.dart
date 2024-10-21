@@ -141,7 +141,7 @@ class _EditProfileState extends State<EditProfile> {
               children: [
 
                 Image.asset(
-                  'assets/images/aj3.jpg',
+                  'assets/images/app_logo2.png',
                   height: 130.h,
                   width: 130.h,
                 ),
@@ -190,7 +190,7 @@ class _EditProfileState extends State<EditProfile> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
+                  child: const Text('Update', style: TextStyle(color: Colors.white)),
                 ),
               ],
             ),

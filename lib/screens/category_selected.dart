@@ -269,7 +269,7 @@ class CategorySelectedState extends State<CategorySelected> {
                   bottom: 0,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8.r),  // Responsive border radius for the main image
-                    child: Container(
+                    child: SizedBox(
                       height: MediaQuery.of(context).size.height * 0.53,  // Responsive height of the image
                       width: MediaQuery.of(context).size.width - 10.w,  // Responsive width with positioning adjustment
                       child: _buildImage(widget.imagePaths[selectedIndex]),  // Main image

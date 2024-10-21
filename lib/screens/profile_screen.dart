@@ -118,6 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
         titleSpacing: 7.w,
+        centerTitle: true,
         title: Text(
           'Profile',
           style: GoogleFonts.roboto(
@@ -364,9 +365,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.receipt_long_rounded, "Our Product & Service",'https://www.google.co.in/'),
         _buildMenuOption(Icons.local_police_outlined, "Refund & Policy",'https://www.ajhub.co.in/refund-policy'),
         _buildMenuOption(Icons.money, "Refer & Earn"),
-        _buildMenuOption(Icons.delete_outline, "Delete Account"),
         _buildMenuOption(Icons.lock_outline, "Change Password"),
         _buildMenuOption(Icons.login, "Logout"),
+        _buildMenuOption(Icons.delete_outline, "Delete Account"),
       ],
     );
   }
