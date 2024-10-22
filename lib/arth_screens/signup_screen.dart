@@ -206,6 +206,8 @@ class SignUpScreenState extends State<SignUpScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a state first')),
       );
+
+
       return;
     }
 

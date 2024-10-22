@@ -1,8 +1,10 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class CategorySelectionScreen extends StatelessWidget {
+class CategorySelectionScreen extends StatefulWidget {
   final List<String> categories;
   final Function(String) onCategorySelected;
 
@@ -15,11 +17,22 @@ class CategorySelectionScreen extends StatelessWidget {
     'Education': 'assets/icons/school.png',
     'Real Estate': 'assets/icons/house.png',
   };
+
   CategorySelectionScreen({
     super.key,
     required this.categories,
     required this.onCategorySelected,
   });
+
+  @override
+  _CategorySelectionScreenState createState() => _CategorySelectionScreenState();
+}
+
+class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +57,9 @@ class CategorySelectionScreen extends StatelessWidget {
         ],
       ),
       body: ListView.builder(
-        itemCount: categories.length,
+        itemCount: widget.categories.length,
         itemBuilder: (context, index) {
-          String category = categories[index];
+          String category = widget.categories[index];
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Padding for each item
             child: Container(
@@ -65,7 +78,7 @@ class CategorySelectionScreen extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8), // Border radius for rectangular image
                     child: Image.asset(
-                      categoryImages[category] ?? 'assets/images/placeholder.png', // Default image fallback
+                      widget.categoryImages[category] ?? 'assets/images/placeholder.png', // Default image fallback
                       width: 40, // Width of the image
                       height: 40, // Height of the image
                       fit: BoxFit.cover, // Fit the image to cover the space
@@ -75,7 +88,10 @@ class CategorySelectionScreen extends StatelessWidget {
                 ),
                 title: Text(category),
                 onTap: () {
-                  onCategorySelected(category);
+                  // Check if the widget is still mounted before calling the callback
+                  if (mounted) {
+                    widget.onCategorySelected(category); // Call the callback safely
+                  }
                   Navigator.pop(context); // Return to the previous screen
                 },
               ),

@@ -414,7 +414,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }  else if (label == "My Business") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const BusinessList(businessName: '', ownerName: '', mobileNumber: '', email: '', address: '', selectedCategory: '', state: '',)),
+              MaterialPageRoute(builder: (context) => const BusinessList()),
             );
           } else if (label == "Refer & Earn") {
             Navigator.push(

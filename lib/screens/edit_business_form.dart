@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/main.dart';
+import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_selection_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +13,16 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 
-class BusinessForm extends StatefulWidget {
-  const BusinessForm({super.key});
+class EditBusinessForm extends StatefulWidget {
+  final dynamic business; // Added to hold business data
+
+  const EditBusinessForm({super.key, required this.business});
 
   @override
-  State<BusinessForm> createState() => _BusinessFormState();
+  State<EditBusinessForm> createState() => _EditBusinessFormState();
 }
 
-class _BusinessFormState extends State<BusinessForm> {
+class _EditBusinessFormState extends State<EditBusinessForm> {
   File? _image;  // Variable to store the image
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _businessNameController = TextEditingController();
@@ -154,77 +157,6 @@ class _BusinessFormState extends State<BusinessForm> {
 
 
 
-  Future<void> _submitBusinessProfile() async {
-    if (_formKey.currentState?.validate() == true) {
-      try {
-        // Create a multipart request
-        var request = http.MultipartRequest(
-          'POST',
-          Uri.parse('https://ajhub.co.in/api/businessprofile'),
-        );
-
-        // Add headers including the token
-        request.headers.addAll({
-          'Content-Type': 'multipart/form-data',
-          'Authorization': 'Bearer ${appStore.token}', // Add your token here
-        });
-
-        // Add fields
-        request.fields['business_name'] = _businessNameController.text;
-        request.fields['owner_name'] = _ownerNameController.text.isNotEmpty
-            ? _ownerNameController.text
-            : 'Owner Name'; // Optional
-        request.fields['mobile_number'] = _mobileNumberController.text;
-        request.fields['email'] = _emailController.text.isNotEmpty
-            ? _emailController.text
-            : ''; // Optional
-        request.fields['website'] = _websiteController.text.isNotEmpty
-            ? _websiteController.text
-            : ''; // Optional
-        request.fields['address'] = _addressController.text;
-        request.fields['category_id'] = '4'; // Example category ID
-        request.fields['state_id'] = selectedState ?? '';
-
-        // Add image if selected
-        if (_image != null) {
-          var imageBytes = await _image!.readAsBytes();
-          var imageFile = http.MultipartFile.fromBytes(
-            'logo',
-            imageBytes,
-            filename: _image!.path.split('/').last,
-            contentType: MediaType('image', 'jpeg'), // Set appropriate image type
-          );
-          request.files.add(imageFile);
-        }
-
-        // Send request
-        var response = await request.send();
-
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          // Successfully submitted
-          if (kDebugMode) {
-            print('Business profile submitted successfully!');
-          }
-        } else {
-          if (kDebugMode) {
-            print('Failed: ${response.statusCode}');
-          }
-          if (kDebugMode) {
-            print(await response.stream.bytesToString());
-          } // Print error response
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error: $e');
-        }
-      }
-    }
-  }
-
-
-
-
-
 
 
 
@@ -251,7 +183,70 @@ class _BusinessFormState extends State<BusinessForm> {
   void initState() {
     super.initState();
     fetchStates();
+
+    // Initialize the text controllers with business data
+    _businessNameController.text = widget.business['business_name'] ?? '';
+    _ownerNameController.text = widget.business['owner_name'] ?? '';
+    _mobileNumberController.text = widget.business['mobile_number'] ?? '';
+    _emailController.text = widget.business['email'] ?? '';
+    _websiteController.text = widget.business['website'] ?? '';
+    _addressController.text = widget.business['address'] ?? '';
+
+
   }
+
+
+
+
+  Future<void> _updateBusinessProfile() async {
+    final String token = appStore.token; // Retrieve your token from appStore
+    final String apiUrl = 'https://ajhub.co.in/api/update/businessprofile/${widget.business['id']}'; // Assuming 'id' is the business ID
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'business_name': _businessNameController.text,
+          'owner_name': _ownerNameController.text,
+          'mobile_number': _mobileNumberController.text,
+          'email': _emailController.text,
+          'website': _websiteController.text,
+          'address': _addressController.text,
+          'state_id': selectedState,
+          // Include additional fields as necessary
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        // Handle successful response
+        if (kDebugMode) {
+          print('Profile updated successfully: ${response.body}');
+        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const BusinessList()),
+        );
+
+      } else {
+        // Handle error response
+        if (kDebugMode) {
+          print('Failed to update profile: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
+        // Optionally show an error message to the user
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating profile: $e');
+      }
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -490,45 +485,23 @@ class _BusinessFormState extends State<BusinessForm> {
                     color: Colors.grey.withOpacity(0.2),
                     spreadRadius: 3,
                     blurRadius: 5,
-                    offset: const Offset(0, -3),
+                    offset:  Offset(0, -3),
                   ),
                 ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Clear Button
-                  Expanded(
-                    child: SizedBox(
-                      height: 50.h, // Ensure both buttons have the same height
-                      child: OutlinedButton(
-                        onPressed: _clearForm, // Define this function to clear the form fields
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.red),
-                        ),
-                        child: Text(
-                          'Clear',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 16.w), // Space between buttons
-
-                  // Submit Button
                   Expanded(
                     child: SizedBox(
                       height: 50.h, // Ensure both buttons have the same height
                       child: ElevatedButton(
-                        onPressed: _submitBusinessProfile, // Define this function to handle form submission
+                        onPressed: _updateBusinessProfile, // Define this function to handle form submission
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red, // Button background color
                         ),
                         child: Text(
-                          'Submit',
+                          'Edit',
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: Colors.white,
