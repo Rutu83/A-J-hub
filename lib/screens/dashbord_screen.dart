@@ -64,7 +64,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                     width: 70.w, // Adjusted size
                     decoration: BoxDecoration(
                       color: Colors.red,
-                      borderRadius: BorderRadius.circular(50.r),
+                      borderRadius: BorderRadius.circular(90.r),
                     ),
                     child: ClipOval(
                       child: Image.asset(
