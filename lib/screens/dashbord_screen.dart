@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:allinone_app/screens/business_screen.dart';
 import 'package:allinone_app/screens/customer_screen.dart';
 import 'package:allinone_app/screens/home_screen.dart';
 import 'package:allinone_app/screens/oportunity.dart';
 import 'package:allinone_app/screens/profile_screen.dart';
-import 'package:allinone_app/screens/business_screen.dart'; // Import the new screen
-import 'package:flutter/material.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -18,71 +19,74 @@ class DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        children: const [
-          HomeScreen(),
-          CustomerScreen(),
-          OportunityScreen(),
-          ProfileScreen(),
-          BusinessScreen(), // Add the new screen here
-        ],
-      ),
-      bottomSheet: Container(
-        color: Colors.white,
-        child: Stack(
-          children: [
-            Container(
-              color: Colors.white,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center, // Center items with less space between
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      _buildMenuItem(Icons.home, "Home", 0),
-                      _buildMenuItem(Icons.business, "Category", 1),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedIndex = 4; // Update to navigate to the new screen
-                          });
-                          _pageController.jumpToPage(4); // Navigate to the new screen
-                        },
-                        child: Container(
-                          height: 80,
-                          width: 80,
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              'assets/images/aj2.jpg',
-                              height: 80,
-                              width: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ),
-                      _buildMenuItem(Icons.card_giftcard, "Opportunity", 2),
-                      _buildMenuItem(Icons.account_circle, "Account", 3),
-                    ],
-                  ),
-
-                ],
-              ),
-            ),
+    return SafeArea(
+      child: Scaffold(
+        body: PageView(
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          children: const [
+            HomeScreen(),
+            CustomerScreen(),
+            OportunityScreen(),
+            ProfileScreen(),
+            BusinessScreen(), // Add the new screen here
           ],
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Container(
+            padding: EdgeInsets.only(bottom: 8.h), // Added padding to prevent overflow
+            color: Colors.white,
+            child: Row(
+              // Removed 'spaceEvenly' to manually control space
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // No space between Home and Category
+                _buildMenuItem(Icons.home, "Home", 0),
+                SizedBox(width: 20.w), // Adjust this value to control the space
+                _buildMenuItem(Icons.business, "Category", 1),
+
+                // Add space here between Category and Account
+                SizedBox(width: 20.w), // Adjust this value to control the space
+
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = 4;
+                    });
+                    _pageController.jumpToPage(4);
+                  },
+                  child: Container(
+                    height: 70.h,
+                    width: 70.w, // Adjusted size
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(50.r),
+                    ),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/aj2.jpg',
+                        height: 70.h,
+                        width: 70.w,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Add space here between Opportunity and Account
+                SizedBox(width: 20.w), // Adjust this value to control the space
+
+                _buildMenuItem(Icons.card_giftcard, "Opportunity", 2),
+                SizedBox(width: 20.w), // Adjust this value to control the space
+                _buildMenuItem(Icons.account_circle, "Account", 3),  // Account tab
+
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -98,20 +102,20 @@ class DashboardScreenState extends State<DashboardScreen> {
         _pageController.jumpToPage(index);
       },
       child: SizedBox(
-        width: 80, // Set a consistent width for all items
-        height: 100, // Set a consistent height for all items
+        height: 50.h, // Adjusted size to ensure proper display
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              size: 30,
+              size: 28.sp, // Adjust size with ScreenUtil
               color: _selectedIndex == index ? Colors.red : Colors.grey,
             ),
-            const SizedBox(height: 5),
+            SizedBox(height: 4.h), // Adjust with ScreenUtil
             Text(
               label,
               style: TextStyle(
+                fontSize: 10.sp, // Adjust font size with ScreenUtil
                 color: _selectedIndex == index ? Colors.red : Colors.black,
               ),
             ),

@@ -177,7 +177,13 @@ class KycScreenState extends State<KycScreen> {
         Row(
           children: [
             if (label == 'Upload Pan Card')
-              _buildKYCUploadBox('Front Page', frontImageUrl, onFrontImagePicked),
+
+              Container(
+                margin: const EdgeInsets.only(left: 40),
+                alignment: Alignment.centerLeft,
+                child: _buildKYCUploadBox('Front Page', frontImageUrl, onFrontImagePicked),
+              )
+              ,
             if (label == 'Upload Aadhar Card') ...[
               _buildKYCUploadBox('Front Page', frontImageUrl, onFrontImagePicked),
               _buildKYCUploadBox('Back Page', backImageUrl, (file) {}),

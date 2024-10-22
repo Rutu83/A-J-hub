@@ -362,7 +362,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
         _buildMenuOption(Icons.privacy_tip_outlined, "Privacy Policy", 'https://www.ajhub.co.in/policy'),
         _buildMenuOption(Icons.help_center_outlined, "Help & Support"),
-        _buildMenuOption(Icons.receipt_long_rounded, "Our Product & Service",'https://www.google.co.in/'),
+        // _buildMenuOption(Icons.receipt_long_rounded, "Our Product & Service",'https://www.google.co.in/'),
         _buildMenuOption(Icons.local_police_outlined, "Refund & Policy",'https://www.ajhub.co.in/refund-policy'),
         _buildMenuOption(Icons.money, "Refer & Earn"),
         _buildMenuOption(Icons.lock_outline, "Change Password"),
@@ -431,7 +431,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               context,
               MaterialPageRoute(builder: (context) => const HelpSupport()),
             );
-          }else if (label == "Change Password") {
+          }
+          else if (label == "Change Password") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ChangePasswordPage()),

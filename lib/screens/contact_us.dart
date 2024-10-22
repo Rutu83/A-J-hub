@@ -71,7 +71,7 @@ class ContactUs extends StatelessWidget {
   Widget buildContactField() {
     return Column(
       children: [
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
         buildContactContainer(
@@ -79,7 +79,7 @@ class ContactUs extends StatelessWidget {
           contactInfo: '99258 50305',
           onTap: () => _launchUrl('https://wa.me/99258 50305'),
         ),
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
         buildContactContainer(
