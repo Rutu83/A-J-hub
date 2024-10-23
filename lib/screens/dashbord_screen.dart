@@ -33,24 +33,20 @@ class DashboardScreenState extends State<DashboardScreen> {
             CustomerScreen(),
             OportunityScreen(),
             ProfileScreen(),
-            BusinessScreen(), // Add the new screen here
+            BusinessScreen(),
           ],
         ),
         bottomNavigationBar: SafeArea(
           child: Container(
-            padding: EdgeInsets.only(bottom: 8.h), // Added padding to prevent overflow
+            padding: EdgeInsets.only(bottom: 8.h),
             color: Colors.white,
             child: Row(
-              // Removed 'spaceEvenly' to manually control space
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // No space between Home and Category
                 _buildMenuItem(Icons.home, "Home", 0),
-                SizedBox(width: 20.w), // Adjust this value to control the space
+                SizedBox(width: 20.w),
                 _buildMenuItem(Icons.business, "Category", 1),
-
-                // Add space here between Category and Account
-                SizedBox(width: 20.w), // Adjust this value to control the space
+                SizedBox(width: 20.w),
 
                 GestureDetector(
                   onTap: () {
@@ -61,27 +57,24 @@ class DashboardScreenState extends State<DashboardScreen> {
                   },
                   child: Container(
                     height: 70.h,
-                    width: 70.w, // Adjusted size
+                    width: 70.h,
                     decoration: BoxDecoration(
                       color: Colors.red,
-                      borderRadius: BorderRadius.circular(90.r),
+                      borderRadius: BorderRadius.circular(35.h),
                     ),
                     child: ClipOval(
                       child: Image.asset(
                         'assets/images/aj2.jpg',
                         height: 70.h,
-                        width: 70.w,
+                        width: 70.h,
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                 ),
-
-                // Add space here between Opportunity and Account
-                SizedBox(width: 20.w), // Adjust this value to control the space
+                SizedBox(width: 20.w),
 
                 _buildMenuItem(Icons.card_giftcard, "Opportunity", 2),
-                SizedBox(width: 20.w), // Adjust this value to control the space
                 _buildMenuItem(Icons.account_circle, "Account", 3),  // Account tab
 
               ],
@@ -92,7 +85,8 @@ class DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  // Build Menu Item Widget
+
+
   Widget _buildMenuItem(IconData icon, String label, int index) {
     return GestureDetector(
       onTap: () {

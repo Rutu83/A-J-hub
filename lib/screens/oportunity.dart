@@ -22,6 +22,10 @@ class _OportunityScreenState extends State<OportunityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen width and height using MediaQuery
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       appBar: AppBar(
         forceMaterialTransparency: true,
@@ -29,7 +33,7 @@ class _OportunityScreenState extends State<OportunityScreen> {
         backgroundColor: Colors.white,
         titleSpacing: 7.w,
         centerTitle: true,
-        title:Text(
+        title: Text(
           'Oportunity',
           style: TextStyle(
             fontSize: 20.0.sp,
@@ -40,27 +44,25 @@ class _OportunityScreenState extends State<OportunityScreen> {
       ),
       body: Column(
         children: [
-          const SizedBox(
-            height: 10,
-          ),
           CarouselSlider(
             options: CarouselOptions(
-              height: 750.0,
+              height: screenHeight * 0.75, // Increased height to cover 85% of the screen
               autoPlay: true,
               enlargeCenterPage: true,
               enableInfiniteScroll: true,
-              viewportFraction: 0.95, // Set to 1.0 to remove space on the sides
+              viewportFraction: 0.95, // Almost full-width, slightly narrower for better visibility
             ),
             items: images.map((imagePath) {
               return Builder(
                 builder: (BuildContext context) {
                   return Container(
-                    width: MediaQuery.of(context).size.width,
+                    width: screenWidth * 0.95, // 95% of the screen width
+                    margin: EdgeInsets.symmetric(horizontal: 5.w),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.0),
+                      borderRadius: BorderRadius.circular(15.0),
                       image: DecorationImage(
                         image: AssetImage(imagePath),
-                        fit: BoxFit.fill,
+                        fit: BoxFit.contain, // Adjusts image to cover the container fully
                       ),
                     ),
                   );

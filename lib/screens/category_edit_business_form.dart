@@ -10,18 +10,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class EditBusinessForm extends StatefulWidget {
-  final dynamic business; // Added to hold business data
-
-  const EditBusinessForm({super.key, required this.business});
+class CategoryEditBusinessForm extends StatefulWidget {
+  const CategoryEditBusinessForm({super.key});
 
   @override
-  State<EditBusinessForm> createState() => _EditBusinessFormState();
+  State<CategoryEditBusinessForm> createState() => _CategoryEditBusinessFormState();
 }
 
-class _EditBusinessFormState extends State<EditBusinessForm> {
-  File? _image;  // Variable to store the image
+class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
+  File? _image; // Variable to store the image
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _ownerNameController = TextEditingController();
@@ -40,7 +39,16 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
   String? selectedState;
   List<dynamic> states = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String? _selectedCategory; // Variable to store selected business category
 
+  @override
+  void initState() {
+    super.initState();
+    fetchStates();
+    fetchBusinessData(); // Fetch the business data based on stored ID
+  }
+
+  // Fetch States
   Future<void> fetchStates() async {
     try {
       final response = await http.get(Uri.parse('https://ajhub.co.in/get-states-regby-country/1'));
@@ -52,8 +60,6 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
       } else {
         if (kDebugMode) {
           print(response.statusCode);
-        }
-        if (kDebugMode) {
           print(response.body);
         }
       }
@@ -64,26 +70,65 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
     }
   }
 
-  ImageProvider _getCategoryImage(String category) {
-    switch (category) {
-      case 'Retail':
-        return const AssetImage('assets/icons/retail.png');
-      case 'Food & Beverage':
-        return const AssetImage('assets/icons/restaurant.png');
-      case 'Technology':
-        return const AssetImage('assets/icons/project-management.png');
-      case 'Healthcare':
-        return const AssetImage('assets/icons/healthcare.png');
-      case 'Education':
-        return const AssetImage('assets/icons/school.png');
-      case 'Real Estate':
-        return const AssetImage('assets/icons/house.png');
-      default:
-        return const AssetImage('assets/images/placeholder.jpg');
-    }
+
+
+  // Fetch stored business ID
+  Future<int?> getStoredBusinessID() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('selected_business_id');
   }
 
-  String? _selectedCategory;  // Variable to store selected business category
+  Future<void> fetchBusinessData() async {
+    int? businessID = await getStoredBusinessID();
+    String? token = appStore.token; // Fetch token
+
+    final String apiUrl = 'https://ajhub.co.in/api/getbusinessprofile/$businessID';
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        List<dynamic> businesses = responseData['data'];
+
+        if (businesses.isNotEmpty) {
+          // Here, I'm using the first business from the list. You can modify to select a specific one.
+          final businessData = businesses[0];
+
+          setState(() {
+            _businessNameController.text = businessData['business_name'];
+            _ownerNameController.text = businessData['owner_name'];
+            _mobileNumberController.text = businessData['mobile_number'];
+            _emailController.text = businessData['email'];
+            _websiteController.text = businessData['website'];
+            _addressController.text = businessData['address'];
+            selectedState = businessData['state']['id'].toString(); // Fetch state name if needed
+            _selectedCategory = businessData['category']['name']; // Set the category name
+          });
+        } else {
+          if (kDebugMode) {
+            print('No businesses found');
+          }
+        }
+      } else {
+        if (kDebugMode) {
+          print('Failed to fetch business data: ${response.statusCode}');
+          print('Response: ${response.body}');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching business data: $e');
+      }
+    }
+    }
+
 
   // Method to pick image from gallery
   Future<void> _pickImageFromGallery() async {
@@ -130,16 +175,16 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                 leading: const Icon(Icons.photo_library),
                 title: const Text('Gallery'),
                 onTap: () {
-                  Navigator.pop(context);  // Close the bottom sheet
-                  _pickImageFromGallery();  // Open gallery
+                  Navigator.pop(context); // Close the bottom sheet
+                  _pickImageFromGallery(); // Open gallery
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('Camera'),
                 onTap: () {
-                  Navigator.pop(context);  // Close the bottom sheet
-                  _pickImageFromCamera();  // Open camera
+                  Navigator.pop(context); // Close the bottom sheet
+                  _pickImageFromCamera(); // Open camera
                 },
               ),
             ],
@@ -149,97 +194,42 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
     );
   }
 
-
-
-
-
-
-
-
-
-
-
-
   // Navigate to the category selection screen
   void _navigateToCategorySelection() async {
-  await Navigator.pushReplacement(
+    await Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-          builder: (context) => CategorySelectionScreen(
-            categories: _businessCategories,
-            onCategorySelected: (category) {
-              setState(() {
-                _selectedCategory = category;
-              });
-            },
-          )
+        builder: (context) => CategorySelectionScreen(
+          categories: _businessCategories,
+          onCategorySelected: (category) {
+            setState(() {
+              _selectedCategory = category;
+            });
+          },
+        ),
       ),
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    fetchStates();
-
-    // Initialize the text controllers with business data
-    _businessNameController.text = widget.business['business_name'] ?? '';
-    _ownerNameController.text = widget.business['owner_name'] ?? '';
-    _mobileNumberController.text = widget.business['mobile_number'] ?? '';
-    _emailController.text = widget.business['email'] ?? '';
-    _websiteController.text = widget.business['website'] ?? '';
-    _addressController.text = widget.business['address'] ?? '';
-
-
-  }
-
-
-
-
-  Future<void> _updateBusinessProfile() async {
-    final String token = appStore.token; // Retrieve your token from appStore
-    final String apiUrl = 'https://ajhub.co.in/api/update/businessprofile/${widget.business['id']}'; // Assuming 'id' is the business ID
-
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode({
-          'business_name': _businessNameController.text,
-          'owner_name': _ownerNameController.text,
-          'mobile_number': _mobileNumberController.text,
-          'email': _emailController.text,
-          'website': _websiteController.text,
-          'address': _addressController.text,
-          'state_id': selectedState,
-          // Include additional fields as necessary
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        if (kDebugMode) {
-          print('Profile updated successfully: ${response.body}');
-        }
-        // Pass true as the result to indicate success
-        Navigator.pop(context, true);
-      } else {
-        if (kDebugMode) {
-          print('Failed to update profile: ${response.statusCode}');
-          print('Response body: ${response.body}');
-        }
-      }
-
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error updating profile: $e');
-      }
+  // Get category image based on the selected category
+  ImageProvider _getCategoryImage(String category) {
+    switch (category) {
+      case 'Retail':
+        return const AssetImage('assets/icons/retail.png');
+      case 'Food & Beverage':
+        return const AssetImage('assets/icons/restaurant.png');
+      case 'Technology':
+        return const AssetImage('assets/icons/project-management.png');
+      case 'Healthcare':
+        return const AssetImage('assets/icons/healthcare.png');
+      case 'Education':
+        return const AssetImage('assets/icons/school.png');
+      case 'Real Estate':
+        return const AssetImage('assets/icons/house.png');
+      default:
+        return const AssetImage('assets/images/placeholder.jpg');
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -247,9 +237,9 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: const Text('Add Business Detail'),
+        title: const Text('Business Detail'),
       ),
-      body: Stack(  // Using Stack to position the bottom sheet
+      body: Stack(
         children: [
           // Main Content: Form fields
           SingleChildScrollView(
@@ -259,7 +249,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  buildLabel('Select Your Business Logo'),
+                  buildLabel('Business Logo'),
                   InkWell(
                     onTap: () {
                       _showImageSourceActionSheet(context);
@@ -324,9 +314,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                       ),
                     ),
                   ),
-
                   SizedBox(height: 16.h),
-
                   buildLabel('Business Category (Optional)'),
                   InkWell(
                     onTap: () {
@@ -378,21 +366,13 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                       ),
                     ),
                   ),
-
                   SizedBox(height: 16.h),
                   buildLabel('Business Name', isRequired: true),
                   _buildTextFormField(
                     controller: _businessNameController,
                     hintText: 'Enter your business name',
                     icon: Icons.business,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your business name';
-                      }
-                      return null;
-                    },
                   ),
-
                   SizedBox(height: 16.h),
                   buildLabel('Owner Name'),
                   _buildTextFormField(
@@ -400,7 +380,6 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                     hintText: 'Enter owner name',
                     icon: Icons.person,
                   ),
-
                   SizedBox(height: 16.h),
                   buildLabel('Mobile Number', isRequired: true),
                   _buildTextFormField(
@@ -408,17 +387,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                     hintText: 'Enter mobile number',
                     icon: Icons.phone,
                     keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your mobile number';
-                      }
-                      if (value.length != 10) {
-                        return 'Please enter a valid 10-digit mobile number';
-                      }
-                      return null;
-                    },
                   ),
-
                   SizedBox(height: 16.h),
                   buildLabel('Email Id'),
                   _buildTextFormField(
@@ -426,17 +395,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                     hintText: 'Enter email ID',
                     icon: Icons.email,
                     keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value != null && value.isNotEmpty) {
-                        final emailRegex = RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
-                        if (!emailRegex.hasMatch(value)) {
-                          return 'Please enter a valid email ID';
-                        }
-                      }
-                      return null;
-                    },
                   ),
-
                   SizedBox(height: 16.h),
                   buildLabel('Website Name'),
                   _buildTextFormField(
@@ -445,17 +404,15 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                     icon: Icons.web,
                     keyboardType: TextInputType.url,
                   ),
-
                   SizedBox(height: 16.h),
                   buildLabel('Address'),
                   _buildTextFormField(
                     controller: _addressController,
                     hintText: 'Enter address',
                     icon: Icons.location_on,
-                    maxLines: 3,  // Max 3 lines
-                    minLines: 1,  // Start with 1 line
+                    maxLines: 3,
+                    minLines: 1,
                   ),
-
                   SizedBox(height: 16.h),
                   buildLabel('State', isRequired: true),
                   _buildStateDropdown(),
@@ -463,64 +420,19 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
               ),
             ),
           ),
-
-          // Fixed Bottom Sheet with Clear and Submit Buttons
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 3,
-                    blurRadius: 5,
-                    offset:  const Offset(0, -3),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 50.h, // Ensure both buttons have the same height
-                      child: ElevatedButton(
-                        onPressed: _updateBusinessProfile, // Define this function to handle form submission
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red, // Button background color
-                        ),
-                        child: Text(
-                          'Edit',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
         ],
       ),
     );
   }
 
+  // Build a text form field
   Widget _buildTextFormField({
     required TextEditingController controller,
     required String hintText,
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
-    int minLines = 1, // Add minLines for the initial line count
-    String? Function(String?)? validator,
+    int minLines = 1,
   }) {
     return TextFormField(
       controller: controller,
@@ -546,22 +458,12 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
         ),
       ),
       keyboardType: keyboardType,
-      minLines: minLines,  // Show one line initially
-      maxLines: maxLines,  // Expand up to 3 lines when needed
-      validator: validator,
+      minLines: minLines,
+      maxLines: maxLines,
     );
   }
 
-
-  // void _clearForm() {
-  //   setState(() {
-  //     _image = null;
-  //     _selectedCategory = null;
-  //     selectedState = null;
-  //     _formKey.currentState?.reset();  // Reset form fields
-  //   });
-  // }
-
+  // Build state dropdown
   Widget _buildStateDropdown() {
     return InkWell(
       onTap: () {
@@ -608,7 +510,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
     );
   }
 
-
+// Show state selection sheet
   void _showStateSelectionSheet() {
     showModalBottomSheet(
       context: context,
@@ -668,7 +570,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
     );
   }
 
-
+// Build a label with optional required indicator
   Widget buildLabel(String label, {bool isRequired = false}) {
     return RichText(
       text: TextSpan(
@@ -692,4 +594,6 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
       ),
     );
   }
+
 }
+

@@ -1,8 +1,18 @@
-import 'package:allinone_app/screens/business_form.dart';
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
+
+import 'dart:io';
+
+import 'package:allinone_app/screens/category_edit_business_form.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:dio/dio.dart'; // For downloading images
+import 'package:path_provider/path_provider.dart'; // For file storage paths
+import 'package:permission_handler/permission_handler.dart'; // For permissions
 import 'package:share_plus/share_plus.dart';
+import 'package:path/path.dart' as path; // For manipulating file paths
+import 'package:flutter/services.dart';
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -14,14 +24,15 @@ class CategorySelected extends StatefulWidget {
 }
 
 class CategorySelectedState extends State<CategorySelected> {
-  int selectedIndex = 0;  // Fixed image index
-  int selectedFrameIndex = 0;  // Index for sliding frames
+  int selectedIndex = 0; // Index for selected image
+  int selectedFrameIndex = 0; // Index for sliding frames
+  bool isDownloading = false; // Flag to manage download state
 
   // Define the available frames
   final List<String> framePaths = [
-    'assets/images/fram1.png',  // Add frame1
+    'assets/images/fram1.png', // Add frame1
     'assets/images/fram2.png',
-    '/mnt/data/Yw7AIu5jct7REjp5Q2V5q2z2.png',  // Other frame image path
+    '/mnt/data/Yw7AIu5jct7REjp5Q2V5q2z2.png', // Other frame image path
   ];
 
   @override
@@ -36,11 +47,11 @@ class CategorySelectedState extends State<CategorySelected> {
           'Select Frame',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 18.sp,  // Responsive font size
+            fontSize: 18.sp, // Responsive font size
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.sp),  // Responsive icon size
+          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.sp), // Responsive icon size
           onPressed: () {
             Navigator.pop(context);
           },
@@ -49,15 +60,15 @@ class CategorySelectedState extends State<CategorySelected> {
           IconButton(
             icon: Image.asset(
               'assets/icons/editing.png',
-              width: 30.w,  // Responsive width
-              height: 30.h,  // Responsive height
+              width: 25.w, // Responsive width
+              height: 25.h, // Responsive height
               color: Colors.black,
             ),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>  BusinessForm(), // Open BusinessForm
+                  builder: (context) => const CategoryEditBusinessForm(), // Open BusinessForm
                 ),
               );
             },
@@ -65,230 +76,64 @@ class CategorySelectedState extends State<CategorySelected> {
           IconButton(
             icon: Image.asset(
               'assets/icons/download.png',
-              width: 35.w,  // Responsive width
-              height: 35.h,  // Responsive height
+              width: 30.w, // Responsive width
+              height: 30.h, // Responsive height
               color: Colors.black,
             ),
             onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)),  // Responsive radius
-                ),
-                backgroundColor: Colors.white,
-                builder: (BuildContext context) {
-                  return SingleChildScrollView(  // Wrap Column with SingleChildScrollView
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),  // Responsive padding
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Center(
-                            child: Container(
-                              height: 6.h,  // Responsive height
-                              width: 40.w,  // Responsive width
-                              decoration: BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.circular(22.r),  // Responsive radius
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 20.h),  // Increased spacing for cleaner layout
-                          Row(
-                            children: [
-                              Container(
-                                height: 30.h,  // Responsive height
-                                width: 4.w,  // Responsive width
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(12.r),  // Responsive radius
-                                ),
-                              ),
-                              SizedBox(width: 12.w),  // Responsive spacing
-                              Text(
-                                'Aj Hub Pro',
-                                style: TextStyle(
-                                  fontSize: 24.sp,  // Responsive font size
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 20.h),  // Adjusted spacing for better alignment
-                          Center(
-                            child: Text(
-                              'Save this template or share it on social media!',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 18.sp,  // Responsive font size for cleaner text
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 20.h),  // Increased spacing for cleaner separation
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Download Image Option
-                              GestureDetector(
-                                onTap: () {
-                                  // Handle "Download Image" action
-                                },
-                                child: Container(
-                                  height: 70.h,  // Responsive height
-                                  width: double.infinity,  // Full width
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.shade50,
-                                    borderRadius: BorderRadius.circular(15.r),  // Responsive radius
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Colors.black26,
-                                        blurRadius: 6.0,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  padding: EdgeInsets.all(16.r),  // Responsive padding
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.download_rounded, size: 40.sp, color: Colors.green),  // Responsive icon size
-                                      SizedBox(width: 16.w),  // Responsive spacing
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Download Image',
-                                            style: TextStyle(
-                                              fontSize: 16.sp,  // Responsive font size
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          SizedBox(height: 3.h),  // Responsive spacing
-                                          Text(
-                                            'Save this template to your device',
-                                            style: TextStyle(
-                                              fontSize: 14.sp,  // Responsive font size
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 16.h),  // Responsive spacing
-                              // Share Option
-                              GestureDetector(
-                                onTap: () {
-                                  // Handle Share action
-                                  Share.share(
-                                    'Check out this template from Aj Hub Pro!',
-                                    subject: 'Aj Hub Pro Template',
-                                  );
-                                },
-                                child: Container(
-                                  height: 70.h,  // Responsive height
-                                  width: double.infinity,  // Full width
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.shade50,
-                                    borderRadius: BorderRadius.circular(15.r),  // Responsive radius
-                                    boxShadow: const [
-                                      BoxShadow(
-                                        color: Colors.black26,
-                                        blurRadius: 6.0,
-                                        offset: Offset(0, 2),
-                                      ),
-                                    ],
-                                  ),
-                                  padding: EdgeInsets.all(16.r),  // Responsive padding
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.share_rounded, size: 40.sp, color: Colors.blue),  // Responsive icon size
-                                      SizedBox(width: 10.w),  // Responsive spacing
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Share Template',
-                                            style: TextStyle(
-                                              fontSize: 16.sp,  // Responsive font size
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          SizedBox(height: 3.h),  // Responsive spacing
-                                          Text(
-                                            'Share this template via social media',
-                                            style: TextStyle(
-                                              fontSize: 14.sp,  // Responsive font size
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 20.h),  // Responsive spacing
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
+              _downloadImage(widget.imagePaths[selectedIndex]);
+            },
+          ),
+          IconButton(
+            icon: Image.asset(
+              'assets/icons/share.png',
+              width: 22.w, // Responsive width
+              height: 22.h, // Responsive height
+              color: Colors.black,
+            ),
+            onPressed: () {
+              _shareImage(widget.imagePaths[selectedIndex]);
             },
           ),
 
-          SizedBox(width: 10.w),  // Responsive spacing
+          const SizedBox(
+            width: 10,
+          )
         ],
       ),
       body: Column(
         children: [
           // Fixed Image with frame sliding applied
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.450,  // Responsive height for the main container
-            width: MediaQuery.of(context).size.width,  // Full width to cover the screen
+            height: MediaQuery.of(context).size.height * 0.45, // Responsive height for the main container
+            width: MediaQuery.of(context).size.width, // Full width to cover the screen
             child: Stack(
               alignment: Alignment.center,
               children: [
-
                 // Main image container with Positioned
                 Positioned(
-                  left: 5.w,  // Responsive left positioning
-                  right: 5.w,  // Responsive right positioning
+                  left: 5.w, // Responsive left positioning
+                  right: 5.w, // Responsive right positioning
                   top: 0,
                   bottom: 0,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r),  // Responsive border radius for the main image
-                    child: SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.53,  // Responsive height of the image
-                      width: MediaQuery.of(context).size.width - 10.w,  // Responsive width with positioning adjustment
-                      child: _buildImage(widget.imagePaths[selectedIndex]),  // Main image
-                    ),
+                    borderRadius: BorderRadius.circular(8.r), // Responsive border radius for the main image
+                    child: _buildImage(widget.imagePaths[selectedIndex]), // Main image
                   ),
                 ),
                 // Frame overlay (selected frame)
                 Positioned(
-                  left: 5.w,  // Match left position with main image
-                  right: 5.w,  // Match right position with main image
+                  left: 5.w, // Match left position with main image
+                  right: 5.w, // Match right position with main image
                   top: 0,
                   bottom: 0,
                   child: CarouselSlider.builder(
                     itemCount: framePaths.length,
                     options: CarouselOptions(
-                      height: MediaQuery.of(context).size.height * 0.54,  // Match the height of the main image
+                      height: MediaQuery.of(context).size.height * 0.54, // Match the height of the main image
                       enableInfiniteScroll: false,
                       enlargeCenterPage: false,
-                      viewportFraction: 1.0,  // Show only one frame at a time
+                      viewportFraction: 1.0, // Show only one frame at a time
                       onPageChanged: (index, reason) {
                         setState(() {
                           selectedFrameIndex = index;
@@ -301,8 +146,8 @@ class CategorySelectedState extends State<CategorySelected> {
                         child: Image.asset(
                           framePaths[index],
                           fit: BoxFit.fitWidth,
-                          width: MediaQuery.of(context).size.width - 10.w,  // Ensure frame width matches the main image
-                          height: MediaQuery.of(context).size.height * 0.54,  // Ensure frame height matches the main image
+                          width: MediaQuery.of(context).size.width - 10.w, // Ensure frame width matches the main image
+                          height: MediaQuery.of(context).size.height * 0.54, // Ensure frame height matches the main image
                         ),
                       );
                     },
@@ -320,9 +165,9 @@ class CategorySelectedState extends State<CategorySelected> {
                   selectedFrameIndex = entry.key;
                 }),
                 child: Container(
-                  width: 12.w,  // Responsive size for dots
-                  height: 12.h,  // Responsive size for dots
-                  margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),  // Responsive margins
+                  width: 12.w, // Responsive size for dots
+                  height: 12.h, // Responsive size for dots
+                  margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w), // Responsive margins
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: selectedFrameIndex == entry.key ? Colors.red : Colors.grey,
@@ -331,16 +176,16 @@ class CategorySelectedState extends State<CategorySelected> {
               );
             }).toList(),
           ),
-          SizedBox(height: 8.h),  // Responsive spacing
+          SizedBox(height: 8.h), // Responsive spacing
 
-          // Image Grid for selecting different images (if needed)
+          // Image Grid for selecting different images
           Expanded(
             child: GridView.builder(
-              padding: EdgeInsets.all(8.r),  // Responsive padding
+              padding: EdgeInsets.all(8.r), // Responsive padding
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                crossAxisSpacing: 12.w,  // Responsive spacing
-                mainAxisSpacing: 12.h,  // Responsive spacing
+                crossAxisSpacing: 12.w, // Responsive spacing
+                mainAxisSpacing: 12.h, // Responsive spacing
               ),
               itemCount: widget.imagePaths.length,
               itemBuilder: (context, index) {
@@ -355,7 +200,7 @@ class CategorySelectedState extends State<CategorySelected> {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.r),  // Responsive border radius
+                          borderRadius: BorderRadius.circular(15.r), // Responsive border radius
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
@@ -365,18 +210,18 @@ class CategorySelectedState extends State<CategorySelected> {
                           ],
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(22.r),  // Responsive border radius
+                          borderRadius: BorderRadius.circular(22.r), // Responsive border radius
                           child: _buildImage(widget.imagePaths[index]),
                         ),
                       ),
                       if (selectedIndex == index)
                         Positioned(
-                          bottom: 5.h,  // Responsive position for check icon
+                          bottom: 5.h, // Responsive position for check icon
                           right: 5.w,
                           child: Icon(
                             Icons.check_circle_rounded,
                             color: Colors.red,
-                            size: 28.sp,  // Responsive icon size
+                            size: 28.sp, // Responsive icon size
                           ),
                         ),
                     ],
@@ -385,7 +230,7 @@ class CategorySelectedState extends State<CategorySelected> {
               },
             ),
           ),
-          SizedBox(height: 8.h),  // Responsive spacing
+          SizedBox(height: 8.h), // Responsive spacing
         ],
       ),
     );
@@ -413,6 +258,86 @@ class CategorySelectedState extends State<CategorySelected> {
           return const Center(child: Icon(Icons.error)); // Fallback for errors
         },
       );
+    }
+  }
+
+  // Request storage permissions before downloading
+  Future<void> _checkStoragePermission() async {
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
+    }
+  }
+
+  // Function to download image and save it to the Pictures directory
+  Future<void> _downloadImage(String imageUrl) async {
+    try {
+      await _checkStoragePermission(); // Ensure storage permission is granted
+
+      setState(() {
+        isDownloading = true;
+      });
+
+      Dio dio = Dio();
+      var dir = await getExternalStorageDirectory();
+      String fileName = imageUrl.split('/').last;
+      String savePath = path.join(dir!.path, 'Pictures', fileName);
+
+      await dio.download(imageUrl, savePath);
+
+      setState(() {
+        isDownloading = false;
+      });
+
+      // Trigger the gallery to refresh and show the new image
+      await _refreshGallery(savePath);
+
+      if (kDebugMode) {
+        print(savePath);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Image downloaded to $savePath'),
+      ));
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      setState(() {
+        isDownloading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to download image: $e'),
+      ));
+    }
+  }
+
+  // Function to refresh the gallery after saving an image
+  Future<void> _refreshGallery(String filePath) async {
+    final result = await File(filePath).create(recursive: true);
+    await result.setLastModified(DateTime.now());
+    const channel = MethodChannel('com.allinonemarketing.allinone_app/gallery');
+    await channel.invokeMethod('refreshGallery', {'filePath': filePath});
+  }
+
+  // Function to share image
+  Future<void> _shareImage(String imagePath) async {
+    try {
+      // If it's a remote URL, download the image first
+      if (imagePath.startsWith('http')) {
+        var dir = await getTemporaryDirectory();
+        String fileName = imagePath.split('/').last;
+        String savePath = "${dir.path}/$fileName";
+        await Dio().download(imagePath, savePath);
+        imagePath = savePath; // Update the path to the local downloaded image
+      }
+
+      // Share the image using XFile
+      XFile xFile = XFile(imagePath);
+      Share.shareXFiles([xFile], text: 'Check out this image!');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to share image: $e'),
+      ));
     }
   }
 }
