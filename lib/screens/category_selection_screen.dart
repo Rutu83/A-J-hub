@@ -1,26 +1,14 @@
-// ignore_for_file: library_private_types_in_public_api
-
+import 'package:allinone_app/main.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CategorySelectionScreen extends StatefulWidget {
-  final List<String> categories;
-  final Function(String) onCategorySelected;
+  final Function(String, String) onCategorySelected;  // Pass category ID and name
 
-  // Dummy category images for demonstration
-  final Map<String, String> categoryImages = {
-    'Retail': 'assets/icons/retail.png', // Example path for asset images
-    'Food & Beverage': 'assets/icons/restaurant.png',
-    'Technology': 'assets/icons/project-management.png',
-    'Healthcare': 'assets/icons/healthcare.png',
-    'Education': 'assets/icons/school.png',
-    'Real Estate': 'assets/icons/house.png',
-  };
-
-  CategorySelectionScreen({
+  const CategorySelectionScreen({
     super.key,
-    required this.categories,
     required this.onCategorySelected,
   });
 
@@ -29,9 +17,56 @@ class CategorySelectionScreen extends StatefulWidget {
 }
 
 class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
+  List<Map<String, String>> categories = [];  // List to store category name and ID
+  bool isLoading = true;
+
+  final Map<String, String> categoryImages = {
+    'Retail': 'assets/icons/retail.png',
+    'Food & Beverage': 'assets/icons/restaurant.png',
+    'Technology': 'assets/icons/project-management.png',
+    'Healthcare': 'assets/icons/healthcare.png',
+    'Education': 'assets/icons/school.png',
+    'Real Estate': 'assets/icons/house.png',
+  };
+
   @override
-  void dispose() {
-    super.dispose();
+  void initState() {
+    super.initState();
+    fetchCategories();
+  }
+
+  Future<void> fetchCategories() async {
+    const String url = 'https://ajhub.co.in/api/business-categories';
+    String token = appStore.token;  // Replace with your actual token
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          categories = data.map((category) {
+            return {
+              'id': category['id'].toString(),
+              'name': category['name'].toString(),
+            };
+          }).toList();
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load categories');
+      }
+    } catch (error) {
+      print('Error fetching categories: $error');
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -44,55 +79,53 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
           Text(
             'Skip',
             style: GoogleFonts.poppins(
-              fontSize: 14.sp,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Colors.red,
             ),
           ),
-          const Icon(
-            Icons.arrow_forward_rounded,
-            color: Colors.red,
-          ),
+          const Icon(Icons.arrow_forward_rounded, color: Colors.red),
           const SizedBox(width: 10),
         ],
       ),
-      body: ListView.builder(
-        itemCount: widget.categories.length,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.builder(
+        itemCount: categories.length,
         itemBuilder: (context, index) {
-          String category = widget.categories[index];
+          String category = categories[index]['name']!;
+          String categoryId = categories[index]['id']!;
+
           return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0), // Padding for each item
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12), // Rounded corners
-                border: Border.all(color: Colors.grey.shade300, width: 1), // Border color and thickness
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300, width: 1),
               ),
               child: ListTile(
-                contentPadding: const EdgeInsets.all(6), // Padding inside ListTile
+                contentPadding: const EdgeInsets.all(6),
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.red.shade50, // Background color for the icon
-                    borderRadius: BorderRadius.circular(8), // Border radius for the icon background
+                    color: Colors.red.shade50,
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8), // Border radius for rectangular image
+                    borderRadius: BorderRadius.circular(8),
                     child: Image.asset(
-                      widget.categoryImages[category] ?? 'assets/images/placeholder.png', // Default image fallback
-                      width: 40, // Width of the image
-                      height: 40, // Height of the image
-                      fit: BoxFit.cover, // Fit the image to cover the space
+                      categoryImages[category] ?? 'assets/images/placeholder.jpg',
+                      width: 40,
+                      height: 40,
+                      fit: BoxFit.cover,
                       color: Colors.red,
                     ),
                   ),
                 ),
                 title: Text(category),
                 onTap: () {
-                  // Check if the widget is still mounted before calling the callback
-                  if (mounted) {
-                    widget.onCategorySelected(category); // Call the callback safely
-                  }
-                  Navigator.pop(context); // Return to the previous screen
+                  widget.onCategorySelected(categoryId, category);  // Pass ID and name
+                  Navigator.pop(context);
                 },
               ),
             ),

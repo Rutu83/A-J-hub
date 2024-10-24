@@ -158,21 +158,20 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
 
 
 
+  String? _selectedCategoryId;  // Store the selected category ID
 
-
-  // Navigate to the category selection screen
   void _navigateToCategorySelection() async {
-  await Navigator.pushReplacement(
+    await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => CategorySelectionScreen(
-            categories: _businessCategories,
-            onCategorySelected: (category) {
-              setState(() {
-                _selectedCategory = category;
-              });
-            },
-          )
+        builder: (context) => CategorySelectionScreen(
+          onCategorySelected: (String categoryId, String categoryName) {
+            setState(() {
+              _selectedCategoryId = categoryId;
+              _selectedCategory = categoryName;
+            });
+          },
+        ),
       ),
     );
   }
@@ -182,6 +181,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
     super.initState();
     fetchStates();
 
+
     // Initialize the text controllers with business data
     _businessNameController.text = widget.business['business_name'] ?? '';
     _ownerNameController.text = widget.business['owner_name'] ?? '';
@@ -190,7 +190,10 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
     _websiteController.text = widget.business['website'] ?? '';
     _addressController.text = widget.business['address'] ?? '';
 
+    _selectedCategory = widget.business['category_name'];
+    _selectedCategoryId = widget.business['category_id'].toString();
 
+    print(_selectedCategory);
   }
 
 
@@ -215,6 +218,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
           'website': _websiteController.text,
           'address': _addressController.text,
           'state_id': selectedState,
+          'category_id': _selectedCategoryId,
           // Include additional fields as necessary
         }),
       );

@@ -37,7 +37,7 @@ class BusinessListState extends State<BusinessList> {
       selectedBusiness = prefs.getInt('selected_business_id'); // Load stored ID
     });
     if (kDebugMode) {
-      print('Loaded stored business ID: $selectedBusiness');
+    //  print('Loaded stored business ID: $selectedBusiness');
     }
   }
 
@@ -46,7 +46,7 @@ class BusinessListState extends State<BusinessList> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt('selected_business_id', id); // Store the ID
     if (kDebugMode) {
-      print('Stored business ID: $id');
+     // print('Stored business ID: $id');
     }
   }
 
@@ -68,16 +68,16 @@ class BusinessListState extends State<BusinessList> {
           businessData = json.decode(response.body)['data'];
           isLoading = false;
         });
-        if (kDebugMode) {
-          print('Response body: ${response.body}');
-          print('Business data loaded successfully.');
-        }
+      // if (kDebugMode) {
+        //  print('Response body: ${response.body}');
+        //  print('Business data loaded successfully.');
+      //  }
       } else {
         _handleErrorResponse(response);
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching business data: $e');
+     //   print('Error fetching business data: $e');
       }
       setState(() {
         isLoading = false;
@@ -87,8 +87,8 @@ class BusinessListState extends State<BusinessList> {
 
   void _handleErrorResponse(http.Response response) {
     if (kDebugMode) {
-      print('Failed to load business data: ${response.statusCode}');
-      print('Response body: ${response.body}');
+   //   print('Failed to load business data: ${response.statusCode}');
+   //   print('Response body: ${response.body}');
     }
     setState(() {
       isLoading = false;
@@ -121,6 +121,7 @@ class BusinessListState extends State<BusinessList> {
       },
     );
   }
+
   Future<void> _deleteBusinessProfile(String businessId) async {
     final String apiUrl = 'https://ajhub.co.in/api/delete/business-profile/$businessId';
     String token = appStore.token; // Ensure token is correct
@@ -138,17 +139,65 @@ class BusinessListState extends State<BusinessList> {
         // Successfully deleted, refresh the list
         fetchBusinessData();
         if (kDebugMode) {
-          print('Business profile with ID $businessId deleted successfully.');
+       //   print('Business profile with ID $businessId deleted successfully.');
         }
       } else {
         _handleErrorResponse(response); // Handle response errors
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error deleting business profile: $e');
+      //  print('Error deleting business profile: $e');
       }
     }
   }
+
+
+
+  Future<void> updateBusinessStatus(int businessId) async {
+    final String apiUrl = 'https://ajhub.co.in/api/status/business-profile/$businessId';
+    String token = appStore.token; // Ensure token is not null
+
+    if (token.isEmpty) {
+      if (kDebugMode) {
+        print('Error: Token is missing or invalid.');
+      }
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Business status updated successfully for ID: $businessId');
+        }
+      } else {
+        if (kDebugMode) {
+          print('Error: ${response.statusCode}');
+        }
+        if (kDebugMode) {
+          print('Response body: ${response.body}');
+        }
+        _handleErrorResponse(response); // Handle the error response
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating business status: $e');
+      }
+    }
+  }
+
+  // void _handleErrorResponse(http.Response response) {
+  //   // Customize this function to handle specific error scenarios
+  //   final decodedBody = jsonDecode(response.body);
+  //   print('Error details: ${decodedBody['message']}'); // Adjust as per API response
+  // }
 
 
 
@@ -163,39 +212,39 @@ class BusinessListState extends State<BusinessList> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
         children: [
-
-            Expanded(
-              child: businessData.isEmpty
-                      ? _buildNoDataAvailable()
-                      : ListView.builder(
-                          itemCount: businessData.length,
-                          itemBuilder: (context, index) {
-                            final business = businessData[index];
-                            return BusinessCard(
-                              business: business,
-                              selectedBusiness: selectedBusiness, // Pass selected business ID
-                              onRadioChanged: (int? value) {
-                                if (value != null) {
-                                  setState(() {
-                                    selectedBusiness = value; // Update selected business ID
-                                    storeBusinessID(value); // Store ID in SharedPreferences
-                                    if (kDebugMode) {
-                                      print('Selected Business ID: $value');
-                                    }
-                                  });
-                          }
-                        },
-                        onUpdate: fetchBusinessData, // Pass the fetchBusinessData method
-                        onDelete: () => _confirmDelete(business['id'].toString()), // Add onDelete callback here
-                  );
-                },
-              )
-
-
+          Expanded(
+            child: businessData.isEmpty
+                ? _buildNoDataAvailable()
+                : ListView.builder(
+              itemCount: businessData.length,
+              itemBuilder: (context, index) {
+                final business = businessData[index];
+                return BusinessCard(
+                  business: business,
+                  selectedBusiness: selectedBusiness, // Pass selected business ID
+                  onRadioChanged: (int? value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedBusiness = value; // Update selected business ID
+                        storeBusinessID(value);   // Store ID in SharedPreferences
+                        updateBusinessStatus(value); // Call the API to update the business status
+                        if (kDebugMode) {
+                          print('Selected Business ID: $value');
+                        }
+                      });
+                    }
+                  },
+                  onUpdate: fetchBusinessData, // Pass the fetchBusinessData method
+                  onDelete: () => _confirmDelete(business['id'].toString()), // Add onDelete callback here
+                );
+              },
+            ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+      // Conditionally show the FloatingActionButton only if businessData has less than 3 items
+      floatingActionButton: businessData.length < 3
+          ? FloatingActionButton(
         onPressed: () {
           Navigator.pushReplacement(
             context,
@@ -207,9 +256,11 @@ class BusinessListState extends State<BusinessList> {
           Icons.add,
           color: Colors.white,
         ),
-      ),
+      )
+          : null, // Don't show FloatingActionButton when businessData >= 3
     );
   }
+
 
   Widget _buildNoDataAvailable() {
     return Center(
@@ -255,7 +306,7 @@ class BusinessCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Handle logo URL with proper formatting
-    String imageUrl = business['logo'] != null ? 'https://yourimagebaseurl.com/${business['logo'].replaceAll(r'\/', '/')}' : '';
+    String imageUrl = business['logo'] != null ? 'https://www.ajhub.co.in/${business['logo'].replaceAll(r'\/', '/')}' : '';
 
     return Padding(
       padding: const EdgeInsets.all(12.0),
@@ -292,6 +343,8 @@ class BusinessCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (business['logo'] != null && business['logo'].isNotEmpty)
+
+
                         Container(
                           width: 100,
                           height: 100,
@@ -307,8 +360,8 @@ class BusinessCard extends StatelessWidget {
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 if (kDebugMode) {
-                                  print('Image load error: $error');
-                                  print('Attempted to load image from: $imageUrl');
+                              //    print('Image load error: $error');
+                                //  print('Attempted to load image from: $imageUrl');
                                 }
                                 return const Icon(Icons.image_not_supported);
                               },
@@ -335,7 +388,7 @@ class BusinessCard extends StatelessWidget {
                       onSelected: (value) {
                         if (value == 'Edit') {
                           if (kDebugMode) {
-                            print('Edit option selected');
+                        //    print('Edit option selected');
                           }
                           Navigator.push(
                             context,
@@ -350,7 +403,7 @@ class BusinessCard extends StatelessWidget {
                           });
                         } else if (value == 'Delete') {
                           if (kDebugMode) {
-                            print('Delete option selected');
+                        //    print('Delete option selected');
                           }
                           onDelete(); // Call the delete method when 'Delete' is selected
                         }

@@ -28,18 +28,11 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _websiteController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final List<String> _businessCategories = [
-    'Retail',
-    'Food & Beverage',
-    'Technology',
-    'Healthcare',
-    'Education',
-    'Real Estate',
-  ];
   String? selectedState;
   List<dynamic> states = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? _selectedCategory; // Variable to store selected business category
+  String? _selectedId; // Variable to store selected business category
 
   @override
   void initState() {
@@ -79,10 +72,8 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
   }
 
   Future<void> fetchBusinessData() async {
-    int? businessID = await getStoredBusinessID();
+    const String apiUrl = 'https://ajhub.co.in/api/getbusinessprofile'; // No specific ID
     String? token = appStore.token; // Fetch token
-
-    final String apiUrl = 'https://ajhub.co.in/api/getbusinessprofile/$businessID';
 
     try {
       final response = await http.get(
@@ -97,20 +88,36 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
         final responseData = json.decode(response.body);
         List<dynamic> businesses = responseData['data'];
 
-        if (businesses.isNotEmpty) {
-          // Here, I'm using the first business from the list. You can modify to select a specific one.
-          final businessData = businesses[0];
+       if (kDebugMode) {
+         print(response.body);
+       }
 
-          setState(() {
-            _businessNameController.text = businessData['business_name'];
-            _ownerNameController.text = businessData['owner_name'];
-            _mobileNumberController.text = businessData['mobile_number'];
-            _emailController.text = businessData['email'];
-            _websiteController.text = businessData['website'];
-            _addressController.text = businessData['address'];
-            selectedState = businessData['state']['id'].toString(); // Fetch state name if needed
-            _selectedCategory = businessData['category']['name']; // Set the category name
-          });
+        if (businesses.isNotEmpty) {
+          // Filter active businesses based on the status field
+          List<dynamic> activeBusinesses = businesses.where((business) {
+            return business['status'] == 'active'; // or `business['is_active'] == true`
+          }).toList();
+
+          if (activeBusinesses.isNotEmpty) {
+            final activeBusiness = activeBusinesses.first;
+
+            // Update the TextEditingControllers with the active business data
+            _selectedId = activeBusiness['id'].toString();
+            _businessNameController.text = activeBusiness['business_name'] ?? '';
+            _ownerNameController.text = activeBusiness['owner_name'] ?? '';
+            _mobileNumberController.text = activeBusiness['mobile_number'] ?? '';
+            _emailController.text = activeBusiness['email'] ?? '';
+            _websiteController.text = activeBusiness['website'] ?? '';
+            _addressController.text = activeBusiness['address'] ?? '';
+
+            if (kDebugMode) {
+              print('Active business data loaded successfully.');
+            }
+          } else {
+            if (kDebugMode) {
+              print('No active businesses found');
+            }
+          }
         } else {
           if (kDebugMode) {
             print('No businesses found');
@@ -127,7 +134,9 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
         print('Error fetching business data: $e');
       }
     }
-    }
+  }
+
+
 
 
   // Method to pick image from gallery
@@ -162,6 +171,69 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
     }
   }
 
+
+
+
+
+
+  Future<void> _updateBusinessProfile() async {
+    print(_selectedId);
+    final String token = appStore.token; // Retrieve your token from appStore
+    final String apiUrl = 'https://ajhub.co.in/api/update/businessprofile/$_selectedId'; // Assuming 'id' is the business ID
+
+    try {
+      final response = await http.post(
+
+
+
+
+
+
+
+
+
+
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: json.encode({
+          'business_name': _businessNameController.text,
+          'owner_name': _ownerNameController.text,
+          'mobile_number': _mobileNumberController.text,
+          'email': _emailController.text,
+          'website': _websiteController.text,
+          'address': _addressController.text,
+          'state_id': selectedState,
+          'category_id': _selectedCategoryId,
+          // Include additional fields as necessary
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('Profile updated successfully: ${response.body}');
+        }
+        // Pass true as the result to indicate success
+        Navigator.pop(context, true);
+      } else {
+        if (kDebugMode) {
+          print('Failed to update profile: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
+      }
+
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating profile: $e');
+      }
+    }
+  }
+
+
+
+
   // Show bottom sheet with camera and gallery options
   void _showImageSourceActionSheet(BuildContext context) {
     showModalBottomSheet(
@@ -193,17 +265,17 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       },
     );
   }
-
+  String? _selectedCategoryId;  // Store the selected category ID
   // Navigate to the category selection screen
   void _navigateToCategorySelection() async {
-    await Navigator.pushReplacement(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => CategorySelectionScreen(
-          categories: _businessCategories,
-          onCategorySelected: (category) {
+          onCategorySelected: (String categoryId, String categoryName) {
             setState(() {
-              _selectedCategory = category;
+              _selectedCategory = categoryName;
+              _selectedCategoryId = categoryId;  // Capture the category ID
             });
           },
         ),
@@ -227,9 +299,10 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       case 'Real Estate':
         return const AssetImage('assets/icons/house.png');
       default:
-        return const AssetImage('assets/images/placeholder.jpg');
+        return const AssetImage('assets/icons/placeholder.jpg');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -420,6 +493,49 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
               ),
             ),
           ),
+
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    spreadRadius: 3,
+                    blurRadius: 5,
+                    offset:  const Offset(0, -3),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 50.h, // Ensure both buttons have the same height
+                      child: ElevatedButton(
+                        onPressed: _updateBusinessProfile, // Define this function to handle form submission
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red, // Button background color
+                        ),
+                        child: Text(
+                          'Edit',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -596,4 +712,5 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
   }
 
 }
+
 

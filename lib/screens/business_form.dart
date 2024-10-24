@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/main.dart';
+import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_selection_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,17 +29,12 @@ class _BusinessFormState extends State<BusinessForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _websiteController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final List<String> _businessCategories = [
-    'Retail',
-    'Food & Beverage',
-    'Technology',
-    'Healthcare',
-    'Education',
-    'Real Estate',
-  ];
   String? selectedState;
   List<dynamic> states = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  String? _selectedCategoryId;  // Store the selected category ID
+  bool _isLoading = false;  // To manage loading state
 
   Future<void> fetchStates() async {
     try {
@@ -148,14 +144,12 @@ class _BusinessFormState extends State<BusinessForm> {
     );
   }
 
-
-
-
-
-
-
   Future<void> _submitBusinessProfile() async {
     if (_formKey.currentState?.validate() == true) {
+      setState(() {
+        _isLoading = true;  // Start loading indicator
+      });
+
       try {
         // Create a multipart request
         var request = http.MultipartRequest(
@@ -182,7 +176,7 @@ class _BusinessFormState extends State<BusinessForm> {
             ? _websiteController.text
             : ''; // Optional
         request.fields['address'] = _addressController.text;
-        request.fields['category_id'] = '4'; // Example category ID
+        request.fields['category_id'] = _selectedCategoryId!; // Example category ID
         request.fields['state_id'] = selectedState ?? '';
 
         // Add image if selected
@@ -205,44 +199,46 @@ class _BusinessFormState extends State<BusinessForm> {
           if (kDebugMode) {
             print('Business profile submitted successfully!');
           }
+
+          setState(() {
+            _isLoading = false; // Stop loading indicator
+          });
+
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>BusinessList()));
+
         } else {
           if (kDebugMode) {
             print('Failed: ${response.statusCode}');
           }
           if (kDebugMode) {
             print(await response.stream.bytesToString());
-          } // Print error response
+          }
         }
       } catch (e) {
         if (kDebugMode) {
           print('Error: $e');
         }
+      } finally {
+        setState(() {
+          _isLoading = false;  // Stop loading indicator in case of error
+        });
       }
     }
   }
 
-
-
-
-
-
-
-
-
-
   // Navigate to the category selection screen
   void _navigateToCategorySelection() async {
-  await Navigator.pushReplacement(
+    await Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => CategorySelectionScreen(
-            categories: _businessCategories,
-            onCategorySelected: (category) {
-              setState(() {
-                _selectedCategory = category;
-              });
-            },
-          )
+        builder: (context) => CategorySelectionScreen(
+          onCategorySelected: (String categoryId, String categoryName) {
+            setState(() {
+              _selectedCategory = categoryName;
+              _selectedCategoryId = categoryId;  // Capture the category ID
+            });
+          },
+        ),
       ),
     );
   }
@@ -263,285 +259,297 @@ class _BusinessFormState extends State<BusinessForm> {
       ),
       body: Stack(  // Using Stack to position the bottom sheet
         children: [
-          // Main Content: Form fields
-          SingleChildScrollView(
-            padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 80.h, top: 6),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildLabel('Select Your Business Logo'),
-                  InkWell(
-                    onTap: () {
-                      _showImageSourceActionSheet(context);
-                    },
-                    child: SizedBox(
-                      width: 110.w,
-                      height: 100.h,
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: 110.w,
-                            height: 100.h,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.red.shade300),
-                              borderRadius: BorderRadius.circular(10.r),
-                              color: Colors.grey[200],
-                              image: _image != null
-                                  ? DecorationImage(
-                                image: FileImage(_image!),
-                                fit: BoxFit.cover,
+          // Main form content
+          if (!_isLoading)
+            SingleChildScrollView(
+              padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 80.h, top: 6),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildLabel('Select Your Business Logo'),
+                    InkWell(
+                      onTap: () {
+                        _showImageSourceActionSheet(context);
+                      },
+                      child: SizedBox(
+                        width: 110.w,
+                        height: 100.h,
+                        child: Stack(
+                          children: [
+                            Container(
+                              width: 110.w,
+                              height: 100.h,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.red.shade300),
+                                borderRadius: BorderRadius.circular(10.r),
+                                color: Colors.grey[200],
+                                image: _image != null
+                                    ? DecorationImage(
+                                  image: FileImage(_image!),
+                                  fit: BoxFit.cover,
+                                )
+                                    : null,
+                              ),
+                              child: _image == null
+                                  ? const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.add_a_photo_outlined,
+                                      size: 20,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
                               )
                                   : null,
                             ),
-                            child: _image == null
-                                ? const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.add_a_photo_outlined,
-                                    size: 20,
-                                    color: Colors.grey,
+                            if (_image != null)
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: InkWell(
+                                  onTap: () {
+                                    _showImageSourceActionSheet(context);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      borderRadius: BorderRadius.all(Radius.circular(4)),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add_a_photo,
+                                      color: Colors.red,
+                                      size: 30,
+                                    ),
                                   ),
-                                ],
+                                ),
                               ),
-                            )
-                                : null,
-                          ),
-                          if (_image != null)
-                            Positioned(
-                              top: 8,
-                              right: 8,
-                              child: InkWell(
-                                onTap: () {
-                                  _showImageSourceActionSheet(context);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(2),
-                                  decoration: const BoxDecoration(
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 16.h),
+
+                    buildLabel('Business Category (Optional)'),
+                    InkWell(
+                      onTap: () {
+                        _navigateToCategorySelection();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade600),
+                          borderRadius: BorderRadius.circular(10.r),
+                          color: Colors.white,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 40.w,
+                                  height: 35.h,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.r),
                                     shape: BoxShape.rectangle,
-                                    borderRadius: BorderRadius.all(Radius.circular(4)),
-                                  ),
-                                  child: const Icon(
-                                    Icons.add_a_photo,
-                                    color: Colors.red,
-                                    size: 30,
+                                    image: DecorationImage(
+                                      image: _selectedCategory != null
+                                          ? _getCategoryImage(_selectedCategory!)
+                                          : const AssetImage('assets/images/c5.png') as ImageProvider,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                              ),
+                                SizedBox(width: 10.w),
+                                Text(
+                                  _selectedCategory ?? 'Select Category',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
                             ),
-                        ],
+                            Image.asset(
+                              'assets/icons/edit.png',
+                              width: 20.w,
+                              height: 20.h,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
 
-                  SizedBox(height: 16.h),
-
-                  buildLabel('Business Category (Optional)'),
-                  InkWell(
-                    onTap: () {
-                      _navigateToCategorySelection();
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade600),
-                        borderRadius: BorderRadius.circular(10.r),
-                        color: Colors.white,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 40.w,
-                                height: 35.h,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                  shape: BoxShape.rectangle,
-                                  image: DecorationImage(
-                                    image: _selectedCategory != null
-                                        ? _getCategoryImage(_selectedCategory!)
-                                        : const AssetImage('assets/images/c5.png') as ImageProvider,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 10.w),
-                              Text(
-                                _selectedCategory ?? 'Select Category',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Image.asset(
-                            'assets/icons/edit.png',
-                            width: 20.w,
-                            height: 20.h,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(height: 16.h),
-                  buildLabel('Business Name', isRequired: true),
-                  _buildTextFormField(
-                    controller: _businessNameController,
-                    hintText: 'Enter your business name',
-                    icon: Icons.business,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your business name';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  SizedBox(height: 16.h),
-                  buildLabel('Owner Name'),
-                  _buildTextFormField(
-                    controller: _ownerNameController,
-                    hintText: 'Enter owner name',
-                    icon: Icons.person,
-                  ),
-
-                  SizedBox(height: 16.h),
-                  buildLabel('Mobile Number', isRequired: true),
-                  _buildTextFormField(
-                    controller: _mobileNumberController,
-                    hintText: 'Enter mobile number',
-                    icon: Icons.phone,
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your mobile number';
-                      }
-                      if (value.length != 10) {
-                        return 'Please enter a valid 10-digit mobile number';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  SizedBox(height: 16.h),
-                  buildLabel('Email Id'),
-                  _buildTextFormField(
-                    controller: _emailController,
-                    hintText: 'Enter email ID',
-                    icon: Icons.email,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value != null && value.isNotEmpty) {
-                        final emailRegex = RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
-                        if (!emailRegex.hasMatch(value)) {
-                          return 'Please enter a valid email ID';
+                    SizedBox(height: 16.h),
+                    buildLabel('Business Name', isRequired: true),
+                    _buildTextFormField(
+                      controller: _businessNameController,
+                      hintText: 'Enter your business name',
+                      icon: Icons.business,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your business name';
                         }
-                      }
-                      return null;
-                    },
-                  ),
+                        return null;
+                      },
+                    ),
 
-                  SizedBox(height: 16.h),
-                  buildLabel('Website Name'),
-                  _buildTextFormField(
-                    controller: _websiteController,
-                    hintText: 'Enter website name',
-                    icon: Icons.web,
-                    keyboardType: TextInputType.url,
-                  ),
+                    SizedBox(height: 16.h),
+                    buildLabel('Owner Name'),
+                    _buildTextFormField(
+                      controller: _ownerNameController,
+                      hintText: 'Enter owner name',
+                      icon: Icons.person,
+                    ),
 
-                  SizedBox(height: 16.h),
-                  buildLabel('Address'),
-                  _buildTextFormField(
-                    controller: _addressController,
-                    hintText: 'Enter address',
-                    icon: Icons.location_on,
-                    maxLines: 3,  // Max 3 lines
-                    minLines: 1,  // Start with 1 line
-                  ),
+                    SizedBox(height: 16.h),
+                    buildLabel('Mobile Number', isRequired: true),
+                    _buildTextFormField(
+                      controller: _mobileNumberController,
+                      hintText: 'Enter mobile number',
+                      icon: Icons.phone,
+                      keyboardType: TextInputType.phone,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your mobile number';
+                        }
+                        if (value.length != 10) {
+                          return 'Please enter a valid 10-digit mobile number';
+                        }
+                        return null;
+                      },
+                    ),
 
-                  SizedBox(height: 16.h),
-                  buildLabel('State', isRequired: true),
-                  _buildStateDropdown(),
-                ],
+                    SizedBox(height: 16.h),
+                    buildLabel('Email Id'),
+                    _buildTextFormField(
+                      controller: _emailController,
+                      hintText: 'Enter email ID',
+                      icon: Icons.email,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value != null && value.isNotEmpty) {
+                          final emailRegex = RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
+                          if (!emailRegex.hasMatch(value)) {
+                            return 'Please enter a valid email ID';
+                          }
+                        }
+                        return null;
+                      },
+                    ),
+
+                    SizedBox(height: 16.h),
+                    buildLabel('Website Name'),
+                    _buildTextFormField(
+                      controller: _websiteController,
+                      hintText: 'Enter website name',
+                      icon: Icons.web,
+                      keyboardType: TextInputType.url,
+                    ),
+
+                    SizedBox(height: 16.h),
+                    buildLabel('Address'),
+                    _buildTextFormField(
+                      controller: _addressController,
+                      hintText: 'Enter address',
+                      icon: Icons.location_on,
+                      maxLines: 3,  // Max 3 lines
+                      minLines: 1,  // Start with 1 line
+                    ),
+
+                    SizedBox(height: 16.h),
+                    buildLabel('State', isRequired: true),
+                    _buildStateDropdown(),
+                  ],
+                ),
               ),
             ),
-          ),
+
+          // Show Circular Progress Indicator when loading
+          if (_isLoading)
+            const Center(
+              child: CircularProgressIndicator(),
+            ),
 
           // Fixed Bottom Sheet with Clear and Submit Buttons
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 3,
-                    blurRadius: 5,
-                    offset: const Offset(0, -3),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Clear Button
-                  Expanded(
-                    child: SizedBox(
-                      height: 50.h, // Ensure both buttons have the same height
-                      child: OutlinedButton(
-                        onPressed: _clearForm, // Define this function to clear the form fields
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.red),
-                        ),
-                        child: Text(
-                          'Clear',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 16.w), // Space between buttons
+            child: _isLoading
+                ? Container()  // Hide buttons while loading
+                : buildBottomButtons(),  // Display buttons when not loading
+          ),
+        ],
+      ),
+    );
+  }
 
-                  // Submit Button
-                  Expanded(
-                    child: SizedBox(
-                      height: 50.h, // Ensure both buttons have the same height
-                      child: ElevatedButton(
-                        onPressed: _submitBusinessProfile, // Define this function to handle form submission
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red, // Button background color
-                        ),
-                        child: Text(
-                          'Submit',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
+  Widget buildBottomButtons() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 3,
+            blurRadius: 5,
+            offset: const Offset(0, -3),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Clear Button
+          Expanded(
+            child: SizedBox(
+              height: 50.h, // Ensure both buttons have the same height
+              child: OutlinedButton(
+                onPressed: _clearForm, // Define this function to clear the form fields
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.red),
+                ),
+                child: Text(
+                  'Clear',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 16.sp,
                   ),
-                ],
+                ),
               ),
             ),
           ),
+          SizedBox(width: 16.w), // Space between buttons
 
+          // Submit Button
+          Expanded(
+            child: SizedBox(
+              height: 50.h, // Ensure both buttons have the same height
+              child: ElevatedButton(
+                onPressed: _submitBusinessProfile, // Define this function to handle form submission
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red, // Button background color
+                ),
+                child: Text(
+                  'Submit',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -585,7 +593,6 @@ class _BusinessFormState extends State<BusinessForm> {
       validator: validator,
     );
   }
-
 
   void _clearForm() {
     setState(() {
@@ -641,7 +648,6 @@ class _BusinessFormState extends State<BusinessForm> {
       ),
     );
   }
-
 
   void _showStateSelectionSheet() {
     showModalBottomSheet(
@@ -701,7 +707,6 @@ class _BusinessFormState extends State<BusinessForm> {
       },
     );
   }
-
 
   Widget buildLabel(String label, {bool isRequired = false}) {
     return RichText(

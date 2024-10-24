@@ -11,13 +11,14 @@ class OportunityScreen extends StatefulWidget {
 
 class _OportunityScreenState extends State<OportunityScreen> {
   final List<String> images = [
-    'assets/images/slider/slider1.png',
     'assets/images/slider/slider2.png',
-    'assets/images/slider/slider3.png',
-    'assets/images/slider/slider4.png',
-    'assets/images/slider/slider5.png',
-    'assets/images/slider/slider6.png',
     'assets/images/slider/slider7.png',
+    'assets/images/slider/slider5.png',
+    'assets/images/slider/slider3.png',
+    'assets/images/slider/slider6.png',
+    'assets/images/slider/slider4.png',
+    'assets/images/slider/slider8.jpg',
+
   ];
 
   @override
