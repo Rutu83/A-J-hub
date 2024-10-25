@@ -29,14 +29,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _websiteController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final List<String> _businessCategories = [
-    'Retail',
-    'Food & Beverage',
-    'Technology',
-    'Healthcare',
-    'Education',
-    'Real Estate',
-  ];
+
   String? selectedState;
   List<dynamic> states = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -193,7 +186,6 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
     _selectedCategory = widget.business['category_name'];
     _selectedCategoryId = widget.business['category_id'].toString();
 
-    print(_selectedCategory);
   }
 
 

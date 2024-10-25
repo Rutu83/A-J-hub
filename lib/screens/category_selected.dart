@@ -8,11 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dio/dio.dart'; // For downloading images
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart'; // For file storage paths
 import 'package:permission_handler/permission_handler.dart'; // For permissions
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path; // For manipulating file paths
 import 'package:flutter/services.dart';
+
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -263,34 +265,44 @@ class CategorySelectedState extends State<CategorySelected> {
 
   // Request storage permissions before downloading
   Future<void> _checkStoragePermission() async {
-    var status = await Permission.storage.status;
-    if (!status.isGranted) {
-      await Permission.storage.request();
+    if (Platform.isAndroid) {
+      var status = await Permission.storage.request();
+      if (status.isDenied) {
+        await Permission.storage.request();
+      }
+      // For Android 11 and above
+      if (await Permission.manageExternalStorage.isDenied) {
+        await Permission.manageExternalStorage.request();
+      }
     }
   }
 
-  // Function to download image and save it to the Pictures directory
   Future<void> _downloadImage(String imageUrl) async {
     try {
       await _checkStoragePermission(); // Ensure storage permission is granted
-
       setState(() {
         isDownloading = true;
       });
 
       Dio dio = Dio();
-      var dir = await getExternalStorageDirectory();
-      String fileName = imageUrl.split('/').last;
-      String savePath = path.join(dir!.path, 'Pictures', fileName);
+      var dir = Directory('/storage/emulated/0/Pictures'); // Save directly to Pictures folder
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
 
+      String fileName = path.basename(imageUrl); // Extract file name from URL
+      String savePath = path.join(dir.path, fileName); // Define save path
+
+      // Download the image and save to the defined path
       await dio.download(imageUrl, savePath);
 
       setState(() {
         isDownloading = false;
       });
 
-      // Trigger the gallery to refresh and show the new image
+      // Refresh the gallery after download
       await _refreshGallery(savePath);
+      _openImage(savePath);
 
       if (kDebugMode) {
         print(savePath);
@@ -299,25 +311,43 @@ class CategorySelectedState extends State<CategorySelected> {
         content: Text('Image downloaded to $savePath'),
       ));
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
       setState(() {
         isDownloading = false;
       });
+      if (kDebugMode) {
+        print(e);
+      }
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Failed to download image: $e'),
       ));
     }
   }
 
+
+
+// Function to open the image file using an external app
+  void _openImage(String filePath) async {
+    final file = File(filePath);
+    if (await file.exists()) {
+      OpenFilex.open(filePath); // Opens the file with the associated app
+    } else {
+      print("File does not exist at $filePath");
+    }
+  }
+
+
   // Function to refresh the gallery after saving an image
   Future<void> _refreshGallery(String filePath) async {
     final result = await File(filePath).create(recursive: true);
     await result.setLastModified(DateTime.now());
+
+    // Add a short delay
+    await Future.delayed(const Duration(seconds: 1));
+
     const channel = MethodChannel('com.allinonemarketing.allinone_app/gallery');
     await channel.invokeMethod('refreshGallery', {'filePath': filePath});
   }
+
 
   // Function to share image
   Future<void> _shareImage(String imagePath) async {
@@ -341,3 +371,4 @@ class CategorySelectedState extends State<CategorySelected> {
     }
   }
 }
+

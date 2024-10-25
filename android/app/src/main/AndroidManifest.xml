@@ -1,17 +1,14 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.allinonemarketing.allinone_app"> <!-- Corrected package placement -->
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
-
-
     <application
         android:label="allinone_app"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/LaunchTheme">
-
-
 
         <activity
             android:name=".MainActivity"
@@ -21,28 +18,36 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
+
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme"/>
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+            <!-- You can remove or replace this if you are not using AppAuth -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="${appAuthRedirectScheme}"/>
+                <!-- Replace with your app's specific scheme if necessary -->
+                <data android:scheme="your_custom_scheme_here"/>
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="flutterEmbedding"
             android:value="2"/>
     </application>
+
     <queries>
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
 </manifest>

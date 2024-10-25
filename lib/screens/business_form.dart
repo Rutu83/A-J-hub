@@ -1,4 +1,4 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 
 import 'dart:convert';
 import 'dart:io';
@@ -204,7 +204,7 @@ class _BusinessFormState extends State<BusinessForm> {
             _isLoading = false; // Stop loading indicator
           });
 
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>BusinessList()));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const BusinessList()));
 
         } else {
           if (kDebugMode) {

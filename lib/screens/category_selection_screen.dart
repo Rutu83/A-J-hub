@@ -1,4 +1,7 @@
+// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api
+
 import 'package:allinone_app/main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -62,7 +65,9 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
         throw Exception('Failed to load categories');
       }
     } catch (error) {
-      print('Error fetching categories: $error');
+      if (kDebugMode) {
+        print('Error fetching categories: $error');
+      }
       setState(() {
         isLoading = false;
       });

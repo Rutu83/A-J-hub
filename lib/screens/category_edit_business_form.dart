@@ -177,19 +177,11 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
 
 
   Future<void> _updateBusinessProfile() async {
-    print(_selectedId);
     final String token = appStore.token; // Retrieve your token from appStore
     final String apiUrl = 'https://ajhub.co.in/api/update/businessprofile/$_selectedId'; // Assuming 'id' is the business ID
 
     try {
       final response = await http.post(
-
-
-
-
-
-
-
 
 
 
