@@ -1,9 +1,9 @@
 // ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:allinone_app/screens/category_edit_business_form.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,7 +14,6 @@ import 'package:permission_handler/permission_handler.dart'; // For permissions
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path; // For manipulating file paths
 import 'package:flutter/services.dart';
-
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -32,7 +31,7 @@ class CategorySelectedState extends State<CategorySelected> {
 
   // Define the available frames
   final List<String> framePaths = [
-    'assets/images/fram1.png', // Add frame1
+    'assets/images/fram1.png',
     'assets/images/fram2.png',
     '/mnt/data/Yw7AIu5jct7REjp5Q2V5q2z2.png', // Other frame image path
   ];
@@ -70,7 +69,7 @@ class CategorySelectedState extends State<CategorySelected> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const CategoryEditBusinessForm(), // Open BusinessForm
+                  builder: (context) => const CategoryEditBusinessForm(),
                 ),
               );
             },
@@ -97,45 +96,42 @@ class CategorySelectedState extends State<CategorySelected> {
               _shareImage(widget.imagePaths[selectedIndex]);
             },
           ),
-
-          const SizedBox(
-            width: 10,
-          )
+          const SizedBox(width: 10),
         ],
       ),
       body: Column(
         children: [
           // Fixed Image with frame sliding applied
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.45, // Responsive height for the main container
-            width: MediaQuery.of(context).size.width, // Full width to cover the screen
+            height: MediaQuery.of(context).size.height * 0.45,
+            width: MediaQuery.of(context).size.width,
             child: Stack(
               alignment: Alignment.center,
               children: [
                 // Main image container with Positioned
                 Positioned(
-                  left: 5.w, // Responsive left positioning
-                  right: 5.w, // Responsive right positioning
+                  left: 5.w,
+                  right: 5.w,
                   top: 0,
                   bottom: 0,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r), // Responsive border radius for the main image
-                    child: _buildImage(widget.imagePaths[selectedIndex]), // Main image
+                    borderRadius: BorderRadius.circular(8.r),
+                    child: _buildImage(widget.imagePaths[selectedIndex]),
                   ),
                 ),
                 // Frame overlay (selected frame)
                 Positioned(
-                  left: 5.w, // Match left position with main image
-                  right: 5.w, // Match right position with main image
+                  left: 5.w,
+                  right: 5.w,
                   top: 0,
                   bottom: 0,
                   child: CarouselSlider.builder(
                     itemCount: framePaths.length,
                     options: CarouselOptions(
-                      height: MediaQuery.of(context).size.height * 0.54, // Match the height of the main image
+                      height: MediaQuery.of(context).size.height * 0.54,
                       enableInfiniteScroll: false,
                       enlargeCenterPage: false,
-                      viewportFraction: 1.0, // Show only one frame at a time
+                      viewportFraction: 1.0,
                       onPageChanged: (index, reason) {
                         setState(() {
                           selectedFrameIndex = index;
@@ -148,8 +144,8 @@ class CategorySelectedState extends State<CategorySelected> {
                         child: Image.asset(
                           framePaths[index],
                           fit: BoxFit.fitWidth,
-                          width: MediaQuery.of(context).size.width - 10.w, // Ensure frame width matches the main image
-                          height: MediaQuery.of(context).size.height * 0.54, // Ensure frame height matches the main image
+                          width: MediaQuery.of(context).size.width - 10.w,
+                          height: MediaQuery.of(context).size.height * 0.54,
                         ),
                       );
                     },
@@ -167,9 +163,9 @@ class CategorySelectedState extends State<CategorySelected> {
                   selectedFrameIndex = entry.key;
                 }),
                 child: Container(
-                  width: 12.w, // Responsive size for dots
-                  height: 12.h, // Responsive size for dots
-                  margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w), // Responsive margins
+                  width: 12.w,
+                  height: 12.h,
+                  margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: selectedFrameIndex == entry.key ? Colors.red : Colors.grey,
@@ -178,16 +174,15 @@ class CategorySelectedState extends State<CategorySelected> {
               );
             }).toList(),
           ),
-          SizedBox(height: 8.h), // Responsive spacing
-
+          SizedBox(height: 8.h),
           // Image Grid for selecting different images
           Expanded(
             child: GridView.builder(
-              padding: EdgeInsets.all(8.r), // Responsive padding
+              padding: EdgeInsets.all(8.r),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                crossAxisSpacing: 12.w, // Responsive spacing
-                mainAxisSpacing: 12.h, // Responsive spacing
+                crossAxisSpacing: 12.w,
+                mainAxisSpacing: 12.h,
               ),
               itemCount: widget.imagePaths.length,
               itemBuilder: (context, index) {
@@ -202,7 +197,7 @@ class CategorySelectedState extends State<CategorySelected> {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.r), // Responsive border radius
+                          borderRadius: BorderRadius.circular(15.r),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.black26,
@@ -212,18 +207,18 @@ class CategorySelectedState extends State<CategorySelected> {
                           ],
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(22.r), // Responsive border radius
+                          borderRadius: BorderRadius.circular(22.r),
                           child: _buildImage(widget.imagePaths[index]),
                         ),
                       ),
                       if (selectedIndex == index)
                         Positioned(
-                          bottom: 5.h, // Responsive position for check icon
+                          bottom: 5.h,
                           right: 5.w,
                           child: Icon(
                             Icons.check_circle_rounded,
                             color: Colors.red,
-                            size: 28.sp, // Responsive icon size
+                            size: 28.sp,
                           ),
                         ),
                     ],
@@ -232,7 +227,7 @@ class CategorySelectedState extends State<CategorySelected> {
               },
             ),
           ),
-          SizedBox(height: 8.h), // Responsive spacing
+          SizedBox(height: 8.h),
         ],
       ),
     );
@@ -247,7 +242,7 @@ class CategorySelectedState extends State<CategorySelected> {
         width: double.infinity,
         height: double.infinity,
         errorBuilder: (context, error, stackTrace) {
-          return const Center(child: Icon(Icons.error)); // Fallback for errors
+          return const Center(child: Icon(Icons.error));
         },
       );
     } else {
@@ -257,7 +252,7 @@ class CategorySelectedState extends State<CategorySelected> {
         width: double.infinity,
         height: double.infinity,
         errorBuilder: (context, error, stackTrace) {
-          return const Center(child: Icon(Icons.error)); // Fallback for errors
+          return const Center(child: Icon(Icons.error));
         },
       );
     }
@@ -270,7 +265,6 @@ class CategorySelectedState extends State<CategorySelected> {
       if (status.isDenied) {
         await Permission.storage.request();
       }
-      // For Android 11 and above
       if (await Permission.manageExternalStorage.isDenied) {
         await Permission.manageExternalStorage.request();
       }
@@ -279,34 +273,36 @@ class CategorySelectedState extends State<CategorySelected> {
 
   Future<void> _downloadImage(String imageUrl) async {
     try {
-      await _checkStoragePermission(); // Ensure storage permission is granted
+      await _checkStoragePermission();
       setState(() {
         isDownloading = true;
       });
 
-      Dio dio = Dio();
-      var dir = Directory('/storage/emulated/0/Pictures'); // Save directly to Pictures folder
+      // Combine the image with the selected frame
+      final combinedImage = await _combineImageAndFrame(imageUrl, framePaths[selectedFrameIndex]);
+
+      // Convert the combined image to a PNG byte array
+      final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+
+      // Save the PNG bytes to a file
+      var dir = Directory('/storage/emulated/0/Pictures');
       if (!await dir.exists()) {
         await dir.create(recursive: true);
       }
 
-      String fileName = path.basename(imageUrl); // Extract file name from URL
-      String savePath = path.join(dir.path, fileName); // Define save path
-
-      // Download the image and save to the defined path
-      await dio.download(imageUrl, savePath);
+      String fileName = path.basename(imageUrl);
+      String savePath = path.join(dir.path, fileName);
+      final file = File(savePath);
+      await file.writeAsBytes(pngBytes);
 
       setState(() {
         isDownloading = false;
       });
 
-      // Refresh the gallery after download
       await _refreshGallery(savePath);
       _openImage(savePath);
 
-      if (kDebugMode) {
-        print(savePath);
-      }
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Image downloaded to $savePath'),
       ));
@@ -314,45 +310,78 @@ class CategorySelectedState extends State<CategorySelected> {
       setState(() {
         isDownloading = false;
       });
-      if (kDebugMode) {
-        print(e);
-      }
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Failed to download image: $e'),
       ));
     }
   }
 
+  Future<ui.Image> _combineImageAndFrame(String imagePath, String framePath) async {
+    final image = await _loadImage(imagePath);
+    final frame = await _loadImage(framePath);
+
+    // Create a recorder and canvas
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    // Define sizes based on the maximum dimensions
+    final size = Size(
+      image.width.toDouble(),
+      image.height.toDouble(),
+    );
+
+    // Draw the image
+    canvas.drawImageRect(
+      image,
+      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint(),
+    );
+
+    // Draw the frame on top
+    canvas.drawImageRect(
+      frame,
+      Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble()),
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint(),
+    );
+
+    // Create the combined image
+    final combinedImage = await recorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
+    return combinedImage;
+  }
 
 
-// Function to open the image file using an external app
+  Future<ui.Image> _loadImage(String path) async {
+    final data = await (path.startsWith('http')
+        ? NetworkAssetBundle(Uri.parse(path)).load(path)
+        : rootBundle.load(path));
+    return await decodeImageFromList(data.buffer.asUint8List());
+  }
+
+  // Function to open the image file using an external app
   void _openImage(String filePath) async {
     final file = File(filePath);
     if (await file.exists()) {
-      OpenFilex.open(filePath); // Opens the file with the associated app
+      OpenFilex.open(filePath);
     } else {
       print("File does not exist at $filePath");
     }
   }
 
-
   // Function to refresh the gallery after saving an image
   Future<void> _refreshGallery(String filePath) async {
     final result = await File(filePath).create(recursive: true);
     await result.setLastModified(DateTime.now());
-
-    // Add a short delay
     await Future.delayed(const Duration(seconds: 1));
 
     const channel = MethodChannel('com.allinonemarketing.allinone_app/gallery');
     await channel.invokeMethod('refreshGallery', {'filePath': filePath});
   }
 
-
   // Function to share image
   Future<void> _shareImage(String imagePath) async {
     try {
-      // If it's a remote URL, download the image first
       if (imagePath.startsWith('http')) {
         var dir = await getTemporaryDirectory();
         String fileName = imagePath.split('/').last;
@@ -361,7 +390,6 @@ class CategorySelectedState extends State<CategorySelected> {
         imagePath = savePath; // Update the path to the local downloaded image
       }
 
-      // Share the image using XFile
       XFile xFile = XFile(imagePath);
       Share.shareXFiles([xFile], text: 'Check out this image!');
     } catch (e) {
@@ -371,4 +399,3 @@ class CategorySelectedState extends State<CategorySelected> {
     }
   }
 }
-

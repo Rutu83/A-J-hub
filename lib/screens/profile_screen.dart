@@ -9,6 +9,7 @@ import 'package:allinone_app/screens/change_password_screen.dart';
 import 'package:allinone_app/screens/contact_us.dart';
 import 'package:allinone_app/screens/edit_profile.dart';
 import 'package:allinone_app/screens/help_support.dart';
+import 'package:allinone_app/screens/image_download_screen.dart';
 import 'package:allinone_app/screens/kyc_screen.dart';
 import 'package:allinone_app/screens/refer_earn.dart';
 import 'package:allinone_app/screens/team_member_list.dart';
@@ -357,6 +358,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.person_outline, "My Profile"),
         _buildMenuOption(Icons.person_outline, "My Business"),
         _buildMenuOption(Icons.list, "Business List"),
+        _buildMenuOption(Icons.image, "Downloaded Images"),
         _buildMenuOption(Icons.contact_mail_outlined, "Contact Us"),
         _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.ajhub.co.in/term-condition'),
         _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
@@ -415,6 +417,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const BusinessList()),
+            );
+          }   else if (label == "Downloaded Images") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => DownloadedImagesPage()),
             );
           } else if (label == "Refer & Earn") {
             Navigator.push(
