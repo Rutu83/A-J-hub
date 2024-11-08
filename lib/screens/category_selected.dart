@@ -1,13 +1,11 @@
 // ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
-
 import 'dart:io';
 import 'dart:ui' as ui;
-
 import 'package:allinone_app/screens/category_edit_business_form.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:dio/dio.dart'; // For downloading images
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart'; // For file storage paths
 import 'package:permission_handler/permission_handler.dart'; // For permissions
@@ -61,8 +59,8 @@ class CategorySelectedState extends State<CategorySelected> {
           IconButton(
             icon: Image.asset(
               'assets/icons/editing.png',
-              width: 25.w, // Responsive width
-              height: 25.h, // Responsive height
+              width: 20.w, // Responsive width
+              height: 20.h, // Responsive height
               color: Colors.black,
             ),
             onPressed: () {
@@ -77,8 +75,8 @@ class CategorySelectedState extends State<CategorySelected> {
           IconButton(
             icon: Image.asset(
               'assets/icons/download.png',
-              width: 30.w, // Responsive width
-              height: 30.h, // Responsive height
+              width: 25.w, // Responsive width
+              height: 25.h, // Responsive height
               color: Colors.black,
             ),
             onPressed: () {
@@ -88,8 +86,8 @@ class CategorySelectedState extends State<CategorySelected> {
           IconButton(
             icon: Image.asset(
               'assets/icons/share.png',
-              width: 22.w, // Responsive width
-              height: 22.h, // Responsive height
+              width: 18.w, // Responsive width
+              height: 18.h, // Responsive height
               color: Colors.black,
             ),
             onPressed: () {
@@ -102,59 +100,62 @@ class CategorySelectedState extends State<CategorySelected> {
       body: Column(
         children: [
           // Fixed Image with frame sliding applied
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.45,
-            width: MediaQuery.of(context).size.width,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Main image container with Positioned
-                Positioned(
-                  left: 5.w,
-                  right: 5.w,
-                  top: 0,
-                  bottom: 0,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r),
-                    child: _buildImage(widget.imagePaths[selectedIndex]),
-                  ),
-                ),
-                // Frame overlay (selected frame)
-                Positioned(
-                  left: 5.w,
-                  right: 5.w,
-                  top: 0,
-                  bottom: 0,
-                  child: CarouselSlider.builder(
-                    itemCount: framePaths.length,
-                    options: CarouselOptions(
-                      height: MediaQuery.of(context).size.height * 0.54,
-                      enableInfiniteScroll: false,
-                      enlargeCenterPage: false,
-                      viewportFraction: 1.0,
-                      onPageChanged: (index, reason) {
-                        setState(() {
-                          selectedFrameIndex = index;
-                        });
-                      },
-                    ),
-                    itemBuilder: (context, index, realIndex) {
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(8.r),
-                        child: Image.asset(
-                          framePaths[index],
-                          fit: BoxFit.fitWidth,
-                          width: MediaQuery.of(context).size.width - 10.w,
-                          height: MediaQuery.of(context).size.height * 0.54,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+        SizedBox(
+        height: 0.45.sh, // ScreenUtil for height
+        width: 1.sw, // Full width of the screen
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // Main image container with Positioned
+            Positioned(
+              left: 5.w, // Responsive width
+              right: 5.w,
+              top: 0,
+              bottom: 0,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.r), // Responsive radius
+                child: _buildImage(widget.imagePaths[selectedIndex]),
+              ),
             ),
-          ),
-          // Dots Indicator for the frame slider
+            // Frame overlay (selected frame)
+            Positioned(
+              left: 5.w,
+              right: 5.w,
+              top: 0,
+              bottom: 0,
+              child: CarouselSlider.builder(
+                itemCount: framePaths.length,
+                options: CarouselOptions(
+                  height: 0.54.sh, // Responsive height
+                  enableInfiniteScroll: false,
+                  enlargeCenterPage: false,
+                  viewportFraction: 1.0,
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      selectedFrameIndex = index;
+                    });
+                  },
+                ),
+                itemBuilder: (context, index, realIndex) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(8.r),
+                    child: Image.asset(
+                      framePaths[index],
+                      fit: BoxFit.fitWidth,
+                      width: 1.sw - 10.w, // Adjusted for screen width
+                      height: 0.54.sh, // Adjusted for screen height
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+
+
+
+      // Dots Indicator for the frame slider
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: framePaths.asMap().entries.map((entry) {
@@ -286,7 +287,7 @@ class CategorySelectedState extends State<CategorySelected> {
       final pngBytes = byteData!.buffer.asUint8List();
 
       // Save the PNG bytes to a file
-      var dir = Directory('/storage/emulated/0/Pictures');
+      var dir = Directory('/storage/emulated/0/Pictures/AJHUB');
       if (!await dir.exists()) {
         await dir.create(recursive: true);
       }
@@ -365,7 +366,9 @@ class CategorySelectedState extends State<CategorySelected> {
     if (await file.exists()) {
       OpenFilex.open(filePath);
     } else {
-      print("File does not exist at $filePath");
+      if (kDebugMode) {
+        print("File does not exist at $filePath");
+      }
     }
   }
 
@@ -379,23 +382,32 @@ class CategorySelectedState extends State<CategorySelected> {
     await channel.invokeMethod('refreshGallery', {'filePath': filePath});
   }
 
-  // Function to share image
+// Function to share image with selected frame overlay
   Future<void> _shareImage(String imagePath) async {
     try {
-      if (imagePath.startsWith('http')) {
-        var dir = await getTemporaryDirectory();
-        String fileName = imagePath.split('/').last;
-        String savePath = "${dir.path}/$fileName";
-        await Dio().download(imagePath, savePath);
-        imagePath = savePath; // Update the path to the local downloaded image
-      }
+      // Combine the image with the selected frame
+      final combinedImage = await _combineImageAndFrame(imagePath, framePaths[selectedFrameIndex]);
 
-      XFile xFile = XFile(imagePath);
-      Share.shareXFiles([xFile], text: 'Check out this image!');
+      // Convert the combined image to a PNG byte array
+      final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+
+      // Save the combined image to a temporary file for sharing
+      var tempDir = await getTemporaryDirectory();
+      String fileName = path.basename(imagePath).replaceAll('.', '_with_frame.');
+      String savePath = path.join(tempDir.path, fileName);
+      final file = File(savePath);
+      await file.writeAsBytes(pngBytes);
+
+      // Share the combined image with the label
+      XFile xFile = XFile(savePath);
+      Share.shareXFiles([xFile], text: 'Bust Lime Download');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Failed to share image: $e'),
       ));
     }
   }
+
 }
+

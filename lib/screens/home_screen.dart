@@ -31,6 +31,26 @@ class HomeScreenState extends State<HomeScreen> {
   SubcategoryResponse? subcategoryData;
   CategoriesWithSubcategoriesResponse? categoriesData;
 
+
+
+
+
+  List<Widget> items = [
+    _buildItemCard('Festival'),
+    _buildItemCard('Diwali'),
+    _buildItemCard('Morning'),
+    _buildItemCard('News'),
+    _buildItemCard('Gujarati Suvichar'),
+    _buildItemCard('motivational'),
+    _buildItemCard('Item 7'),
+    _buildItemCard('Item 8'),
+    _buildItemCard('Festival'),
+    _buildItemCard('Diwali'),
+    _buildItemCard('Morning'),
+
+  ];
+
+
   @override
   void initState() {
     super.initState();
@@ -147,7 +167,10 @@ class HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 10),
             _buildNewReleasesSection2(),
             isLoading ? _buildSkeletonLoading() : _buildContent(),
-            const SizedBox(height: 120),
+            const SizedBox(height: 10),
+            _buildHorizontalCardSection3(context),
+            const SizedBox(height: 50),
+       //     const SizedBox(height: 50),
           ],
         ),
       ),
@@ -208,64 +231,6 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-  // Widget _buildButtons() {
-  //   return Card(
-  //     color: Colors.white,
-  //     elevation: 6,
-  //     shape: RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.circular(12),
-  //     ),
-  //     margin: const EdgeInsets.all(12),
-  //     child: Container(
-  //       padding: const EdgeInsets.all(12),
-  //       child: Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //         children: [
-  //           _buildButtonColumn(Icons.person_add, 'Invite Friend'),
-  //           _buildButtonColumn(Icons.card_giftcard, 'Membership'),
-  //           _buildButtonColumn(Icons.info_outline, 'System Intro...'),
-  //           InkWell(
-  //             onTap: () {
-  //               Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(
-  //                   builder: (context) => const CharityPage(),
-  //                 ),
-  //               );
-  //             },
-  //             child: _buildButtonColumn(Icons.business_sharp, 'Charity'),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildButtonColumn(IconData icon, String label) {
-  //   return Column(
-  //     mainAxisSize: MainAxisSize.min,
-  //     children: [
-  //       Container(
-  //         height: 40.h, // Use a consistent height
-  //         width: 40.h,  // Set width equal to height
-  //         decoration: BoxDecoration(
-  //           color: Colors.red,
-  //           borderRadius: BorderRadius.circular(20.h), // Half of the height (20.h)
-  //         ),
-  //         child: Center( // Center the icon within the circle
-  //           child: Icon(icon, color: Colors.white),
-  //         ),
-  //       ),
-  //
-  //
-  //       const SizedBox(height: 8),
-  //       Text(label),
-  //     ],
-  //   );
-  // }
-
-  // Single Card Layout Method with Optional Title
   Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
@@ -331,7 +296,6 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Single Card Layout Method with Optional Title
   Widget _buildCardItem2(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
@@ -396,7 +360,6 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   Widget _buildNewReleasesSection1() {
     if (isLoading) {
       return _buildSkeletonLoading();
@@ -415,15 +378,7 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     if (categoriesData == null) {
-      return SizedBox(
-        height: 100.h,
-        child: Center(
-          child: Text(
-            'Failed to load data.',
-            style: TextStyle(fontSize: 16.sp, color: Colors.red),
-          ),
-        ),
-      );
+      return const SizedBox.shrink(); // Return an empty widget if no data
     }
 
     List<Widget> items = [];
@@ -433,10 +388,13 @@ class HomeScreenState extends State<HomeScreen> {
       orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
     );
 
+    if (upcomingCategory.subcategories.isEmpty) {
+      return const SizedBox.shrink(); // Return an empty widget if no subcategories
+    }
+
     for (var subcategory in upcomingCategory.subcategories) {
       String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/placeholder.jpg';
-      items.add(
-          _buildCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: true));
+      items.add(_buildCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: true));
     }
 
     return _buildHorizontalCardSection(sectionTitle: sectionTitle, items: items);
@@ -452,7 +410,7 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     if (categoriesData == null) {
-      return Container();
+      return const SizedBox.shrink(); // Return an empty widget if no data
     }
 
     List<Widget> items = [];
@@ -462,6 +420,10 @@ class HomeScreenState extends State<HomeScreen> {
           (category) => category.name.toLowerCase() == 'festival',
       orElse: () => CategoryWithSubcategory(name: 'No Festival', subcategories: []),
     );
+
+    if (festivalCategory.subcategories.isEmpty) {
+      return const SizedBox.shrink(); // Return an empty widget if no subcategories
+    }
 
     for (var subcategory in festivalCategory.subcategories) {
       if (subcategory.images.isNotEmpty) {
@@ -478,6 +440,7 @@ class HomeScreenState extends State<HomeScreen> {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 8.w),
         child: Column(
+
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(height: 5.h),
@@ -516,7 +479,6 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Widget _buildHorizontalCardSection1({required String sectionTitle, required List<Widget> items}) {
     return Container(
@@ -562,6 +524,107 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+
+
+
+
+
+  Widget _buildHorizontalCardSection3(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double maxGridHeight = screenHeight * 0.6; // Maximum height for the grid
+
+    return Container(
+      color: Colors.white,
+      child: SingleChildScrollView( // Allow scrolling if content overflows
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 5.h),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    height: 26.h,
+                    width: 6.w,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(5.r),
+                        bottom: Radius.circular(5.r),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Daily Use',
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              SizedBox(height: 5.h),
+              Container(
+                height: maxGridHeight, // Set a fixed height for GridView
+                child: GridView.builder(
+                  primary: false, // Prevent GridView from taking up full height
+                  physics: NeverScrollableScrollPhysics(), // Disable internal scrolling
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4, // Set to 4 columns
+                    crossAxisSpacing: 8.w, // Horizontal spacing between items
+                    mainAxisSpacing: 15.h, // Vertical spacing between items
+                    childAspectRatio: 0.80, // Adjusted to fit item dimensions better
+                  ),
+                  itemCount: items.length, // Show all items
+                  itemBuilder: (context, index) {
+                    return items[index];
+                  },
+                ),
+              ),
+              SizedBox(height: 10.h), // Additional bottom padding if needed
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+
+
+
+  static Widget _buildItemCard(String title) {
+    return Column(
+      children: [
+        Container(
+          width: 80.w, // Adjust width for a consistent fit within the grid
+          height: 75.h, // Adjust height for better fit
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(color: Colors.grey.shade200)
+
+          ),
+        ),
+        Text(
+          title,
+          style: TextStyle(fontSize: 10.sp),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+
+
+
+
+
+
+
+
+
+
 
   Widget _buildSkeletonLoading() {
     return Shimmer.fromColors(
@@ -628,5 +691,9 @@ class HomeScreenState extends State<HomeScreen> {
 
     return Column(children: sections);
   }
+
+
+
+
 
 }

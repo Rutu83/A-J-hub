@@ -1,8 +1,12 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DownloadedImagesPage extends StatefulWidget {
+  const DownloadedImagesPage({super.key});
+
   @override
   _DownloadedImagesPageState createState() => _DownloadedImagesPageState();
 }
@@ -18,7 +22,7 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
   }
 
   Future<void> _loadDownloadedImages() async {
-    final directory = Directory('/storage/emulated/0/Pictures');
+    final directory = Directory('/storage/emulated/0/Pictures/AJHUB');
     if (await directory.exists()) {
       List<FileSystemEntity> files = directory.listSync();
       setState(() {
@@ -90,7 +94,7 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
 class FullScreenImageView extends StatelessWidget {
   final File imageFile;
 
-  const FullScreenImageView({Key? key, required this.imageFile}) : super(key: key);
+  const FullScreenImageView({super.key, required this.imageFile});
 
   @override
   Widget build(BuildContext context) {

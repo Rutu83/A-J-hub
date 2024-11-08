@@ -406,6 +406,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           } else if (label == "Business List") {
             if (businessData != null) {
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -421,7 +422,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }   else if (label == "Downloaded Images") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => DownloadedImagesPage()),
+              MaterialPageRoute(builder: (context) => const DownloadedImagesPage()),
             );
           } else if (label == "Refer & Earn") {
             Navigator.push(
