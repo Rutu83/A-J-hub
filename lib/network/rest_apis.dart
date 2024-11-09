@@ -241,6 +241,8 @@ Future<CategoriesWithSubcategoriesResponse> getCategoriesWithSubcategories() asy
 
     appStore.setLoading(false);
 
+
+    //log('data: $categoriesResponse');
     return categoriesResponse; // Return the categories response
   } catch (e) {
     appStore.setLoading(false);

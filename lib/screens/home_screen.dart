@@ -565,11 +565,11 @@ class HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               SizedBox(height: 5.h),
-              Container(
+              SizedBox(
                 height: maxGridHeight, // Set a fixed height for GridView
                 child: GridView.builder(
                   primary: false, // Prevent GridView from taking up full height
-                  physics: NeverScrollableScrollPhysics(), // Disable internal scrolling
+                  physics: const NeverScrollableScrollPhysics(), // Disable internal scrolling
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4, // Set to 4 columns
                     crossAxisSpacing: 8.w, // Horizontal spacing between items
