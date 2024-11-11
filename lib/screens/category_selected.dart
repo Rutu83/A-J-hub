@@ -26,6 +26,7 @@ class CategorySelectedState extends State<CategorySelected> {
   int selectedIndex = 0; // Index for selected image
   int selectedFrameIndex = 0; // Index for sliding frames
   bool isDownloading = false; // Flag to manage download state
+  double downloadProgress = 0.0;
 
   // Define the available frames
   final List<String> framePaths = [
@@ -99,6 +100,9 @@ class CategorySelectedState extends State<CategorySelected> {
       ),
       body: Column(
         children: [
+
+
+
           // Fixed Image with frame sliding applied
         SizedBox(
         height: 0.45.sh, // ScreenUtil for height
@@ -229,6 +233,36 @@ class CategorySelectedState extends State<CategorySelected> {
             ),
           ),
           SizedBox(height: 8.h),
+
+          if (isDownloading)
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.r),
+                    child: LinearProgressIndicator(
+                      value: downloadProgress,
+                      backgroundColor: Colors.grey[300],
+                      color: Colors.red,
+                      minHeight: 6.h,
+                    ),
+                  ),
+                  Text(
+                    '${(downloadProgress * 100).toInt()}%', // Show percentage
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+
+          SizedBox(height: 8.h),
         ],
       ),
     );
@@ -277,20 +311,24 @@ class CategorySelectedState extends State<CategorySelected> {
       await _checkStoragePermission();
       setState(() {
         isDownloading = true;
+        downloadProgress = 0.0;
       });
 
-      // Combine the image with the selected frame
-      final combinedImage = await _combineImageAndFrame(imageUrl, framePaths[selectedFrameIndex]);
+      // Simulate download progress
+      for (int i = 0; i <= 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 30));
+        setState(() {
+          downloadProgress = i / 100;
+        });
+      }
 
-      // Convert the combined image to a PNG byte array
+      // Combine image with frame and save
+      final combinedImage = await _combineImageAndFrame(imageUrl, framePaths[selectedFrameIndex]);
       final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
 
-      // Save the PNG bytes to a file
       var dir = Directory('/storage/emulated/0/Pictures/AJHUB');
-      if (!await dir.exists()) {
-        await dir.create(recursive: true);
-      }
+      if (!await dir.exists()) await dir.create(recursive: true);
 
       String fileName = path.basename(imageUrl);
       String savePath = path.join(dir.path, fileName);
@@ -304,9 +342,7 @@ class CategorySelectedState extends State<CategorySelected> {
       await _refreshGallery(savePath);
       _openImage(savePath);
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Image downloaded to $savePath'),
-      ));
+
     } catch (e) {
       setState(() {
         isDownloading = false;

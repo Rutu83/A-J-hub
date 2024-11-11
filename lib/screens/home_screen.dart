@@ -1,4 +1,5 @@
 import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
+import 'package:allinone_app/model/daillyuse_modal.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/foundation.dart';
@@ -29,26 +30,9 @@ class HomeScreenState extends State<HomeScreen> {
   bool hasError = false;
   String errorMessage = '';
   SubcategoryResponse? subcategoryData;
+  DaillyuseResponse? daillyuseData;
   CategoriesWithSubcategoriesResponse? categoriesData;
 
-
-
-
-
-  List<Widget> items = [
-    _buildItemCard('Festival'),
-    _buildItemCard('Diwali'),
-    _buildItemCard('Morning'),
-    _buildItemCard('News'),
-    _buildItemCard('Gujarati Suvichar'),
-    _buildItemCard('motivational'),
-    _buildItemCard('Item 7'),
-    _buildItemCard('Item 8'),
-    _buildItemCard('Festival'),
-    _buildItemCard('Diwali'),
-    _buildItemCard('Morning'),
-
-  ];
 
 
   @override
@@ -59,7 +43,26 @@ class HomeScreenState extends State<HomeScreen> {
     ));
     fetchCategoriesData();
     fetchSubcategoryData();
+    fetchDailyUseCategoryData();
   }
+
+  Future<void> fetchDailyUseCategoryData() async {
+    try {
+      final data = await getDailyUseWithSubcategory();
+      setState(() {
+        daillyuseData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        hasError = true;
+        print(e);
+        errorMessage = 'Failed to load data: $e';
+        isLoading = false;
+      });
+    }
+  }
+
 
   Future<void> fetchSubcategoryData() async {
     try {
@@ -161,21 +164,20 @@ class HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             _buildBannerSlider(),
-         //   _buildButtons(),
-          //  const SizedBox(height: 10),
-            _buildNewReleasesSection1(),
+            _buildUpcomingCategorySection(),
             const SizedBox(height: 10),
-            _buildNewReleasesSection2(),
-            isLoading ? _buildSkeletonLoading() : _buildContent(),
+            _buildFestivalCategorySection(),
+            isLoading ? _buildSkeletonLoading() : _buildSubcategorySections(),
             const SizedBox(height: 10),
-            _buildHorizontalCardSection3(context),
+            _buildDailyUseSection(context),
             const SizedBox(height: 50),
-       //     const SizedBox(height: 50),
+
           ],
         ),
       ),
     );
   }
+
 
   Widget _buildBannerSlider() {
     return Padding(
@@ -231,7 +233,47 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+  Widget _buildUpcomingCategorySection() {
+    if (isLoading) {
+      return _buildSkeletonLoading();
+    }
+
+    if (hasError) {
+      return SizedBox(
+        height: 100.h,
+        child: Center(
+          child: Text(
+            errorMessage,
+            style: TextStyle(fontSize: 16.sp, color: Colors.red),
+          ),
+        ),
+      );
+    }
+
+    if (categoriesData == null) {
+      return const SizedBox.shrink(); // Return an empty widget if no data
+    }
+
+    List<Widget> items = [];
+    String sectionTitle = 'Upcoming';
+    var upcomingCategory = categoriesData!.categories.firstWhere(
+          (category) => category.name.toLowerCase() == 'upcoming',
+      orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
+    );
+
+    if (upcomingCategory.subcategories.isEmpty) {
+      return const SizedBox.shrink(); // Return an empty widget if no subcategories
+    }
+
+    for (var subcategory in upcomingCategory.subcategories) {
+      String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/placeholder.jpg';
+      items.add(_buildUpcomingCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: true));
+    }
+
+    return _buildUpcomingHorizontalCard(sectionTitle: sectionTitle, items: items);
+  }
+
+  Widget _buildUpcomingCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -296,7 +338,94 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCardItem2(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+  Widget _buildFestivalCategorySection() {
+    if (isLoading) {
+      return _buildSkeletonLoading();
+    }
+
+    if (hasError) {
+      return Container();
+    }
+
+    if (categoriesData == null) {
+      return const SizedBox.shrink();
+    }
+
+    List<Widget> items = [];
+    String sectionTitle = 'Festival';
+
+    var festivalCategory = categoriesData!.categories.firstWhere(
+          (category) => category.name.toLowerCase() == 'festival',
+      orElse: () => CategoryWithSubcategory(name: 'No Festival', subcategories: []),
+    );
+
+    if (festivalCategory.subcategories.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    for (var subcategory in festivalCategory.subcategories) {
+      if (subcategory.images.isNotEmpty) {
+        items.add(_buildCardItem(subcategory.name, subcategory.images[0], subcategory.images, showTitle: false));
+      }
+    }
+
+    return _buildHorizontalCardSection(sectionTitle: sectionTitle, items: items);
+  }
+
+  Widget _buildSubcategorySections() {
+    if (isLoading) {
+      return _buildSkeletonLoading(); // Show skeleton loading when data is loading
+    }
+
+    if (hasError) {
+      return Container(
+        height: 200.h,
+        width: 300.w,
+        decoration: const BoxDecoration(),
+        child: Lottie.asset('assets/animation/error_lottie.json'),
+      );
+    }
+
+    if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
+      return Center(
+        child: Text(
+          'No data available',
+          style: TextStyle(fontSize: 16.sp, color: Colors.black),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          _buildSubcategory(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubcategory() {
+    List<Widget> sections = [];
+
+    for (var subcategory in subcategoryData!.subcategories) {
+      List<Widget> items = subcategory.images.map((imageUrl) {
+        return _buildCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: false);
+      }).toList();
+
+      subcategory.images.map((imageUrl) {
+        return {'image': imageUrl};
+      }).toList();
+
+      sections.add(_buildHorizontalCardSection(
+        sectionTitle: subcategory.name,
+        items: items,
+      ));
+    }
+
+    return Column(children: sections);
+  }
+
+  Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -310,37 +439,42 @@ class HomeScreenState extends State<HomeScreen> {
         width: 120.w,
         margin: EdgeInsets.only(right: 8.w),
         decoration: BoxDecoration(
-        //  border: Border.all(color: Colors.red.shade50),
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-
+              width: 120.w,
+              height: 90.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.r),
-                child: imageUrl.startsWith('http')
-                    ? Image.network(
+                child: Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey,
-                      child: const Icon(Icons.error),
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) {
+                      return child; // Image loaded successfully
+                    }
+                    return Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        width: 120.w,
+                        height: 90.h,
+                        color: Colors.grey[300],
+                      ),
                     );
                   },
-                )
-                    : Image.asset(
-                  imageUrl,
-                  fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
+                      width: 120.w,
+                      height: 90.h,
                       color: Colors.grey,
-                      child: const Icon(Icons.error),
+                      child: const Icon(Icons.error, color: Colors.red),
                     );
                   },
                 ),
@@ -360,81 +494,118 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildNewReleasesSection1() {
-    if (isLoading) {
-      return _buildSkeletonLoading();
-    }
+  Widget _buildDailyUseSection(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double maxGridHeight = screenHeight * 0.6; // Maximum height for the grid
 
-    if (hasError) {
-      return SizedBox(
-        height: 100.h,
-        child: Center(
-          child: Text(
-            errorMessage,
-            style: TextStyle(fontSize: 16.sp, color: Colors.red),
-          ),
-        ),
-      );
-    }
+    List<Widget> items = []; // List to store daily use items
 
-    if (categoriesData == null) {
-      return const SizedBox.shrink(); // Return an empty widget if no data
-    }
-
-    List<Widget> items = [];
-    String sectionTitle = 'Upcoming';
-    var upcomingCategory = categoriesData!.categories.firstWhere(
-          (category) => category.name.toLowerCase() == 'upcoming',
-      orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
-    );
-
-    if (upcomingCategory.subcategories.isEmpty) {
-      return const SizedBox.shrink(); // Return an empty widget if no subcategories
-    }
-
-    for (var subcategory in upcomingCategory.subcategories) {
-      String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/placeholder.jpg';
-      items.add(_buildCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: true));
-    }
-
-    return _buildHorizontalCardSection(sectionTitle: sectionTitle, items: items);
-  }
-
-  Widget _buildNewReleasesSection2() {
-    if (isLoading) {
-      return _buildSkeletonLoading();
-    }
-
-    if (hasError) {
-      return Container();
-    }
-
-    if (categoriesData == null) {
-      return const SizedBox.shrink(); // Return an empty widget if no data
-    }
-
-    List<Widget> items = [];
-    String sectionTitle = 'Festival';
-
-    var festivalCategory = categoriesData!.categories.firstWhere(
-          (category) => category.name.toLowerCase() == 'festival',
-      orElse: () => CategoryWithSubcategory(name: 'No Festival', subcategories: []),
-    );
-
-    if (festivalCategory.subcategories.isEmpty) {
-      return const SizedBox.shrink(); // Return an empty widget if no subcategories
-    }
-
-    for (var subcategory in festivalCategory.subcategories) {
-      if (subcategory.images.isNotEmpty) {
-        items.add(_buildCardItem2(subcategory.name, subcategory.images[0], subcategory.images, showTitle: false));
+    if (daillyuseData != null) {
+      for (var category in daillyuseData!.subcategories) {
+        String title = category.name;
+        String imageUrl = category.images.isNotEmpty ? category.images[0] : 'assets/images/placeholder.jpg';
+        items.add(_buildDailyUseItemCard(title, imageUrl));
       }
     }
 
-    return _buildHorizontalCardSection1(sectionTitle: sectionTitle, items: items);
+    return Container(
+      color: Colors.white,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 5.h),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    height: 26.h,
+                    width: 6.w,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(5.r),
+                        bottom: Radius.circular(5.r),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'Daily Use',
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              SizedBox(height: 5.h),
+              SizedBox(
+                height: maxGridHeight,
+                child: GridView.builder(
+                  primary: false,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    crossAxisSpacing: 8.w,
+                    mainAxisSpacing: 15.h,
+                    childAspectRatio: 0.80,
+                  ),
+                  itemCount: items.length,
+                  itemBuilder: (context, index) {
+                    return items[index];
+                  },
+                ),
+              ),
+              SizedBox(height: 10.h),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
-  Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items}) {
+  Widget _buildDailyUseItemCard(String title, String imageUrl) {
+    return Column(
+      children: [
+        Container(
+          width: 80.w,
+          height: 75.h,
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(color: Colors.grey.shade200),
+            image: DecorationImage(
+              image: NetworkImage(imageUrl),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        Text(
+          title,
+          style: TextStyle(fontSize: 10.sp),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+
+
+
+  Widget _buildSkeletonLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        children: List.generate(5, (index) => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          child: Container(height: 140.h, color: Colors.white),
+        )),
+      ),
+    );
+  }
+
+  Widget _buildUpcomingHorizontalCard({required String sectionTitle, required List<Widget> items}) {
     return Container(
       color: const Color(0xFFFFF5F5),
       child: Padding(
@@ -480,7 +651,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHorizontalCardSection1({required String sectionTitle, required List<Widget> items}) {
+  Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items}) {
     return Container(
       color: Colors.white,
       child: Padding(
@@ -523,173 +694,6 @@ class HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-  }
-
-
-
-
-
-
-  Widget _buildHorizontalCardSection3(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double maxGridHeight = screenHeight * 0.6; // Maximum height for the grid
-
-    return Container(
-      color: Colors.white,
-      child: SingleChildScrollView( // Allow scrolling if content overflows
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 5.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    height: 26.h,
-                    width: 6.w,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(5.r),
-                        bottom: Radius.circular(5.r),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    'Daily Use',
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              SizedBox(height: 5.h),
-              SizedBox(
-                height: maxGridHeight, // Set a fixed height for GridView
-                child: GridView.builder(
-                  primary: false, // Prevent GridView from taking up full height
-                  physics: const NeverScrollableScrollPhysics(), // Disable internal scrolling
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4, // Set to 4 columns
-                    crossAxisSpacing: 8.w, // Horizontal spacing between items
-                    mainAxisSpacing: 15.h, // Vertical spacing between items
-                    childAspectRatio: 0.80, // Adjusted to fit item dimensions better
-                  ),
-                  itemCount: items.length, // Show all items
-                  itemBuilder: (context, index) {
-                    return items[index];
-                  },
-                ),
-              ),
-              SizedBox(height: 10.h), // Additional bottom padding if needed
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-
-
-
-  static Widget _buildItemCard(String title) {
-    return Column(
-      children: [
-        Container(
-          width: 80.w, // Adjust width for a consistent fit within the grid
-          height: 75.h, // Adjust height for better fit
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(color: Colors.grey.shade200)
-
-          ),
-        ),
-        Text(
-          title,
-          style: TextStyle(fontSize: 10.sp),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-  Widget _buildSkeletonLoading() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Column(
-        children: List.generate(5, (index) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-          child: Container(height: 140.h, color: Colors.white),
-        )),
-      ),
-    );
-  }
-
-  Widget _buildContent() {
-    if (isLoading) {
-      return _buildSkeletonLoading(); // Show skeleton loading when data is loading
-    }
-
-    if (hasError) {
-      return Container(
-        height: 200.h,
-        width: 300.w,
-        decoration: const BoxDecoration(),
-        child: Lottie.asset('assets/animation/error_lottie.json'),
-      );
-    }
-
-    if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
-      return Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(fontSize: 16.sp, color: Colors.black),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildSubcategorySections(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubcategorySections() {
-    List<Widget> sections = [];
-
-    for (var subcategory in subcategoryData!.subcategories) {
-      List<Widget> items = subcategory.images.map((imageUrl) {
-        return _buildCardItem2(subcategory.name, imageUrl, subcategory.images, showTitle: false);
-      }).toList();
-
-      subcategory.images.map((imageUrl) {
-        return {'image': imageUrl};
-      }).toList();
-
-      sections.add(_buildHorizontalCardSection1(
-        sectionTitle: subcategory.name,
-        items: items,
-      ));
-    }
-
-    return Column(children: sections);
   }
 
 

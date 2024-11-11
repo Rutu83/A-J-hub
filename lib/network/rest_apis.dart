@@ -6,6 +6,7 @@ import 'package:allinone_app/main.dart';
 import 'package:allinone_app/model/business_mode.dart';
 import 'package:allinone_app/model/categories_mode.dart';
 import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
+import 'package:allinone_app/model/daillyuse_modal.dart';
 import 'package:allinone_app/model/login_modal.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
@@ -202,6 +203,7 @@ Future<CategoriesResponse> getCategories() async {
     appStore.setLoading(false);
     rethrow;
   }
+
 }
 
 
@@ -252,3 +254,26 @@ Future<CategoriesWithSubcategoriesResponse> getCategoriesWithSubcategories() asy
 
 
 
+
+// Fetch and parse data
+Future<DaillyuseResponse> getDailyUseWithSubcategory() async {
+  try {
+    final responseJson = await handleResponse(
+        await buildHttpResponse('getdailyusewithsubcategory', method: HttpMethodType.GET));
+
+    // Parse as a List instead of a Map
+    final res = DaillyuseResponse.fromJson(responseJson as List<dynamic>);
+
+    // Cache the result
+    cacheddaillyusecategory = cacheddaillyusecategory ?? [];
+    cacheddaillyusecategory?.clear();
+    cacheddaillyusecategory?.add(res);
+
+    appStore.setLoading(false);
+
+    return res;
+  } catch (e) {
+    appStore.setLoading(false);
+    rethrow;
+  }
+}
