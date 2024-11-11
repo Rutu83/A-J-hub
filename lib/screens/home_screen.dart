@@ -1,6 +1,7 @@
 import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
 import 'package:allinone_app/model/daillyuse_modal.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
+import 'package:allinone_app/screens/category_topics.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,9 @@ class HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       setState(() {
         hasError = true;
-        print(e);
+        if (kDebugMode) {
+          print(e);
+        }
         errorMessage = 'Failed to load data: $e';
         isLoading = false;
       });
@@ -494,6 +497,8 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+
+
   Widget _buildDailyUseSection(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double maxGridHeight = screenHeight * 0.6; // Maximum height for the grid
@@ -504,7 +509,11 @@ class HomeScreenState extends State<HomeScreen> {
       for (var category in daillyuseData!.subcategories) {
         String title = category.name;
         String imageUrl = category.images.isNotEmpty ? category.images[0] : 'assets/images/placeholder.jpg';
-        items.add(_buildDailyUseItemCard(title, imageUrl));
+
+        // Convert List<String> to List<Map<String, String>>
+        List<Map<String, String>> topicMaps = category.images.map((url) => {'image': url}).toList();
+
+        items.add(_buildDailyUseItemCard(title, imageUrl, topicMaps, context));
       }
     }
 
@@ -564,30 +573,48 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildDailyUseItemCard(String title, String imageUrl) {
-    return Column(
-      children: [
-        Container(
-          width: 80.w,
-          height: 75.h,
-          decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(20.r),
-            border: Border.all(color: Colors.grey.shade200),
-            image: DecorationImage(
-              image: NetworkImage(imageUrl),
-              fit: BoxFit.cover,
+  Widget _buildDailyUseItemCard(String title, String imageUrl, List<Map<String, String>> topicMaps, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategoryTopics(
+              title: title,
+              images: topicMaps,
             ),
           ),
-        ),
-        Text(
-          title,
-          style: TextStyle(fontSize: 10.sp),
-          textAlign: TextAlign.center,
-        ),
-      ],
+        );
+      },
+      child: Column(
+        children: [
+          Container(
+            width: 80.w,
+            height: 75.h,
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(color: Colors.grey.shade200),
+              image: DecorationImage(
+                image: NetworkImage(imageUrl),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Text(
+            title,
+            style: TextStyle(fontSize: 10.sp),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
+
+
+
+
+
 
 
 
