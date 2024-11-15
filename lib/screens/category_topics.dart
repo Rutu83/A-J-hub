@@ -1,5 +1,7 @@
 import 'package:allinone_app/screens/category_selected.dart';
+import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CategoryTopics extends StatelessWidget {
   final String title;
@@ -47,18 +49,20 @@ class CategoryTopics extends StatelessWidget {
           ),
           itemCount: images!.length,
           itemBuilder: (context, index) {
-            final imageData = images![index]; // Renamed for clarity
+            final imageData = images![index];
             final imageUrl = imageData['image'] ?? ''; // Use imageData
 
             return InkWell(
               onTap: () {
                 // Pass all image URLs when navigating
-                List<String> allImageUrls = images!.map((imgData) => imgData['image'] ?? '').toList();
+                List<String> allImageUrls =
+                images!.map((imgData) => imgData['image'] ?? '').toList();
 
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CategorySelected(imagePaths: allImageUrls),
+                    builder: (context) =>
+                        CategorySelected(imagePaths: allImageUrls),
                   ),
                 );
               },
@@ -69,27 +73,22 @@ class CategoryTopics extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
-                  child: imageUrl.startsWith('http')
-                      ? Image.network(
-                    imageUrl,
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
                     fit: BoxFit.fill,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey.shade300,
-                        child: const Icon(Icons.error),
-                      );
-                    },
-                  )
-                      : Image.asset(
-                    imageUrl,
-                    fit: BoxFit.fill,
-                    width: double.infinity,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey.shade300,
-                        child: const Icon(Icons.error),
-                      );
-                    },
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        color: Colors.grey[300],
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey.shade300,
+                      child: const Icon(Icons.error, color: Colors.red),
+                    ),
                   ),
                 ),
               ),

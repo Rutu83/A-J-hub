@@ -77,57 +77,47 @@ class SignUpScreenState extends State<SignUpScreen> {
   void _showCountrySelectionSheet() {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Allows full-screen scrolling behavior
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30.0), // Set top-left corner radius
-          topRight: Radius.circular(30.0), // Set top-right corner radius
+          topLeft: Radius.circular(30.0),
+          topRight: Radius.circular(30.0),
         ),
       ),
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          expand: false, // Prevents expanding to full screen on its own
+          expand: false,
           builder: (context, scrollController) {
             return Container(
               decoration: const BoxDecoration(
-                color: Colors.white, // Set background color to white
+                color: Colors.white,
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0), // Ensure top-left corner is rounded
-                  topRight: Radius.circular(30.0), // Ensure top-right corner is rounded
+                  topLeft: Radius.circular(30.0),
+                  topRight: Radius.circular(30.0),
                 ),
               ),
               child: Column(
                 children: [
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   Container(
                     height: 6,
                     width: 50,
                     decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(12)
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    alignment: Alignment.centerLeft,
-                    child:   Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Select Country',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Select Country',
+                      style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
                     ),
                   ),
                   Expanded(
                     child: ListView.separated(
-                      controller: scrollController, // Attach the scroll controller
+                      controller: scrollController,
                       itemCount: countries.length,
                       itemBuilder: (context, index) {
                         final country = countries[index];
@@ -135,18 +125,15 @@ class SignUpScreenState extends State<SignUpScreen> {
                           title: Text(country['name']),
                           onTap: () {
                             setState(() {
-                              selectedCountry = country['name'];
+                              selectedCountry = country['id'].toString(); // Use ID for registration payload
                             });
-                            fetchStates(country['id'].toString()); // Fetch states based on country selection
+                            fetchStates(selectedCountry!); // Fetch states based on country ID
                             Navigator.pop(context);
                           },
                         );
                       },
                       separatorBuilder: (context, index) {
-                        return const Divider( // Horizontal line between items
-                          thickness: 1,
-                          color: Colors.grey,
-                        );
+                        return const Divider(thickness: 1, color: Colors.grey);
                       },
                     ),
                   ),
@@ -158,6 +145,7 @@ class SignUpScreenState extends State<SignUpScreen> {
       },
     );
   }
+
 
   void _showStateSelectionSheet() {
     if (selectedCountry == null) {
@@ -451,6 +439,9 @@ class SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _registerUser() async {
+
+    print(selectedCountry);
+
     if (selectedCountry == null || selectedState == null || selectedCity == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select Country, State, and City')),
@@ -511,7 +502,8 @@ class SignUpScreenState extends State<SignUpScreen> {
               ? 'A server issue occurred during registration. Please contact support.'
               : 'Server error. Please try again later.';
         } else if (response.statusCode == 400) {
-          errorMessage = 'Validation error. Please check the input fields and try again.';
+          print(response.body);
+          errorMessage = 'Validation error.${response.body}';
         } else if (response.statusCode == 403) {
           errorMessage = 'You are not authorized to perform this action.';
         }
@@ -973,12 +965,11 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              selectedCountry != null ? selectedCountry! : 'Select Country',
+              selectedCountry != null
+                  ? countries.firstWhere((c) => c['id'].toString() == selectedCountry)['name']
+                  : 'Select Country',
               style: GoogleFonts.roboto(
-                textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12.sp,
-                ),
+                textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
               ),
             ),
             const Icon(Icons.arrow_drop_down, color: Colors.black),
@@ -987,6 +978,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
       ),
     );
   }
+
 
   Widget _buildStateField() {
     return GestureDetector(

@@ -440,7 +440,7 @@ class KycScreenState extends State<KycScreen> {
                   decoration: BoxDecoration(
                     //border: Border.all(color: Colors.grey, width: 1),
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors.red.shade50,
+                    color: Colors.white,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black26.withOpacity(0.2),
@@ -456,8 +456,9 @@ class KycScreenState extends State<KycScreen> {
                     '7684 3456 07656',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 17,
+
+                      fontWeight: FontWeight.bold,
 
                     ),
                   ),
@@ -493,7 +494,7 @@ class KycScreenState extends State<KycScreen> {
                   decoration: BoxDecoration(
                     //border: Border.all(color: Colors.grey, width: 1),
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors.red.shade50,
+                    color: Colors.white,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black26.withOpacity(0.2),
@@ -509,8 +510,9 @@ class KycScreenState extends State<KycScreen> {
                     '8767895704',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
+                      fontSize: 17,
+
+                      fontWeight: FontWeight.bold,
 
                     ),
                   ),

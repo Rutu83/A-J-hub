@@ -4,6 +4,7 @@ import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/category_selected.dart';
 import 'package:allinone_app/screens/category_topics.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
@@ -153,6 +154,10 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   }
 
   Widget _buildContent() {
+    if (isLoading) {
+      return _buildSkeletonLoading(); // Show skeleton loader while loading
+    }
+
     if (hasError) {
       return SizedBox(
         height: 200.h,
@@ -174,13 +179,12 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       child: Column(
         children: [
           _buildSubcategorySections(),
-          const SizedBox(
-            height: 100,
-          ),
+          const SizedBox(height: 100),
         ],
       ),
     );
   }
+
 
   Widget _buildSubcategorySections() {
     List<Widget> sections = [];
@@ -248,14 +252,22 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.r),
-                child: imageUrl.startsWith('assets/')
-                    ? Image.asset(
-                  imageUrl,
-                  fit: BoxFit.fill,
-                )
-                    : Image.network(
-                  imageUrl,
-                  fit: BoxFit.fill,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 110.w,
+                      height: 100.h,
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    color: Colors.grey,
+                    child: const Icon(Icons.error, color: Colors.red),
+                  ),
                 ),
               ),
             ),
@@ -314,29 +326,23 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
   Widget _buildNewReleasesSection() {
     if (isLoading) {
-      return _buildSkeletonLoader();
+      return _buildSkeletonLoading(); // Use skeleton loader
     }
 
     if (categoriesData == null) {
-      return SizedBox(
-        height: 10.h,
-        child: Center(
-          child: Text(
-            'Failed to load data.',
-            style: TextStyle(fontSize: 16.sp, color: Colors.red),
-          ),
-        ),
-      );
+      return const SizedBox.shrink(); // Return an empty widget if no data
     }
-
-    List<Widget> items = [];
-    String sectionTitle = 'Upcoming';
 
     var upcomingCategory = categoriesData!.categories.firstWhere(
           (category) => category.name.toLowerCase() == 'upcoming',
       orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
     );
 
+    if (upcomingCategory.subcategories.isEmpty) {
+      return const SizedBox.shrink(); // Return an empty widget if no subcategories
+    }
+
+    List<Widget> items = [];
     for (var subcategory in upcomingCategory.subcategories) {
       String imageUrl = subcategory.images.isNotEmpty
           ? subcategory.images[0]
@@ -350,10 +356,12 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     }
 
     return _buildHorizontalCardSection2(
-      sectionTitle: sectionTitle,
+      sectionTitle: 'Upcoming',
       items: items,
     );
   }
+
+
 
   Widget _buildSkeletonLoader() {
     return Shimmer.fromColors(
@@ -436,39 +444,40 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.red.shade50, width: 2),
+              CachedNetworkImage(
+                imageUrl: imageUrl,
+                imageBuilder: (context, imageProvider) => AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover,
+                    ),
+                    border: Border.all(color: Colors.red.shade50, width: 2),
+                  ),
                 ),
-                child: ClipOval(
-                  child: SizedBox(
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
                     width: 90.w,
                     height: 90.w,
-                    child: imageUrl.startsWith('http')
-                        ? Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey,
-                          child: const Icon(Icons.error),
-                        );
-                      },
-                    )
-                        : Image.asset(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey,
-                          child: const Icon(Icons.error),
-                        );
-                      },
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[300],
                     ),
                   ),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  width: 90.w,
+                  height: 90.w,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey,
+                  ),
+                  child: const Icon(Icons.error, color: Colors.red),
                 ),
               ),
               SizedBox(height: 6.h),
@@ -485,7 +494,12 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
+
   Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
+    if (items.isEmpty) {
+      return const SizedBox.shrink(); // Return an empty widget if no items
+    }
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 12.w),
       child: Column(
@@ -527,3 +541,5 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 }
+
+

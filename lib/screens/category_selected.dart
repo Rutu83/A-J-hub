@@ -2,6 +2,8 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:allinone_app/screens/category_edit_business_form.dart';
+import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -130,7 +132,7 @@ class CategorySelectedState extends State<CategorySelected> {
               child: CarouselSlider.builder(
                 itemCount: framePaths.length,
                 options: CarouselOptions(
-                  height: 0.54.sh, // Responsive height
+                  height: 0.54.sh,
                   enableInfiniteScroll: false,
                   enlargeCenterPage: false,
                   viewportFraction: 1.0,
@@ -143,15 +145,42 @@ class CategorySelectedState extends State<CategorySelected> {
                 itemBuilder: (context, index, realIndex) {
                   return ClipRRect(
                     borderRadius: BorderRadius.circular(8.r),
-                    child: Image.asset(
+                    child: framePaths[index].startsWith('http')
+                        ? CachedNetworkImage(
+                      imageUrl: framePaths[index],
+                      fit: BoxFit.fitWidth,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(
+                          width: 1.sw - 10.w,
+                          height: 0.54.sh,
+                          color: Colors.grey[300],
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        width: 1.sw - 10.w,
+                        height: 0.54.sh,
+                        color: Colors.grey,
+                        child: const Icon(Icons.error, color: Colors.red),
+                      ),
+                    )
+                        : Image.asset(
                       framePaths[index],
                       fit: BoxFit.fitWidth,
-                      width: 1.sw - 10.w, // Adjusted for screen width
-                      height: 0.54.sh, // Adjusted for screen height
+                      width: 1.sw - 10.w,
+                      height: 0.54.sh,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey,
+                          child: const Icon(Icons.error, color: Colors.red),
+                        );
+                      },
                     ),
                   );
                 },
-              ),
+              )
+
             ),
           ],
         ),
@@ -271,27 +300,37 @@ class CategorySelectedState extends State<CategorySelected> {
   // Function to build image based on URL or asset path
   Widget _buildImage(String path) {
     if (path.startsWith('http')) {
-      return Image.network(
-        path,
+      // Load image from the network using CachedNetworkImage
+      return CachedNetworkImage(
+        imageUrl: path,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        errorBuilder: (context, error, stackTrace) {
-          return const Center(child: Icon(Icons.error));
-        },
+        placeholder: (context, url) => Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            color: Colors.grey[300],
+            width: double.infinity,
+            height: double.infinity,
+          ),
+        ),
+        errorWidget: (context, url, error) => const Center(child: Icon(Icons.error, color: Colors.red)),
       );
     } else {
+      // Load local asset image
       return Image.asset(
         path,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
         errorBuilder: (context, error, stackTrace) {
-          return const Center(child: Icon(Icons.error));
+          return const Center(child: Icon(Icons.error, color: Colors.red));
         },
       );
     }
   }
+
 
   // Request storage permissions before downloading
   Future<void> _checkStoragePermission() async {
@@ -437,7 +476,7 @@ class CategorySelectedState extends State<CategorySelected> {
 
       // Share the combined image with the label
       XFile xFile = XFile(savePath);
-      Share.shareXFiles([xFile], text: 'Bust Lime Download');
+      Share.shareXFiles([xFile], text: 'Aj Hub Mobile App');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Failed to share image: $e'),

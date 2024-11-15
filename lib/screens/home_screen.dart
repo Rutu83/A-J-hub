@@ -3,6 +3,7 @@ import 'package:allinone_app/model/daillyuse_modal.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
 import 'package:allinone_app/screens/category_topics.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -173,7 +174,6 @@ class HomeScreenState extends State<HomeScreen> {
             isLoading ? _buildSkeletonLoading() : _buildSubcategorySections(),
             const SizedBox(height: 10),
             _buildDailyUseSection(context),
-            const SizedBox(height: 50),
 
           ],
         ),
@@ -428,6 +428,8 @@ class HomeScreenState extends State<HomeScreen> {
     return Column(children: sections);
   }
 
+
+
   Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
@@ -455,31 +457,24 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.r),
-                child: Image.network(
-                  imageUrl,
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
                   fit: BoxFit.cover,
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) {
-                      return child; // Image loaded successfully
-                    }
-                    return Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        width: 120.w,
-                        height: 90.h,
-                        color: Colors.grey[300],
-                      ),
-                    );
-                  },
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
                       width: 120.w,
                       height: 90.h,
-                      color: Colors.grey,
-                      child: const Icon(Icons.error, color: Colors.red),
-                    );
-                  },
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: 120.w,
+                    height: 90.h,
+                    color: Colors.grey,
+                    child: const Icon(Icons.error, color: Colors.red),
+                  ),
                 ),
               ),
             ),
@@ -500,10 +495,8 @@ class HomeScreenState extends State<HomeScreen> {
 
 
   Widget _buildDailyUseSection(BuildContext context) {
-    double screenHeight = MediaQuery.of(context).size.height;
-    double maxGridHeight = screenHeight * 0.6; // Maximum height for the grid
-
-    List<Widget> items = []; // List to store daily use items
+    // List to store daily use items
+    List<Widget> items = [];
 
     if (daillyuseData != null) {
       for (var category in daillyuseData!.subcategories) {
@@ -517,61 +510,68 @@ class HomeScreenState extends State<HomeScreen> {
       }
     }
 
+    // Calculate number of rows required for the grid
+    int crossAxisCount = 4; // Number of items per row
+    int rowCount = (items.length / crossAxisCount).ceil();
+    double rowHeight = 120.h; // Approximate height of each grid item, including spacing
+
+    // Calculate dynamic height based on the number of rows
+    double gridHeight = rowCount * rowHeight;
+
     return Container(
       color: Colors.white,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 5.h),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    height: 26.h,
-                    width: 6.w,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(5.r),
-                        bottom: Radius.circular(5.r),
-                      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 26.h,
+                  width: 6.w,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5.r),
+                      bottom: Radius.circular(5.r),
                     ),
                   ),
-                  SizedBox(width: 8.w),
-                  Text(
-                    'Daily Use',
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              SizedBox(height: 5.h),
-              SizedBox(
-                height: maxGridHeight,
-                child: GridView.builder(
-                  primary: false,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 8.w,
-                    mainAxisSpacing: 15.h,
-                    childAspectRatio: 0.80,
-                  ),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    return items[index];
-                  },
                 ),
+                SizedBox(width: 8.w),
+                Text(
+                  'Daily Use',
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 5.h),
+            SizedBox(
+              height: gridHeight,
+              child: GridView.builder(
+                primary: false,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 8.w,
+                  mainAxisSpacing: 15.h,
+                  childAspectRatio: 0.80,
+                ),
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  return items[index];
+                },
               ),
-              SizedBox(height: 10.h),
-            ],
-          ),
+            ),
+            SizedBox(height: 10.h),
+          ],
         ),
       ),
     );
   }
+
 
   Widget _buildDailyUseItemCard(String title, String imageUrl, List<Map<String, String>> topicMaps, BuildContext context) {
     return GestureDetector(
@@ -588,17 +588,29 @@ class HomeScreenState extends State<HomeScreen> {
       },
       child: Column(
         children: [
-          Container(
+          CachedNetworkImage(
+            imageUrl: imageUrl,
             width: 80.w,
             height: 75.h,
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20.r),
-              border: Border.all(color: Colors.grey.shade200),
-              image: DecorationImage(
-                image: NetworkImage(imageUrl),
-                fit: BoxFit.cover,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: 80.w,
+                height: 75.h,
+                color: Colors.grey[300],
               ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              width: 80.w,
+              height: 75.h,
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: const Icon(Icons.error, color: Colors.red),
             ),
           ),
           Text(
@@ -610,7 +622,6 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
 
 
