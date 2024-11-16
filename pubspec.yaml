@@ -67,6 +67,7 @@ dependencies:
   url_launcher: ^6.3.0
   flutter_cache_manager: ^3.3.0
   cached_network_image: ^3.2.1
+  file_picker: ^8.1.4
 
 
 

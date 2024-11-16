@@ -1,8 +1,11 @@
-import 'dart:io';
-import 'package:dotted_border/dotted_border.dart';
+import 'dart:convert';
+import 'dart:io'; // Required for File (image uploading)
+import 'package:allinone_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart'; // For picking images
+import 'package:cached_network_image/cached_network_image.dart'; // Cached image package
 
 class KycScreen extends StatefulWidget {
   const KycScreen({super.key});
@@ -12,262 +15,217 @@ class KycScreen extends StatefulWidget {
 }
 
 class KycScreenState extends State<KycScreen> {
-  String? _aadharCardFront;
-  String? _aadharCardBack;
-  String? _panCardFront;
-  final bool _isLoading = false;
+  bool _isLoading = false;
+  Map<String, dynamic>? _kycData;
+  File? _pickedBankProofImage; // To store the selected bank proof image
+  final ImagePicker _picker = ImagePicker();
+
+  // TextEditingControllers for editable fields
+  TextEditingController _userIdController = TextEditingController();
+  TextEditingController _aadhaarCardController = TextEditingController();
+  TextEditingController _panCardController = TextEditingController();
+  TextEditingController _accountHolderNameController = TextEditingController();
+  TextEditingController _accountNumberController = TextEditingController();
+  TextEditingController _ifscCodeController = TextEditingController();
+  TextEditingController _bankNameController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    // Fetch the KYC data when the screen is initialized
+    _getKycData();
   }
 
-  // Future<void> _updateKYC() async {
-  //   if ((_aadharCardFront == null || _aadharCardFront!.isEmpty) &&
-  //       (_panCardFront == null || _panCardFront!.isEmpty) &&
-  //       (_lightBillFront == null || _lightBillFront!.isEmpty)) {
-  //     await _showMissingDocumentsDialog();
-  //     return;
-  //   }
-  //
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //
-  //   // Here you would typically handle your KYC update logic
-  //
-  //   setState(() {
-  //     _isLoading = false;
-  //   });
-  //
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     const SnackBar(
-  //       content: Text('KYC Documents Updated', style: TextStyle(color: Colors.white)),
-  //       backgroundColor: Colors.black,
-  //       duration: Duration(milliseconds: 300),
-  //     ),
-  //   );
-  // }
+  String? _bankProofImageUrl;
 
-  // Future<void> _showMissingDocumentsDialog() async {
-  //   await showDialog<void>(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text(
-  //           'Missing Required Documents',
-  //           style: GoogleFonts.roboto(
-  //             color: Colors.red,
-  //             fontSize: 18.sp,
-  //             fontWeight: FontWeight.bold,
-  //           ),
-  //         ),
-  //         content: Text(
-  //           'Please upload at least one ID proof (Aadhar, PAN, or Light Bill) along with your Business Registration Document to complete the KYC process.',
-  //           style: GoogleFonts.roboto(color: Colors.black, fontSize: 16.sp),
-  //         ),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text(
-  //               'OK',
-  //               style: GoogleFonts.roboto(
-  //                 color: Colors.black,
-  //                 fontSize: 16.sp,
-  //                 fontWeight: FontWeight.bold,
-  //               ),
-  //             ),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+  // Method to handle the KYC data retrieval via GET request
+  Future<void> _getKycData() async {
+    const String apiUrl = "https://ajhub.co.in/api/kyc/submit"; // API URL for GET request
+    final String bearerToken = appStore.token; // Bearer token for authorization
 
-  // Future<void> _pickImage(Function(File) onImagePicked) async {
-  //   final picker = ImagePicker();
-  //   final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-  //
-  //   if (pickedFile != null) {
-  //     onImagePicked(File(pickedFile.path));
-  //   }
-  // }
+    try {
+      setState(() {
+        _isLoading = true; // Start loading when making the request
+      });
 
-  // Method to show the bottom sheet
-  void _showImagePickerBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
-      ),
-      builder: (context) {
-        return Container(
-          padding: EdgeInsets.all(16.h),
-          height: 180.h,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Choose Image Source',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 16.h),
-              ListTile(
-                leading: const Icon(Icons.camera_alt, color: Colors.red),
-                title: Text(
-                  'Camera',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-                ),
-                onTap: () {
-                  Navigator.pop(context); // Close the bottom sheet
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library, color: Colors.red),
-                title: Text(
-                  'Gallery',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
-                ),
-                onTap: () {
-                  Navigator.pop(context); // Close the bottom sheet
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
+      // Send a GET request with the Bearer token in the header
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Authorization': 'Bearer $bearerToken',
+          'Accept': 'application/json', // Expecting JSON response
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        setState(() {
+          _kycData = responseData['kyc'];
+
+          // Populate other controllers with data or empty string if null
+          _userIdController.text = _kycData?['user_id']?.toString() ?? '';
+          _aadhaarCardController.text = _kycData?['aadhaar_card']?.toString() ?? '';
+          _panCardController.text = _kycData?['pan_card']?.toString() ?? '';
+          _accountHolderNameController.text = _kycData?['account_holder_name'] ?? '';
+          _accountNumberController.text = _kycData?['account_number']?.toString() ?? '';
+          _ifscCodeController.text = _kycData?['ifsc_code'] ?? '';
+          _bankNameController.text = _kycData?['bank_name'] ?? '';
+
+          // Check if the bank_proof exists and it's a valid URL
+          if (_kycData?['bank_proof'] != null) {
+            _bankProofImageUrl = _kycData?['bank_proof'] as String?;
+            // Ensure the URL is valid (add base URL if needed)
+            if (_bankProofImageUrl != null && !_bankProofImageUrl!.startsWith("http")) {
+              _bankProofImageUrl = "https://your-base-url.com/" + _bankProofImageUrl!;
+            }
+          }
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to retrieve KYC data')));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
-  Widget _buildKYCItem(String label, String? frontImageUrl, String? backImageUrl,
-      Function(File) onFrontImagePicked) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: GoogleFonts.abel(
-                color: Colors.red,
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                shadows: [
-                  Shadow(
-                    offset: const Offset(1.5, 1.0),
-                    blurRadius: 1,
-                    color: Colors.grey.shade300,
-                  ),
-                ],
-              ),
-            ),
-            if (label == 'Upload Aadhar Card' || label == 'Upload Pan Card')
-              Text('*', style: TextStyle(color: Colors.red, fontSize: 16.sp)),
-          ],
-        ),
-        SizedBox(height: 8.h),
-        Row(
-          children: [
-            if (label == 'Upload Pan Card')
-
-              Container(
-                margin: const EdgeInsets.only(left: 40),
-                alignment: Alignment.centerLeft,
-                child: _buildKYCUploadBox('Front Page', frontImageUrl, onFrontImagePicked),
-              )
-              ,
-            if (label == 'Upload Aadhar Card') ...[
-              _buildKYCUploadBox('Front Page', frontImageUrl, onFrontImagePicked),
-              _buildKYCUploadBox('Back Page', backImageUrl, (file) {}),
-            ],
-          ],
-        ),
-      ],
+  // Method to show options for selecting image from camera or gallery
+  Future<void> _pickBankProofImage() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery, // You can change to ImageSource.camera for camera
     );
+
+    if (pickedFile != null) {
+      setState(() {
+        _pickedBankProofImage = File(pickedFile.path); // Store the selected image
+      });
+    }
   }
 
-  Widget _buildKYCUploadBox(String label, String? imageUrl, Function(File) onImagePicked) {
-    return Expanded(
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () => _showImagePickerBottomSheet(),
-            child: DottedBorder(
-              color: Colors.grey.shade300,
-              strokeWidth: 1,
-              dashPattern: const [6, 3],
-              borderType: BorderType.RRect,
-              radius: Radius.circular(10.r),
-              child: Container(
-                height: 100.h,
-                width: 150,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10.r),
-                ),
-                child: Center(
-                  child: imageUrl == null
-                      ? Icon(Icons.add, size: 40.sp, color: Colors.grey.shade400)
-                      : Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10.r),
-                        child: File(imageUrl).existsSync()
-                            ? Image.file(
-                          File(imageUrl),
-                          height: 100.h,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        )
-                            : Container(
-                          color: Colors.grey.shade300,
-                          child: const Icon(Icons.error),
-                        ),
-                      ),
-                      Positioned(
-                        top: 4.h,
-                        right: 4.w,
-                        child: GestureDetector(
-                          onTap: () => _showImagePickerBottomSheet(),
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.edit,
-                              color: Colors.white,
-                              size: 20.sp,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
+  Future<void> _updateKycData() async {
+    final String apiUrl = "https://ajhub.co.in/api/kyc/submit"; // API URL with user_id
+    final String bearerToken = appStore.token; // Bearer token for authorization
+
+    // Check if the bearer token is available
+    if (bearerToken == null || bearerToken.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Authorization token is missing')));
+      return;
+    }
+
+    // Validate if any field is empty
+    if (_aadhaarCardController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Aadhaar Card is required')));
+      return;
+    }
+
+    if (_panCardController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PAN Card is required')));
+      return;
+    }
+
+    if (_accountHolderNameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account Holder Name is required')));
+      return;
+    }
+
+    if (_accountNumberController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account Number is required')));
+      return;
+    }
+
+    if (_ifscCodeController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('IFSC Code is required')));
+      return;
+    }
+
+    if (_bankNameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bank Name is required')));
+      return;
+    }
+
+    // Check if bank proof image is selected
+    if (_pickedBankProofImage == null && (_kycData == null || _bankProofImageUrl == null)) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bank proof image is required')));
+      return;
+    }
+
+    try {
+      setState(() {
+        _isLoading = true; // Start loading while sending data
+      });
+
+      // Prepare multipart request
+      var request = http.MultipartRequest('POST', Uri.parse(apiUrl))
+        ..headers['Authorization'] = 'Bearer $bearerToken'
+        ..headers['Content-Type'] = 'multipart/form-data'
+        ..headers['Accept'] = 'application/json'
+        ..fields['user_id'] = _userIdController.text
+        ..fields['aadhaar_card'] = _aadhaarCardController.text
+        ..fields['pan_card'] = _panCardController.text
+        ..fields['account_holder_name'] = _accountHolderNameController.text
+        ..fields['confirm_account_number'] = _accountNumberController.text
+        ..fields['account_number'] = _accountNumberController.text
+        ..fields['ifsc_code'] = _ifscCodeController.text
+        ..fields['bank_name'] = _bankNameController.text;
+
+      // Add bank proof image if picked
+      if (_pickedBankProofImage != null) {
+        request.files.add(await http.MultipartFile.fromPath('bank_proof', _pickedBankProofImage!.path));
+      }
+
+      // Send request
+      final response = await request.send();
+
+      // Get response body as string
+      final responseBody = await response.stream.bytesToString();
+
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: $responseBody');
+
+      // Handle response
+      if (response.statusCode == 200) {
+        if (responseBody.startsWith('{') || responseBody.startsWith('[')) {
+          final responseData = json.decode(responseBody);
+
+          if (responseData['status'] == 'success') {
+            setState(() {
+              _kycData = responseData['kyc']; // Update KYC data
+            });
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC data updated successfully')));
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update KYC data: ${responseData['message']}')));
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error: Invalid response format from server')));
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update KYC data, Status Code: ${response.statusCode}')));
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+
+  @override
+  void dispose() {
+    // Dispose controllers when the widget is disposed
+    _userIdController.dispose();
+    _aadhaarCardController.dispose();
+    _panCardController.dispose();
+    _accountHolderNameController.dispose();
+    _accountNumberController.dispose();
+    _ifscCodeController.dispose();
+    _bankNameController.dispose();
+    super.dispose();
   }
 
   @override
@@ -275,255 +233,181 @@ class KycScreenState extends State<KycScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        forceMaterialTransparency: true,
-        surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white, // Set AppBar background color
-        elevation: 3, // Add elevation if you want a shadow effect, or set it to 0 for no shadow
-        centerTitle: true, // Center the title text
-        titleSpacing: 7.w, // Adjust the title spacing using ScreenUtil
-        iconTheme: const IconThemeData(
-          color: Colors.red, // Set icon color, typically for the back button
-        ),
         title: Text(
-          'KYC Details',
-          style: TextStyle(
-            color: Colors.red, // Set title text color to red
-            fontSize: 22.sp, // Use ScreenUtil for responsive text size
-            fontWeight: FontWeight.w500, // Set the desired font weight
-            shadows: [
-              Shadow(
-                offset: const Offset(1.5, 1.0), // Offset for the shadow effect
-                blurRadius: 1,
-                color: Colors.grey.shade400, // Subtle shadow color for depth
-              ),
-            ],
-          ),
+          'KYC Verification',
+          style: TextStyle(color: Colors.white, fontSize: 20.sp),
+        ),
+        backgroundColor: Colors.red.shade400,
+        centerTitle: true,
+        iconTheme: const IconThemeData(
+          color: Colors.white,  // Set the icon color to white
         ),
       ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.h),
+        child: Column(
+          children: [
+            if (_isLoading) ...[
+              const Center(child: CircularProgressIndicator()),
+            ],
 
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Container(
-        color: Colors.white,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.only(left: 16.h,right: 16.h,top: 5.h,bottom: 16.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 10.h),
-              Container(
-                  decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(22)
-                  ),
-                  child: _buildCopyField()
-              ),
-              SizedBox(height: 30.h),
-              _buildKYCItem(
-                'Upload Aadhar Card',
-                _aadharCardFront,
-                _aadharCardBack,
-                    (file) {
-                  setState(() {
-                    _aadharCardFront = file.path;
-                  });
-                },
-              ),
-              SizedBox(height: 10.h),
-              _buildKYCItem(
-                'Upload Pan Card',
-                _panCardFront,
-                null,
-                    (file) {
-                  setState(() {
-                    _panCardFront = file.path;
-                  });
-                },
-              ),
+              SizedBox(height: 16.h),
+              _buildTextField(_aadhaarCardController, 'Aadhaar Card'),
+              SizedBox(height: 16.h),
+              _buildTextField(_panCardController, 'PAN Card'),
+              SizedBox(height: 16.h),
+              _buildTextField(_accountHolderNameController, 'Account Holder Name'),
+              SizedBox(height: 16.h),
+              _buildTextField(_accountNumberController, 'Account Number'),
+              SizedBox(height: 16.h),
+              _buildTextField(_ifscCodeController, 'IFSC Code'),
+              SizedBox(height: 16.h),
+              _buildTextField(_bankNameController, 'Bank Name'),
+              SizedBox(height: 16.h),
+              // Bank Proof
+              Text('Bank Proof:', style: TextStyle(fontSize: 16.sp)),
+              SizedBox(height: 8.h),
 
-              SizedBox(height: 30.h),
-              Center(
-                child: SizedBox(
-                  width: 350,
-                  height: 55,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      //border: Border.all(color: Colors.grey, width: 1),
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.red.shade400,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black26.withOpacity(0.2),
-                          spreadRadius: 0,
-                          blurRadius: 5,
-                          offset: const Offset(0, 2), // changes the position of the shadow
-                        ),
-                      ],
+              // Bank Proof Image or Placeholder
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  _pickedBankProofImage != null
+                      ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0), // Set the border radius here
+                    child: Image.file(
+                      _pickedBankProofImage!,
+                      height: 200.h,
+                      width: 200.w,
+                      fit: BoxFit.cover,
                     ),
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.only(left: 12),
-                    child:   Text(
-                      'Upload',
-                      style: GoogleFonts.afacad(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w500,
-                        shadows: [
-                          Shadow(
-                            offset: const Offset(1.5, 1.0),
-                            blurRadius: 1,
-                            color: Colors.grey.shade300,
+                  )
+                      : _kycData != null && _bankProofImageUrl != null
+                      ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: CachedNetworkImage(
+                      imageUrl: _bankProofImageUrl ?? '',
+                      height: 200.h,
+                      width: 200.w,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => const CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Image.asset('assets/images/placeholder.jpg'),
+                    ),
+                  )
+                      : ClipRRect(
+                    borderRadius: BorderRadius.circular(12.0),
+                    child: Image.asset(
+                      'assets/images/placeholder.jpg',
+                      height: 200.h,
+                      width: 200.w,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+
+                  // Add the button to update the image (both before and after picking the image)
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: ElevatedButton(
+                      onPressed: _pickBankProofImage,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.white), // White background
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                            side: const BorderSide(color: Colors.red),
                           ),
-                        ],
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.add_a_photo_outlined,
+                        color: Colors.red,
                       ),
                     ),
                   ),
-                ),
-              )
 
-            ],
-          ),
+                  // If an image has been picked, show a button to change it
+                  if (_pickedBankProofImage != null)
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _pickedBankProofImage = null;
+                          });
+                        },
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12.0),
+                              side: const BorderSide(color: Colors.red),
+                            ),
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.refresh_outlined,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+
+            SizedBox(height: 24.h),
+            Center(
+              child: ElevatedButton(
+                onPressed: _updateKycData,
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red.shade400),
+                  padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.symmetric(vertical: 16, horizontal: 32)),
+                  minimumSize: MaterialStateProperty.all<Size>(Size(500, 30)),
+                ),
+                child: Text(
+                  _isLoading ? 'Updating KYC Data...' : 'Update KYC Data',
+                  style: TextStyle(color: Colors.white, fontSize: 18.sp),
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );
   }
 
-
-  Widget _buildCopyField() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-
-        const SizedBox(
-          height: 6,
+  // Helper method to build text fields
+  Widget _buildTextField(TextEditingController controller, String label) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(
+          color: Colors.black,  // Title color (black)
+          fontSize: 16.0,        // Title font size
         ),
-
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.info,color: Colors.greenAccent,size: 20,),
-            Text(
-              'Details',
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(
-          height: 9,
-        ),
-
-
-        Padding(
-            padding: const EdgeInsets.only(left: 15,right: 15),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Aadhar Card Number',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: Container(
-                  decoration: BoxDecoration(
-                    //border: Border.all(color: Colors.grey, width: 1),
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26.withOpacity(0.2),
-                        spreadRadius: 0,
-                        blurRadius: 5,
-                        offset: const Offset(0, 2), // changes the position of the shadow
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.only(left: 12),
-                  child:  const Text(
-                    '7684 3456 07656',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 17,
-
-                      fontWeight: FontWeight.bold,
-
-                    ),
-                  ),
-                ),
-              ),
-            ],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),  // Rounded corners
+          borderSide: const BorderSide(
+            color: Colors.black,  // Black border color
+            width: 1.5,            // Border width
           ),
         ),
-
-        const SizedBox(
-          height: 15,
-        ),
-
-
-        Padding(
-          padding: const EdgeInsets.only(left: 15,right: 15,bottom: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Pan Card Number',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(
-                width: double.infinity,
-                height: 55,
-                child: Container(
-                  decoration: BoxDecoration(
-                    //border: Border.all(color: Colors.grey, width: 1),
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26.withOpacity(0.2),
-                        spreadRadius: 0,
-                        blurRadius: 5,
-                        offset: const Offset(0, 2), // changes the position of the shadow
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.only(left: 12),
-                  child:  const Text(
-                    '8767895704',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 17,
-
-                      fontWeight: FontWeight.bold,
-
-                    ),
-                  ),
-                ),
-              ),
-            ],
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: const BorderSide(
+            color: Colors.black,  // Black border color when focused
+            width: 2.0,            // Thicker border when focused
           ),
         ),
-
-
-      ],
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          borderSide: BorderSide(
+            color: Colors.black.withOpacity(0.6),
+            width: 1.5,
+          ),
+        ),
+      ),
     );
   }
 }
