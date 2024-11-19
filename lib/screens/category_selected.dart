@@ -88,7 +88,7 @@ class CategorySelectedState extends State<CategorySelected> {
           ),
           IconButton(
             icon: Image.asset(
-              'assets/icons/share.png',
+              'assets/icons/general_share.png',
               width: 18.w, // Responsive width
               height: 18.h, // Responsive height
               color: Colors.black,

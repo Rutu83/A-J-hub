@@ -363,62 +363,6 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
 
 
-  Widget _buildSkeletonLoader() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 5.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 26.h,
-                  width: 4.w,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(5),
-                      bottom: Radius.circular(5),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Container(
-                  width: 100.w,
-                  height: 16.h,
-                  color: Colors.white,
-                ),
-              ],
-            ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: 120.h,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: 101.w,
-                    margin: EdgeInsets.only(right: 8.w),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(50.r),
-                    ),
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: 5.h),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildCardItem1(String title, String imageUrl, List<String> images) {
     return GestureDetector(
@@ -473,7 +417,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                 errorWidget: (context, url, error) => Container(
                   width: 90.w,
                   height: 90.w,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.grey,
                   ),

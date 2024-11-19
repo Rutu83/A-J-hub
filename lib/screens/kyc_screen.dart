@@ -21,13 +21,13 @@ class KycScreenState extends State<KycScreen> {
   final ImagePicker _picker = ImagePicker();
 
   // TextEditingControllers for editable fields
-  TextEditingController _userIdController = TextEditingController();
-  TextEditingController _aadhaarCardController = TextEditingController();
-  TextEditingController _panCardController = TextEditingController();
-  TextEditingController _accountHolderNameController = TextEditingController();
-  TextEditingController _accountNumberController = TextEditingController();
-  TextEditingController _ifscCodeController = TextEditingController();
-  TextEditingController _bankNameController = TextEditingController();
+  final TextEditingController _userIdController = TextEditingController();
+  final TextEditingController _aadhaarCardController = TextEditingController();
+  final TextEditingController _panCardController = TextEditingController();
+  final TextEditingController _accountHolderNameController = TextEditingController();
+  final TextEditingController _accountNumberController = TextEditingController();
+  final TextEditingController _ifscCodeController = TextEditingController();
+  final TextEditingController _bankNameController = TextEditingController();
 
   @override
   void initState() {
@@ -76,7 +76,7 @@ class KycScreenState extends State<KycScreen> {
             _bankProofImageUrl = _kycData?['bank_proof'] as String?;
             // Ensure the URL is valid (add base URL if needed)
             if (_bankProofImageUrl != null && !_bankProofImageUrl!.startsWith("http")) {
-              _bankProofImageUrl = "https://your-base-url.com/" + _bankProofImageUrl!;
+              _bankProofImageUrl = "https://your-base-url.com/${_bankProofImageUrl!}";
             }
           }
         });
@@ -106,11 +106,11 @@ class KycScreenState extends State<KycScreen> {
   }
 
   Future<void> _updateKycData() async {
-    final String apiUrl = "https://ajhub.co.in/api/kyc/submit"; // API URL with user_id
+    const String apiUrl = "https://ajhub.co.in/api/kyc/submit"; // API URL with user_id
     final String bearerToken = appStore.token; // Bearer token for authorization
 
     // Check if the bearer token is available
-    if (bearerToken == null || bearerToken.isEmpty) {
+    if (bearerToken.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Authorization token is missing')));
       return;
     }
@@ -205,7 +205,6 @@ class KycScreenState extends State<KycScreen> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update KYC data, Status Code: ${response.statusCode}')));
       }
     } catch (e) {
-      print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() {
@@ -311,8 +310,8 @@ class KycScreenState extends State<KycScreen> {
                     child: ElevatedButton(
                       onPressed: _pickBankProofImage,
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(Colors.white), // White background
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        backgroundColor: WidgetStateProperty.all<Color>(Colors.white), // White background
+                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.0),
                             side: const BorderSide(color: Colors.red),
@@ -338,8 +337,8 @@ class KycScreenState extends State<KycScreen> {
                           });
                         },
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
+                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12.0),
                               side: const BorderSide(color: Colors.red),
@@ -360,9 +359,9 @@ class KycScreenState extends State<KycScreen> {
               child: ElevatedButton(
                 onPressed: _updateKycData,
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red.shade400),
-                  padding: MaterialStateProperty.all<EdgeInsets>(const EdgeInsets.symmetric(vertical: 16, horizontal: 32)),
-                  minimumSize: MaterialStateProperty.all<Size>(Size(500, 30)),
+                  backgroundColor: WidgetStateProperty.all<Color>(Colors.red.shade400),
+                  padding: WidgetStateProperty.all<EdgeInsets>(const EdgeInsets.symmetric(vertical: 16, horizontal: 32)),
+                  minimumSize: WidgetStateProperty.all<Size>(const Size(500, 30)),
                 ),
                 child: Text(
                   _isLoading ? 'Updating KYC Data...' : 'Update KYC Data',

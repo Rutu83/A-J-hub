@@ -3,6 +3,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DownloadedImagesPage extends StatefulWidget {
   const DownloadedImagesPage({super.key});
@@ -91,23 +94,122 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
   }
 }
 
-class FullScreenImageView extends StatelessWidget {
+
+
+
+
+
+
+
+
+class FullScreenImageView extends StatefulWidget {
   final File imageFile;
 
   const FullScreenImageView({super.key, required this.imageFile});
 
   @override
+  _FullScreenImageViewState createState() => _FullScreenImageViewState();
+}
+
+class _FullScreenImageViewState extends State<FullScreenImageView> {
+  @override
+  void initState() {
+    super.initState();
+    // Delay showing the share options for a brief moment
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          shareToGeneral();
+        }
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Image View'),
-      ),
-      body: Center(
-        child: Image.file(
-          imageFile,
-          fit: BoxFit.contain,
+        backgroundColor: Colors.red,
+        title: Text(
+          'Image View',
+          style: GoogleFonts.lato(color: Colors.white),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share, color: Colors.white),
+            onPressed: () {
+              shareToGeneral();
+            },
+          ),
+        ],
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
+      body: Column(
+        children: [
+          const SizedBox(
+            height: 100,
+          ),
+          Image.file(
+            widget.imageFile,
+            fit: BoxFit.contain,
+          ),
+        ],
+      )
+    );
+  }
+
+
+
+  void shareToWhatsApp() async {
+    final String imagePath = widget.imageFile.path;
+    final Uri uri = Uri.parse('whatsapp://send?text=Sharing this image&image=$imagePath');
+
+    if (await canLaunch(uri.toString())) {
+      await launch(uri.toString());
+    } else {
+      Share.shareXFiles([XFile(imagePath)], text: 'Sharing this image via WhatsApp!');
+    }
+  }
+
+  void shareToInstagram() async {
+    final String imagePath = widget.imageFile.path;
+    final Uri uri = Uri.parse('instagram://library?AssetPath=$imagePath');
+
+    if (await canLaunch(uri.toString())) {
+      await launch(uri.toString());
+    } else {
+      Share.shareXFiles([XFile(imagePath)], text: 'Check out this image on Instagram!');
+    }
+  }
+
+  void shareToFacebook() {
+    Share.shareXFiles(
+      [XFile(widget.imageFile.path)],
+      text: 'Sharing this image on Facebook!',
+    );
+  }
+
+  void shareToGeneral() {
+    Share.shareXFiles(
+      [XFile(widget.imageFile.path)],
+      text: 'Sharing this image!',
     );
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
