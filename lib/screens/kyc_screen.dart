@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io'; // Required for File (image uploading)
 import 'package:allinone_app/main.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
@@ -182,8 +183,10 @@ class KycScreenState extends State<KycScreen> {
       // Get response body as string
       final responseBody = await response.stream.bytesToString();
 
-      print('Response Status Code: ${response.statusCode}');
-      print('Response Body: $responseBody');
+      if (kDebugMode) {
+        print('Response Body: $responseBody');
+        print('Response Status Code: ${response.statusCode}');
+      }
 
       // Handle response
       if (response.statusCode == 200) {

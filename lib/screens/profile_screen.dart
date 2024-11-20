@@ -8,7 +8,7 @@ import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/change_password_screen.dart';
 import 'package:allinone_app/screens/contact_us.dart';
 import 'package:allinone_app/screens/edit_profile.dart';
-import 'package:allinone_app/screens/help_support.dart';
+import 'package:allinone_app/screens/faq_page.dart';
 import 'package:allinone_app/screens/image_download_screen.dart';
 import 'package:allinone_app/screens/kyc_screen.dart';
 import 'package:allinone_app/screens/refer_earn.dart';
@@ -22,6 +22,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -355,11 +356,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildMenuOptions() {
     return Column(
       children: [
+        _buildMenuOption(Icons.groups, "Join Our Community"),
         _buildMenuOption(Icons.person_outline, "My Profile"),
         _buildMenuOption(Icons.person_outline, "My Business"),
         _buildMenuOption(Icons.list, "Business List"),
         _buildMenuOption(Icons.image, "Downloaded Images"),
-        _buildMenuOption(Icons.contact_mail_outlined, "Contact Us"),
+        _buildMenuOption(Icons.feed_sharp, "FAQs"),
         _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.ajhub.co.in/term-condition'),
         _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
         _buildMenuOption(Icons.privacy_tip_outlined, "Privacy Policy", 'https://www.ajhub.co.in/policy'),
@@ -374,12 +376,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+
+  void openWhatsApp(BuildContext context) async {
+    const phone = "919662545518"; // Replace with your WhatsApp number (country code + number)
+    final message = Uri.encodeComponent("Hi, I'd like to join the community!");
+    final whatsappUrl = "https://wa.me/$phone?text=$message";
+
+    if (await canLaunch(whatsappUrl)) {
+      await launch(whatsappUrl);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Could not open WhatsApp. Please ensure the app is installed.")),
+      );
+    }
+  }
+
   Widget _buildMenuOption(IconData icon, String label, [String? url]) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () async {
-          if (label == "Logout") {
+
+          if (label == "Join Our Community") {
+            openWhatsApp(context);
+          }else if (label == "FAQs") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FAQPage()),
+            );
+          }
+          else if (label == "Logout") {
             var pref = await SharedPreferences.getInstance();
             await pref.remove(SplashScreenState.keyLogin);
             await pref.remove(TOKEN);
@@ -435,10 +461,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               MaterialPageRoute(builder: (context) => const ContactUs()),
             );
           } else if (label == "Help & Support") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const HelpSupport()),
-            );
+            openWhatsApp(context);
           }
           else if (label == "Change Password") {
             Navigator.push(
@@ -554,11 +577,3 @@ class WebViewScreen extends StatelessWidget {
   }
 }
 
-
-//
-//
-// Build scheduled during frame.
-//
-// While the widget tree was being built, laid out, and painted, a new frame was scheduled to rebuild the widget tree.
-//
-// This might be because setState() was called from a layout or paint callback. If a change is needed to the widget tree, it should be applied as the tree is being built. Scheduling a change for the subsequent frame instead results in an interface that lags behind by one frame. If this was done to make your build dependent on a size measured at layout time, consider using a LayoutBuilder, CustomSingleChildLayout, or CustomMultiChildLayout. If, on the other hand, the one frame delay is the desired effect, for example because this is an animation, consider scheduling the frame in a post-frame callback using SchedulerBinding.addPostFrameCallback or using an AnimationController to trigger the animation.
