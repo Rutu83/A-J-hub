@@ -3,6 +3,7 @@
 import 'package:allinone_app/arth_screens/auth_admin_service.dart';
 import 'package:allinone_app/arth_screens/signup_screen.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
+import 'package:allinone_app/screens/forgot_screen.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
   final TextEditingController _passwordController = TextEditingController();
   String? fcmToken;
   bool isRemember = true;
-  bool _isLoding = false;
+  bool _isLoading = false;
   late AnimationController _animationController;
   bool _isPasswordVisible = false; // New state variable for password visibility
 
@@ -56,7 +57,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
 
   void _handleLoginAdmin() async {
     setState(() {
-      _isLoding = true;
+      _isLoading = true;
     });
 
     hideKeyboard(context);
@@ -72,7 +73,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
           loginResponse: value,
           parentUserData: value.userData!, onRedirectionClick: () {
             setState(() {
-              _isLoding = false;
+              _isLoading = false;
             });
 
             onLoginSuccessRedirection();
@@ -84,16 +85,16 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
       }
     }).catchError((e) {
       setState(() {
-        _isLoding = false;
+        _isLoading = false;
       });
       String error = e.toString();
-      onLoginerror(error);
+      onLoginError(error);
     });
   }
 
-  Future<void> onLoginerror(String error) async {
+  Future<void> onLoginError(String error) async {
     setState(() {
-      _isLoding = false;
+      _isLoading = false;
     });
 
     Fluttertoast.showToast(
@@ -195,7 +196,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _isLoding ? null : () => _handleLogin(),
+                onPressed: _isLoading ? null : () => _handleLogin(),
                 style: ElevatedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 50),
                   backgroundColor: Colors.red,
@@ -203,20 +204,21 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: _isLoding
+                child: _isLoading
                     ? const CircularProgressIndicator()
                     : const Text('Login', style: TextStyle(color: Colors.white)),
               ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {
-                  // Handle "Forgot Password" logic
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                  );
                 },
-                child: const Text(
-                  'Forgot Password?',
-                  style: TextStyle(color: Color(0xFFFF0000)),
-                ),
+                child: const Text("Forgot Password?"),
               ),
+
             ],
           ),
         ),
