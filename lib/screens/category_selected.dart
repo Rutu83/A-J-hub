@@ -41,6 +41,7 @@ class CategorySelectedState extends State<CategorySelected> {
     'assets/images/fram7.png',
     'assets/images/fram8.png',
     'assets/images/fram9.png',
+    'assets/images/fram10.png',
     'assets/images/fram11.png',
     'assets/images/fram12.png',
     'assets/images/fram13.png',
@@ -206,8 +207,8 @@ class CategorySelectedState extends State<CategorySelected> {
                   selectedFrameIndex = entry.key;
                 }),
                 child: Container(
-                  width: 12.w,
-                  height: 12.h,
+                  width: 6.w,
+                  height: 6.h,
                   margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,

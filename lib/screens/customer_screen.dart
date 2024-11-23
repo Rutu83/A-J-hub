@@ -7,7 +7,6 @@ import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
@@ -20,7 +19,7 @@ class CustomerScreen extends StatefulWidget {
 }
 
 class CustomerScreenState extends State<CustomerScreen> with SingleTickerProviderStateMixin {
-  final FlutterAppAuth appAuth = const FlutterAppAuth();
+ // final FlutterAppAuth appAuth = const FlutterAppAuth();
   final String clientId = '000f55c4e8b5451bae4d7f099bc93a7a';
   final String redirectUri = 'https://ajsystem.in';
   final String clientSecret = 'c6113899241a471aa8dae63ac9f24b27';
