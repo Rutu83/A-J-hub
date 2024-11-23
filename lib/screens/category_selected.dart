@@ -34,7 +34,16 @@ class CategorySelectedState extends State<CategorySelected> {
   final List<String> framePaths = [
     'assets/images/fram1.png',
     'assets/images/fram2.png',
-    '/mnt/data/Yw7AIu5jct7REjp5Q2V5q2z2.png', // Other frame image path
+    'assets/images/fram3.png',
+    'assets/images/fram4.png',
+    'assets/images/fram5.png',
+    'assets/images/fram6.png',
+    'assets/images/fram7.png',
+    'assets/images/fram8.png',
+    'assets/images/fram9.png',
+    'assets/images/fram11.png',
+    'assets/images/fram12.png',
+    'assets/images/fram13.png',
   ];
 
   @override
