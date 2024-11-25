@@ -98,6 +98,7 @@ class _EditProfileState extends State<EditProfile> {
       });
 
     } catch (e) {
+
       if (kDebugMode) {
         print("Error fetching user data: $e");
       }

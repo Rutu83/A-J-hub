@@ -23,7 +23,7 @@ Future<void> clearPreferences() async {
   await appStore.setLoggedIn(false);
 
 
-  // TODO: Please do not remove this condition because this feature not supported on iOS.
+
   // if (isAndroid) await OneSignal.shared.clearOneSignalNotifications();
 }
 
@@ -130,6 +130,8 @@ Future<void> updateProfile({
       // Navigator.pop(context); // Navigate back after successful password change
     } else {
       // Show error from server response
+
+
       String errorMessage = 'DATA change failed';
       if (response.statusCode == 400) {
         final responseBody = json.decode(response.body);

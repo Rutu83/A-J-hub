@@ -255,7 +255,7 @@ class _BusinessFormState extends State<BusinessForm> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: const Text('Add Business Detail'),
+        title: const Text('Add Business'),
       ),
       body: Stack(  // Using Stack to position the bottom sheet
         children: [

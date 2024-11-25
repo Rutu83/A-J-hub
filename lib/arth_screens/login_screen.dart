@@ -213,7 +213,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+                    MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
                   );
                 },
                 child: const Text("Forgot Password?"),

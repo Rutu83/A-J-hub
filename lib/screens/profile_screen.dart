@@ -9,6 +9,7 @@ import 'package:allinone_app/screens/change_password_screen.dart';
 import 'package:allinone_app/screens/contact_us.dart';
 import 'package:allinone_app/screens/edit_profile.dart';
 import 'package:allinone_app/screens/faq_page.dart';
+import 'package:allinone_app/screens/feedback_screen.dart';
 import 'package:allinone_app/screens/image_download_screen.dart';
 import 'package:allinone_app/screens/kyc_screen.dart';
 import 'package:allinone_app/screens/refer_earn.dart';
@@ -37,6 +38,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   var totalDownline;
   var directDownline;
   var totalIncome;
+  var GreenWallet;
+  var TDSIncome;
   Map<String, dynamic> userData = {};
   Future<Map<String, dynamic>>? futureUserDetail;
   UniqueKey keyForStatus = UniqueKey();
@@ -73,7 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void init() async {
     futureUserDetail = getUserDetail();
     if (kDebugMode) {
-      print('User details fetched: $futureUserDetail');
+      print('User profile.....................................: $futureUserDetail');
     }
   }
 
@@ -85,7 +88,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       Map<String, dynamic> userDetail = await getUserDetail();
       if (kDebugMode) {
-        print('User details: $userDetail');
+        print('User User profile2.....................................: $userDetail');
       }
 
       setState(() {
@@ -95,7 +98,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         // Check if total_income is a String and convert it to int
         String incomeString = userDetail['total_income'] ?? '0.0';
-        totalIncome = (double.tryParse(incomeString) ?? 0.0).toInt();
+        // Assuming totalIncome is already calculated as an integer:
+         totalIncome = (double.tryParse(incomeString) ?? 0.0).toInt();
+
+
+    int  GreenWallet1 = (totalIncome * 0.10).toInt();
+
+        GreenWallet =totalIncome - GreenWallet1;
+
+
+     int  TDSIncome1 = (GreenWallet * 0.10).toInt();
+
+        TDSIncome = GreenWallet - TDSIncome1;
 
         _isLoading = false;
       });
@@ -180,8 +194,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _buildWalletBox("₹ 10,000", "Current Wallet", Colors.red),
-                        _buildWalletBox("₹ 2,500", "Bonus Wallet", Colors.red),
+                        _buildWalletBox("₹ $GreenWallet", "Green Wallet", Colors.red),
+                        _buildWalletBox("₹ $TDSIncome", "TDS View", Colors.red),
                       ],
                     ),
                     SizedBox(height: 20.h),
@@ -361,6 +375,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.person_outline, "My Business"),
         _buildMenuOption(Icons.list, "Business List"),
         _buildMenuOption(Icons.image, "Downloaded Images"),
+        _buildMenuOption(Icons.insert_emoticon_sharp, "FeedBack"),
         _buildMenuOption(Icons.feed_sharp, "FAQs"),
         _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.ajhub.co.in/term-condition'),
         _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
@@ -377,19 +392,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
 
-  void openWhatsApp(BuildContext context) async {
-    const phone = "919662545518"; // Replace with your WhatsApp number (country code + number)
-    final message = Uri.encodeComponent("Hi, I'd like to join the community!");
-    final whatsappUrl = "https://wa.me/$phone?text=$message";
 
-    if (await canLaunch(whatsappUrl)) {
-      await launch(whatsappUrl);
-    } else {
+  void openWhatsApp(BuildContext context) async {
+    const phone = "917201983146"; // Correct format
+    final message = Uri.encodeComponent("Hi, I'd like to join the community!");
+    final whatsappUrl = Uri.parse("https://wa.me/$phone?text=$message");
+
+    try {
+      if (await canLaunchUrl(whatsappUrl)) {
+        await launchUrl(whatsappUrl);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Could not open WhatsApp. Please ensure the app is installed.")),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Could not open WhatsApp. Please ensure the app is installed.")),
+        SnackBar(content: Text("An error occurred: $e")),
       );
     }
   }
+
+
 
   Widget _buildMenuOption(IconData icon, String label, [String? url]) {
     return Container(
@@ -440,6 +464,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             }
+          }else if (label == "FeedBack") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =>   const FeedbackScreen()),
+            );
           }  else if (label == "My Business") {
             Navigator.push(
               context,
