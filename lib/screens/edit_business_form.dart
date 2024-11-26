@@ -390,11 +390,17 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                   ),
 
                   SizedBox(height: 16.h),
-                  buildLabel('Owner Name'),
+                  buildLabel('Owner Name', isRequired: true),
                   _buildTextFormField(
                     controller: _ownerNameController,
                     hintText: 'Enter owner name',
                     icon: Icons.person,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your owner name';
+                      }
+                      return null;
+                    },
                   ),
 
                   SizedBox(height: 16.h),
@@ -416,40 +422,53 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                   ),
 
                   SizedBox(height: 16.h),
-                  buildLabel('Email Id'),
+                  buildLabel('Email', isRequired: true),
                   _buildTextFormField(
                     controller: _emailController,
-                    hintText: 'Enter email ID',
+                    hintText: 'Enter email',
                     icon: Icons.email,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value != null && value.isNotEmpty) {
                         final emailRegex = RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
                         if (!emailRegex.hasMatch(value)) {
-                          return 'Please enter a valid email ID';
+                          return 'Please enter a valid email ID';  // Return error message if invalid
                         }
+                        return null;  // Return null if email is valid
+                      }
+                      return 'Please enter your email ID';  // Return a message if the field is empty
+                    },
+                  ),
+
+                  SizedBox(height: 16.h),
+                  buildLabel('Website Name', isRequired: true),
+                  _buildTextFormField(
+                    controller: _websiteController,
+                    hintText: 'Enter website name',
+                    icon: Icons.web,
+                    keyboardType: TextInputType.url,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your website name';
                       }
                       return null;
                     },
                   ),
 
                   SizedBox(height: 16.h),
-                  buildLabel('Website Name'),
-                  _buildTextFormField(
-                    controller: _websiteController,
-                    hintText: 'Enter website name',
-                    icon: Icons.web,
-                    keyboardType: TextInputType.url,
-                  ),
-
-                  SizedBox(height: 16.h),
-                  buildLabel('Address'),
+                  buildLabel('Address', isRequired: true),
                   _buildTextFormField(
                     controller: _addressController,
                     hintText: 'Enter address',
                     icon: Icons.location_on,
                     maxLines: 3,  // Max 3 lines
                     minLines: 1,  // Start with 1 line
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your Address';
+                      }
+                      return null;
+                    },
                   ),
 
                   SizedBox(height: 16.h),

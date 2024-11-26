@@ -1,5 +1,6 @@
 // ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/main.dart';
@@ -147,7 +148,7 @@ class _BusinessFormState extends State<BusinessForm> {
   Future<void> _submitBusinessProfile() async {
     if (_formKey.currentState?.validate() == true) {
       setState(() {
-        _isLoading = true;  // Start loading indicator
+        _isLoading = true; // Start loading indicator
       });
 
       try {
@@ -205,26 +206,65 @@ class _BusinessFormState extends State<BusinessForm> {
           });
 
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const BusinessList()));
-
         } else {
+          // Handle non-successful responses
           if (kDebugMode) {
             print('Failed: ${response.statusCode}');
           }
-          if (kDebugMode) {
-            print(await response.stream.bytesToString());
-          }
+
+          // Show error message
+          String errorMessage = await response.stream.bytesToString();
+          _showErrorDialog('Error: ${response.statusCode}', errorMessage);
+          setState(() {
+            _isLoading = false;
+          });
         }
       } catch (e) {
+        // Handle specific error types
+        String errorMessage = 'An unexpected error occurred. Please try again later.';
+        if (e is SocketException) {
+          errorMessage = 'No internet connection. Please check your connection.';
+        } else if (e is TimeoutException) {
+          errorMessage = 'Request timed out. Please try again later.';
+        } else if (e is FormatException) {
+          errorMessage = 'Invalid response format.';
+        }
+
         if (kDebugMode) {
           print('Error: $e');
         }
-      } finally {
+
+        // Show error message
+        _showErrorDialog('Error', errorMessage);
+
         setState(() {
-          _isLoading = false;  // Stop loading indicator in case of error
+          _isLoading = false;
         });
       }
     }
   }
+
+// Show error message in a dialog
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   // Navigate to the category selection screen
   void _navigateToCategorySelection() async {
@@ -253,6 +293,7 @@ class _BusinessFormState extends State<BusinessForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
         centerTitle: true,
         title: const Text('Add Business'),
@@ -403,11 +444,17 @@ class _BusinessFormState extends State<BusinessForm> {
                     ),
 
                     SizedBox(height: 16.h),
-                    buildLabel('Owner Name'),
+                    buildLabel('Owner Name', isRequired: true),
                     _buildTextFormField(
                       controller: _ownerNameController,
                       hintText: 'Enter owner name',
                       icon: Icons.person,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your owner name';
+                        }
+                        return null;
+                      },
                     ),
 
                     SizedBox(height: 16.h),
@@ -429,7 +476,7 @@ class _BusinessFormState extends State<BusinessForm> {
                     ),
 
                     SizedBox(height: 16.h),
-                    buildLabel('Email Id'),
+                    buildLabel('Email Id', isRequired: true),
                     _buildTextFormField(
                       controller: _emailController,
                       hintText: 'Enter email ID',
@@ -439,30 +486,45 @@ class _BusinessFormState extends State<BusinessForm> {
                         if (value != null && value.isNotEmpty) {
                           final emailRegex = RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
                           if (!emailRegex.hasMatch(value)) {
-                            return 'Please enter a valid email ID';
+                            return 'Please enter a valid email ID';  // Return error message if invalid
                           }
+                          return null;  // Return null if email is valid
+                        }
+                        return 'Please enter your email ID';  // Return a message if the field is empty
+                      },
+                    ),
+
+
+                    SizedBox(height: 16.h),
+                    buildLabel('Website Name', isRequired: true),
+                    _buildTextFormField(
+                      controller: _websiteController,
+                      hintText: 'Enter website name',
+                      icon: Icons.web,
+                      keyboardType: TextInputType.url,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your website name';
                         }
                         return null;
                       },
                     ),
 
                     SizedBox(height: 16.h),
-                    buildLabel('Website Name'),
-                    _buildTextFormField(
-                      controller: _websiteController,
-                      hintText: 'Enter website name',
-                      icon: Icons.web,
-                      keyboardType: TextInputType.url,
-                    ),
-
-                    SizedBox(height: 16.h),
-                    buildLabel('Address'),
+                    buildLabel('Address', isRequired: true),
                     _buildTextFormField(
                       controller: _addressController,
                       hintText: 'Enter address',
                       icon: Icons.location_on,
                       maxLines: 3,  // Max 3 lines
-                      minLines: 1,  // Start with 1 line
+                      minLines: 1,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your Address';
+                        }
+                        return null;
+                      },
+                      // Start with 1 line
                     ),
 
                     SizedBox(height: 16.h),
@@ -609,7 +671,7 @@ class _BusinessFormState extends State<BusinessForm> {
         _showStateSelectionSheet();
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade600),
           borderRadius: BorderRadius.circular(10.r),

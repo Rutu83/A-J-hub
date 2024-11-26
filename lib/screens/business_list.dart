@@ -68,10 +68,10 @@ class BusinessListState extends State<BusinessList> {
           businessData = json.decode(response.body)['data'];
           isLoading = false;
         });
-      // if (kDebugMode) {
-        //  print('Response body: ${response.body}');
-        //  print('Business data loaded successfully.');
-      //  }
+      if (kDebugMode) {
+         print('Response body: ${response.body}');
+         print('Business data loaded successfully.');
+       }
       } else {
         _handleErrorResponse(response);
       }
@@ -205,7 +205,7 @@ class BusinessListState extends State<BusinessList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Business List'),
+        title: const Text('Business'),
         backgroundColor: Colors.white,
       ),
       body: isLoading

@@ -107,9 +107,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         GreenWallet =totalIncome - GreenWallet1;
 
 
-     int  TDSIncome1 = (GreenWallet * 0.10).toInt();
+        TDSIncome = (totalIncome * 0.10).toInt();
 
-        TDSIncome = GreenWallet - TDSIncome1;
+     //   TDSIncome = GreenWallet - TDSIncome1;
 
         _isLoading = false;
       });
@@ -148,7 +148,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ? _buildSkeletonLoader()
           : SingleChildScrollView(
                child: Container(
-                 margin: const EdgeInsets.only(bottom: 56.0),
+                 margin: const EdgeInsets.only(bottom: 0.0),
                  padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.center,
@@ -194,8 +194,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        _buildWalletBox("₹ $GreenWallet", "Green Wallet", Colors.red),
-                        _buildWalletBox("₹ $TDSIncome", "TDS View", Colors.red),
+                        _buildWalletBox(
+                          "₹ ${GreenWallet ?? 0}", // Show 0 if GreenWallet is null
+                          "Green Wallet",
+                          Colors.red,
+                        ),
+
+                        _buildWalletBox(
+                          "₹ ${TDSIncome ?? 0}", // Show 0 if TDSIncome is null
+                          "TDS View",
+                          Colors.red,
+                        ),
+
                       ],
                     ),
                     SizedBox(height: 20.h),
@@ -393,20 +403,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 
 
+
   void openWhatsApp(BuildContext context) async {
-    const phone = "917201983146"; // Correct format
-    final message = Uri.encodeComponent("Hi, I'd like to join the community!");
-    final whatsappUrl = Uri.parse("https://wa.me/$phone?text=$message");
+    const phone = "919662545518"; // Correct format with country code
+    final message = Uri.encodeComponent('');
+    final whatsappUrl = "https://wa.me/$phone?text=$message";
 
     try {
-      if (await canLaunchUrl(whatsappUrl)) {
-        await launchUrl(whatsappUrl);
+      // Check if the URL can be launched
+      if (await canLaunch(whatsappUrl)) {
+        await launch(whatsappUrl, forceSafariVC: false, forceWebView: false);
       } else {
+        // If WhatsApp is not installed or URL cannot be launched
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Could not open WhatsApp. Please ensure the app is installed.")),
         );
       }
     } catch (e) {
+      // Catch any errors and display them
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("An error occurred: $e")),
       );

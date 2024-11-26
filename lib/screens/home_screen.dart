@@ -390,12 +390,7 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
-      return Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(fontSize: 16.sp, color: Colors.black),
-        ),
-      );
+      return SizedBox();
     }
 
     return SingleChildScrollView(

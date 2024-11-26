@@ -9,10 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:open_filex/open_filex.dart';
-import 'package:path_provider/path_provider.dart'; // For file storage paths
-import 'package:permission_handler/permission_handler.dart'; // For permissions
+import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:path/path.dart' as path; // For manipulating file paths
+import 'package:path/path.dart' as path;
 import 'package:flutter/services.dart';
 
 class CategorySelected extends StatefulWidget {
@@ -117,7 +116,7 @@ class CategorySelectedState extends State<CategorySelected> {
 
           // Fixed Image with frame sliding applied
         SizedBox(
-        height: 0.45.sh, // ScreenUtil for height
+        height: 0.44.sh, // ScreenUtil for height
         width: 1.sw, // Full width of the screen
         child: Stack(
           alignment: Alignment.center,
@@ -273,32 +272,32 @@ class CategorySelectedState extends State<CategorySelected> {
           ),
           SizedBox(height: 8.h),
 
-          if (isDownloading)
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r),
-                    child: LinearProgressIndicator(
-                      value: downloadProgress,
-                      backgroundColor: Colors.grey[300],
-                      color: Colors.red,
-                      minHeight: 6.h,
-                    ),
-                  ),
-                  Text(
-                    '${(downloadProgress * 100).toInt()}%', // Show percentage
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          // if (isDownloading)
+          //   Padding(
+          //     padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+          //     child: Stack(
+          //       alignment: Alignment.center,
+          //       children: [
+          //         ClipRRect(
+          //           borderRadius: BorderRadius.circular(8.r),
+          //           child: LinearProgressIndicator(
+          //             value: downloadProgress,
+          //             backgroundColor: Colors.grey[300],
+          //             color: Colors.red,
+          //             minHeight: 6.h,
+          //           ),
+          //         ),
+          //         Text(
+          //           '${(downloadProgress * 100).toInt()}%', // Show percentage
+          //           style: TextStyle(
+          //             color: Colors.black,
+          //             fontSize: 14.sp,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
 
 
           SizedBox(height: 8.h),
@@ -357,13 +356,14 @@ class CategorySelectedState extends State<CategorySelected> {
 
   Future<void> _downloadImage(String imageUrl) async {
     try {
+      _showLoadingDialog(context, "Downloading...");
       await _checkStoragePermission();
+
       setState(() {
         isDownloading = true;
         downloadProgress = 0.0;
       });
 
-      // Simulate download progress
       for (int i = 0; i <= 100; i++) {
         await Future.delayed(const Duration(milliseconds: 30));
         setState(() {
@@ -371,7 +371,6 @@ class CategorySelectedState extends State<CategorySelected> {
         });
       }
 
-      // Combine image with frame and save
       final combinedImage = await _combineImageAndFrame(imageUrl, framePaths[selectedFrameIndex]);
       final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
@@ -384,20 +383,34 @@ class CategorySelectedState extends State<CategorySelected> {
       final file = File(savePath);
       await file.writeAsBytes(pngBytes);
 
-      setState(() {
-        isDownloading = false;
-      });
-
       await _refreshGallery(savePath);
       _openImage(savePath);
 
-
+      Navigator.pop(context); // Dismiss the loading dialog
     } catch (e) {
-      setState(() {
-        isDownloading = false;
-      });
+      Navigator.pop(context); // Ensure dialog is dismissed in case of error
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Failed to download image: $e'),
+      ));
+    }
+  }
+
+  Future<void> _shareImage(String imagePath) async {
+    try {
+      _showLoadingDialog(context, "Preparing to Share...");
+      final combinedImage = await _combineImageAndFrame(imagePath, framePaths[selectedFrameIndex]);
+
+      final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+
+      XFile xFile = XFile.fromData(pngBytes, mimeType: 'image/png');
+      await Share.shareXFiles([xFile], text: 'Aj Hub Mobile App');
+
+      Navigator.pop(context); // Dismiss the loading dialog
+    } catch (e) {
+      Navigator.pop(context); // Ensure dialog is dismissed in case of error
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to share image: $e'),
       ));
     }
   }
@@ -467,32 +480,90 @@ class CategorySelectedState extends State<CategorySelected> {
     await channel.invokeMethod('refreshGallery', {'filePath': filePath});
   }
 
-// Function to share image with selected frame overlay
-  Future<void> _shareImage(String imagePath) async {
-    try {
-      // Combine the image with the selected frame
-      final combinedImage = await _combineImageAndFrame(imagePath, framePaths[selectedFrameIndex]);
+// // Function to share image with selected frame overlay
+//   Future<void> _shareImage(String imagePath) async {
+//     try {
+//       // Combine the image with the selected frame (resize if needed)
+//       final combinedImage = await _combineImageAndFrame(imagePath, framePaths[selectedFrameIndex]);
+//
+//       // Convert the combined image to a byte array
+//       final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
+//       final pngBytes = byteData!.buffer.asUint8List();
+//
+//       // Directly share the image without saving to disk
+//       XFile xFile = XFile.fromData(pngBytes, mimeType: 'image/png');
+//       await Share.shareXFiles([xFile], text: 'Aj Hub Mobile App');
+//     } catch (e) {
+//       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+//         content: Text('Failed to share image: $e'),
+//       ));
+//     }
+//   }
 
-      // Convert the combined image to a PNG byte array
-      final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
-      final pngBytes = byteData!.buffer.asUint8List();
 
-      // Save the combined image to a temporary file for sharing
-      var tempDir = await getTemporaryDirectory();
-      String fileName = path.basename(imagePath).replaceAll('.', '_with_frame.');
-      String savePath = path.join(tempDir.path, fileName);
-      final file = File(savePath);
-      await file.writeAsBytes(pngBytes);
 
-      // Share the combined image with the label
-      XFile xFile = XFile(savePath);
-      Share.shareXFiles([xFile], text: 'Aj Hub Mobile App');
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to share image: $e'),
-      ));
-    }
+
+  void _showLoadingDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent user from dismissing the dialog
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(color: Colors.red),
+                const SizedBox(width: 16),
+                Text(
+                  message,
+                  style: TextStyle(fontSize: 16.sp),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
+
+
+
+
+// Utility function for parallel image combination
+  Future<ui.Image> _combineAndProcessImages(Map<String, String> paths) async {
+    final image = await _loadImage(paths['imageUrl']!);
+    final frame = await _loadImage(paths['framePath']!);
+
+    // Create a recorder and canvas
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    final size = Size(
+      image.width.toDouble(),
+      image.height.toDouble(),
+    );
+
+    canvas.drawImageRect(
+      image,
+      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint(),
+    );
+
+    canvas.drawImageRect(
+      frame,
+      Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble()),
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Paint(),
+    );
+
+    return await recorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
+  }
+
 
 }
 

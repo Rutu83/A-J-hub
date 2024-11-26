@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:allinone_app/screens/dashbord_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:allinone_app/main.dart';
 import 'package:flutter/material.dart';
@@ -266,16 +267,19 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         print(response.body);
         print(response.statusCode);
 
+        // Show bottom sheet for success message
+        _showSuccessBottomSheet();
+
         // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "Thank you for your feedback!",
-              style: TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text(
+        //       "Thank you for your feedback!",
+        //       style: TextStyle(color: Colors.white),
+        //     ),
+        //     backgroundColor: Colors.green,
+        //   ),
+        // );
 
         setState(() {
           _selectedRating = -1;
@@ -309,6 +313,120 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       );
     }
   }
+
+// Function to show success bottom sheet
+  void _showSuccessBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Make the sheet size responsive to content
+      builder: (context) {
+        return Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(16.0),
+          height: 350, // Adjusted height to accommodate all content comfortably
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Success Message with Icon
+              const SizedBox(height: 10),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline, // Success icon
+                    color: Colors.red,
+                    size: 35,
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    "Feedback Submitted Successfully!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+
+
+
+              // Centered Image
+              Center(
+                child: Image.asset(
+                  'assets/images/feedback.jpg', // Replace with your image asset
+                  width: 150,
+                  height: 150,
+                ),
+              ),
+
+
+              // Thank you message with Icon
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.thumb_up, // Thumbs-up icon for thank you message
+                    color: Colors.red,
+                    size: 25,
+                  ),
+                  SizedBox(width: 5),
+                  Text(
+                    "Thank you for helping us improve. Your feedback is valuable!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ],
+              ),
+
+
+              // Additional message
+              const Text(
+                "We are constantly working to improve your experience. Stay tuned for more updates!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.black54,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              // Continue Button
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the bottom sheet
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                  ); // Navigate to DashboardScreen
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  "Continue",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
 
 
 }

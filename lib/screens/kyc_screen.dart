@@ -191,30 +191,42 @@ class KycScreenState extends State<KycScreen> {
       // Handle response
       if (response.statusCode == 200) {
         if (responseBody.startsWith('{') || responseBody.startsWith('[')) {
-          final responseData = json.decode(responseBody);
+          try {
+            final responseData = json.decode(responseBody);
 
-          if (responseData['status'] == 'success') {
-            setState(() {
-              _kycData = responseData['kyc']; // Update KYC data
-            });
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC data updated successfully')));
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update KYC data: ${responseData['message']}')));
+            // Check for the "success" key instead of "status"
+            if (responseData['success'] != null && responseData['success'] == 'KYC updated successfully.') {
+              setState(() {
+                _kycData = responseData; // Assuming the response contains the updated KYC data
+              });
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC data updated successfully')));
+            } else {
+              // Handle failure response from the API
+              String errorMessage = responseData['message'] ?? 'Unknown error occurred';
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update KYC data: $errorMessage')));
+            }
+          } catch (e) {
+            // Handle invalid JSON response
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error: Invalid response format from server')));
           }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error: Invalid response format from server')));
         }
       } else {
+        // Handle server-side errors
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update KYC data, Status Code: ${response.statusCode}')));
       }
     } catch (e) {
+      // Catch any other errors such as network issues or timeout
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() {
-        _isLoading = false;
+        _isLoading = false; // Stop loading once the request is complete
       });
     }
   }
+
+
 
 
   @override

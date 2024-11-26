@@ -167,7 +167,7 @@ class _FullScreenImageViewState extends State<FullScreenImageView> {
     if (await canLaunch(uri.toString())) {
       await launch(uri.toString());
     } else {
-      Share.shareXFiles([XFile(imagePath)], text: 'Sharing this image via WhatsApp!');
+      Share.shareXFiles([XFile(imagePath)], text: 'Aj Hub Mobile App');
     }
   }
 
@@ -178,21 +178,21 @@ class _FullScreenImageViewState extends State<FullScreenImageView> {
     if (await canLaunch(uri.toString())) {
       await launch(uri.toString());
     } else {
-      Share.shareXFiles([XFile(imagePath)], text: 'Check out this image on Instagram!');
+      Share.shareXFiles([XFile(imagePath)], text: 'Aj Hub Mobile App');
     }
   }
 
   void shareToFacebook() {
     Share.shareXFiles(
       [XFile(widget.imageFile.path)],
-      text: 'Sharing this image on Facebook!',
+      text: 'Aj Hub Mobile App',
     );
   }
 
   void shareToGeneral() {
     Share.shareXFiles(
       [XFile(widget.imageFile.path)],
-      text: 'Sharing this image!',
+      text: 'Aj Hub Mobile App',
     );
   }
 }

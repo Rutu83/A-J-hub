@@ -7,9 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class BusinessScreen extends StatefulWidget {
   const BusinessScreen({super.key});
@@ -35,6 +35,10 @@ class _BusinessScreenState extends State<BusinessScreen> {
       final data = await getBusinessData(businessmodal: []);
       if (data.isNotEmpty) {
         businessData = data.first; // Store the first item
+        if (kDebugMode) {
+          print(data);
+        }
+
       }
       return data;
     } catch (e) {
@@ -42,10 +46,40 @@ class _BusinessScreenState extends State<BusinessScreen> {
     }
   }
 
+  final List<Map<String, String>> businessData2 = [
+    {
+      'Income Type': '1st Circle Income',
+      'Amount': '₹5000',
+      'Amount2': '₹5000',
+      'Amount3': '₹5000',
+    },
+    {
+      'Income Type': 'Total Income',
+      'Amount': '₹15000',
+      'Amount2': '₹15000',
+      'Amount3': '₹15000',
+    },
+    {
+      'Income Type': 'Direct Circle',
+      'Amount': '₹2000',
+      'Amount2': '₹2000',
+      'Amount3': '₹2000',
+    },
+    {
+      'Income Type': 'Total Circle',
+      'Amount': '₹8000',
+      'Amount2': '₹8000',
+      'Amount3': '₹8000',
+    },
+
+
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         centerTitle: true,
         backgroundColor: Colors.white,
         title: const Text(
@@ -77,7 +111,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
             // Existing logic for building UI with snapshot.data
             return SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0, bottom: 100),
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0, bottom: 50),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -85,9 +119,13 @@ class _BusinessScreenState extends State<BusinessScreen> {
                     const SizedBox(height: 10),
                     _buildBenefitsAnalysis(),
                     const SizedBox(height: 15),
-                    _buildLoginButton(context),
+                    _buildButton(context),
                     const SizedBox(height: 15),
-                    _buildTeamMembersInfo(),
+                    _buildTable(context),
+
+
+
+
                   ],
                 ),
               ),
@@ -99,100 +137,140 @@ class _BusinessScreenState extends State<BusinessScreen> {
     );
   }
 
-  Widget _buildTeamMembersInfo() {
+  Widget _buildTable(BuildContext context) {
+    // Updated business data with more details like 'Date' and 'Status'
+    final List<Map<String, String>> businessData2 = [
+      {
+        'Income Type': 'Total Income',
+        'Amount': '₹15000',
+        'Date': '2024-01-15',
+        'Status': 'Completed',
+      },
+      {
+        'Income Type': 'Total Circle',
+        'Amount': '₹8000',
+        'Date': '2024-02-10',
+        'Status': 'In Progress',
+      },
+      {
+        'Income Type': '1st Circle Income',
+        'Amount': '₹5000',
+        'Date': '2024-01-20',
+        'Status': 'Completed',
+      },
+      {
+        'Income Type': 'Direct Circle',
+        'Amount': '₹2000',
+        'Date': '2024-03-05',
+        'Status': 'Pending',
+      },
+    ];
+
     return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+      margin: const EdgeInsets.only(left: 16,right: 16,top: 16), // Added margin around the container for spacing
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start, // Align title to the left
         children: [
+          // Title for the table
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.only(bottom: 8.0), // Space between title and table
             child: Text(
-              'Total Circle Member: ${businessData?.business?.totalTeamCount ?? '0'}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              'Business Income Report',  // Title text
+              style: TextStyle(
+                fontSize: 20,  // Larger font size for the title
+                fontWeight: FontWeight.bold, // Bold font
+                color: Colors.black,  // Black color for the title
+              ),
             ),
           ),
-          const SizedBox(height: 10),
 
-          Padding(padding: const EdgeInsets.only(left: 5,right: 5),
-          child:   _buildTeamMembersStats() ,
+          // Table inside a SingleChildScrollView for horizontal scrolling
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal, // Allow horizontal scroll for wide tables
+            child: DataTable(
+              headingRowHeight: 48, // Reduced height for header row
+              dataRowHeight: 48, // Reduced height for data rows
+              border: TableBorder.all(  // Add borders to all cells
+                color: Colors.black,    // Border color
+                width: 1,               // Border width
+                borderRadius: BorderRadius.zero,  // Optional: set if you need rounded corners
+              ),
+              columns: const [
+                DataColumn(
+                  label: Text(
+                    'Income Type',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.blue), // Custom font size and color
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Amount',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.blue), // Custom font size and color
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Date',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.blue), // Custom font size and color
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Status',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.blue), // Custom font size and color
+                  ),
+                ),
+              ],
+              rows: businessData2.asMap().entries.map((entry) {
+                int index = entry.key;
+                Map<String, String> data = entry.value;
+
+                // Set row color based on index or any condition
+                Color rowColor = index.isEven ? Colors.grey[100]! : Colors.white;
+
+                return DataRow(
+                  color: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                    return rowColor; // Set alternating row colors
+                  }),
+                  cells: [
+                    DataCell(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Reduced padding for compact view
+                        child: Text(data['Income Type'] ?? '', style: TextStyle(fontSize: 12)), // Reduced font size
+                      ),
+                    ),
+                    DataCell(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Reduced padding for compact view
+                        child: Text(data['Amount'] ?? '', style: TextStyle(fontSize: 12)), // Reduced font size
+                      ),
+                    ),
+                    DataCell(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Reduced padding for compact view
+                        child: Text(data['Date'] ?? '', style: TextStyle(fontSize: 12)), // Reduced font size
+                      ),
+                    ),
+                    DataCell(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Reduced padding for compact view
+                        child: Text(data['Status'] ?? '', style: TextStyle(fontSize: 12)), // Reduced font size
+                      ),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
           ),
-
-          const SizedBox(height: 15),
         ],
       ),
     );
   }
 
-  Widget _buildTeamMembersStats() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Expanded(
-          child: _buildStatItem(businessData?.business?.directTeamCount.toString() ?? '0', 'Direct Circle'),
-        ),
-        const SizedBox(width: 10,),
-        Expanded(
-          child: _buildStatItem(businessData?.business?.totalTeamCount.toString() ?? '0', 'Total Circle'),
-        ),
-      ],
-    );
-  }
 
-  Widget _buildStatItem(String count, String label) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(26.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            count,
-            style: GoogleFonts.poppins(
-              fontSize: 17.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.red,
-            ),
-          ),
-          Text(
-            label,
-            style: GoogleFonts.aBeeZee(
-              fontSize: 10.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildLoginButton(BuildContext context) {
+
+  Widget _buildButton(BuildContext context) {
     return InkWell(
       onTap: () {
         if (businessData != null) {
@@ -225,66 +303,87 @@ class _BusinessScreenState extends State<BusinessScreen> {
   }
 
   Widget _buildIncomeRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Column(
       children: [
-        _buildIncomeContainer("1st Circle Income", businessData?.business?.sponserIncome.toString() ?? '0'),
-        _buildIncomeContainer('Total Income', businessData?.business?.totalIncome.toString() ?? '0'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildIncomeContainer("1st Circle Income", businessData?.business?.sponserIncome.toString() ?? '0', Icons.account_balance_wallet),
+            _buildIncomeContainer('Total Income', businessData?.business?.totalIncome.toString() ?? '0', Icons.attach_money),
+          ],
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildIncomeContainer('Direct Circle', businessData?.business?.directTeamCount.toString() ?? '0', Icons.people),
+            _buildIncomeContainer('Total Circle', businessData?.business?.totalTeamCount.toString() ?? '0', Icons.group),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildIncomeContainer(String title, String income) {
+  Widget _buildIncomeContainer(String title, String income, IconData icon) {
     return Container(
-      height: 90,
+      height: 100,
       width: 160.w,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
+        color: Colors.white,  // Background color
+        borderRadius: BorderRadius.circular(12),  // Rounded corners
+        boxShadow: const [
+          BoxShadow(blurRadius: 4, color: Colors.black26, offset: Offset(0, 2))  // Subtle shadow for depth
         ],
       ),
-      padding: const EdgeInsets.only(left: 12),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.money),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  title,
-                  style: GoogleFonts.aBeeZee(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Text(
-            '₹ $income',
-            style: GoogleFonts.poppins(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: Colors.blue,
+              size: 30,  // Icon size
             ),
-          ),
-        ],
+           // const SizedBox(height: 8),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+           // const SizedBox(height: 8),
+            Text(
+              '₹$income',
+              style: GoogleFonts.adamina(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 18, // Adjust font size for better visibility
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
+
+
+
+
   Widget _buildBenefitsAnalysis() {
+    double totalValue = (businessData?.business?.totle_user ?? 1).toDouble(); // Convert to double
+    double redValue = (businessData?.business?.totle_user ?? 0).toDouble(); // Convert to double
+    double blueValue = (businessData?.business?.totalTeamCount ?? 0).toDouble(); // Convert to double
+
+    // Calculate percentages for each section (as fraction of the total value)
+    double redPercentage = (redValue / totalValue) * 100;
+    double bluePercentage = (blueValue / totalValue) * 100;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -293,9 +392,9 @@ class _BusinessScreenState extends State<BusinessScreen> {
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
+            spreadRadius: 3,
             blurRadius: 5,
-            offset: const Offset(0, 3),
+            offset: const Offset(0, 3), // Shadow effect applied to the container
           ),
         ],
       ),
@@ -316,8 +415,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
               child: PieChart(
                 PieChartData(
                   sections: [
-                    _buildPieChartSection('30.0%', Colors.red, 30),
-                    _buildPieChartSection('40.0%', Colors.blueAccent, 40),
+                    _buildPieChartSection('Total Users', Colors.red, redValue.toInt(), context),
+                    _buildPieChartSection('Team Count', Colors.blue, blueValue.toInt(), context),
                   ],
                   centerSpaceRadius: 40,
                   sectionsSpace: 2,
@@ -333,26 +432,40 @@ class _BusinessScreenState extends State<BusinessScreen> {
     );
   }
 
-  PieChartSectionData _buildPieChartSection(String title, Color color, double value) {
+  PieChartSectionData _buildPieChartSection(String title, Color color, int value, BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSize = screenWidth < 350 ? 18 : 25; // Adjust font size for smaller screens
+    double radius = screenWidth < 350 ? 70 : 80; // Adjust radius for smaller screens
+
+    // Using a border color to make the section stand out
     return PieChartSectionData(
       color: color,
-      value: value,
-      title: title,
-      titleStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      title: '$value', // Display original integer value inside the section
+      titleStyle: GoogleFonts.adamina(
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+        fontSize: fontSize, // Dynamically adjusted font size
+      ),
+      value: value.toDouble(), // Convert the value back to double for the pie chart
+      radius: radius, // Dynamically adjusted radius
+      showTitle: true, // Ensure title is shown inside each pie section
+      borderSide: BorderSide(color: Colors.white.withOpacity(0.5), width: 1), // Add a white border to each pie section
+      titlePositionPercentageOffset: 0.55, // Adjust the title's position inside the pie section
     );
   }
+
 
   Widget _buildLegendRow() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildLegendItem(Colors.red, 'Legend 1'),
-        _buildLegendItem(Colors.blueAccent, 'Legend 2'),
+        _buildLegendItem(Colors.red, 'Total Users'),
+        _buildLegendItem(Colors.blue, 'Team Count'),
       ],
     );
   }
 
-  Widget _buildLegendItem(Color color, String title) {
+  Widget _buildLegendItem(Color color, String label) {
     return Row(
       children: [
         Container(
@@ -360,11 +473,20 @@ class _BusinessScreenState extends State<BusinessScreen> {
           height: 20,
           color: color,
         ),
-        const SizedBox(width: 5),
-        Text(title),
+        const SizedBox(width: 8),
+        Text(label),
       ],
     );
   }
+
+
+
+
+
+
+
+
+
 
   Widget _buildSkeletonLoader() {
     return ListView.builder(
