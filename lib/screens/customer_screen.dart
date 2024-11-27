@@ -158,20 +158,31 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     }
 
     if (hasError) {
-      return SizedBox(
-        height: 200.h,
-        width: 300.w,
-        child: Lottie.asset('assets/animation/error_lottie.json'),
+      return Center(
+        child:Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              height: 200.h,
+              width: 300.w,
+              child: Lottie.asset('assets/animation/error_lottie.json'),
+            ),
+            Text(
+              'No data found.',
+              style: GoogleFonts.roboto(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
       );
     }
 
     if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
-      return Center(
-        child: Text(
-          'No data available',
-          style: TextStyle(fontSize: 16.sp, color: Colors.black),
-        ),
-      );
+      return const SizedBox();
     }
 
     return SingleChildScrollView(

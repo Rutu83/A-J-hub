@@ -298,259 +298,240 @@ class _BusinessFormState extends State<BusinessForm> {
         centerTitle: true,
         title: const Text('Add Business'),
       ),
-      body: Stack(  // Using Stack to position the bottom sheet
-        children: [
-          // Main form content
-          if (!_isLoading)
-            SingleChildScrollView(
-              padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 80.h, top: 6),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildLabel('Select Your Business Logo'),
-                    InkWell(
-                      onTap: () {
-                        _showImageSourceActionSheet(context);
-                      },
-                      child: SizedBox(
+      body:   SingleChildScrollView(
+        padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 0.h, top: 6),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildLabel('Select Your Business Logo'),
+              InkWell(
+                onTap: () {
+                  _showImageSourceActionSheet(context);
+                },
+                child: SizedBox(
+                  width: 110.w,
+                  height: 100.h,
+                  child: Stack(
+                    children: [
+                      Container(
                         width: 110.w,
                         height: 100.h,
-                        child: Stack(
-                          children: [
-                            Container(
-                              width: 110.w,
-                              height: 100.h,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.red.shade300),
-                                borderRadius: BorderRadius.circular(10.r),
-                                color: Colors.grey[200],
-                                image: _image != null
-                                    ? DecorationImage(
-                                  image: FileImage(_image!),
-                                  fit: BoxFit.cover,
-                                )
-                                    : null,
-                              ),
-                              child: _image == null
-                                  ? const Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.add_a_photo_outlined,
-                                      size: 20,
-                                      color: Colors.grey,
-                                    ),
-                                  ],
-                                ),
-                              )
-                                  : null,
-                            ),
-                            if (_image != null)
-                              Positioned(
-                                top: 8,
-                                right: 8,
-                                child: InkWell(
-                                  onTap: () {
-                                    _showImageSourceActionSheet(context);
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.rectangle,
-                                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                                    ),
-                                    child: const Icon(
-                                      Icons.add_a_photo,
-                                      color: Colors.red,
-                                      size: 30,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(height: 16.h),
-
-                    buildLabel('Business Category (Optional)'),
-                    InkWell(
-                      onTap: () {
-                        _navigateToCategorySelection();
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade600),
+                          border: Border.all(color: Colors.red.shade300),
                           borderRadius: BorderRadius.circular(10.r),
-                          color: Colors.white,
+                          color: Colors.grey[200],
+                          image: _image != null
+                              ? DecorationImage(
+                            image: FileImage(_image!),
+                            fit: BoxFit.cover,
+                          )
+                              : null,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  width: 40.w,
-                                  height: 35.h,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    shape: BoxShape.rectangle,
-                                    image: DecorationImage(
-                                      image: _selectedCategory != null
-                                          ? _getCategoryImage(_selectedCategory!)
-                                          : const AssetImage('assets/images/c5.png') as ImageProvider,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 10.w),
-                                Text(
-                                  _selectedCategory ?? 'Select Category',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w400,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Image.asset(
-                              'assets/icons/edit.png',
-                              width: 20.w,
-                              height: 20.h,
-                            ),
-                          ],
-                        ),
+                        child: _image == null
+                            ? const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_a_photo_outlined,
+                                size: 20,
+                                color: Colors.grey,
+                              ),
+                            ],
+                          ),
+                        )
+                            : null,
                       ),
-                    ),
-
-                    SizedBox(height: 16.h),
-                    buildLabel('Business Name', isRequired: true),
-                    _buildTextFormField(
-                      controller: _businessNameController,
-                      hintText: 'Enter your business name',
-                      icon: Icons.business,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your business name';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    SizedBox(height: 16.h),
-                    buildLabel('Owner Name', isRequired: true),
-                    _buildTextFormField(
-                      controller: _ownerNameController,
-                      hintText: 'Enter owner name',
-                      icon: Icons.person,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your owner name';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    SizedBox(height: 16.h),
-                    buildLabel('Mobile Number', isRequired: true),
-                    _buildTextFormField(
-                      controller: _mobileNumberController,
-                      hintText: 'Enter mobile number',
-                      icon: Icons.phone,
-                      keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your mobile number';
-                        }
-                        if (value.length != 10) {
-                          return 'Please enter a valid 10-digit mobile number';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    SizedBox(height: 16.h),
-                    buildLabel('Email Id', isRequired: true),
-                    _buildTextFormField(
-                      controller: _emailController,
-                      hintText: 'Enter email ID',
-                      icon: Icons.email,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final emailRegex = RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
-                          if (!emailRegex.hasMatch(value)) {
-                            return 'Please enter a valid email ID';  // Return error message if invalid
-                          }
-                          return null;  // Return null if email is valid
-                        }
-                        return 'Please enter your email ID';  // Return a message if the field is empty
-                      },
-                    ),
-
-
-                    SizedBox(height: 16.h),
-                    buildLabel('Website Name', isRequired: true),
-                    _buildTextFormField(
-                      controller: _websiteController,
-                      hintText: 'Enter website name',
-                      icon: Icons.web,
-                      keyboardType: TextInputType.url,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your website name';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    SizedBox(height: 16.h),
-                    buildLabel('Address', isRequired: true),
-                    _buildTextFormField(
-                      controller: _addressController,
-                      hintText: 'Enter address',
-                      icon: Icons.location_on,
-                      maxLines: 3,  // Max 3 lines
-                      minLines: 1,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your Address';
-                        }
-                        return null;
-                      },
-                      // Start with 1 line
-                    ),
-
-                    SizedBox(height: 16.h),
-                    buildLabel('State', isRequired: true),
-                    _buildStateDropdown(),
-                  ],
+                      if (_image != null)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: InkWell(
+                            onTap: () {
+                              _showImageSourceActionSheet(context);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.rectangle,
+                                borderRadius: BorderRadius.all(Radius.circular(4)),
+                              ),
+                              child: const Icon(
+                                Icons.add_a_photo,
+                                color: Colors.red,
+                                size: 30,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-          // Show Circular Progress Indicator when loading
-          if (_isLoading)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
+              SizedBox(height: 16.h),
 
-          // Fixed Bottom Sheet with Clear and Submit Buttons
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: _isLoading
-                ? Container()  // Hide buttons while loading
-                : buildBottomButtons(),  // Display buttons when not loading
+              buildLabel('Business Category (Optional)'),
+              InkWell(
+                onTap: () {
+                  _navigateToCategorySelection();
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade600),
+                    borderRadius: BorderRadius.circular(10.r),
+                    color: Colors.white,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 40.w,
+                            height: 35.h,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.r),
+                              shape: BoxShape.rectangle,
+                              image: DecorationImage(
+                                image: _selectedCategory != null
+                                    ? _getCategoryImage(_selectedCategory!)
+                                    : const AssetImage('assets/images/c5.png') as ImageProvider,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 10.w),
+                          Text(
+                            _selectedCategory ?? 'Select Category',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Image.asset(
+                        'assets/icons/edit.png',
+                        width: 20.w,
+                        height: 20.h,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 16.h),
+              buildLabel('Business Name', isRequired: true),
+              _buildTextFormField(
+                controller: _businessNameController,
+                hintText: 'Enter your business name',
+                icon: Icons.business,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your business name';
+                  }
+                  return null;
+                },
+              ),
+
+              SizedBox(height: 16.h),
+              buildLabel('Owner Name', isRequired: true),
+              _buildTextFormField(
+                controller: _ownerNameController,
+                hintText: 'Enter owner name',
+                icon: Icons.person,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your owner name';
+                  }
+                  return null;
+                },
+              ),
+
+              SizedBox(height: 16.h),
+              buildLabel('Mobile Number', isRequired: true),
+              _buildTextFormField(
+                controller: _mobileNumberController,
+                hintText: 'Enter mobile number',
+                icon: Icons.phone,
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your mobile number';
+                  }
+                  if (value.length != 10) {
+                    return 'Please enter a valid 10-digit mobile number';
+                  }
+                  return null;
+                },
+              ),
+
+              SizedBox(height: 16.h),
+              buildLabel('Email Id', isRequired: true),
+              _buildTextFormField(
+                controller: _emailController,
+                hintText: 'Enter email ID',
+                icon: Icons.email,
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value != null && value.isNotEmpty) {
+                    final emailRegex = RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
+                    if (!emailRegex.hasMatch(value)) {
+                      return 'Please enter a valid email ID';  // Return error message if invalid
+                    }
+                    return null;  // Return null if email is valid
+                  }
+                  return 'Please enter your email ID';  // Return a message if the field is empty
+                },
+              ),
+
+
+              SizedBox(height: 16.h),
+              buildLabel('Website Name', isRequired: true),
+              _buildTextFormField(
+                controller: _websiteController,
+                hintText: 'Enter website name',
+                icon: Icons.web,
+                keyboardType: TextInputType.url,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your website name';
+                  }
+                  return null;
+                },
+              ),
+
+              SizedBox(height: 16.h),
+              buildLabel('Address', isRequired: true),
+              _buildTextFormField(
+                controller: _addressController,
+                hintText: 'Enter address',
+                icon: Icons.location_on,
+                maxLines: 3,  // Max 3 lines
+                minLines: 1,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your Address';
+                  }
+                  return null;
+                },
+                // Start with 1 line
+              ),
+
+              SizedBox(height: 16.h),
+              buildLabel('State', isRequired: true),
+              _buildStateDropdown(),
+
+              SizedBox(height: 16.h),
+              buildBottomButtons(),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -577,7 +558,7 @@ class _BusinessFormState extends State<BusinessForm> {
             child: SizedBox(
               height: 50.h, // Ensure both buttons have the same height
               child: OutlinedButton(
-                onPressed: _clearForm, // Define this function to clear the form fields
+                onPressed: !_isLoading ? _clearForm : null, // Disable when loading
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.red),
                 ),
@@ -598,11 +579,20 @@ class _BusinessFormState extends State<BusinessForm> {
             child: SizedBox(
               height: 50.h, // Ensure both buttons have the same height
               child: ElevatedButton(
-                onPressed: _submitBusinessProfile, // Define this function to handle form submission
+                onPressed: !_isLoading ? _submitBusinessProfile : null, // Disable when loading
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red, // Button background color
                 ),
-                child: Text(
+                child: _isLoading
+                    ? SizedBox(
+                  width: 24.w,
+                  height: 24.h,
+                  child: const CircularProgressIndicator(
+                    color: Colors.red, // Circular progress indicator color
+                    strokeWidth: 2.5, // Adjust stroke width
+                  ),
+                )
+                    : Text(
                   'Submit',
                   style: TextStyle(
                     fontSize: 16.sp,
@@ -616,6 +606,7 @@ class _BusinessFormState extends State<BusinessForm> {
       ),
     );
   }
+
 
   Widget _buildTextFormField({
     required TextEditingController controller,

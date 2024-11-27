@@ -534,35 +534,35 @@ class CategorySelectedState extends State<CategorySelected> {
 
 
 // Utility function for parallel image combination
-  Future<ui.Image> _combineAndProcessImages(Map<String, String> paths) async {
-    final image = await _loadImage(paths['imageUrl']!);
-    final frame = await _loadImage(paths['framePath']!);
-
-    // Create a recorder and canvas
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-
-    final size = Size(
-      image.width.toDouble(),
-      image.height.toDouble(),
-    );
-
-    canvas.drawImageRect(
-      image,
-      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint(),
-    );
-
-    canvas.drawImageRect(
-      frame,
-      Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble()),
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint(),
-    );
-
-    return await recorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
-  }
+//   Future<ui.Image> _combineAndProcessImages(Map<String, String> paths) async {
+//     final image = await _loadImage(paths['imageUrl']!);
+//     final frame = await _loadImage(paths['framePath']!);
+//
+//     // Create a recorder and canvas
+//     final recorder = ui.PictureRecorder();
+//     final canvas = Canvas(recorder);
+//
+//     final size = Size(
+//       image.width.toDouble(),
+//       image.height.toDouble(),
+//     );
+//
+//     canvas.drawImageRect(
+//       image,
+//       Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+//       Rect.fromLTWH(0, 0, size.width, size.height),
+//       Paint(),
+//     );
+//
+//     canvas.drawImageRect(
+//       frame,
+//       Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble()),
+//       Rect.fromLTWH(0, 0, size.width, size.height),
+//       Paint(),
+//     );
+//
+//     return await recorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
+//   }
 
 
 }

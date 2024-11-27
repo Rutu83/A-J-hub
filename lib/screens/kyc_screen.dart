@@ -77,7 +77,11 @@ class KycScreenState extends State<KycScreen> {
             _bankProofImageUrl = _kycData?['bank_proof'] as String?;
             // Ensure the URL is valid (add base URL if needed)
             if (_bankProofImageUrl != null && !_bankProofImageUrl!.startsWith("http")) {
-              _bankProofImageUrl = "https://your-base-url.com/${_bankProofImageUrl!}";
+              _bankProofImageUrl = "http://ajhub.co.in/storage/app/public/${_bankProofImageUrl!}";
+
+              if (kDebugMode) {
+                print(_bankProofImageUrl);
+              }
             }
           }
         });
@@ -214,7 +218,7 @@ class KycScreenState extends State<KycScreen> {
         }
       } else {
         // Handle server-side errors
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update KYC data, Status Code: ${response.statusCode}')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update KYC data')));
       }
     } catch (e) {
       // Catch any other errors such as network issues or timeout
@@ -231,7 +235,7 @@ class KycScreenState extends State<KycScreen> {
 
   @override
   void dispose() {
-    // Dispose controllers when the widget is disposed
+
     _userIdController.dispose();
     _aadhaarCardController.dispose();
     _panCardController.dispose();
@@ -261,9 +265,7 @@ class KycScreenState extends State<KycScreen> {
         padding: EdgeInsets.all(16.h),
         child: Column(
           children: [
-            if (_isLoading) ...[
-              const Center(child: CircularProgressIndicator()),
-            ],
+
 
               SizedBox(height: 16.h),
               _buildTextField(_aadhaarCardController, 'Aadhaar Card'),
@@ -297,17 +299,26 @@ class KycScreenState extends State<KycScreen> {
                     ),
                   )
                       : _kycData != null && _bankProofImageUrl != null
-                      ? ClipRRect(
+                      ?ClipRRect(
                     borderRadius: BorderRadius.circular(12.0),
                     child: CachedNetworkImage(
                       imageUrl: _bankProofImageUrl ?? '',
-                      height: 200.h,
-                      width: 200.w,
+                      height: 200.0,
+                      width: 200.0,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Image.asset('assets/images/placeholder.jpg'),
+                      errorWidget: (context, url, error) {
+                        // Print the error to the console
+                        if (kDebugMode) {
+                          print("Error loading image: $error");
+                        }
+
+                        // Return a placeholder image or a widget to indicate an error
+                        return Image.asset('assets/images/placeholder.jpg');
+                      },
                     ),
                   )
+
                       : ClipRRect(
                     borderRadius: BorderRadius.circular(12.0),
                     child: Image.asset(
@@ -425,3 +436,7 @@ class KycScreenState extends State<KycScreen> {
     );
   }
 }
+
+
+
+

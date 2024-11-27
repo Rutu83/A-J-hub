@@ -306,7 +306,7 @@ class BusinessCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Handle logo URL with proper formatting
-    String imageUrl = business['logo'] != null ? 'https://www.ajhub.co.in/${business['logo'].replaceAll(r'\/', '/')}' : '';
+    String imageUrl = business['logo'] ;
 
     return Padding(
       padding: const EdgeInsets.all(12.0),

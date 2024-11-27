@@ -97,7 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         directDownline = userDetail['direct_team_count'] ?? '0';
 
         // Check if total_income is a String and convert it to int
-        String incomeString = userDetail['total_income'] ?? '0.0';
+        String incomeString = userDetail['total_income'] ?? '0';
         // Assuming totalIncome is already calculated as an integer:
          totalIncome = (double.tryParse(incomeString) ?? 0.0).toInt();
 
@@ -182,7 +182,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                            ),
 
                            const Spacer(),
-                           _buildInfoColumn(totalIncome, "Total Income", Colors.black),
+                           _buildInfoColumn('₹ ${totalIncome ?? 0}', "Total Income", Colors.black),
                            SizedBox(width: 10.w),
                            _buildInfoColumn(totalDownline, "Total Team", Colors.black),
                            SizedBox(width: 10.w),
@@ -202,7 +202,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                         _buildWalletBox(
                           "₹ ${TDSIncome ?? 0}", // Show 0 if TDSIncome is null
-                          "TDS View",
+                          "TDS(Tax)",
                           Colors.red,
                         ),
 

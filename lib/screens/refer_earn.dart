@@ -105,8 +105,8 @@ class _ReferEarnState extends State<ReferEarn> {
       padding: const EdgeInsets.symmetric(horizontal: 50.0),
       child: DottedBorder(
         borderType: BorderType.RRect,
-        radius: Radius.circular(12),
-        padding: EdgeInsets.all(4),
+        radius: const Radius.circular(12),
+        padding: const EdgeInsets.all(4),
         color: Colors.red,
         strokeWidth: 2,
         child: Padding(
@@ -160,11 +160,11 @@ class _ReferEarnState extends State<ReferEarn> {
                   // Implement your action here for "Refer Now"
                 },
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.red),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                  backgroundColor: WidgetStateProperty.all(Colors.red),
+                  shape: WidgetStateProperty.all(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20.r),
                   )),
-                  elevation: MaterialStateProperty.all(0), // Remove internal shadow
+                  elevation: WidgetStateProperty.all(0), // Remove internal shadow
                 ),
                 child: const Center(
                   child: Text(
@@ -201,11 +201,11 @@ class _ReferEarnState extends State<ReferEarn> {
                 _shareOnWhatsApp('Check out my referral code: 12345');
               },
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.green),
-                shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                backgroundColor: WidgetStateProperty.all(Colors.green),
+                shape: WidgetStateProperty.all(RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.r),
                 )),
-                elevation: MaterialStateProperty.all(0), // No internal shadow
+                elevation: WidgetStateProperty.all(0), // No internal shadow
               ),
               child: Image.asset(
                 'assets/images/whatsapp.png', // Make sure to use a suitable WhatsApp icon

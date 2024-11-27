@@ -57,7 +57,8 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : downloadedImages.isEmpty
-          ? const Center(child: Text('No downloaded images found.'))
+          ? _buildNoDataAvailable()
+
           : GridView.builder(
         padding: EdgeInsets.all(8.r),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -89,6 +90,32 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
             ),
           );
         },
+      ),
+    );
+  }
+
+
+
+  Widget _buildNoDataAvailable() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.image_not_supported,
+            size: 60,
+            color: Colors.grey[600],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'No Download image Available',
+            style: GoogleFonts.poppins(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+        ],
       ),
     );
   }

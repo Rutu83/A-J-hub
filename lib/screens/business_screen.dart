@@ -10,6 +10,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 
 class BusinessScreen extends StatefulWidget {
   const BusinessScreen({super.key});
@@ -103,7 +104,27 @@ class _BusinessScreenState extends State<BusinessScreen> {
             if (kDebugMode) {
               print(snapshot.error);
             }
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(
+              child:Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 200.h,
+                    width: 300.w,
+                    child: Lottie.asset('assets/animation/error_lottie.json'),
+                  ),
+                  Text(
+                    'NoBusiness data found.',
+                    style: GoogleFonts.roboto(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            );
           } else if (snapshot.hasData) {
             if (snapshot.data == null || snapshot.data!.isEmpty) {
               return const Center(child: Text('No business data available.'));
@@ -172,8 +193,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
         crossAxisAlignment: CrossAxisAlignment.start, // Align title to the left
         children: [
           // Title for the table
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0), // Space between title and table
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8.0), // Space between title and table
             child: Text(
               'Business Income Report',  // Title text
               style: TextStyle(
@@ -229,32 +250,32 @@ class _BusinessScreenState extends State<BusinessScreen> {
                 Color rowColor = index.isEven ? Colors.grey[100]! : Colors.white;
 
                 return DataRow(
-                  color: MaterialStateProperty.resolveWith<Color>((Set<MaterialState> states) {
+                  color: WidgetStateProperty.resolveWith<Color>((Set<WidgetState> states) {
                     return rowColor; // Set alternating row colors
                   }),
                   cells: [
                     DataCell(
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Reduced padding for compact view
-                        child: Text(data['Income Type'] ?? '', style: TextStyle(fontSize: 12)), // Reduced font size
+                        child: Text(data['Income Type'] ?? '', style: const TextStyle(fontSize: 12)), // Reduced font size
                       ),
                     ),
                     DataCell(
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Reduced padding for compact view
-                        child: Text(data['Amount'] ?? '', style: TextStyle(fontSize: 12)), // Reduced font size
+                        child: Text(data['Amount'] ?? '', style: const TextStyle(fontSize: 12)), // Reduced font size
                       ),
                     ),
                     DataCell(
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Reduced padding for compact view
-                        child: Text(data['Date'] ?? '', style: TextStyle(fontSize: 12)), // Reduced font size
+                        child: Text(data['Date'] ?? '', style: const TextStyle(fontSize: 12)), // Reduced font size
                       ),
                     ),
                     DataCell(
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // Reduced padding for compact view
-                        child: Text(data['Status'] ?? '', style: TextStyle(fontSize: 12)), // Reduced font size
+                        child: Text(data['Status'] ?? '', style: const TextStyle(fontSize: 12)), // Reduced font size
                       ),
                     ),
                   ],
@@ -376,13 +397,11 @@ class _BusinessScreenState extends State<BusinessScreen> {
 
 
   Widget _buildBenefitsAnalysis() {
-    double totalValue = (businessData?.business?.totle_user ?? 1).toDouble(); // Convert to double
+ //   double totalValue = (businessData?.business?.totle_user ?? 1).toDouble(); // Convert to double
     double redValue = (businessData?.business?.totle_user ?? 0).toDouble(); // Convert to double
     double blueValue = (businessData?.business?.totalTeamCount ?? 0).toDouble(); // Convert to double
 
     // Calculate percentages for each section (as fraction of the total value)
-    double redPercentage = (redValue / totalValue) * 100;
-    double bluePercentage = (blueValue / totalValue) * 100;
 
     return Container(
       width: double.infinity,
@@ -404,7 +423,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
           const Padding(
             padding: EdgeInsets.all(8.0),
             child: Text(
-              'Benefits Analysis',
+              'Team Analysis',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
@@ -415,8 +434,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
               child: PieChart(
                 PieChartData(
                   sections: [
-                    _buildPieChartSection('Total Users', Colors.red, redValue.toInt(), context),
-                    _buildPieChartSection('Team Count', Colors.blue, blueValue.toInt(), context),
+                    _buildPieChartSection('Total Team', Colors.red, redValue.toInt(), context),
+                    _buildPieChartSection('Active Team', Colors.blue, blueValue.toInt(), context),
                   ],
                   centerSpaceRadius: 40,
                   sectionsSpace: 2,
@@ -459,8 +478,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        _buildLegendItem(Colors.red, 'Total Users'),
-        _buildLegendItem(Colors.blue, 'Team Count'),
+        _buildLegendItem(Colors.red, 'Total Team'),
+        _buildLegendItem(Colors.blue, 'Active Team'),
       ],
     );
   }
@@ -471,7 +490,11 @@ class _BusinessScreenState extends State<BusinessScreen> {
         Container(
           width: 20,
           height: 20,
-          color: color,
+
+          decoration: BoxDecoration(
+              color: color,
+            borderRadius: BorderRadius.circular(15)
+          ),
         ),
         const SizedBox(width: 8),
         Text(label),

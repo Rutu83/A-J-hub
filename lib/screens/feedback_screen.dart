@@ -16,6 +16,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   double _selectedRating = -1; // Initial rating not selected
   String _feedbackText = ""; // Feedback text
   final int _maxCharacters = 2048;
+  bool _isLoading = false; // Added loading state
 
   @override
   Widget build(BuildContext context) {
@@ -136,8 +137,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
-                  _submitFeedback();
+                onPressed: _isLoading ? null : () {
+                  _submitFeedback(); // Only allow button press if not loading
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
@@ -148,7 +149,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     borderRadius: BorderRadius.circular(12.0),
                   ),
                 ),
-                child: const Text(
+                child: _isLoading
+                    ? const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+                    : const Text(
                   "Submit Feedback",
                   style: TextStyle(
                     fontSize: 16,
@@ -216,8 +221,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     }
   }
 
-
-
   void _submitFeedback() async {
     if (_selectedRating == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -245,6 +248,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       return;
     }
 
+    // Start loading
+    setState(() {
+      _isLoading = true;
+    });
+
     // Replace with your API URL and token
     const String apiUrl = "https://ajhub.co.in/api/feedback";
     String token = appStore.token; // Replace with actual token
@@ -267,19 +275,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         print(response.body);
         print(response.statusCode);
 
-        // Show bottom sheet for success message
         _showSuccessBottomSheet();
-
-        // Show success message
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   const SnackBar(
-        //     content: Text(
-        //       "Thank you for your feedback!",
-        //       style: TextStyle(color: Colors.white),
-        //     ),
-        //     backgroundColor: Colors.green,
-        //   ),
-        // );
 
         setState(() {
           _selectedRating = -1;
@@ -311,10 +307,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           backgroundColor: Colors.redAccent,
         ),
       );
+    } finally {
+      // End loading after request completes
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
-// Function to show success bottom sheet
+  // Function to show success bottom sheet
   void _showSuccessBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -350,8 +351,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 ],
               ),
 
-
-
               // Centered Image
               Center(
                 child: Image.asset(
@@ -361,8 +360,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 ),
               ),
 
-
-              // Thank you message with Icon
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -382,8 +379,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   ),
                 ],
               ),
-
-
               // Additional message
               const Text(
                 "We are constantly working to improve your experience. Stay tuned for more updates!",
@@ -395,7 +390,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               ),
 
               const SizedBox(height: 10),
-
               // Continue Button
               ElevatedButton(
                 onPressed: () {
@@ -423,13 +417,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       },
     );
   }
-
-
-
-
-
-
 }
-
 
 

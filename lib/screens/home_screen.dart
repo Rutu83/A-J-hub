@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:allinone_app/screens/category_selected.dart';
@@ -242,14 +243,8 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     if (hasError) {
-      return SizedBox(
-        height: 100.h,
-        child: Center(
-          child: Text(
-            errorMessage,
-            style: TextStyle(fontSize: 16.sp, color: Colors.red),
-          ),
-        ),
+      return const SizedBox(
+
       );
     }
 
@@ -390,7 +385,7 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
-      return SizedBox();
+      return const SizedBox();
     }
 
     return SingleChildScrollView(
@@ -493,7 +488,8 @@ class HomeScreenState extends State<HomeScreen> {
     // List to store daily use items
     List<Widget> items = [];
 
-    if (daillyuseData != null) {
+    // Check if daillyuseData is not null and has subcategories
+    if (daillyuseData != null && daillyuseData!.subcategories.isNotEmpty) {
       for (var category in daillyuseData!.subcategories) {
         String title = category.name;
         String imageUrl = category.images.isNotEmpty ? category.images[0] : 'assets/images/placeholder.jpg';
@@ -503,6 +499,25 @@ class HomeScreenState extends State<HomeScreen> {
 
         items.add(_buildDailyUseItemCard(title, imageUrl, topicMaps, context));
       }
+    }
+
+    // If the data is empty or null, show an error message
+    if (daillyuseData == null || daillyuseData!.subcategories.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'No daily use data found.',
+              style: GoogleFonts.roboto(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     // Calculate number of rows required for the grid
