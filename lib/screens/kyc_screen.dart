@@ -111,125 +111,114 @@ class KycScreenState extends State<KycScreen> {
   }
 
   Future<void> _updateKycData() async {
-    const String apiUrl = "https://ajhub.co.in/api/kyc/submit"; // API URL with user_id
-    final String bearerToken = appStore.token; // Bearer token for authorization
+    const String apiUrl = "https://ajhub.co.in/api/kyc/submit";
+    final String bearerToken = appStore.token;
 
-    // Check if the bearer token is available
     if (bearerToken.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Authorization token is missing')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Authorization token is missing')),
+      );
       return;
     }
 
-    // Validate if any field is empty
-    if (_aadhaarCardController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Aadhaar Card is required')));
-      return;
-    }
-
-    if (_panCardController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('PAN Card is required')));
-      return;
-    }
-
-    if (_accountHolderNameController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account Holder Name is required')));
-      return;
-    }
-
-    if (_accountNumberController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account Number is required')));
-      return;
-    }
-
-    if (_ifscCodeController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('IFSC Code is required')));
-      return;
-    }
-
-    if (_bankNameController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bank Name is required')));
-      return;
-    }
-
-    // Check if bank proof image is selected
-    if (_pickedBankProofImage == null && (_kycData == null || _bankProofImageUrl == null)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bank proof image is required')));
+    // Validate fields
+    if (_aadhaarCardController.text.isEmpty ||
+        _panCardController.text.isEmpty ||
+        _accountHolderNameController.text.isEmpty ||
+        _accountNumberController.text.isEmpty ||
+        _ifscCodeController.text.isEmpty ||
+        _bankNameController.text.isEmpty ||
+        (_pickedBankProofImage == null && (_kycData == null || _bankProofImageUrl == null))) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All fields including bank proof are required')),
+      );
       return;
     }
 
     try {
       setState(() {
-        _isLoading = true; // Start loading while sending data
+        _isLoading = true;
       });
 
       // Prepare multipart request
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl))
         ..headers['Authorization'] = 'Bearer $bearerToken'
-        ..headers['Content-Type'] = 'multipart/form-data'
         ..headers['Accept'] = 'application/json'
         ..fields['user_id'] = _userIdController.text
         ..fields['aadhaar_card'] = _aadhaarCardController.text
         ..fields['pan_card'] = _panCardController.text
         ..fields['account_holder_name'] = _accountHolderNameController.text
-        ..fields['confirm_account_number'] = _accountNumberController.text
         ..fields['account_number'] = _accountNumberController.text
+        ..fields['confirm_account_number'] = _accountNumberController.text
         ..fields['ifsc_code'] = _ifscCodeController.text
         ..fields['bank_name'] = _bankNameController.text;
 
-      // Add bank proof image if picked
+      // Attach bank proof image or default to existing image URL
       if (_pickedBankProofImage != null) {
-        request.files.add(await http.MultipartFile.fromPath('bank_proof', _pickedBankProofImage!.path));
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'bank_proof',
+            _pickedBankProofImage!.path,
+          ),
+        );
+      } else if (_bankProofImageUrl != null) {
+        // If no new image is picked, attach the existing bank proof image URL
+        request.fields['bank_proof_url'] = _bankProofImageUrl!;
       }
 
-      // Send request
       final response = await request.send();
-
-      // Get response body as string
       final responseBody = await response.stream.bytesToString();
 
       if (kDebugMode) {
-        print('Response Body: $responseBody');
         print('Response Status Code: ${response.statusCode}');
+        print('Response Body: $responseBody');
       }
 
-      // Handle response
       if (response.statusCode == 200) {
-        if (responseBody.startsWith('{') || responseBody.startsWith('[')) {
-          try {
-            final responseData = json.decode(responseBody);
+        final responseData = json.decode(responseBody);
 
-            // Check for the "success" key instead of "status"
-            if (responseData['success'] != null && responseData['success'] == 'KYC updated successfully.') {
-              setState(() {
-                _kycData = responseData; // Assuming the response contains the updated KYC data
-              });
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('KYC data updated successfully')));
-            } else {
-              // Handle failure response from the API
-              String errorMessage = responseData['message'] ?? 'Unknown error occurred';
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update KYC data: $errorMessage')));
-            }
-          } catch (e) {
-            // Handle invalid JSON response
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error: Invalid response format from server')));
-          }
+        if (responseData['success'] != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['success'])),
+          );
+          setState(() {
+            _kycData = responseData['kyc'] ?? {};
+          });
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error: Invalid response format from server')));
+          final errorMessage = responseData['message'] ?? 'Unexpected error occurred';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed: $errorMessage')),
+          );
         }
       } else {
-        // Handle server-side errors
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to update KYC data')));
+        // Parse error messages
+        final errorResponse = json.decode(responseBody);
+        if (errorResponse['errors'] != null) {
+          final errors = errorResponse['errors'];
+          if (errors['bank_proof'] != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(errors['bank_proof'].join(' '))),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${response.statusCode}')),
+          );
+        }
       }
     } catch (e) {
-      // Catch any other errors such as network issues or timeout
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (kDebugMode) {
+        print('Exception: $e');
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
+      );
     } finally {
       setState(() {
-        _isLoading = false; // Stop loading once the request is complete
+        _isLoading = false;
       });
     }
   }
-
 
 
 

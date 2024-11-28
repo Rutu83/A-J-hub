@@ -1,6 +1,6 @@
 import 'dart:convert';
-
 import 'package:allinone_app/screens/dashbord_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:allinone_app/main.dart';
 import 'package:flutter/material.dart';
@@ -99,7 +99,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         Text(
                           _getEmojiText(index),
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             color: _getFeedbackValue(index) == _selectedRating
                                 ? Colors.red
                                 : Colors.grey,
@@ -272,8 +272,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
       // Check for success responses (200 and 201)
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print(response.body);
-        print(response.statusCode);
+        if (kDebugMode) {
+          print(response.body);
+        }
+        if (kDebugMode) {
+          print(response.statusCode);
+        }
 
         _showSuccessBottomSheet();
 
@@ -282,8 +286,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           _feedbackText = "";
         });
       } else {
-        print(response.body);
-        print(response.statusCode);
+        if (kDebugMode) {
+          print(response.body);
+        }
+        if (kDebugMode) {
+          print(response.statusCode);
+        }
         // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -296,7 +304,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         );
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

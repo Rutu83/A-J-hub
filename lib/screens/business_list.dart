@@ -64,23 +64,24 @@ class BusinessListState extends State<BusinessList> {
       );
 
       if (response.statusCode == 200) {
+        final data = json.decode(response.body)['data'];
         setState(() {
-          businessData = json.decode(response.body)['data'];
+          businessData = data ?? [];
           isLoading = false;
         });
-      if (kDebugMode) {
-         print('Response body: ${response.body}');
-         print('Business data loaded successfully.');
-       }
+        if (kDebugMode) {
+          print('Business data loaded successfully.');
+        }
       } else {
         _handleErrorResponse(response);
       }
     } catch (e) {
       if (kDebugMode) {
-     //   print('Error fetching business data: $e');
+        print('Error fetching business data: $e');
       }
       setState(() {
         isLoading = false;
+        businessData = [];
       });
     }
   }
@@ -123,6 +124,10 @@ class BusinessListState extends State<BusinessList> {
   }
 
   Future<void> _deleteBusinessProfile(String businessId) async {
+    setState(() {
+      isLoading = true; // Show loader while deleting
+    });
+
     final String apiUrl = 'https://ajhub.co.in/api/delete/business-profile/$businessId';
     String token = appStore.token; // Ensure token is correct
 
@@ -136,20 +141,28 @@ class BusinessListState extends State<BusinessList> {
       );
 
       if (response.statusCode == 200) {
-        // Successfully deleted, refresh the list
-        fetchBusinessData();
+        // Successfully deleted
         if (kDebugMode) {
-       //   print('Business profile with ID $businessId deleted successfully.');
+          print('Business profile with ID $businessId deleted successfully.');
         }
+        // Refresh the business list
+        await fetchBusinessData();
+        setState(() {}); // Ensure UI updates
       } else {
         _handleErrorResponse(response); // Handle response errors
       }
     } catch (e) {
       if (kDebugMode) {
-      //  print('Error deleting business profile: $e');
+        print('Error deleting business profile: $e');
       }
+    } finally {
+      setState(() {
+        isLoading = false; // Hide loader
+      });
     }
   }
+
+
 
 
 
@@ -209,7 +222,7 @@ class BusinessListState extends State<BusinessList> {
         backgroundColor: Colors.white,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator( color: Colors.red,))
           : Column(
         children: [
           Expanded(
@@ -221,27 +234,28 @@ class BusinessListState extends State<BusinessList> {
                 final business = businessData[index];
                 return BusinessCard(
                   business: business,
-                  selectedBusiness: selectedBusiness, // Pass selected business ID
+                  selectedBusiness: selectedBusiness,
                   onRadioChanged: (int? value) {
                     if (value != null) {
                       setState(() {
-                        selectedBusiness = value; // Update selected business ID
-                        storeBusinessID(value);   // Store ID in SharedPreferences
-                        updateBusinessStatus(value); // Call the API to update the business status
+                        selectedBusiness = value;
+                        storeBusinessID(value);
+                        updateBusinessStatus(value);
                         if (kDebugMode) {
                           print('Selected Business ID: $value');
                         }
                       });
                     }
                   },
-                  onUpdate: fetchBusinessData, // Pass the fetchBusinessData method
-                  onDelete: () => _confirmDelete(business['id'].toString()), // Add onDelete callback here
+                  onUpdate: fetchBusinessData,
+                  onDelete: () => _confirmDelete(business['id'].toString()),
                 );
               },
             ),
           ),
         ],
       ),
+
       // Conditionally show the FloatingActionButton only if businessData has less than 3 items
       floatingActionButton: businessData.length < 3
           ? FloatingActionButton(

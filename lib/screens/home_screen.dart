@@ -90,9 +90,9 @@ class HomeScreenState extends State<HomeScreen> {
       final data = await getCategoriesWithSubcategories();
       setState(() {
         categoriesData = data;
-        if (kDebugMode) {
-          print(categoriesData);
-        }
+        // if (kDebugMode) {
+        //   print(categoriesData);
+        // }
       });
     } catch (e) {
       setState(() {

@@ -171,13 +171,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                              child: CircleAvatar(
                                radius: 33.r,
                                backgroundImage: _imageLoadFailed
-                                   ? const AssetImage('assets/images/aj1.jpg')
-                                   : const NetworkImage('https://www.google.co.in/') as ImageProvider,
+                                   ? AssetImage('assets/images/aj1.jpg') as ImageProvider
+                                   : NetworkImage('https://www.google.co.in/'),
                                onBackgroundImageError: (_, __) {
-                                 setState(() {
+                                 if (!_imageLoadFailed) {
                                    _imageLoadFailed = true;
-                                 });
+                                 }
                                },
+
                              ),
                            ),
 
@@ -382,11 +383,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         _buildMenuOption(Icons.groups, "Join Our Community"),
         _buildMenuOption(Icons.person_outline, "My Profile"),
-        _buildMenuOption(Icons.person_outline, "My Business"),
-        _buildMenuOption(Icons.list, "Business List"),
-        _buildMenuOption(Icons.image, "Downloaded Images"),
+        _buildMenuOption(Icons.business_center_outlined, "My Business"),
+        _buildMenuOption(Icons.library_books_outlined, "Team List"),
+        _buildMenuOption(Icons.image_outlined, "Downloaded Images"),
         _buildMenuOption(Icons.insert_emoticon_sharp, "FeedBack"),
-        _buildMenuOption(Icons.feed_sharp, "FAQs"),
+        _buildMenuOption(Icons.question_answer_outlined, "FAQs"),
         _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.ajhub.co.in/term-condition'),
         _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
         _buildMenuOption(Icons.privacy_tip_outlined, "Privacy Policy", 'https://www.ajhub.co.in/policy'),
@@ -400,9 +401,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ],
     );
   }
-
-
-
 
   void openWhatsApp(BuildContext context) async {
     const phone = "919662545518"; // Correct format with country code
@@ -468,7 +466,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               context,
               MaterialPageRoute(builder: (context) => const EditProfile()),
             );
-          } else if (label == "Business List") {
+          } else if (label == "Team List") {
             if (businessData != null) {
 
               Navigator.push(

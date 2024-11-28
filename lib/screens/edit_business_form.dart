@@ -29,6 +29,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _websiteController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
+  bool _isLoading = false; // Tracks if the form is being submitted
 
   String? selectedState;
   List<dynamic> states = [];
@@ -77,15 +78,26 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
   }
 
   String? _selectedCategory;  // Variable to store selected business category
+  bool _validateImageFormat(String path) {
+    final validExtensions = ['jpg', 'jpeg', 'png'];
+    final extension = path.split('.').last.toLowerCase();
+    return validExtensions.contains(extension);
+
+
+  }
 
   // Method to pick image from gallery
   Future<void> _pickImageFromGallery() async {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
-        setState(() {
-          _image = File(pickedFile.path);
-        });
+        if (_validateImageFormat(pickedFile.path)) {
+          setState(() {
+            _image = File(pickedFile.path);
+          });
+        } else {
+          _showErrorMessage('Invalid file format. Please select a JPEG, PNG, or JPG image.');
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -93,15 +105,23 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
       }
     }
   }
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
 
-  // Method to pick image from camera
   Future<void> _pickImageFromCamera() async {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.camera);
       if (pickedFile != null) {
-        setState(() {
-          _image = File(pickedFile.path);
-        });
+        if (_validateImageFormat(pickedFile.path)) {
+          setState(() {
+            _image = File(pickedFile.path);
+          });
+        } else {
+          _showErrorMessage('Invalid file format. Please select a JPEG, PNG, or JPG image.');
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -169,11 +189,13 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
     );
   }
 
+
+  String? _imageUrl; // For remote URL
+
   @override
   void initState() {
     super.initState();
     fetchStates();
-
 
     // Initialize the text controllers with business data
     _businessNameController.text = widget.business['business_name'] ?? '';
@@ -186,55 +208,73 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
     _selectedCategory = widget.business['category_name'];
     _selectedCategoryId = widget.business['category_id'].toString();
 
+    // Determine if the logo is a file or a URL
+    if (widget.business['logo'] != null && widget.business['logo'].startsWith('http')) {
+      _imageUrl = widget.business['logo']; // Remote URL
+    } else if (widget.business['logo'] != null) {
+      _image = File(widget.business['logo']); // Local file path
+    }
   }
+
 
 
 
 
   Future<void> _updateBusinessProfile() async {
-    final String token = appStore.token; // Retrieve your token from appStore
-    final String apiUrl = 'https://ajhub.co.in/api/update/businessprofile/${widget.business['id']}'; // Assuming 'id' is the business ID
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
+    final String token = appStore.token;
+    final String apiUrl = 'https://ajhub.co.in/api/update/businessprofile/${widget.business['id']}';
 
     try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode({
-          'business_name': _businessNameController.text,
-          'owner_name': _ownerNameController.text,
-          'mobile_number': _mobileNumberController.text,
-          'email': _emailController.text,
-          'website': _websiteController.text,
-          'address': _addressController.text,
-          'state_id': selectedState,
-          'category_id': _selectedCategoryId,
-          // Include additional fields as necessary
-        }),
-      );
+      var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+      });
 
-      if (response.statusCode == 200) {
-        if (kDebugMode) {
-          print('Profile updated successfully: ${response.body}');
-        }
-        // Pass true as the result to indicate success
-        Navigator.pop(context, true);
-      } else {
-        if (kDebugMode) {
-          print('Failed to update profile: ${response.statusCode}');
-          print('Response body: ${response.body}');
-        }
+      // Add text fields
+      request.fields['business_name'] = _businessNameController.text;
+      request.fields['owner_name'] = _ownerNameController.text;
+      request.fields['mobile_number'] = _mobileNumberController.text;
+      request.fields['email'] = _emailController.text;
+      request.fields['website'] = _websiteController.text;
+      request.fields['address'] = _addressController.text;
+      if (selectedState != null) request.fields['state_id'] = selectedState!;
+      if (_selectedCategoryId != null) request.fields['category_id'] = _selectedCategoryId!;
+
+      // Add image file if available
+      if (_image != null) {
+        request.files.add(await http.MultipartFile.fromPath('logo', _image!.path));
       }
 
+      // Send the request
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        if (kDebugMode) print('Profile updated successfully: $responseBody');
+        Navigator.pop(context, true); // Success
+      } else {
+        final errorBody = await response.stream.bytesToString();
+        final errorResponse = json.decode(errorBody);
+        if (errorResponse.containsKey('logo')) {
+          _showErrorMessage(errorResponse['logo'].join(' '));
+        } else {
+          _showErrorMessage('Failed to update profile. Please try again.');
+        }
+      }
     } catch (e) {
       if (kDebugMode) {
         print('Error updating profile: $e');
       }
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
     }
   }
-
 
 
   @override
@@ -272,14 +312,16 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                               border: Border.all(color: Colors.red.shade300),
                               borderRadius: BorderRadius.circular(10.r),
                               color: Colors.grey[200],
-                              image: _image != null
+                              image: _image != null || _imageUrl != null // Check if there's an image or URL
                                   ? DecorationImage(
-                                image: FileImage(_image!),
+                                image: _image != null
+                                    ? FileImage(_image!) // Local file
+                                    : NetworkImage(_imageUrl!) as ImageProvider, // Remote URL
                                 fit: BoxFit.cover,
                               )
-                                  : null,
+                                  : null, // No image
                             ),
-                            child: _image == null
+                            child: _image == null && _imageUrl == null
                                 ? const Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -294,7 +336,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                             )
                                 : null,
                           ),
-                          if (_image != null)
+                          if (_image != null || _imageUrl != null) // Display edit button only if there's an image
                             Positioned(
                               top: 8,
                               right: 8,
@@ -504,11 +546,20 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                     child: SizedBox(
                       height: 50.h, // Ensure both buttons have the same height
                       child: ElevatedButton(
-                        onPressed: _updateBusinessProfile, // Define this function to handle form submission
+                        onPressed: _isLoading ? null : _updateBusinessProfile, // Disable button if loading
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red, // Button background color
                         ),
-                        child: Text(
+                        child: _isLoading
+                            ? SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: Colors.white, // Spinner color
+                            strokeWidth: 2, // Thickness of the spinner
+                          ),
+                        )
+                            : Text(
                           'Edit',
                           style: TextStyle(
                             fontSize: 16.sp,
@@ -518,6 +569,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                       ),
                     ),
                   ),
+
                 ],
               ),
             ),
