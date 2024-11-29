@@ -33,7 +33,6 @@ class DashboardScreenState extends State<DashboardScreen> {
             CustomerScreen(),
             OportunityScreen(),
             ProfileScreen(),
-            BusinessScreen(),
           ],
         ),
         bottomNavigationBar: SafeArea(
@@ -47,13 +46,10 @@ class DashboardScreenState extends State<DashboardScreen> {
                 SizedBox(width: 20.w),
                 _buildMenuItem(Icons.business, "Category", 1),
                 SizedBox(width: 20.w),
-
+                // BusinessScreen(),
                 GestureDetector(
                   onTap: () {
-                    setState(() {
-                      _selectedIndex = 4;
-                    });
-                    _pageController.jumpToPage(4);
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>const BusinessScreen()));
                   },
                   child: Container(
                     height: 70.h,

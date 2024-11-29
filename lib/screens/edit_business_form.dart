@@ -254,21 +254,51 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
 
       if (response.statusCode == 200) {
         final responseBody = await response.stream.bytesToString();
-        if (kDebugMode) print('Profile updated successfully: $responseBody');
+        if (kDebugMode) {
+          print('Profile updated successfully: $responseBody');
+        }
         Navigator.pop(context, true); // Success
       } else {
         final errorBody = await response.stream.bytesToString();
+        if (kDebugMode) {
+          print('Error Response Body: $errorBody');
+        }
         final errorResponse = json.decode(errorBody);
-        if (errorResponse.containsKey('logo')) {
-          _showErrorMessage(errorResponse['logo'].join(' '));
+
+        if (errorResponse is Map && errorResponse.containsKey('errors')) {
+          // Iterate and print validation errors
+          errorResponse['errors'].forEach((key, value) {
+            if (value is List) {
+              if (kDebugMode) {
+                print('$key: ${value.join(', ')}');
+              }
+            } else {
+              if (kDebugMode) {
+                print('$key: $value');
+              }
+            }
+          });
+          _showErrorMessage('Please correct the highlighted errors.');
+        } else if (errorResponse is Map && errorResponse.containsKey('message')) {
+          // Handle non-validation error messages
+          if (kDebugMode) {
+            print('Error Message: ${errorResponse['message']}');
+          }
+          _showErrorMessage(errorResponse['message']);
         } else {
+          // Handle unexpected error formats
+          if (kDebugMode) {
+            print('Unexpected error format: $errorBody');
+          }
           _showErrorMessage('Failed to update profile. Please try again.');
         }
       }
     } catch (e) {
+      // Print and handle any unexpected exceptions
       if (kDebugMode) {
         print('Error updating profile: $e');
       }
+      _showErrorMessage('An unexpected error occurred. Please try again.');
     } finally {
       setState(() {
         _isLoading = false; // Stop loading
@@ -551,7 +581,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                           backgroundColor: Colors.red, // Button background color
                         ),
                         child: _isLoading
-                            ? SizedBox(
+                            ? const SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(

@@ -257,7 +257,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
               BoxShadow(
                 color: Colors.green.withOpacity(0.5),
                 blurRadius: 10,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ]
                 : [],
@@ -313,7 +313,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "${reward.points}",
+                      reward.points,
                       style: GoogleFonts.openSans(
                         color: Colors.grey,
                         fontSize: 14,
@@ -479,7 +479,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
 
   Widget _buildBenefitsAnalysis() {
  //   double totalValue = (businessData?.business?.totle_user ?? 1).toDouble(); // Convert to double
-    double redValue = (businessData?.business?.totle_user ?? 0).toDouble(); // Convert to double
+    double redValue = (businessData?.business?.totleUser ?? 0).toDouble(); // Convert to double
     double blueValue = (businessData?.business?.totalTeamCount ?? 0).toDouble(); // Convert to double
 
     // Calculate percentages for each section (as fraction of the total value)
@@ -636,14 +636,14 @@ final List<RewardLevel> rewards = [
     levelName: 'AJ CIRCLE - 1',
     points: '10 DIRECT REFERRAL',
     icon: Icons.star_border,
-    isCompleted: true,
+    isCompleted: false,
     benefits: ["GET YOUR DIGITAL ID", "SILVER PROGRAM ACCESS"],
   ),
   RewardLevel(
     levelName: "AJ CIRCLE - 2",
     points: '6 AJ 1 + 25 REFERRAL',
     icon: Icons.build_circle,
-    isCompleted: true,
+    isCompleted: false,
     benefits: ["UNLOCK THE GOLD PROGRAM", "AJ HUB T-SHIRT"],
   ),
   RewardLevel(

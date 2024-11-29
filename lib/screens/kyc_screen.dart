@@ -1,12 +1,12 @@
 import 'dart:convert';
-import 'dart:io'; // Required for File (image uploading)
+import 'dart:io';
 import 'package:allinone_app/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart'; // For picking images
-import 'package:cached_network_image/cached_network_image.dart'; // Cached image package
+import 'package:image_picker/image_picker.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class KycScreen extends StatefulWidget {
   const KycScreen({super.key});
@@ -18,10 +18,8 @@ class KycScreen extends StatefulWidget {
 class KycScreenState extends State<KycScreen> {
   bool _isLoading = false;
   Map<String, dynamic>? _kycData;
-  File? _pickedBankProofImage; // To store the selected bank proof image
+  File? _pickedBankProofImage;
   final ImagePicker _picker = ImagePicker();
-
-  // TextEditingControllers for editable fields
   final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _aadhaarCardController = TextEditingController();
   final TextEditingController _panCardController = TextEditingController();
@@ -29,32 +27,31 @@ class KycScreenState extends State<KycScreen> {
   final TextEditingController _accountNumberController = TextEditingController();
   final TextEditingController _ifscCodeController = TextEditingController();
   final TextEditingController _bankNameController = TextEditingController();
+  String? _bankProofImageUrl;
+
 
   @override
   void initState() {
     super.initState();
-    // Fetch the KYC data when the screen is initialized
     _getKycData();
   }
 
-  String? _bankProofImageUrl;
 
-  // Method to handle the KYC data retrieval via GET request
+
   Future<void> _getKycData() async {
-    const String apiUrl = "https://ajhub.co.in/api/kyc/submit"; // API URL for GET request
-    final String bearerToken = appStore.token; // Bearer token for authorization
+    const String apiUrl = "https://ajhub.co.in/api/kyc/submit";
+    final String bearerToken = appStore.token;
 
     try {
       setState(() {
-        _isLoading = true; // Start loading when making the request
+        _isLoading = true;
       });
 
-      // Send a GET request with the Bearer token in the header
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {
           'Authorization': 'Bearer $bearerToken',
-          'Accept': 'application/json', // Expecting JSON response
+          'Accept': 'application/json',
         },
       );
 
@@ -62,8 +59,6 @@ class KycScreenState extends State<KycScreen> {
         final responseData = json.decode(response.body);
         setState(() {
           _kycData = responseData['kyc'];
-
-          // Populate other controllers with data or empty string if null
           _userIdController.text = _kycData?['user_id']?.toString() ?? '';
           _aadhaarCardController.text = _kycData?['aadhaar_card']?.toString() ?? '';
           _panCardController.text = _kycData?['pan_card']?.toString() ?? '';
@@ -71,11 +66,8 @@ class KycScreenState extends State<KycScreen> {
           _accountNumberController.text = _kycData?['account_number']?.toString() ?? '';
           _ifscCodeController.text = _kycData?['ifsc_code'] ?? '';
           _bankNameController.text = _kycData?['bank_name'] ?? '';
-
-          // Check if the bank_proof exists and it's a valid URL
           if (_kycData?['bank_proof'] != null) {
             _bankProofImageUrl = _kycData?['bank_proof'] as String?;
-            // Ensure the URL is valid (add base URL if needed)
             if (_bankProofImageUrl != null && !_bankProofImageUrl!.startsWith("http")) {
               _bankProofImageUrl = "http://ajhub.co.in/storage/app/public/${_bankProofImageUrl!}";
 
@@ -97,15 +89,15 @@ class KycScreenState extends State<KycScreen> {
     }
   }
 
-  // Method to show options for selecting image from camera or gallery
+
   Future<void> _pickBankProofImage() async {
     final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.gallery, // You can change to ImageSource.camera for camera
+      source: ImageSource.gallery,
     );
 
     if (pickedFile != null) {
       setState(() {
-        _pickedBankProofImage = File(pickedFile.path); // Store the selected image
+        _pickedBankProofImage = File(pickedFile.path);
       });
     }
   }
@@ -121,16 +113,52 @@ class KycScreenState extends State<KycScreen> {
       return;
     }
 
-    // Validate fields
+
+    if (_pickedBankProofImage == null && _bankProofImageUrl != null) {
+      try {
+        final response = await http.get(Uri.parse(_bankProofImageUrl!));
+        if (response.statusCode == 200) {
+          final tempDir = Directory.systemTemp;
+          final tempFile = File('${tempDir.path}/bank_proof_temp.jpg');
+          await tempFile.writeAsBytes(response.bodyBytes);
+          setState(() {
+            _pickedBankProofImage = tempFile;
+          });
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error downloading bank proof: $e')),
+        );
+        return;
+      }
+    }
+
+
+    final bool isDataModified =
+        _aadhaarCardController.text != (_kycData?['aadhaar_card'] ?? '') ||
+            _panCardController.text != (_kycData?['pan_card'] ?? '') ||
+            _accountHolderNameController.text != (_kycData?['account_holder_name'] ?? '') ||
+            _accountNumberController.text != (_kycData?['account_number'] ?? '') ||
+            _ifscCodeController.text != (_kycData?['ifsc_code'] ?? '') ||
+            _bankNameController.text != (_kycData?['bank_name'] ?? '') ||
+            _pickedBankProofImage != null;
+
+    if (!isDataModified) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No changes detected to update.')),
+      );
+      return;
+    }
+
+
     if (_aadhaarCardController.text.isEmpty ||
         _panCardController.text.isEmpty ||
         _accountHolderNameController.text.isEmpty ||
         _accountNumberController.text.isEmpty ||
         _ifscCodeController.text.isEmpty ||
-        _bankNameController.text.isEmpty ||
-        (_pickedBankProofImage == null && (_kycData == null || _bankProofImageUrl == null))) {
+        _bankNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All fields including bank proof are required')),
+        const SnackBar(content: Text('All fields are required')),
       );
       return;
     }
@@ -140,7 +168,7 @@ class KycScreenState extends State<KycScreen> {
         _isLoading = true;
       });
 
-      // Prepare multipart request
+      // Prepare the multipart request
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl))
         ..headers['Authorization'] = 'Bearer $bearerToken'
         ..headers['Accept'] = 'application/json'
@@ -153,7 +181,7 @@ class KycScreenState extends State<KycScreen> {
         ..fields['ifsc_code'] = _ifscCodeController.text
         ..fields['bank_name'] = _bankNameController.text;
 
-      // Attach bank proof image or default to existing image URL
+      // Attach the new image if selected
       if (_pickedBankProofImage != null) {
         request.files.add(
           await http.MultipartFile.fromPath(
@@ -161,11 +189,9 @@ class KycScreenState extends State<KycScreen> {
             _pickedBankProofImage!.path,
           ),
         );
-      } else if (_bankProofImageUrl != null) {
-        // If no new image is picked, attach the existing bank proof image URL
-        request.fields['bank_proof_url'] = _bankProofImageUrl!;
       }
 
+      // Send the request
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
 
@@ -191,20 +217,9 @@ class KycScreenState extends State<KycScreen> {
           );
         }
       } else {
-        // Parse error messages
-        final errorResponse = json.decode(responseBody);
-        if (errorResponse['errors'] != null) {
-          final errors = errorResponse['errors'];
-          if (errors['bank_proof'] != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(errors['bank_proof'].join(' '))),
-            );
-          }
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${response.statusCode}')),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${response.statusCode}')),
+        );
       }
     } catch (e) {
       if (kDebugMode) {
@@ -219,7 +234,6 @@ class KycScreenState extends State<KycScreen> {
       });
     }
   }
-
 
 
   @override
@@ -255,7 +269,6 @@ class KycScreenState extends State<KycScreen> {
         child: Column(
           children: [
 
-
               SizedBox(height: 16.h),
               _buildTextField(_aadhaarCardController, 'Aadhaar Card'),
               SizedBox(height: 16.h),
@@ -269,11 +282,8 @@ class KycScreenState extends State<KycScreen> {
               SizedBox(height: 16.h),
               _buildTextField(_bankNameController, 'Bank Name'),
               SizedBox(height: 16.h),
-              // Bank Proof
               Text('Bank Proof:', style: TextStyle(fontSize: 16.sp)),
               SizedBox(height: 8.h),
-
-              // Bank Proof Image or Placeholder
               Stack(
                 alignment: Alignment.center,
                 children: [
@@ -297,12 +307,9 @@ class KycScreenState extends State<KycScreen> {
                       fit: BoxFit.cover,
                       placeholder: (context, url) => const CircularProgressIndicator(),
                       errorWidget: (context, url, error) {
-                        // Print the error to the console
                         if (kDebugMode) {
                           print("Error loading image: $error");
                         }
-
-                        // Return a placeholder image or a widget to indicate an error
                         return Image.asset('assets/images/placeholder.jpg');
                       },
                     ),
@@ -317,8 +324,6 @@ class KycScreenState extends State<KycScreen> {
                       fit: BoxFit.cover,
                     ),
                   ),
-
-                  // Add the button to update the image (both before and after picking the image)
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -340,7 +345,6 @@ class KycScreenState extends State<KycScreen> {
                     ),
                   ),
 
-                  // If an image has been picked, show a button to change it
                   if (_pickedBankProofImage != null)
                     Positioned(
                       bottom: 0,

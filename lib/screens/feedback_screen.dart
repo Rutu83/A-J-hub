@@ -9,10 +9,10 @@ class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
 
   @override
-  _FeedbackScreenState createState() => _FeedbackScreenState();
+   FeedbackScreenState createState() =>  FeedbackScreenState();
 }
 
-class _FeedbackScreenState extends State<FeedbackScreen> {
+class  FeedbackScreenState extends State<FeedbackScreen> {
   double _selectedRating = -1; // Initial rating not selected
   String _feedbackText = ""; // Feedback text
   final int _maxCharacters = 2048;

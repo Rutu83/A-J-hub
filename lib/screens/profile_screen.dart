@@ -4,6 +4,7 @@ import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/model/business_mode.dart';
 import 'package:allinone_app/network/rest_apis.dart';
+import 'package:allinone_app/screens/active_user_screen.dart';
 import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/change_password_screen.dart';
 import 'package:allinone_app/screens/contact_us.dart';
@@ -75,9 +76,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void init() async {
     futureUserDetail = getUserDetail();
-    if (kDebugMode) {
-      print('User profile.....................................: $futureUserDetail');
-    }
+
   }
 
   void fetchUserData() async {
@@ -87,9 +86,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
 
       Map<String, dynamic> userDetail = await getUserDetail();
-      if (kDebugMode) {
-        print('User User profile2.....................................: $userDetail');
-      }
 
       setState(() {
         userId = userDetail['_id'];
@@ -171,8 +167,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                              child: CircleAvatar(
                                radius: 33.r,
                                backgroundImage: _imageLoadFailed
-                                   ? AssetImage('assets/images/aj1.jpg') as ImageProvider
-                                   : NetworkImage('https://www.google.co.in/'),
+                                   ? const AssetImage('assets/images/aj1.jpg') as ImageProvider
+                                   : const NetworkImage('https://www.google.co.in/'),
                                onBackgroundImageError: (_, __) {
                                  if (!_imageLoadFailed) {
                                    _imageLoadFailed = true;
@@ -385,6 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.person_outline, "My Profile"),
         _buildMenuOption(Icons.business_center_outlined, "My Business"),
         _buildMenuOption(Icons.library_books_outlined, "Team List"),
+        _buildMenuOption(Icons.supervised_user_circle_outlined, "Active User"),
         _buildMenuOption(Icons.image_outlined, "Downloaded Images"),
         _buildMenuOption(Icons.insert_emoticon_sharp, "FeedBack"),
         _buildMenuOption(Icons.question_answer_outlined, "FAQs"),
@@ -476,6 +473,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             }
+          } else if (label == "Active User") {
+
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ActiveUserPage(),
+                ),
+              );
+
           }else if (label == "FeedBack") {
             Navigator.push(
               context,

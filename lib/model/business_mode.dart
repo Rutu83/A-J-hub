@@ -20,7 +20,7 @@ class BusinessModal {
 }
 
 class Business {
-  int totle_user;
+  int totleUser;
   int totalTeamCount;
   double totalIncome;
   double sponserIncome;
@@ -30,7 +30,7 @@ class Business {
   DateTime createdAt;
 
   Business({
-    required this.totle_user,
+    required this.totleUser,
     required this.totalTeamCount,
     required this.totalIncome,
     required this.sponserIncome,
@@ -42,7 +42,7 @@ class Business {
 
   factory Business.fromJson(Map<String, dynamic> json) {
     return Business(
-      totle_user: json['totle_user'] ?? 0,
+      totleUser: json['totle_user'] ?? 0,
       totalTeamCount: json['total_team_count'] ?? 0,
       totalIncome: (json['total_income'] is String)
           ? double.tryParse(json['total_income']) ?? 0.0
@@ -62,7 +62,7 @@ class Business {
 
   Map<String, dynamic> toJson() {
     return {
-      'totle_user': totle_user,
+      'totle_user': totleUser,
       'total_team_count': totalTeamCount,
       'total_income': totalIncome,
       'sponser_income': sponserIncome,

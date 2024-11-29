@@ -71,6 +71,7 @@ class BusinessListState extends State<BusinessList> {
         });
         if (kDebugMode) {
           print('Business data loaded successfully.');
+          print('Business data loaded successfully.$businessData');
         }
       } else {
         _handleErrorResponse(response);
@@ -329,9 +330,9 @@ class BusinessCard extends StatelessWidget {
         children: [
           // Radio button for business selection
           Radio<int?>(
-            value: business['id'],  // Nullable int value for Radio
+            value: business['id'],
             groupValue: selectedBusiness,
-            onChanged: onRadioChanged,  // Nullable int in callback
+            onChanged: onRadioChanged,
           ),
 
           // Expanded widget to allow the container to take available space

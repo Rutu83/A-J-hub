@@ -150,7 +150,7 @@ class CharityPageState extends State<CharityPage> with SingleTickerProviderState
             buildSection(
               title: 'Skill School Foundation ',
               content: 'We started in 2015 with 4 children and a teacher in a small room. '
-                  'The SKILLSCHOOL is a dedicated and passionate team who work together '
+                  'The SKILL SCHOOL is a dedicated and passionate team who work together '
                   'with their untiring efforts and deep understanding. The team works '
                   'selflessly with utmost care and passion. Self-help skills are taught '
                   'in a unique and playful way.',
@@ -346,7 +346,7 @@ class CharityPageState extends State<CharityPage> with SingleTickerProviderState
             Text(
               'About Us: Our Journey\n'
                   'Bangalore, fondly called “The city of Gardens” inspired fables and verses alike. With an unbelievably pleasant weather throughout the year, it was a green haven for decades. '
-                  'Corporatisation of the city and rapid influx of the IT industry brought jobs and investments galore, but took a toll on the natural beauty the city was blessed with. '
+                  'Corporation of the city and rapid influx of the IT industry brought jobs and investments galore, but took a toll on the natural beauty the city was blessed with. '
                   'That\'s when a motley group of individuals - software engineers at work and passionate tree lovers at heart came together, and ‘SayTrees’ was born.',
               style: GoogleFonts.roboto(fontSize: 16.sp),
             ),

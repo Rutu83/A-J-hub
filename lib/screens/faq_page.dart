@@ -5,10 +5,10 @@ class FAQPage extends StatefulWidget {
   const FAQPage({super.key});
 
   @override
-  _FAQPageState createState() => _FAQPageState();
+   FAQPageState createState() =>  FAQPageState();
 }
 
-class _FAQPageState extends State<FAQPage> {
+class  FAQPageState extends State<FAQPage> {
   final List<Map<String, String>> faqList = [
     {
       "question": "How do I practice with Sivi?",
