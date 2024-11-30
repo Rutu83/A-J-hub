@@ -313,7 +313,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: const Text('Add Business Detail'),
+        title: const Text('Update Business Detail'),
       ),
       body: Stack(  // Using Stack to position the bottom sheet
         children: [
@@ -590,7 +590,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                           ),
                         )
                             : Text(
-                          'Edit',
+                          'Update',
                           style: TextStyle(
                             fontSize: 16.sp,
                             color: Colors.white,

@@ -1,7 +1,10 @@
 import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
 import 'package:allinone_app/model/daillyuse_modal.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
+import 'package:allinone_app/screens/active_user_screen.dart';
 import 'package:allinone_app/screens/category_topics.dart';
+import 'package:allinone_app/screens/charity_screen.dart';
+import 'package:allinone_app/screens/refer_earn.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +15,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:allinone_app/screens/category_selected.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../network/rest_apis.dart';
 
@@ -169,6 +173,42 @@ class HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             _buildBannerSlider(),
+
+            Padding(
+              padding: const EdgeInsets.only(left: 6, right: 6, top: 16, bottom: 10),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  double buttonWidth = constraints.maxWidth / 4 - 12; // Divide width evenly among buttons
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Space buttons evenly
+                    children: [
+                      _buildButton(context, Icons.share, 'Refer', buttonWidth, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ReferEarn()),
+                        );
+                      }),
+                      _buildButton(context, Icons.favorite, 'Charity', buttonWidth, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const CharityPage()),
+                        );
+                      }),
+                      _buildButton(context, Icons.group, 'Join Community', buttonWidth, () {
+                        openWhatsApp(context);
+                      }),
+                      _buildButton(context, Icons.check_circle, 'Activation', buttonWidth, () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ActiveUserPage()),
+                        );
+                      }),
+                    ],
+                  );
+                },
+              ),
+            ),
+
             _buildUpcomingCategorySection(),
             const SizedBox(height: 10),
             _buildFestivalCategorySection(),
@@ -182,8 +222,65 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildButton(BuildContext context, IconData icon, String label, double width, VoidCallback onPressed) {
+    return SizedBox(
+      width: width, // Dynamic width for the button
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white, // White text/icon color
+          backgroundColor: Colors.red, // Red background for the button
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0), // Rounded corners for the button
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 12.0),
+        ),
+        onPressed: onPressed, // Pass the navigation or action callback
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center, // Center-align icon and text
+          children: [
+            Icon(icon, size: 24), // Icon
+            const SizedBox(height: 4), // Spacing between icon and text
+            Text(
+              label,
+              textAlign: TextAlign.center, // Center-align the text
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-  Widget _buildBannerSlider() {
+
+  void openWhatsApp(BuildContext context) async {
+    const phone = "919662545518"; // Correct format with country code
+    final message = Uri.encodeComponent(''); // Add your message here if needed
+    final whatsappUrl = "https://wa.me/$phone?text=$message";
+
+    try {
+      // Check if the URL can be launched
+      if (await canLaunch(whatsappUrl)) {
+        await launch(whatsappUrl, forceSafariVC: false, forceWebView: false);
+      } else {
+        // If WhatsApp is not installed or URL cannot be launched
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Could not open WhatsApp. Please ensure the app is installed.")),
+        );
+      }
+    } catch (e) {
+      // Catch any errors and display them
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $e")),
+      );
+    }
+  }
+
+
+
+
+
+Widget _buildBannerSlider() {
     return Padding(
       padding: EdgeInsets.all(8.0.w),
       child: Column(

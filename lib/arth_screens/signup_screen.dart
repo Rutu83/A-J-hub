@@ -155,36 +155,19 @@ class SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    // Reset the filteredStates list to show all states initially
-    setState(() {
-      filteredStates = states;
-    });
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30.0),
-          topRight: Radius.circular(30.0),
-        ),
-      ),
-      builder: (BuildContext context) {
-        return _buildSearchableModalSheet(
-          'Select State',
-          _searchStateController,
-          filteredStates, // Use the filtered list for the UI
-              (state) {
-            setState(() {
-              selectedState = state['name'];
-            });
-            fetchCities(state['id'].toString());
-            Navigator.pop(context);
-          },
-        );
+    _showSearchableModal(
+      title: 'State',
+      searchController: _searchStateController,
+      items: states,
+      onItemSelected: (selectedStateItem) {
+        setState(() {
+          selectedState = selectedStateItem['name'];
+          fetchCities(selectedStateItem['id'].toString()); // Fetch cities for the selected state
+        });
       },
     );
   }
+
 
 
 
@@ -194,37 +177,17 @@ class SignUpScreenState extends State<SignUpScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a state first')),
       );
-
-
       return;
     }
 
-    // Reset the filteredCities list to show all cities initially
-    setState(() {
-      filteredCities = cities;
-    });
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30.0),
-          topRight: Radius.circular(30.0),
-        ),
-      ),
-      builder: (BuildContext context) {
-        return _buildSearchableModalSheet(
-          'Select City',
-          _searchCityController,
-          filteredCities, // Use the filtered list for the UI
-              (city) {
-            setState(() {
-              selectedCity = city['name'];
-            });
-            Navigator.pop(context);
-          },
-        );
+    _showSearchableModal(
+      title: 'District',
+      searchController: _searchCityController,
+      items: cities,
+      onItemSelected: (selectedCityItem) {
+        setState(() {
+          selectedCity = selectedCityItem['name'];
+        });
       },
     );
   }
@@ -439,28 +402,28 @@ class SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _registerUser() async {
-
     print(selectedCountry);
 
     if (selectedCountry == null || selectedState == null || selectedCity == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select Country, State, and City')),
+        const SnackBar(content: Text('Please select Country, State, and District')),
       );
       setState(() {
-        // Trigger validation errors
-        isLocationError = true;
+        isLocationError = true; // Trigger validation errors
       });
       return;
     }
 
     if (selectedDropdown1 == 'Select Sponsor' || selectedDropdown2 == 'Select Your Parent') {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select both Sponsor and Parent')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select both Sponsor and Parent')));
       return;
     }
 
     if (_formKey.currentState!.validate()) {
       if (_passwordController.text != _confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Passwords do not match')));
         return;
       }
 
@@ -484,31 +447,43 @@ class SignUpScreenState extends State<SignUpScreen> {
         "parent": selectedDropdown2,
       };
 
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode(payload),
-      );
+      try {
+        final response = await http.post(
+          Uri.parse(apiUrl),
+          headers: {"Content-Type": "application/json"},
+          body: json.encode(payload),
+        );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful')));
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-      } else {
-        final responseData = json.decode(response.body);
-        String errorMessage = responseData['message'] ?? 'An unexpected error occurred. Please try again later.';
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Registration Successful')));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        } else {
+          final responseData = json.decode(response.body);
 
-        if (response.statusCode == 500) {
-          errorMessage = responseData['error'] != null && responseData['error'].contains('handleLevelIncome')
-              ? 'A server issue occurred during registration. Please contact support.'
-              : 'Server error. Please try again later.';
-        } else if (response.statusCode == 400) {
-          print(response.body);
-          errorMessage = 'Validation error.${response.body}';
-        } else if (response.statusCode == 403) {
-          errorMessage = 'You are not authorized to perform this action.';
+          // Extract and display error messages
+          if (responseData['status'] == 'error' && responseData['errors'] != null) {
+            final errors = responseData['errors'] as Map<String, dynamic>;
+            final errorMessages = errors.values
+                .expand((errorList) => errorList as List)
+                .join('\n');
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(errorMessages)),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('An unexpected error occurred. Please try again.')),
+            );
+          }
         }
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Network error. Please check your connection.')),
+        );
       }
 
       setState(() {
@@ -516,6 +491,7 @@ class SignUpScreenState extends State<SignUpScreen> {
       });
     }
   }
+
 
 
   @override
@@ -604,7 +580,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                         // Display error if country, state, or city is not selected
                         if (isLocationError) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please select Country, State, and City')),
+                            const SnackBar(content: Text('Please select Country, State, and District')),
                           );
                         }
                       }
@@ -804,8 +780,8 @@ class SignUpScreenState extends State<SignUpScreen> {
         if (value == null || value.isEmpty) {
           return 'Please enter your password';
         }
-        if (value.length < 6) {
-          return 'Password must be at least 6 characters long';
+        if (value.length < 8) {
+          return 'Password must be at least 8 characters long';
         }
         return null;
       },
@@ -1033,7 +1009,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              selectedCity != null ? selectedCity! : 'Select City',
+              selectedCity != null ? selectedCity! : 'Select District',
               style: GoogleFonts.roboto(
                 textStyle: TextStyle(
                   color: Colors.black,
@@ -1079,7 +1055,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please select $label';
+              return 'Please $label';
             }
             return null;
           },
@@ -1087,6 +1063,102 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
       },
     );
   }
+
+
+
+  void _showSearchableModal({
+    required String title,
+    required TextEditingController searchController,
+    required List<dynamic> items,
+    required Function(Map<String, dynamic>) onItemSelected,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30.0),
+          topRight: Radius.circular(30.0),
+        ),
+      ),
+      builder: (BuildContext context) {
+        List<dynamic> filteredItems = List.from(items); // Copy the original list
+
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return FractionallySizedBox(
+              heightFactor: 0.9,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom, // Adjust for keyboard height
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18.sp,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: TextField(
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search $title',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onChanged: (query) {
+                          setModalState(() {
+                            filteredItems = items.where((item) {
+                              return item['name']
+                                  .toString()
+                                  .toLowerCase()
+                                  .contains(query.toLowerCase());
+                            }).toList();
+                          });
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filteredItems.length,
+                        itemBuilder: (context, index) {
+                          final item = filteredItems[index];
+                          return ListTile(
+                            title: Text(item['name']),
+                            onTap: () {
+                              onItemSelected(item);
+                              Navigator.pop(context);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+
+
+
+
+
+
 
   Widget _buildDropdownField(String label, String value, void Function() onTap, bool isRequired) {
     return GestureDetector(

@@ -222,7 +222,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                         onPressed: sendResetLink,
                         child: Text(
-                          "Send Reset Link",
+                          "Send Password Request",
                           style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
                         ),
                       ),

@@ -397,14 +397,11 @@ class BusinessCard extends StatelessWidget {
                     ],
                   ),
                   Positioned(
-                    top: 0,
-                    right: 0,
+                    top: 8, // Add some padding to move the button down
+                    right: 8, // Add padding to move the button inward
                     child: PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'Edit') {
-                          if (kDebugMode) {
-                        //    print('Edit option selected');
-                          }
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -412,15 +409,11 @@ class BusinessCard extends StatelessWidget {
                             ),
                           ).then((result) {
                             if (result == true) {
-                              // Reload the business data if the update was successful
-                              onUpdate();  // Call the onUpdate callback
+                              onUpdate(); // Call the onUpdate callback
                             }
                           });
                         } else if (value == 'Delete') {
-                          if (kDebugMode) {
-                        //    print('Delete option selected');
-                          }
-                          onDelete(); // Call the delete method when 'Delete' is selected
+                          onDelete(); // Call the delete method
                         }
                       },
                       itemBuilder: (BuildContext context) {
@@ -433,6 +426,8 @@ class BusinessCard extends StatelessWidget {
                       },
                     ),
                   ),
+
+
                 ],
               ),
             ),
@@ -447,30 +442,63 @@ class BusinessCard extends StatelessWidget {
 
   // Business Name with Verified Icon
   Widget _buildBusinessNameRow(String businessName) {
+    String truncatedName = _truncateText(businessName, 15); // Ensure max 10 characters per line
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
+      padding: const EdgeInsets.only(top: 8.0), // Add space between rows and the popup
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start, // Align multiple lines to the start
         children: [
-          Text(
-            businessName,
-            style: GoogleFonts.poppins(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
+          RichText(
+            text: TextSpan(
+              text: truncatedName,
+              style: GoogleFonts.poppins(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+              children: [
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 5.0),
+                    child: Image.asset(
+                      'assets/icons/verified.png',
+                      width: 15,
+                      height: 15,
+                      fit: BoxFit.cover,
+                      color: Colors.red,
+                    ),
+                  ),
+                ),
+              ],
             ),
+            softWrap: true,
+            overflow: TextOverflow.visible,
           ),
-          const SizedBox(width: 5),
-          Image.asset(
-            'assets/icons/verified.png',
-            width: 15,
-            height: 15,
-            fit: BoxFit.cover,
-            color: Colors.red,
-          ),
+          if (businessName.length > 10)
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Text(
+                businessName.substring(10),
+                style: GoogleFonts.poppins(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
+
+  String _truncateText(String text, int maxCharsPerLine) {
+    return text.length > maxCharsPerLine ? text.substring(0, maxCharsPerLine) : text;
+  }
+
+
+
 
   // Business Detail Row (Phone Number, State, etc.)
   Widget _buildDetailRow(String value, {bool isSecondaryText = false}) {

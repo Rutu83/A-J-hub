@@ -127,7 +127,6 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
             _buildNewReleasesSection(),
             const SizedBox(height: 10),
             isLoading ? _buildSkeletonLoading() : _buildContent(),
-            const SizedBox(height: 120),
           ],
         ),
       ),

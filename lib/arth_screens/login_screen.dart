@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
+
 import 'package:allinone_app/arth_screens/auth_admin_service.dart';
 import 'package:allinone_app/arth_screens/signup_screen.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
@@ -84,21 +86,46 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
         await setValue(IS_REMEMBERED, isRemember);
       }
     }).catchError((e) {
+      print('.............................$e');
+
       setState(() {
         _isLoading = false;
       });
+
       String error = e.toString();
+
+      // Check if the error message contains "Token is Expired"
+      if (error.contains("Token is Expired")) {
+        error = "Invalid email or password.";
+      }
+
       onLoginError(error);
     });
+
+
   }
+
 
   Future<void> onLoginError(String error) async {
     setState(() {
       _isLoading = false;
     });
 
+    String errorMessage = 'An unexpected error occurred.';
+    try {
+      // Parse the JSON error message
+      final errorResponse = json.decode(error);
+      if (errorResponse['message'] != null) {
+        errorMessage = errorResponse['message'];
+      }
+    } catch (e) {
+      // If parsing fails, use the raw error
+      errorMessage = error;
+    }
+
+    // Show the error message as a toast
     Fluttertoast.showToast(
-      msg: error,
+      msg: errorMessage,
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.CENTER,
       timeInSecForIosWeb: 1,
@@ -107,6 +134,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
       fontSize: 16.0,
     );
   }
+
 
   Future<void> onLoginSuccessRedirection() async {
     var pref = await SharedPreferences.getInstance();
