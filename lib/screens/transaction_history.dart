@@ -3,10 +3,9 @@ import 'package:allinone_app/network/rest_apis.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:convert'; // For JSON parsing
 
 class TransactionHistory extends StatefulWidget {
-  const TransactionHistory({Key? key}) : super(key: key);
+  const TransactionHistory({super.key});
 
   @override
   _TransactionHistoryState createState() => _TransactionHistoryState();
@@ -253,8 +252,8 @@ class _TransactionHistoryState extends State<TransactionHistory> {
                 itemCount: filteredTransactions.length,
                 itemBuilder: (context, index) {
                   final transaction = filteredTransactions[index];
-                  final isCredit =
-                      transaction.transactionStatus == 'Credit';
+                  final isCredit = transaction.transactionStatus == 'Credit';
+
                   return ListTile(
                     leading: CircleAvatar(
                       backgroundColor: isCredit
@@ -274,9 +273,30 @@ class _TransactionHistoryState extends State<TransactionHistory> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    subtitle: Text(
-                      transaction.createdAt.toString(),
-                      style: GoogleFonts.poppins(),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Show remark first
+
+
+
+                        // Show timestamp next
+                        Text(
+                          transaction.createdAt.toString(),
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 4), // Add spacing after the remark
+                        Text(
+                          transaction.paymentPurpose?.toString() ?? 'No purpose provided', // Null-safe access and default value
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.blueGrey,
+                          ),
+                        ),
+                      ],
                     ),
                     trailing: Text(
                       '${isCredit ? '+' : '-'} ₹${transaction.amount}',
@@ -290,6 +310,8 @@ class _TransactionHistoryState extends State<TransactionHistory> {
                 },
               ),
             ),
+
+
           ],
         ),
       ),

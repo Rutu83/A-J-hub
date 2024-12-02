@@ -8,6 +8,7 @@ import 'package:allinone_app/screens/dashbord_screen.dart';
 import 'package:allinone_app/screens/forgot_screen.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -86,7 +87,9 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
         await setValue(IS_REMEMBERED, isRemember);
       }
     }).catchError((e) {
-      print('.............................$e');
+      if (kDebugMode) {
+        print('.............................$e');
+      }
 
       setState(() {
         _isLoading = false;

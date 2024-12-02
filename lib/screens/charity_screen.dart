@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CharityPage extends StatelessWidget {
@@ -72,7 +71,7 @@ class CharityPage extends StatelessWidget {
           children: [
             // Background image with onTap gesture
             Container(
-              height: 350,
+              height: 300,
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
@@ -113,7 +112,7 @@ class CharityPage extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 25),
+            const SizedBox(height: 6),
             // Buttons
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -124,20 +123,22 @@ class CharityPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Expanded(
-                        child: buildButton(
+                        child: buildCustomButton(
                           context,
                           'Skill School',
                           Icons.school,
+                          '₹ 52465',
                           Colors.red,
                               () => showCustomBottomSheet(context, buildSkillSchoolContent()),
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: buildButton(
+                        child: buildCustomButton(
                           context,
                           'Food',
                           Icons.fastfood,
+                          '₹ 46598',
                           Colors.red,
                               () => showCustomBottomSheet(context, buildFoodContent()),
                         ),
@@ -149,10 +150,11 @@ class CharityPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Expanded(
-                        child: buildButton(
+                        child: buildCustomButton(
                           context,
                           'Tree Plantation',
                           Icons.park,
+                          '₹ 4545',
                           Colors.red,
                               () => showCustomBottomSheet(context, buildTreePlantationContent()),
                         ),
@@ -164,87 +166,93 @@ class CharityPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Expanded(
-                        child: buildButton(
+                        child: buildCustomButton(
                           context,
                           'Indian Games',
                           Icons.sports_kabaddi,
+                          '₹ 7567',
                           Colors.red,
                               () => showCustomBottomSheet(context, buildIndianGamesContent()),
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
-                        child: buildButton(
+                        child: buildCustomButton(
                           context,
                           'Child Care',
                           Icons.child_care,
+                          '₹ 8756',
                           Colors.red,
                               () => showCustomBottomSheet(context, buildChildCareContent()),
                         ),
                       ),
                     ],
                   ),
-
-                  // const SizedBox(height: 16),
-                  // Container(
-                  //   color: Colors.grey.shade200,
-                  //   padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 16),
-                  //   child: Column(
-                  //     children: [
-                  //       const Text(
-                  //         "Contact Us",
-                  //         style: TextStyle(
-                  //           fontSize: 18,
-                  //           fontWeight: FontWeight.bold,
-                  //         ),
-                  //       ),
-                  //       const SizedBox(height: 8),
-                  //       Row(
-                  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //         children: [
-                  //           IconButton(
-                  //             onPressed: () {},
-                  //             icon: const Icon(Icons.email, color: Colors.red),
-                  //           ),
-                  //           IconButton(
-                  //             onPressed: () {},
-                  //             icon: const Icon(Icons.phone, color: Colors.red),
-                  //           ),
-                  //           IconButton(
-                  //             onPressed: () {},
-                  //             icon: const Icon(Icons.web, color: Colors.red),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                 ],
               ),
             ),
+
+
           ],
         ),
       ),
     );
   }
 
-  Widget buildButton(BuildContext context, String title, IconData icon, Color color, VoidCallback onTap) {
-    return ElevatedButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, color: Colors.white), // White icon color
-      label: Text(
-        title,
-        style: const TextStyle(fontSize: 16, color: Colors.white), // White text color
-      ),
+
+
+  Widget buildCustomButton(BuildContext context, String title, IconData icon, String amount, Color color, VoidCallback onPressed) {
+    return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: color, // Red background color
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        backgroundColor: color,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      ),
+      onPressed: onPressed,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 28, color: Colors.white),
+          const SizedBox(height: 8), // Space between icon and title
+          Text(
+            title,
+            style: GoogleFonts.lato( // Applying Google Font to the title
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8), // Space between title and amount
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white, // Background color for counter
+              borderRadius: BorderRadius.circular(20), // Rounded corners
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 6, // Spread of the shadow
+                  offset: Offset(2, 2), // Position of the shadow
+                ),
+              ],
+            ),
+            child: Text(
+              amount,
+              style: GoogleFonts.lato( // Applying Google Font to the amount
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.black, // Text color for contrast
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
+
+
 
   void showCustomBottomSheet(BuildContext context, Widget content) {
     showModalBottomSheet(

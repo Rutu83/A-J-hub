@@ -88,6 +88,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       Map<String, dynamic> userDetail = await getUserDetail();
 
+      print('/////////////////////////$userDetail');
+
       setState(() {
         userId = userDetail['_id'];
         totalDownline = userDetail['total_downline_count'] ?? '0';
@@ -480,7 +482,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               );
             }
-          } else if (label == "Active User") {
+          } else if (label == "Activation") {
 
 
               Navigator.push(

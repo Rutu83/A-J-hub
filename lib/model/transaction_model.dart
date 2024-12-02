@@ -39,12 +39,16 @@ class User {
   }
 }
 
+
+
+
 class Transaction {
   final int id;
   final int userId;
   final String userName;
-  final int byParentUser;
-  final String transactionUniqueId;
+  final String? paymentPurpose; // Nullable field
+  final int? byParentUser; // Nullable field
+  final String? transactionUniqueId; // Nullable field
   final String transactionStatus;
   final String amount;
   final String status;
@@ -55,8 +59,9 @@ class Transaction {
     required this.id,
     required this.userId,
     required this.userName,
-    required this.byParentUser,
-    required this.transactionUniqueId,
+    this.paymentPurpose, // Nullable
+    this.byParentUser, // Nullable
+    this.transactionUniqueId, // Nullable
     required this.transactionStatus,
     required this.amount,
     required this.status,
@@ -70,8 +75,9 @@ class Transaction {
       id: json['id'] as int,
       userId: json['user_id'] as int,
       userName: json['user_name'] as String,
-      byParentUser: json['by_parant_user'] as int,
-      transactionUniqueId: json['transaction_unique_id'] as String,
+      paymentPurpose: json['payment_purpose'] as String?, // Handle null
+      byParentUser: json['by_parant_user'] as int?, // Handle null
+      transactionUniqueId: json['transaction_unique_id'] as String?, // Handle null
       transactionStatus: json['tr_status'] as String,
       amount: json['amount'] as String,
       status: json['status'] as String,
@@ -80,3 +86,4 @@ class Transaction {
     );
   }
 }
+

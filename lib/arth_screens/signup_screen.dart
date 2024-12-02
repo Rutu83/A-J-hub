@@ -195,88 +195,88 @@ class SignUpScreenState extends State<SignUpScreen> {
 
 
 
-  Widget _buildSearchableModalSheet(String title, TextEditingController searchController, List<dynamic> filteredItems, Function(dynamic) onSelect) {
-    return DraggableScrollableSheet(
-      expand: false,
-      builder: (context, scrollController) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30.0),
-              topRight: Radius.circular(30.0),
-            ),
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              Container(
-                height: 6,
-                width: 50,
-                decoration: BoxDecoration(
-                  color: Colors.grey,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search $title',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  onChanged: (value) {
-                    // Update the filtered list based on the search input
-                    setState(() {
-                      filteredItems = filteredItems
-                          .where((item) => item['name']
-                          .toLowerCase()
-                          .contains(value.toLowerCase()))
-                          .toList();
-                    });
-                  },
-                ),
-              ),
-              Expanded(
-                child: ListView.separated(
-                  controller: scrollController,
-                  itemCount: filteredItems.length,
-                  itemBuilder: (context, index) {
-                    final item = filteredItems[index];
-                    return ListTile(
-                      title: Text(item['name']),
-                      onTap: () => onSelect(item),
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return const Divider(
-                      thickness: 1,
-                      color: Colors.grey,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // Widget _buildSearchableModalSheet(String title, TextEditingController searchController, List<dynamic> filteredItems, Function(dynamic) onSelect) {
+  //   return DraggableScrollableSheet(
+  //     expand: false,
+  //     builder: (context, scrollController) {
+  //       return Container(
+  //         decoration: const BoxDecoration(
+  //           color: Colors.white,
+  //           borderRadius: BorderRadius.only(
+  //             topLeft: Radius.circular(30.0),
+  //             topRight: Radius.circular(30.0),
+  //           ),
+  //         ),
+  //         child: Column(
+  //           children: [
+  //             const SizedBox(height: 20),
+  //             Container(
+  //               height: 6,
+  //               width: 50,
+  //               decoration: BoxDecoration(
+  //                 color: Colors.grey,
+  //                 borderRadius: BorderRadius.circular(12),
+  //               ),
+  //             ),
+  //             const SizedBox(height: 10),
+  //             Padding(
+  //               padding: const EdgeInsets.all(16.0),
+  //               child: Text(
+  //                 title,
+  //                 style: TextStyle(
+  //                   fontSize: 18.sp,
+  //                   fontWeight: FontWeight.bold,
+  //                 ),
+  //               ),
+  //             ),
+  //             Padding(
+  //               padding: const EdgeInsets.all(8.0),
+  //               child: TextField(
+  //                 controller: searchController,
+  //                 decoration: InputDecoration(
+  //                   hintText: 'Search $title',
+  //                   prefixIcon: const Icon(Icons.search),
+  //                   border: OutlineInputBorder(
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                 ),
+  //                 onChanged: (value) {
+  //                   // Update the filtered list based on the search input
+  //                   setState(() {
+  //                     filteredItems = filteredItems
+  //                         .where((item) => item['name']
+  //                         .toLowerCase()
+  //                         .contains(value.toLowerCase()))
+  //                         .toList();
+  //                   });
+  //                 },
+  //               ),
+  //             ),
+  //             Expanded(
+  //               child: ListView.separated(
+  //                 controller: scrollController,
+  //                 itemCount: filteredItems.length,
+  //                 itemBuilder: (context, index) {
+  //                   final item = filteredItems[index];
+  //                   return ListTile(
+  //                     title: Text(item['name']),
+  //                     onTap: () => onSelect(item),
+  //                   );
+  //                 },
+  //                 separatorBuilder: (context, index) {
+  //                   return const Divider(
+  //                     thickness: 1,
+  //                     color: Colors.grey,
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 
   // Real-time email validation
   void _validateEmail() {
