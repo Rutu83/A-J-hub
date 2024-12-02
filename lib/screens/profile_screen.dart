@@ -15,6 +15,7 @@ import 'package:allinone_app/screens/image_download_screen.dart';
 import 'package:allinone_app/screens/kyc_screen.dart';
 import 'package:allinone_app/screens/refer_earn.dart';
 import 'package:allinone_app/screens/team_member_list.dart';
+import 'package:allinone_app/screens/transaction_history.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
@@ -381,7 +382,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.person_outline, "My Profile"),
         _buildMenuOption(Icons.business_center_outlined, "My Business"),
         _buildMenuOption(Icons.library_books_outlined, "Team List"),
-        _buildMenuOption(Icons.supervised_user_circle_outlined, "Active User"),
+        _buildMenuOption(Icons.supervised_user_circle_outlined, "Activation"),
+        _buildMenuOption(Icons.transfer_within_a_station_outlined, "Transaction History"),
         _buildMenuOption(Icons.image_outlined, "Downloaded Images"),
         _buildMenuOption(Icons.insert_emoticon_sharp, "FeedBack"),
         _buildMenuOption(Icons.question_answer_outlined, "FAQs"),
@@ -463,7 +465,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               context,
               MaterialPageRoute(builder: (context) => const EditProfile()),
             );
-          } else if (label == "Team List") {
+          } else if (label == "Transaction History") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =>  TransactionHistory()),
+            );
+          }else if (label == "Team List") {
             if (businessData != null) {
 
               Navigator.push(

@@ -9,6 +9,8 @@ import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
 import 'package:allinone_app/model/daillyuse_modal.dart';
 import 'package:allinone_app/model/login_modal.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
+import 'package:allinone_app/model/team_model.dart';
+import 'package:allinone_app/model/transaction_model.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
 import 'package:allinone_app/network/network_utils.dart';
 import 'package:flutter/foundation.dart';
@@ -279,3 +281,55 @@ Future<DaillyuseResponse> getDailyUseWithSubcategory() async {
     rethrow;
   }
 }
+
+
+
+// get Team-data
+Future<List<TeamModel>> getTeamData({required List<TeamModel>? teammodal}) async {
+  try {
+    TeamModel res;
+
+    res = TeamModel.fromJson(await handleResponse(await buildHttpResponse('users-without-transactions', method: HttpMethodType.GET)));
+    teammodal!.clear();
+    teammodal.add(res);
+    // lastPageCallback?.call(res.data.validate().length != PER_PAGE_ITEM);
+    //
+    cachedTeam = cachedTeam;
+
+    appStore.setLoading(false);
+
+    return teammodal;
+  } catch (e) {
+    appStore.setLoading(false);
+
+    rethrow;
+  }
+}
+
+
+
+
+// get Team-data
+Future<List<TransactionResponse>> getTransactionData({required List<TransactionResponse>? transactionmodal}) async {
+  try {
+    TransactionResponse res;
+
+    res = TransactionResponse.fromJson(await handleResponse(await buildHttpResponse('user-wallet-transactions', method: HttpMethodType.GET)));
+    transactionmodal!.clear();
+    transactionmodal.add(res);
+    // lastPageCallback?.call(res.data.validate().length != PER_PAGE_ITEM);
+    //
+    cachedTransaction = cachedTransaction;
+
+    appStore.setLoading(false);
+
+    return transactionmodal;
+  } catch (e) {
+    appStore.setLoading(false);
+
+    rethrow;
+  }
+}
+
+
+

@@ -33,40 +33,50 @@ class ActiveUserPageState extends State<ActiveUserPage> {
 
   Future<void> fetchBusinessData() async {
     try {
-      final response = await getBusinessData(businessmodal: []);
+      // Fetch the team data using the getTeamData API
+      final response = await getTeamData(teammodal: []);
+
       if (response.isNotEmpty) {
-        final businessResponse = response.first; // Get the first BusinessModal
-        if (businessResponse.business != null) {
-          totalIncome = businessResponse.business!.totalIncome; // Fetch total income
+        // Get the first response which contains TeamModel data
+        final teamResponse = response.first;
 
-          if (businessResponse.business!.levelDownline.isNotEmpty) {
-            final levelDownline = businessResponse.business!.levelDownline;
+        if (teamResponse.users.isNotEmpty) {
+          // Extract level downline details
+          final levelDownline = teamResponse.users;
 
-            // Extract user_id and username from levelDownline
-            users = levelDownline.map<Map<String, String>>((item) {
-              return {
-                'user_id': item.userId.toString(),
-                'username': item.username,
-              };
-            }).toList();
+          // Map levelDownline to users list (id and username)
+          users = levelDownline.map<Map<String, String>>((item) {
+            return {
+              'activation_id': item.uid,
+              'username': item.username,
+            };
+          }).toList();
 
-            filteredUsers = List.from(users); // Initially show all users
-          }
+          // Initialize filtered users with all users
+          filteredUsers = List.from(users);
+
+          print("Users: $users"); // Debug log for fetched users
         }
+            }
 
-        setState(() {
-          _isLoading = false; // Stop loading
-        });
-      }
+      setState(() {
+        _isLoading = false; // Set loading to false
+      });
     } catch (e) {
+      // Handle errors and log them in debug mode
       if (kDebugMode) {
         print('Error fetching business data: $e');
       }
+
       setState(() {
-        _isLoading = false; // Stop loading even if there's an error
+        _isLoading = false; // Stop loading even in error
       });
     }
   }
+
+
+
+
 
   // Filter users based on search input
   void filterUsers(String query) {
@@ -212,7 +222,7 @@ class ActiveUserPageState extends State<ActiveUserPage> {
                                     setState(() {
                                       localFilteredUsers = filteredUsers.where((user) {
                                         final username = user['username']?.toLowerCase() ?? '';
-                                        final userId = user['user_id'] ?? '';
+                                        final userId = user['activation_id'] ?? '';
                                         final searchQuery = query.toLowerCase();
                                         return username.contains(searchQuery) || userId.contains(searchQuery);
                                       }).toList();
@@ -259,11 +269,11 @@ class ActiveUserPageState extends State<ActiveUserPage> {
                                                       style: const TextStyle(color: Colors.black),
                                                     ),
                                                     subtitle: Text(
-                                                      'User ID: ${user['user_id']}',
+                                                      'User ID: ${user['activation_id']}',
                                                       style: const TextStyle(color: Colors.grey),
                                                     ),
                                                     onTap: () {
-                                                      Navigator.pop(context, user['user_id']);
+                                                      Navigator.pop(context, user['activation_id']);
                                                     },
                                                   ),
                                                 );
@@ -296,7 +306,7 @@ class ActiveUserPageState extends State<ActiveUserPage> {
                             children: [
                               Text(
                                 selectedUserId.isNotEmpty
-                                    ? filteredUsers.firstWhere((user) => user['user_id'] == selectedUserId)['username'] ?? 'Unknown'
+                                    ? filteredUsers.firstWhere((user) => user['activation_id'] == selectedUserId)['username'] ?? 'Unknown'
                                     : 'Select a user',
                                 style: const TextStyle(color: Colors.black),
                               ),

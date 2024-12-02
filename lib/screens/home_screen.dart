@@ -194,7 +194,7 @@ class HomeScreenState extends State<HomeScreen> {
                           MaterialPageRoute(builder: (context) => const CharityPage()),
                         );
                       }),
-                      _buildButton(context, Icons.group, 'Join Community', buttonWidth, () {
+                      _buildButton(context, Icons.group, 'Community', buttonWidth, () {
                         openWhatsApp(context);
                       }),
                       _buildButton(context, Icons.check_circle, 'Activation', buttonWidth, () {
