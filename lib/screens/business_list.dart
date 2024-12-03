@@ -346,7 +346,7 @@ class BusinessCard extends StatelessWidget {
 
         // If the name is longer than the max allowed characters, truncate it and add '...'
         String displayedName = businessName.length > maxChars
-            ? businessName.substring(0, maxChars) + '...'
+            ? '${businessName.substring(0, maxChars)}...'
             : businessName;
 
         return RichText(

@@ -16,14 +16,14 @@ class ActiveUserPage extends StatefulWidget {
 
 class ActiveUserPageState extends State<ActiveUserPage> {
   final TextEditingController amountController = TextEditingController(text: '599');
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>(); // Key for form validation
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String adminPassword = '';
-  String selectedUserId = ''; // To hold selected user_id
-  double totalIncome = 0.0; // Store total income for validation
-  List<Map<String, String>> users = []; // List to hold user_id and username from API response
-  List<Map<String, String>> filteredUsers = []; // List for search-filtered users
-  bool _isLoading = true; // Flag to track loading state
-  final String _bearerToken = appStore.token; // Replace with the actual token
+  String selectedUserId = '';
+  double totalIncome = 0.0;
+  List<Map<String, String>> users = [];
+  List<Map<String, String>> filteredUsers = [];
+  bool _isLoading = true;
+  final String _bearerToken = appStore.token;
   bool _isSubmitting = false;
   @override
   void initState() {
@@ -33,18 +33,17 @@ class ActiveUserPageState extends State<ActiveUserPage> {
 
   Future<void> fetchBusinessData() async {
     try {
-      // Fetch the team data using the getTeamData API
+
       final response = await getTeamData(teammodal: []);
 
       if (response.isNotEmpty) {
-        // Get the first response which contains TeamModel data
+
         final teamResponse = response.first;
 
         if (teamResponse.users.isNotEmpty) {
-          // Extract level downline details
           final levelDownline = teamResponse.users;
 
-          // Map levelDownline to users list (id and username)
+
           users = levelDownline.map<Map<String, String>>((item) {
             return {
               'userId': item.userId.toString(),
@@ -52,7 +51,7 @@ class ActiveUserPageState extends State<ActiveUserPage> {
             };
           }).toList();
 
-          // Initialize filtered users with all users
+
           filteredUsers = List.from(users);
 
 
@@ -60,30 +59,25 @@ class ActiveUserPageState extends State<ActiveUserPage> {
             }
 
       setState(() {
-        _isLoading = false; // Set loading to false
+        _isLoading = false;
       });
     } catch (e) {
-      // Handle errors and log them in debug mode
+
       if (kDebugMode) {
         print('Error fetching business data: $e');
       }
 
       setState(() {
-        _isLoading = false; // Stop loading even in error
+        _isLoading = false;
       });
     }
   }
 
-
-
-
-
-  // Filter users based on search input
   void filterUsers(String query) {
     final filteredList = users.where((user) {
       final username = user['username']?.toLowerCase() ?? '';
       final searchQuery = query.toLowerCase();
-      return username.contains(searchQuery); // Case insensitive search
+      return username.contains(searchQuery);
     }).toList();
 
     setState(() {
@@ -97,7 +91,7 @@ class ActiveUserPageState extends State<ActiveUserPage> {
       if (kDebugMode) {
         print('Form validation failed.');
       }
-      return; // Stop submission if form validation fails
+      return;
     }
 
     const String apiUrl = 'https://ajhub.co.in/api/active/user';
@@ -149,9 +143,11 @@ class ActiveUserPageState extends State<ActiveUserPage> {
           errorMessage = errorData['error'];
         }
 
-        print('API Error: $errorMessage');
+        if (kDebugMode) {
+          print('API Error: $errorMessage');
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('$errorMessage')),
+          SnackBar(content: Text(errorMessage)),
         );
       }
     } catch (e) {
@@ -336,22 +332,12 @@ class ActiveUserPageState extends State<ActiveUserPage> {
                           ),
                         ),
                       ),
-
-
-
-
-
-
                     ],
                   ),
                 ),
               ),
 
               const SizedBox(height: 16),
-
-
-
-
               Card(
                 color: Colors.white,
                 shape: RoundedRectangleBorder(

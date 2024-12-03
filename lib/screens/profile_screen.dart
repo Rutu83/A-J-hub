@@ -5,6 +5,7 @@ import 'package:allinone_app/main.dart';
 import 'package:allinone_app/model/business_mode.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/active_user_screen.dart';
+import 'package:allinone_app/screens/active_user_screen2.dart';
 import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/change_password_screen.dart';
 import 'package:allinone_app/screens/contact_us.dart';
@@ -385,6 +386,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.business_center_outlined, "My Business"),
         _buildMenuOption(Icons.library_books_outlined, "Team List"),
         _buildMenuOption(Icons.supervised_user_circle_outlined, "Activation"),
+        _buildMenuOption(Icons.supervised_user_circle_outlined, "Activation2"),
         _buildMenuOption(Icons.transfer_within_a_station_outlined, "Transaction History"),
         _buildMenuOption(Icons.image_outlined, "Downloaded Images"),
         _buildMenuOption(Icons.insert_emoticon_sharp, "FeedBack"),
@@ -485,12 +487,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
           } else if (label == "Activation") {
 
 
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ActiveUserPage(),
-                ),
-              );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ActiveUserPage(),
+              ),
+            );
+
+          } else if (label == "Activation2") {
+
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>  ActivateMembershipPage(),
+              ),
+            );
 
           }else if (label == "FeedBack") {
             Navigator.push(
