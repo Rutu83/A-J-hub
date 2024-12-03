@@ -122,12 +122,18 @@ class ActiveUserPageState extends State<ActiveUserPage> {
         body: json.encode(payload),
       );
 
-      print('API Response Status Code: ${response.statusCode}');
-      print('API Response Body: ${response.body}');
+      if (kDebugMode) {
+        print('API Response Status Code: ${response.statusCode}');
+      }
+      if (kDebugMode) {
+        print('API Response Body: ${response.body}');
+      }
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        print('API Success: $responseData');
+        if (kDebugMode) {
+          print('API Success: $responseData');
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(responseData['message'] ?? 'User activated successfully!')),
         );
@@ -149,7 +155,9 @@ class ActiveUserPageState extends State<ActiveUserPage> {
         );
       }
     } catch (e) {
-      print('Network error occurred: $e');
+      if (kDebugMode) {
+        print('Network error occurred: $e');
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Network error: $e')),
       );

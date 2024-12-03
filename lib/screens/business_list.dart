@@ -1,15 +1,11 @@
-// ignore_for_file: depend_on_referenced_packages
-
 import 'dart:convert';
 import 'package:allinone_app/main.dart';
-import 'package:allinone_app/screens/edit_business_form.dart';
+import 'package:allinone_app/screens/business_form.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'business_form.dart'; // Import the BusinessForm screen
 
 class BusinessList extends StatefulWidget {
   const BusinessList({super.key});
@@ -21,7 +17,7 @@ class BusinessList extends StatefulWidget {
 class BusinessListState extends State<BusinessList> {
   List<dynamic> businessData = [];
   bool isLoading = true;
-  int? selectedBusiness; // Nullable selected business ID
+  int? selectedBusiness;
 
   @override
   void initState() {
@@ -30,24 +26,16 @@ class BusinessListState extends State<BusinessList> {
     fetchBusinessData();
   }
 
-  // Fetch the stored business ID from SharedPreferences
   Future<void> fetchStoredBusinessID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      selectedBusiness = prefs.getInt('selected_business_id'); // Load stored ID
+      selectedBusiness = prefs.getInt('selected_business_id');
     });
-    if (kDebugMode) {
-    //  print('Loaded stored business ID: $selectedBusiness');
-    }
   }
 
-  // Store the selected business ID in SharedPreferences
   Future<void> storeBusinessID(int id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('selected_business_id', id); // Store the ID
-    if (kDebugMode) {
-     // print('Stored business ID: $id');
-    }
+    prefs.setInt('selected_business_id', id);
   }
 
   Future<void> fetchBusinessData() async {
@@ -69,17 +57,10 @@ class BusinessListState extends State<BusinessList> {
           businessData = data ?? [];
           isLoading = false;
         });
-        if (kDebugMode) {
-          print('Business data loaded successfully.');
-          print('Business data loaded successfully.$businessData');
-        }
       } else {
         _handleErrorResponse(response);
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching business data: $e');
-      }
       setState(() {
         isLoading = false;
         businessData = [];
@@ -88,10 +69,6 @@ class BusinessListState extends State<BusinessList> {
   }
 
   void _handleErrorResponse(http.Response response) {
-    if (kDebugMode) {
-   //   print('Failed to load business data: ${response.statusCode}');
-   //   print('Response body: ${response.body}');
-    }
     setState(() {
       isLoading = false;
     });
@@ -107,14 +84,14 @@ class BusinessListState extends State<BusinessList> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Close dialog
+                Navigator.pop(context);
               },
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Close dialog
-                _deleteBusinessProfile(businessId); // Call delete function
+                Navigator.pop(context);
+                _deleteBusinessProfile(businessId);
               },
               child: const Text('Delete', style: TextStyle(color: Colors.red)),
             ),
@@ -126,11 +103,11 @@ class BusinessListState extends State<BusinessList> {
 
   Future<void> _deleteBusinessProfile(String businessId) async {
     setState(() {
-      isLoading = true; // Show loader while deleting
+      isLoading = true;
     });
 
     final String apiUrl = 'https://ajhub.co.in/api/delete/business-profile/$businessId';
-    String token = appStore.token; // Ensure token is correct
+    String token = ''; // Ensure token is correct
 
     try {
       final response = await http.post(
@@ -142,15 +119,10 @@ class BusinessListState extends State<BusinessList> {
       );
 
       if (response.statusCode == 200) {
-        // Successfully deleted
-        if (kDebugMode) {
-          print('Business profile with ID $businessId deleted successfully.');
-        }
-        // Refresh the business list
         await fetchBusinessData();
-        setState(() {}); // Ensure UI updates
+        setState(() {});
       } else {
-        _handleErrorResponse(response); // Handle response errors
+        _handleErrorResponse(response);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -158,62 +130,17 @@ class BusinessListState extends State<BusinessList> {
       }
     } finally {
       setState(() {
-        isLoading = false; // Hide loader
+        isLoading = false;
       });
     }
   }
 
-
-
-
-
-  Future<void> updateBusinessStatus(int businessId) async {
-    final String apiUrl = 'https://ajhub.co.in/api/status/business-profile/$businessId';
-    String token = appStore.token; // Ensure token is not null
-
-    if (token.isEmpty) {
-      if (kDebugMode) {
-        print('Error: Token is missing or invalid.');
-      }
-      return;
-    }
-
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        if (kDebugMode) {
-          print('Business status updated successfully for ID: $businessId');
-        }
-      } else {
-        if (kDebugMode) {
-          print('Error: ${response.statusCode}');
-        }
-        if (kDebugMode) {
-          print('Response body: ${response.body}');
-        }
-        _handleErrorResponse(response); // Handle the error response
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error updating business status: $e');
-      }
-    }
+  void _navigateToAddBusiness() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const BusinessForm()),
+    ).then((_) => fetchBusinessData());
   }
-
-  // void _handleErrorResponse(http.Response response) {
-  //   // Customize this function to handle specific error scenarios
-  //   final decodedBody = jsonDecode(response.body);
-  //   print('Error details: ${decodedBody['message']}'); // Adjust as per API response
-  // }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -223,7 +150,7 @@ class BusinessListState extends State<BusinessList> {
         backgroundColor: Colors.white,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator( color: Colors.red,))
+          ? const Center(child: CircularProgressIndicator(color: Colors.red))
           : Column(
         children: [
           Expanded(
@@ -241,41 +168,30 @@ class BusinessListState extends State<BusinessList> {
                       setState(() {
                         selectedBusiness = value;
                         storeBusinessID(value);
-                        updateBusinessStatus(value);
-                        if (kDebugMode) {
-                          print('Selected Business ID: $value');
-                        }
                       });
                     }
                   },
                   onUpdate: fetchBusinessData,
-                  onDelete: () => _confirmDelete(business['id'].toString()),
+                  onDelete: () =>
+                      _confirmDelete(business['id'].toString()),
                 );
               },
             ),
           ),
         ],
       ),
-
-      // Conditionally show the FloatingActionButton only if businessData has less than 3 items
       floatingActionButton: businessData.length < 3
           ? FloatingActionButton(
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const BusinessForm()),
-          );
-        },
+        onPressed: _navigateToAddBusiness,
         backgroundColor: Colors.red,
         child: const Icon(
           Icons.add,
           color: Colors.white,
         ),
       )
-          : null, // Don't show FloatingActionButton when businessData >= 3
+          : null,
     );
   }
-
 
   Widget _buildNoDataAvailable() {
     return Center(
@@ -291,7 +207,7 @@ class BusinessListState extends State<BusinessList> {
           Text(
             'No Business Data Available',
             style: GoogleFonts.poppins(
-              fontSize: 16.sp,
+              fontSize: 16,
               fontWeight: FontWeight.w500,
               color: Colors.grey[600],
             ),
@@ -304,10 +220,10 @@ class BusinessListState extends State<BusinessList> {
 
 class BusinessCard extends StatelessWidget {
   final dynamic business;
-  final VoidCallback onUpdate;  // For updating the list after editing
-  final VoidCallback onDelete;  // For handling delete operation
-  final int? selectedBusiness;  // Nullable selected business ID
-  final ValueChanged<int?> onRadioChanged;  // Callback for nullable int (when selecting a business)
+  final VoidCallback onUpdate;
+  final VoidCallback onDelete;
+  final int? selectedBusiness;
+  final ValueChanged<int?> onRadioChanged;
 
   const BusinessCard({
     super.key,
@@ -320,22 +236,18 @@ class BusinessCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Handle logo URL with proper formatting
-    String imageUrl = business['logo'] ;
+    String imageUrl = business['logo'] ?? '';
 
     return Padding(
-      padding: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(10.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Radio button for business selection
           Radio<int?>(
             value: business['id'],
             groupValue: selectedBusiness,
             onChanged: onRadioChanged,
           ),
-
-          // Expanded widget to allow the container to take available space
           Expanded(
             child: Container(
               height: 150,
@@ -351,15 +263,13 @@ class BusinessCard extends StatelessWidget {
                   ),
                 ],
               ),
-              padding: const EdgeInsets.only(left: 16, right: 0, top: 16),
+              padding: const EdgeInsets.only(left: 8, top: 8),
               child: Stack(
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (business['logo'] != null && business['logo'].isNotEmpty)
-
-
                         Container(
                           width: 100,
                           height: 100,
@@ -370,14 +280,10 @@ class BusinessCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                             child: Image.network(
                               imageUrl,
-                              width: 200,
-                              height: 200,
+                              width: 100,
+                              height: 100,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
-                                if (kDebugMode) {
-                              //    print('Image load error: $error');
-                                //  print('Attempted to load image from: $imageUrl');
-                                }
                                 return const Icon(Icons.image_not_supported);
                               },
                             ),
@@ -388,32 +294,26 @@ class BusinessCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildBusinessNameRow(business['business_name'] ?? 'Not Provided'),
+                            GestureDetector(
+                              onTap: () => _showFullBusinessName(context, business['business_name']),
+                              child: _buildBusinessNameRow(business['business_name'] ?? 'Not Provided'),
+                            ),
                             _buildDetailRow(business['mobile_number'] ?? 'Not Provided'),
-                            _buildDetailRow(business['state'] != null ? business['state']['name'] : 'Not Provided'),
+                            _buildDetailRow(business['state']?['name'] ?? 'Not Provided'),
                           ],
                         ),
                       ),
                     ],
                   ),
                   Positioned(
-                    top: 8, // Add some padding to move the button down
-                    right: 8, // Add padding to move the button inward
+                    top: 4,
+                    right: 4,
                     child: PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'Edit') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditBusinessForm(business: business),
-                            ),
-                          ).then((result) {
-                            if (result == true) {
-                              onUpdate(); // Call the onUpdate callback
-                            }
-                          });
+                          onUpdate();
                         } else if (value == 'Delete') {
-                          onDelete(); // Call the delete method
+                          onDelete();
                         }
                       },
                       itemBuilder: (BuildContext context) {
@@ -426,95 +326,114 @@ class BusinessCard extends StatelessWidget {
                       },
                     ),
                   ),
-
-
                 ],
               ),
             ),
           ),
-
-          // PopupMenu for Edit and Delete actions
-
         ],
       ),
     );
   }
 
-  // Business Name with Verified Icon
   Widget _buildBusinessNameRow(String businessName) {
-    String truncatedName = _truncateText(businessName, 15); // Ensure max 10 characters per line
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Available width for the business name, excluding the space for the icon and padding
+        final availableWidth = constraints.maxWidth - 40; // Adjust based on padding and other UI elements
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0), // Add space between rows and the popup
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start, // Align multiple lines to the start
-        children: [
-          RichText(
-            text: TextSpan(
-              text: truncatedName,
-              style: GoogleFonts.poppins(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-              children: [
-                WidgetSpan(
-                  alignment: PlaceholderAlignment.middle,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 5.0),
-                    child: Image.asset(
-                      'assets/icons/verified.png',
-                      width: 15,
-                      height: 15,
-                      fit: BoxFit.cover,
-                      color: Colors.red,
-                    ),
+        // Calculate the maximum number of characters that can fit in the available space
+        int maxChars = _calculateMaxCharsToFit(businessName, availableWidth);
+
+        // If the name is longer than the max allowed characters, truncate it and add '...'
+        String displayedName = businessName.length > maxChars
+            ? businessName.substring(0, maxChars) + '...'
+            : businessName;
+
+        return RichText(
+          text: TextSpan(
+            text: displayedName,
+            style: GoogleFonts.poppins(
+              fontSize: _calculateFontSize(displayedName, availableWidth),
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+            children: [
+              WidgetSpan(
+                alignment: PlaceholderAlignment.middle,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 5.0),
+                  child: Image.asset(
+                    'assets/icons/verified.png',
+                    width: 15,
+                    height: 15,
+                    fit: BoxFit.cover,
+                    color: Colors.red,
                   ),
                 ),
-              ],
-            ),
-            softWrap: true,
-            overflow: TextOverflow.visible,
-          ),
-          if (businessName.length > 10)
-            Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Text(
-                businessName.substring(10),
-                style: GoogleFonts.poppins(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
               ),
-            ),
-        ],
-      ),
+            ],
+          ),
+          softWrap: true,
+          overflow: TextOverflow.ellipsis,
+        );
+      },
     );
   }
 
-  String _truncateText(String text, int maxCharsPerLine) {
-    return text.length > maxCharsPerLine ? text.substring(0, maxCharsPerLine) : text;
+  double _calculateFontSize(String text, double availableWidth) {
+    // Calculate font size dynamically based on available width and text length
+    double fontSize = availableWidth / (text.length * 0.6); // 0.6 is a multiplier to approximate character width
+    return fontSize.clamp(10.0, 15.0); // Ensure font size is within a reasonable range
+  }
+
+  int _calculateMaxCharsToFit(String businessName, double availableWidth) {
+    // Estimate the width of each character based on font size
+    double fontSize = _calculateFontSize(businessName, availableWidth); // Dynamically calculate font size
+    double charWidth = fontSize * 0.6; // Approximate width of a character (can vary depending on font)
+
+    // Calculate how many characters can fit within the available width
+    int maxChars = (availableWidth / charWidth).floor();
+
+    // Limit max characters to avoid very long text even if the space is big
+    return maxChars > 25 ? 25 : maxChars; // Set a reasonable max limit for characters
   }
 
 
 
 
-  // Business Detail Row (Phone Number, State, etc.)
-  Widget _buildDetailRow(String value, {bool isSecondaryText = false}) {
+
+  Widget _buildDetailRow(String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 1.0),
       child: Text(
         value,
         style: GoogleFonts.poppins(
-          fontSize: 14.sp,
+          fontSize: 14,
           fontWeight: FontWeight.w400,
-          color: isSecondaryText ? Colors.grey : Colors.black,
+          color: Colors.black,
         ),
       ),
     );
   }
+
+  // Method to show full business name in a dialog
+  void _showFullBusinessName(BuildContext context, String businessName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Business Name'),
+          content: Text(businessName),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
-
-
-

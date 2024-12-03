@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -21,7 +22,7 @@ class CharityPage extends StatelessWidget {
         ),
         title: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.favorite, // Charity icon
               color: Colors.white, // White icon color
               size: 28,
@@ -47,7 +48,9 @@ class CharityPage extends StatelessWidget {
             ),
             onPressed: () {
               // Action for share button
-              print('Share button pressed');
+              if (kDebugMode) {
+                print('Share button pressed');
+              }
             },
           ),
           IconButton(
@@ -57,7 +60,9 @@ class CharityPage extends StatelessWidget {
             ),
             onPressed: () {
               // Action for info button
-              print('Info button pressed');
+              if (kDebugMode) {
+                print('Info button pressed');
+              }
             },
           ),
         ],
@@ -70,7 +75,7 @@ class CharityPage extends StatelessWidget {
         child: Column(
           children: [
             // Background image with onTap gesture
-            Container(
+            SizedBox(
               height: 300,
               width: double.infinity,
               child: GestureDetector(
@@ -88,20 +93,20 @@ class CharityPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     "Make a Difference",
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
+                  SizedBox(height: 8),
+                  Text(
                     "Join us in transforming lives through education, food, and care. Explore our programs and contribute to the cause.",
                     style: TextStyle(
                       fontSize: 16,
@@ -230,7 +235,7 @@ class CharityPage extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.white, // Background color for counter
               borderRadius: BorderRadius.circular(20), // Rounded corners
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black26,
                   blurRadius: 6, // Spread of the shadow
@@ -258,7 +263,7 @@ class CharityPage extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) => Container(
+      builder: (context) => SizedBox(
         height: MediaQuery.of(context).size.height * 0.8, // 80% of screen height
         child: content,
       ),

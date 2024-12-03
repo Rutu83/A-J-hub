@@ -8,10 +8,10 @@ class TransactionHistory extends StatefulWidget {
   const TransactionHistory({super.key});
 
   @override
-  _TransactionHistoryState createState() => _TransactionHistoryState();
+   TransactionHistoryState createState() =>  TransactionHistoryState();
 }
 
-class _TransactionHistoryState extends State<TransactionHistory> {
+class  TransactionHistoryState extends State<TransactionHistory> {
   bool _isLoading = true;
   List<Transaction> transactions = [];
   String searchQuery = '';
