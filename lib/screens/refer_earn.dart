@@ -51,14 +51,20 @@ class _ReferEarnState extends State<ReferEarn> {
     }
   }
 
+
+
   Future<void> _shareOnWhatsApp(String message) async {
-    final url = 'https://wa.me/?text=$message';
+    const String phoneNumber = '+919925850305'; // Replace with your desired phone number
+    final String encodedMessage = Uri.encodeComponent(message); // Encode the message to handle spaces and special characters
+    final String url = 'https://wa.me/$phoneNumber?text=$encodedMessage';
+
     if (await canLaunch(url)) {
       await launch(url);
     } else {
       throw 'Could not open WhatsApp';
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

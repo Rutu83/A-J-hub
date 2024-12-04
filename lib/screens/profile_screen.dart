@@ -406,7 +406,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void openWhatsApp(BuildContext context) async {
-    const phone = "919662545518"; // Correct format with country code
+    const phone = "919925850305"; // Correct format with country code
     final message = Uri.encodeComponent('');
     final whatsappUrl = "https://wa.me/$phone?text=$message";
 

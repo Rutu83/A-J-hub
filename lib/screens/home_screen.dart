@@ -254,7 +254,7 @@ class HomeScreenState extends State<HomeScreen> {
 
 
   void openWhatsApp(BuildContext context) async {
-    const phone = "919662545518"; // Correct format with country code
+    const phone = "919925850305"; // Correct format with country code
     final message = Uri.encodeComponent(''); // Add your message here if needed
     final whatsappUrl = "https://wa.me/$phone?text=$message";
 
