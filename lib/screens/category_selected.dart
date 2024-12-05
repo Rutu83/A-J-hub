@@ -1,6 +1,9 @@
 // ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
+import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/category_edit_business_form.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -13,6 +16,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+
+
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -28,23 +35,126 @@ class CategorySelectedState extends State<CategorySelected> {
   int selectedFrameIndex = 0; // Index for sliding frames
   bool isDownloading = false; // Flag to manage download state
   double downloadProgress = 0.0;
+  List<String> framePaths = []; // List to hold frame image paths
+  String businessName = '';
+  String ownerName = '';
+  String mobileNumber = '';
+  String address = '';
 
-  // Define the available frames
-  final List<String> framePaths = [
-    'assets/images/fram1.png',
-    'assets/images/fram2.png',
-    'assets/images/fram3.png',
-    'assets/images/fram4.png',
-    'assets/images/fram5.png',
-    'assets/images/fram6.png',
-    'assets/images/fram7.png',
-    'assets/images/fram8.png',
-    'assets/images/fram9.png',
-    'assets/images/fram10.png',
-    'assets/images/fram11.png',
-    'assets/images/fram12.png',
-    'assets/images/fram13.png',
-  ];
+
+
+
+
+  Future<void> fetchBusinessData() async {
+    const String apiUrl = 'https://ajhub.co.in/api/getbusinessprofile'; // No specific ID
+    String? token = appStore.token; // Fetch token
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        List<dynamic> businesses = responseData['data'];
+
+        if (kDebugMode) {
+          print(response.body);
+        }
+
+        if (businesses.isNotEmpty) {
+          // Filter active businesses based on the status field
+          List<dynamic> activeBusinesses = businesses.where((business) {
+            return business['status'] == 'active'; // or `business['is_active'] == true`
+          }).toList();
+
+          if (activeBusinesses.isNotEmpty) {
+            final activeBusiness = activeBusinesses.first;
+
+            // Update the TextEditingControllers with the active business data
+
+            businessName = activeBusiness['business_name'] ?? '';
+            ownerName = activeBusiness['owner_name'] ?? '';
+            mobileNumber = activeBusiness['mobile_number'] ?? '';
+           address = activeBusiness['address'] ?? '';
+
+            if (kDebugMode) {
+              print('Active business data loaded successfully.');
+            }
+          } else {
+            if (kDebugMode) {
+              print('No active businesses found');
+            }
+          }
+        } else {
+          if (kDebugMode) {
+            print('No businesses found');
+          }
+        }
+      } else {
+        if (kDebugMode) {
+          print('Failed to fetch business data: ${response.statusCode}');
+          print('Response: ${response.body}');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching business data: $e');
+      }
+    }
+  }
+
+
+
+  // Function to load frames from JSON
+  Future<void> _loadFrames() async {
+    final String jsonString = await rootBundle.loadString('assets/frame_config.json');
+    final Map<String, dynamic> data = jsonDecode(jsonString);
+    setState(() {
+      framePaths = data['frames'].values.map<String>((frame) => frame['image'] as String).toList();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFrames(); // Load frames when the widget is initialized
+    fetchBusinessData();
+  }
+
+  // Function to build image (either from local or network)
+  Widget _buildImage(String imagePath) {
+    if (imagePath.startsWith('http')) {
+      return CachedNetworkImage(
+        imageUrl: imagePath,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            width: 1.sw,
+            height: 0.44.sh,
+            color: Colors.grey[300],
+          ),
+        ),
+        errorWidget: (context, url, error) => Icon(Icons.error, color: Colors.red),
+      );
+    } else {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        width: 1.sw,
+        height: 0.44.sh,
+        errorBuilder: (context, error, stackTrace) {
+          return Icon(Icons.error, color: Colors.red);
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +172,7 @@ class CategorySelectedState extends State<CategorySelected> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.sp), // Responsive icon size
+          icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.sp),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -71,8 +181,8 @@ class CategorySelectedState extends State<CategorySelected> {
           IconButton(
             icon: Image.asset(
               'assets/icons/editing.png',
-              width: 20.w, // Responsive width
-              height: 20.h, // Responsive height
+              width: 20.w,
+              height: 20.h,
               color: Colors.black,
             ),
             onPressed: () {
@@ -84,120 +194,106 @@ class CategorySelectedState extends State<CategorySelected> {
               );
             },
           ),
+
           IconButton(
-            icon: Image.asset(
-              'assets/icons/download.png',
-              width: 25.w, // Responsive width
-              height: 25.h, // Responsive height
-              color: Colors.black,
-            ),
+            icon: Icon(Icons.download, color: Colors.black),
             onPressed: () {
               _downloadImage(widget.imagePaths[selectedIndex]);
             },
           ),
           IconButton(
-            icon: Image.asset(
-              'assets/icons/general_share.png',
-              width: 18.w, // Responsive width
-              height: 18.h, // Responsive height
-              color: Colors.black,
-            ),
+            icon: Icon(Icons.share, color: Colors.black),
             onPressed: () {
               _shareImage(widget.imagePaths[selectedIndex]);
             },
           ),
+
           const SizedBox(width: 10),
         ],
       ),
       body: Column(
         children: [
-
-
-
           // Fixed Image with frame sliding applied
-        SizedBox(
-        height: 0.44.sh, // ScreenUtil for height
-        width: 1.sw, // Full width of the screen
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Main image container with Positioned
-            Positioned(
-              left: 5.w, // Responsive width
-              right: 5.w,
-              top: 0,
-              bottom: 0,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.r), // Responsive radius
-                child: _buildImage(widget.imagePaths[selectedIndex]),
-              ),
-            ),
-            // Frame overlay (selected frame)
-            Positioned(
-              left: 5.w,
-              right: 5.w,
-              top: 0,
-              bottom: 0,
-              child: CarouselSlider.builder(
-                itemCount: framePaths.length,
-                options: CarouselOptions(
-                  height: 0.54.sh,
-                  enableInfiniteScroll: false,
-                  enlargeCenterPage: false,
-                  viewportFraction: 1.0,
-                  onPageChanged: (index, reason) {
-                    setState(() {
-                      selectedFrameIndex = index;
-                    });
-                  },
-                ),
-                itemBuilder: (context, index, realIndex) {
-                  return ClipRRect(
+          SizedBox(
+            height: 0.44.sh,
+            width: 1.sw,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Main image container with Positioned
+                Positioned(
+                  left: 5.w,
+                  right: 5.w,
+                  top: 0,
+                  bottom: 0,
+                  child: ClipRRect(
                     borderRadius: BorderRadius.circular(8.r),
-                    child: framePaths[index].startsWith('http')
-                        ? CachedNetworkImage(
-                      imageUrl: framePaths[index],
-                      fit: BoxFit.fitWidth,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          width: 1.sw - 10.w,
-                          height: 0.54.sh,
-                          color: Colors.grey[300],
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        width: 1.sw - 10.w,
-                        height: 0.54.sh,
-                        color: Colors.grey,
-                        child: const Icon(Icons.error, color: Colors.red),
-                      ),
-                    )
-                        : Image.asset(
-                      framePaths[index],
-                      fit: BoxFit.fitWidth,
-                      width: 1.sw - 10.w,
+                    child: _buildImage(widget.imagePaths[selectedIndex]),
+                  ),
+                ),
+                // Frame overlay (selected frame)
+                Positioned(
+                  left: 5.w,
+                  right: 5.w,
+                  top: 0,
+                  bottom: 0,
+                  child: CarouselSlider.builder(
+                    itemCount: framePaths.length,
+                    options: CarouselOptions(
                       height: 0.54.sh,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey,
-                          child: const Icon(Icons.error, color: Colors.red),
-                        );
+                      enableInfiniteScroll: false,
+                      enlargeCenterPage: false,
+                      viewportFraction: 1.0,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          selectedFrameIndex = index;
+                        });
                       },
                     ),
-                  );
-                },
-              )
-
+                    itemBuilder: (context, index, realIndex) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(8.r),
+                        child: framePaths[index].startsWith('http')
+                            ? CachedNetworkImage(
+                          imageUrl: framePaths[index],
+                          fit: BoxFit.fitWidth,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
+                              width: 1.sw - 10.w,
+                              height: 0.54.sh,
+                              color: Colors.grey[300],
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            width: 1.sw - 10.w,
+                            height: 0.54.sh,
+                            color: Colors.grey,
+                            child: const Icon(Icons.error, color: Colors.red),
+                          ),
+                        )
+                            : Image.asset(
+                          framePaths[index],
+                          fit: BoxFit.fitWidth,
+                          width: 1.sw - 10.w,
+                          height: 0.54.sh,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey,
+                              child: const Icon(Icons.error, color: Colors.red),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
 
-
-
-      // Dots Indicator for the frame slider
+          // Dots Indicator for the frame slider
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: framePaths.asMap().entries.map((entry) {
@@ -218,6 +314,7 @@ class CategorySelectedState extends State<CategorySelected> {
             }).toList(),
           ),
           SizedBox(height: 8.h),
+
           // Image Grid for selecting different images
           Expanded(
             child: GridView.builder(
@@ -270,90 +367,12 @@ class CategorySelectedState extends State<CategorySelected> {
               },
             ),
           ),
-          SizedBox(height: 8.h),
-
-          // if (isDownloading)
-          //   Padding(
-          //     padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-          //     child: Stack(
-          //       alignment: Alignment.center,
-          //       children: [
-          //         ClipRRect(
-          //           borderRadius: BorderRadius.circular(8.r),
-          //           child: LinearProgressIndicator(
-          //             value: downloadProgress,
-          //             backgroundColor: Colors.grey[300],
-          //             color: Colors.red,
-          //             minHeight: 6.h,
-          //           ),
-          //         ),
-          //         Text(
-          //           '${(downloadProgress * 100).toInt()}%', // Show percentage
-          //           style: TextStyle(
-          //             color: Colors.black,
-          //             fontSize: 14.sp,
-          //             fontWeight: FontWeight.bold,
-          //           ),
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-
-
-          SizedBox(height: 8.h),
         ],
       ),
     );
   }
 
-  // Function to build image based on URL or asset path
-  Widget _buildImage(String path) {
-    if (path.startsWith('http')) {
-      // Load image from the network using CachedNetworkImage
-      return CachedNetworkImage(
-        imageUrl: path,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        placeholder: (context, url) => Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            color: Colors.grey[300],
-            width: double.infinity,
-            height: double.infinity,
-          ),
-        ),
-        errorWidget: (context, url, error) => const Center(child: Icon(Icons.error, color: Colors.red)),
-      );
-    } else {
-      // Load local asset image
-      return Image.asset(
-        path,
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-        errorBuilder: (context, error, stackTrace) {
-          return const Center(child: Icon(Icons.error, color: Colors.red));
-        },
-      );
-    }
-  }
-
-
-  // Request storage permissions before downloading
-  Future<void> _checkStoragePermission() async {
-    if (Platform.isAndroid) {
-      var status = await Permission.storage.request();
-      if (status.isDenied) {
-        await Permission.storage.request();
-      }
-      if (await Permission.manageExternalStorage.isDenied) {
-        await Permission.manageExternalStorage.request();
-      }
-    }
-  }
-
+  // Download and Share image functions
   Future<void> _downloadImage(String imageUrl) async {
     try {
       _showLoadingDialog(context, "Downloading...");
@@ -364,6 +383,7 @@ class CategorySelectedState extends State<CategorySelected> {
         downloadProgress = 0.0;
       });
 
+      // Simulating the download progress
       for (int i = 0; i <= 100; i++) {
         await Future.delayed(const Duration(milliseconds: 30));
         setState(() {
@@ -384,7 +404,7 @@ class CategorySelectedState extends State<CategorySelected> {
       await file.writeAsBytes(pngBytes);
 
       await _refreshGallery(savePath);
-      _openImage(savePath);
+      _openImage(savePath); // Open the image after saving it
 
       Navigator.pop(context); // Dismiss the loading dialog
     } catch (e) {
@@ -415,94 +435,6 @@ class CategorySelectedState extends State<CategorySelected> {
     }
   }
 
-  Future<ui.Image> _combineImageAndFrame(String imagePath, String framePath) async {
-    final image = await _loadImage(imagePath);
-    final frame = await _loadImage(framePath);
-
-    // Create a recorder and canvas
-    final recorder = ui.PictureRecorder();
-    final canvas = Canvas(recorder);
-
-    // Define sizes based on the maximum dimensions
-    final size = Size(
-      image.width.toDouble(),
-      image.height.toDouble(),
-    );
-
-    // Draw the image
-    canvas.drawImageRect(
-      image,
-      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint(),
-    );
-
-    // Draw the frame on top
-    canvas.drawImageRect(
-      frame,
-      Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble()),
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint(),
-    );
-
-    // Create the combined image
-    final combinedImage = await recorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
-    return combinedImage;
-  }
-
-
-  Future<ui.Image> _loadImage(String path) async {
-    final data = await (path.startsWith('http')
-        ? NetworkAssetBundle(Uri.parse(path)).load(path)
-        : rootBundle.load(path));
-    return await decodeImageFromList(data.buffer.asUint8List());
-  }
-
-  // Function to open the image file using an external app
-  void _openImage(String filePath) async {
-    final file = File(filePath);
-    if (await file.exists()) {
-      OpenFilex.open(filePath);
-    } else {
-      if (kDebugMode) {
-        print("File does not exist at $filePath");
-      }
-    }
-  }
-
-  // Function to refresh the gallery after saving an image
-  Future<void> _refreshGallery(String filePath) async {
-    final result = await File(filePath).create(recursive: true);
-    await result.setLastModified(DateTime.now());
-    await Future.delayed(const Duration(seconds: 1));
-
-    const channel = MethodChannel('com.allinonemarketing.allinone_app/gallery');
-    await channel.invokeMethod('refreshGallery', {'filePath': filePath});
-  }
-
-// // Function to share image with selected frame overlay
-//   Future<void> _shareImage(String imagePath) async {
-//     try {
-//       // Combine the image with the selected frame (resize if needed)
-//       final combinedImage = await _combineImageAndFrame(imagePath, framePaths[selectedFrameIndex]);
-//
-//       // Convert the combined image to a byte array
-//       final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
-//       final pngBytes = byteData!.buffer.asUint8List();
-//
-//       // Directly share the image without saving to disk
-//       XFile xFile = XFile.fromData(pngBytes, mimeType: 'image/png');
-//       await Share.shareXFiles([xFile], text: 'Aj Hub Mobile App');
-//     } catch (e) {
-//       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-//         content: Text('Failed to share image: $e'),
-//       ));
-//     }
-//   }
-
-
-
-
   void _showLoadingDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -530,40 +462,83 @@ class CategorySelectedState extends State<CategorySelected> {
     );
   }
 
+  // Function to refresh the gallery after saving an image
+  Future<void> _refreshGallery(String filePath) async {
+    final result = await File(filePath).create(recursive: true);
+    await result.setLastModified(DateTime.now());
+    await Future.delayed(const Duration(seconds: 1));
+
+    const channel = MethodChannel('com.allinonemarketing.allinone_app/gallery');
+    await channel.invokeMethod('refreshGallery', {'filePath': filePath});
+  }
+
+  Future<ui.Image> _combineImageAndFrame(String imagePath, String framePath) async {
+    final ui.Image image = await _loadUiImage(imagePath);
+    final ui.Image frame = await _loadUiImage(framePath);
+
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final Canvas canvas = Canvas(recorder);
+
+    final paint = Paint();
+
+    // Draw the main image
+    canvas.drawImage(image, Offset.zero, paint);
+
+    // Draw the frame overlay
+    canvas.drawImage(frame, Offset.zero, paint);
+
+    final combinedImage = recorder.endRecording().toImage(
+      image.width,
+      image.height,
+    );
+
+    return combinedImage;
+  }
+
+  Future<ui.Image> _loadUiImage(String assetPath) async {
+    final ByteData data = await rootBundle.load(assetPath);
+    final Uint8List bytes = Uint8List.view(data.buffer);
+    final Completer<ui.Image> completer = Completer();
+    ui.decodeImageFromList(bytes, (ui.Image img) {
+      completer.complete(img);
+    });
+    return completer.future;
+  }
+
+  // Open the image after downloading
+  Future<void> _openImage(String filePath) async {
+    try {
+      final result = await ImageGallerySaver.saveFile(filePath);
+      if (result['isSuccess'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Image saved and opened successfully!')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to open the image.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error opening image: $e')),
+      );
+    }
+  }
 
 
 
-// Utility function for parallel image combination
-//   Future<ui.Image> _combineAndProcessImages(Map<String, String> paths) async {
-//     final image = await _loadImage(paths['imageUrl']!);
-//     final frame = await _loadImage(paths['framePath']!);
-//
-//     // Create a recorder and canvas
-//     final recorder = ui.PictureRecorder();
-//     final canvas = Canvas(recorder);
-//
-//     final size = Size(
-//       image.width.toDouble(),
-//       image.height.toDouble(),
-//     );
-//
-//     canvas.drawImageRect(
-//       image,
-//       Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-//       Rect.fromLTWH(0, 0, size.width, size.height),
-//       Paint(),
-//     );
-//
-//     canvas.drawImageRect(
-//       frame,
-//       Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble()),
-//       Rect.fromLTWH(0, 0, size.width, size.height),
-//       Paint(),
-//     );
-//
-//     return await recorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
-//   }
+  // Check storage permission function
+  Future<void> _checkStoragePermission() async {
+    final status = await Permission.storage.request();
 
+    if (!status.isGranted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Storage permission is required to save the image.')),
+      );
+      throw 'Storage permission denied';
+    }
+  }
 
 }
+
 

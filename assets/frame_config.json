@@ -1,0 +1,60 @@
+{
+  "frames": {
+    "frame1": {
+      "image": "assets/images/fram1.png",
+      "texts": [
+        { "text": "Phone Number", "position": { "x": 20, "y": 20 } },
+        { "text": "Name", "position": { "x": 20, "y": 250 } },
+        { "text": "Location", "position": { "x": 200, "y": 250 } }
+      ]
+    },
+    "frame2": {
+      "image": "assets/images/fram2.png",
+      "texts": [
+        { "text": "Email", "position": { "x": 20, "y": 280 } },
+        { "text": "Website", "position": { "x": 20, "y": 320 } },
+        { "text": "Location", "position": { "x": 50, "y": 350 } }
+      ]
+    },
+    "frame3": {
+      "image": "assets/images/fram3.png",
+      "texts": [
+        { "text": "Business Name", "position": { "x": 30, "y": 30 } },
+        { "text": "Phone Number", "position": { "x": 50, "y": 300 } },
+        { "text": "Address", "position": { "x": 50, "y": 340 } }
+      ]
+    },
+    "frame4": {
+      "image": "assets/images/fram4.png",
+      "texts": [
+        { "text": "Phone Number", "position": { "x": 20, "y": 20 } },
+        { "text": "Email", "position": { "x": 20, "y": 280 } },
+        { "text": "Website", "position": { "x": 200, "y": 320 } }
+      ]
+    },
+    "frame5": {
+      "image": "assets/images/fram5.png",
+      "texts": [
+        { "text": "Website", "position": { "x": 10, "y": 10 } },
+        { "text": "Location", "position": { "x": 10, "y": 40 } },
+        { "text": "Phone Number", "position": { "x": 150, "y": 50 } }
+      ]
+    },
+    "frame8": {
+      "image": "assets/images/fram8.png",
+      "texts": [
+        { "text": "Address", "position": { "x": 10, "y": 200 } },
+        { "text": "Email", "position": { "x": 10, "y": 240 } },
+        { "text": "Website", "position": { "x": 10, "y": 280 } }
+      ]
+    },
+    "frame9": {
+      "image": "assets/images/fram9.png",
+      "texts": [
+        { "text": "Phone Number", "position": { "x": 10, "y": 300 } },
+        { "text": "Address", "position": { "x": 10, "y": 340 } },
+        { "text": "Website", "position": { "x": 200, "y": 380 } }
+      ]
+    }
+  }
+}
