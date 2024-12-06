@@ -313,14 +313,13 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _buildImageBanner() {
     return Padding(
-      padding: EdgeInsets.only(left: 6.0.w, right: 6.0.w, top: 0, bottom: 0),
+      padding: EdgeInsets.only(left: 12.0.w, right: 12.0.w, top: 0, bottom: 0),
       child: InkWell(
         onTap: (){
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const ReferEarn()),
           );
-
         },
         child: Center(
           child: Container(
@@ -330,7 +329,7 @@ class HomeScreenState extends State<HomeScreen> {
               color: Colors.white,  // Background color (if needed)
               borderRadius: BorderRadius.circular(15.0),  // Add border radius
               image: const DecorationImage(
-                image: AssetImage('assets/images/banner.jpg'), // Image from assets
+                image: AssetImage('assets/images/banner2.jpg'), // Image from assets
                 fit: BoxFit.contain,  // Adjust the fit type as needed
               ),
             ),

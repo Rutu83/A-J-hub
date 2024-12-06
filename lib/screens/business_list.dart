@@ -115,7 +115,6 @@ class BusinessListState extends State<BusinessList> {
 
   Future<void> _deleteBusinessProfile(String businessId) async {
 
-    print('Attempting to delete business profile with ID: $businessId');
 
     setState(() {
       isLoading = true; // Show loading indicator
@@ -126,8 +125,6 @@ class BusinessListState extends State<BusinessList> {
 
     try {
       // Print the URL and token for debugging
-      print('API URL: $apiUrl');
-      print('Authorization token: $token');
 
       final response = await http.post(
         Uri.parse(apiUrl),
@@ -138,14 +135,11 @@ class BusinessListState extends State<BusinessList> {
       );
 
       // Print response status and body for debugging
-      print('Response Status: ${response.statusCode}');
-      print('Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
 
         // Print the decoded response data
-        print('Response Data: $responseData');
 
         if (responseData['success'] == true) {
           // Remove the deleted item from the local list
@@ -159,7 +153,6 @@ class BusinessListState extends State<BusinessList> {
           );
         } else {
           // Handle failure response
-          print('Failed to delete business: ${responseData['message']}');
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(responseData['message'] ?? 'Failed to delete business.')),
           );
@@ -170,7 +163,6 @@ class BusinessListState extends State<BusinessList> {
       }
     } catch (e) {
       // Print error if any occurs during the process
-      print('Error deleting business profile: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('An error occurred. Please try again later.')),
       );

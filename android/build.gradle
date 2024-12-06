@@ -8,9 +8,15 @@ allprojects {
 rootProject.buildDir = "../build"
 
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-    project.evaluationDependsOn(":app")
+    if (project.name == 'image_gallery_saver') {
+        afterEvaluate {
+            android {
+                compileSdkVersion = 34 // Ensure this matches your project's compileSdkVersion
+            }
+        }
+    }
 }
+
 
 tasks.register("clean", Delete) {
     delete rootProject.buildDir

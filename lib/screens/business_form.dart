@@ -62,7 +62,6 @@ class _BusinessFormState extends State<BusinessForm> {
   }
 
 
-  String? _selectedCategory;  // Variable to store selected business category
 
   // Method to pick image from gallery
   Future<void> _pickImageFromGallery() async {
@@ -641,7 +640,6 @@ class _BusinessFormState extends State<BusinessForm> {
   void _clearForm() {
     setState(() {
       _image = null;
-      _selectedCategory = null;
       selectedState = null;
       _formKey.currentState?.reset();  // Reset form fields
     });
