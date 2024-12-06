@@ -314,20 +314,31 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildImageBanner() {
     return Padding(
       padding: EdgeInsets.only(left: 6.0.w, right: 6.0.w, top: 0, bottom: 0),
-      child: Center(
-        child: Container(
-          width: double.infinity,  // Adjust width as needed
-          height: 120,  // Adjust height as needed
-          decoration: BoxDecoration(
-            color: Colors.white,  // Background color (if needed)
-            borderRadius: BorderRadius.circular(15.0),  // Add border radius
-            image: const DecorationImage(
-              image: AssetImage('assets/images/banner.jpg'), // Image from assets
-              fit: BoxFit.contain,  // Adjust the fit type as needed
+      child: InkWell(
+        onTap: (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ReferEarn()),
+          );
+
+        },
+        child: Center(
+          child: Container(
+            width: double.infinity,  // Adjust width as needed
+            height: 120,  // Adjust height as needed
+            decoration: BoxDecoration(
+              color: Colors.white,  // Background color (if needed)
+              borderRadius: BorderRadius.circular(15.0),  // Add border radius
+              image: const DecorationImage(
+                image: AssetImage('assets/images/banner.jpg'), // Image from assets
+                fit: BoxFit.contain,  // Adjust the fit type as needed
+              ),
             ),
           ),
         ),
-      ),
+      )
+
+
     );
   }
 

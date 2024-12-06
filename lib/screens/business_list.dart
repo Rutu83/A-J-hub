@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/business_form.dart';
+import 'package:allinone_app/screens/edit_business_form.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -221,7 +222,9 @@ class BusinessListState extends State<BusinessList> {
                       });
                     }
                   },
-                  onUpdate: fetchBusinessData,
+                  onUpdate: (){
+                    Navigator.push(context, (MaterialPageRoute(builder: (context)=>EditBusinessForm(business: business))));
+                  },
                   onDelete: () =>
                       _confirmDelete(business['id'].toString()),
                 );
