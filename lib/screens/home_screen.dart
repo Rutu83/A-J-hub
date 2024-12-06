@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
 import 'package:allinone_app/model/daillyuse_modal.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
@@ -17,6 +19,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:allinone_app/screens/category_selected.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:http/http.dart' as http;
 import '../network/rest_apis.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,12 +30,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
+
+
+
+  List<String> _imageUrls = [];
   int _currentIndex = 0;
-  final List<String> _imageUrls = [
-    'https://cdn1.tripoto.com/media/filter/tst/img/2052077/Image/1695366505_main4.jpg.webp',
-    'https://idolkart.com/cdn/shop/articles/What_happened_to_Krishna_s_body_after_death.jpg',
-    'https://www.financialexpress.com/wp-content/uploads/2023/01/netaji.jpg',
-  ];
+
   bool isLoading = true;
   bool hasError = false;
   String errorMessage = '';
@@ -48,9 +51,39 @@ class HomeScreenState extends State<HomeScreen> {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
+    _fetchBannerData();
     fetchCategoriesData();
     fetchSubcategoryData();
     fetchDailyUseCategoryData();
+
+  }
+
+  Future<void> _fetchBannerData() async {
+    const apiUrl = 'https://ajhub.co.in/api/getbanners';
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body)['data'];
+
+        // Extract image URLs from the response data
+        setState(() {
+          _imageUrls = List<String>.from(data.map((banner) => banner['banner_image_url']));
+          isLoading = false;
+        });
+      } else {
+        // Handle failure response
+        setState(() {
+          isLoading = false;
+        });
+        print('Failed to fetch banners: ${response.statusCode}');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error fetching banners: $e');
+    }
   }
 
   Future<void> fetchDailyUseCategoryData() async {
@@ -175,7 +208,7 @@ class HomeScreenState extends State<HomeScreen> {
             _buildBannerSlider(),
 
             Padding(
-              padding: const EdgeInsets.only(left: 6, right: 6, top: 16, bottom: 10),
+              padding: const EdgeInsets.only(left: 6, right: 6, top: 0, bottom: 10),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   double buttonWidth = constraints.maxWidth / 4 - 12; // Divide width evenly among buttons
@@ -209,6 +242,7 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
+            _buildImageBanner(),
             _buildUpcomingCategorySection(),
             const SizedBox(height: 10),
             _buildFestivalCategorySection(),
@@ -277,10 +311,30 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
 
+  Widget _buildImageBanner() {
+    return Padding(
+      padding: EdgeInsets.only(left: 6.0.w, right: 6.0.w, top: 0, bottom: 0),
+      child: Center(
+        child: Container(
+          width: double.infinity,  // Adjust width as needed
+          height: 120,  // Adjust height as needed
+          decoration: BoxDecoration(
+            color: Colors.white,  // Background color (if needed)
+            borderRadius: BorderRadius.circular(15.0),  // Add border radius
+            image: const DecorationImage(
+              image: AssetImage('assets/images/banner.jpg'), // Image from assets
+              fit: BoxFit.contain,  // Adjust the fit type as needed
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
 
 
-Widget _buildBannerSlider() {
+
+  Widget _buildBannerSlider() {
     return Padding(
       padding: EdgeInsets.all(8.0.w),
       child: Column(
@@ -305,7 +359,7 @@ Widget _buildBannerSlider() {
                       borderRadius: BorderRadius.circular(15.0), // Apply border radius here
                       child: Image.network(
                         url,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         width: MediaQuery.of(context).size.width,
                       ),
                     );

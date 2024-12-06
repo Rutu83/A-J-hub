@@ -8,29 +8,17 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class CategorySelectionScreen extends StatefulWidget {
-  final Function(String, String) onCategorySelected;  // Pass category ID and name
+  final Function(String, String) onCategorySelected;
 
-  const CategorySelectionScreen({
-    super.key,
-    required this.onCategorySelected,
-  });
+  const CategorySelectionScreen({super.key, required this.onCategorySelected});
 
   @override
   _CategorySelectionScreenState createState() => _CategorySelectionScreenState();
 }
 
 class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
-  List<Map<String, String>> categories = [];  // List to store category name and ID
+  List<Map<String, String>> categories = [];
   bool isLoading = true;
-
-  final Map<String, String> categoryImages = {
-    'Retail': 'assets/icons/retail.png',
-    'Food & Beverage': 'assets/icons/restaurant.png',
-    'Technology': 'assets/icons/project-management.png',
-    'Healthcare': 'assets/icons/healthcare.png',
-    'Education': 'assets/icons/school.png',
-    'Real Estate': 'assets/icons/house.png',
-  };
 
   @override
   void initState() {
@@ -40,7 +28,7 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
 
   Future<void> fetchCategories() async {
     const String url = 'https://ajhub.co.in/api/business-categories';
-    String token = appStore.token;  // Replace with your actual token
+    String token = appStore.token;
 
     try {
       final response = await http.get(
@@ -57,6 +45,7 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
             return {
               'id': category['id'].toString(),
               'name': category['name'].toString(),
+              'image': category['image'] != null ? 'https://ajhub.co.in/storage/app/public/${category['image']}' : '',
             };
           }).toList();
           isLoading = false;
@@ -98,8 +87,9 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
           : ListView.builder(
         itemCount: categories.length,
         itemBuilder: (context, index) {
-          String category = categories[index]['name']!;
+          String categoryName = categories[index]['name']!;
           String categoryId = categories[index]['id']!;
+          String imageUrl = categories[index]['image']!;
 
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -110,27 +100,38 @@ class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
               ),
               child: ListTile(
                 contentPadding: const EdgeInsets.all(6),
-                leading: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.red.shade50,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      categoryImages[category] ?? 'assets/images/placeholder.jpg',
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      color: Colors.red,
-                    ),
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: imageUrl.isNotEmpty
+                      ? Image.network(
+                    imageUrl,
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/images/placeholder.jpg',
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  )
+                      : Image.asset(
+                    'assets/images/placeholder.jpg',
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
                   ),
                 ),
-                title: Text(category),
+                title: Text(categoryName),
                 onTap: () {
-                  widget.onCategorySelected(categoryId, category);  // Pass ID and name
-                  Navigator.pop(context);
+                  widget.onCategorySelected(categoryId, categoryName);
+                  Navigator.pop(context, {
+                    'id': categoryId,
+                    'name': categoryName,
+                    'image': imageUrl,
+                  });
                 },
               ),
             ),

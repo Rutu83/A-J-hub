@@ -11,7 +11,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path;
@@ -141,7 +140,7 @@ class CategorySelectedState extends State<CategorySelected> {
             color: Colors.grey[300],
           ),
         ),
-        errorWidget: (context, url, error) => Icon(Icons.error, color: Colors.red),
+        errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
       );
     } else {
       return Image.asset(
@@ -150,7 +149,7 @@ class CategorySelectedState extends State<CategorySelected> {
         width: 1.sw,
         height: 0.44.sh,
         errorBuilder: (context, error, stackTrace) {
-          return Icon(Icons.error, color: Colors.red);
+          return const Icon(Icons.error, color: Colors.red);
         },
       );
     }
@@ -196,13 +195,13 @@ class CategorySelectedState extends State<CategorySelected> {
           ),
 
           IconButton(
-            icon: Icon(Icons.download, color: Colors.black),
+            icon: const Icon(Icons.download, color: Colors.black),
             onPressed: () {
               _downloadImage(widget.imagePaths[selectedIndex]);
             },
           ),
           IconButton(
-            icon: Icon(Icons.share, color: Colors.black),
+            icon: const Icon(Icons.share, color: Colors.black),
             onPressed: () {
               _shareImage(widget.imagePaths[selectedIndex]);
             },
@@ -511,11 +510,11 @@ class CategorySelectedState extends State<CategorySelected> {
       final result = await ImageGallerySaver.saveFile(filePath);
       if (result['isSuccess'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Image saved and opened successfully!')),
+          const SnackBar(content: Text('Image saved and opened successfully!')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to open the image.')),
+          const SnackBar(content: Text('Failed to open the image.')),
         );
       }
     } catch (e) {
@@ -533,7 +532,7 @@ class CategorySelectedState extends State<CategorySelected> {
 
     if (!status.isGranted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Storage permission is required to save the image.')),
+        const SnackBar(content: Text('Storage permission is required to save the image.')),
       );
       throw 'Storage permission denied';
     }

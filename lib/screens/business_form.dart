@@ -33,8 +33,9 @@ class _BusinessFormState extends State<BusinessForm> {
   String? selectedState;
   List<dynamic> states = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  String? _selectedCategoryId;  // Store the selected category ID
+  String? _selectedCategoryImage; // For storing the category image URL
+  String? _selectedCategoryName;  // For storing the category name
+  String? _selectedCategoryId;    // For storing the category ID
   bool _isLoading = false;  // To manage loading state
 
   Future<void> fetchStates() async {
@@ -60,24 +61,6 @@ class _BusinessFormState extends State<BusinessForm> {
     }
   }
 
-  ImageProvider _getCategoryImage(String category) {
-    switch (category) {
-      case 'Retail':
-        return const AssetImage('assets/icons/retail.png');
-      case 'Food & Beverage':
-        return const AssetImage('assets/icons/restaurant.png');
-      case 'Technology':
-        return const AssetImage('assets/icons/project-management.png');
-      case 'Healthcare':
-        return const AssetImage('assets/icons/healthcare.png');
-      case 'Education':
-        return const AssetImage('assets/icons/school.png');
-      case 'Real Estate':
-        return const AssetImage('assets/icons/house.png');
-      default:
-        return const AssetImage('assets/images/placeholder.jpg');
-    }
-  }
 
   String? _selectedCategory;  // Variable to store selected business category
 
@@ -177,72 +160,76 @@ class _BusinessFormState extends State<BusinessForm> {
             ? _websiteController.text
             : ''; // Optional
         request.fields['address'] = _addressController.text;
-        request.fields['category_id'] = _selectedCategoryId!; // Example category ID
+        request.fields['category_id'] = _selectedCategoryId!;
         request.fields['state_id'] = selectedState ?? '';
 
-        // Add image if selected
+        // Add logo as a file
         if (_image != null) {
-          var imageBytes = await _image!.readAsBytes();
-          var imageFile = http.MultipartFile.fromBytes(
+          var logoFile = await http.MultipartFile.fromPath(
             'logo',
-            imageBytes,
-            filename: _image!.path.split('/').last,
-            contentType: MediaType('image', 'jpeg'), // Set appropriate image type
+            _image!.path, // The file path of the image
+            contentType: MediaType('image', 'jpeg'), // Adjust content type if necessary (e.g., png, jpg)
           );
-          request.files.add(imageFile);
+          request.files.add(logoFile);
         }
+
+        // Debugging the fields and files
+        debugPrint("Request Fields: ${request.fields}");
+        debugPrint("Request Files: ${request.files.length}");
 
         // Send request
         var response = await request.send();
 
+        // Handle response
         if (response.statusCode == 200 || response.statusCode == 201) {
           // Successfully submitted
-          if (kDebugMode) {
-            print('Business profile submitted successfully!');
-          }
-
+          debugPrint('Business profile submitted successfully!');
           setState(() {
-            _isLoading = false; // Stop loading indicator
+            _isLoading = false;
           });
-
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>const BusinessList()));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const BusinessList()),
+          );
         } else {
-          // Handle non-successful responses
-          if (kDebugMode) {
-            print('Failed: ${response.statusCode}');
+          // Handle server errors
+          final errorMessage = await response.stream.bytesToString();
+
+          // Parse the error message if it's in JSON format
+          try {
+            var errorJson = json.decode(errorMessage);
+            String error = errorJson['error'] ?? 'Unknown error';
+            debugPrint('Failed: ${response.statusCode}');
+            debugPrint('Response Body: $error');
+
+            // Display the error message using the dialog
+            _showErrorDialog('Error: ${response.statusCode}', error);
+          } catch (e) {
+            // If there's an issue with JSON parsing, log the raw message
+            debugPrint('Failed to parse error message: $errorMessage');
+            _showErrorDialog('Error', 'An unexpected error occurred: $errorMessage');
           }
 
-          // Show error message
-          String errorMessage = await response.stream.bytesToString();
-          _showErrorDialog('Error: ${response.statusCode}', errorMessage);
           setState(() {
             _isLoading = false;
           });
         }
-      } catch (e) {
-        // Handle specific error types
-        String errorMessage = 'An unexpected error occurred. Please try again later.';
-        if (e is SocketException) {
-          errorMessage = 'No internet connection. Please check your connection.';
-        } else if (e is TimeoutException) {
-          errorMessage = 'Request timed out. Please try again later.';
-        } else if (e is FormatException) {
-          errorMessage = 'Invalid response format.';
-        }
+      } catch (e, stackTrace) {
+        // Catch any exceptions that happen during the process
+        debugPrint('Error: $e');
+        debugPrintStack(stackTrace: stackTrace);
 
-        if (kDebugMode) {
-          print('Error: $e');
-        }
-
-        // Show error message
-        _showErrorDialog('Error', errorMessage);
-
+        // Show a generic error message
+        _showErrorDialog('Error', 'An unexpected error occurred. Please try again.');
         setState(() {
           _isLoading = false;
         });
       }
     }
   }
+
+
+
 
 // Show error message in a dialog
   void _showErrorDialog(String title, String message) {
@@ -268,19 +255,24 @@ class _BusinessFormState extends State<BusinessForm> {
 
   // Navigate to the category selection screen
   void _navigateToCategorySelection() async {
-    await Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => CategorySelectionScreen(
           onCategorySelected: (String categoryId, String categoryName) {
-            setState(() {
-              _selectedCategory = categoryName;
-              _selectedCategoryId = categoryId;  // Capture the category ID
-            });
+            // This can be used for immediate updates, if needed
           },
         ),
       ),
     );
+
+    if (result != null && result is Map<String, String>) {
+      setState(() {
+        _selectedCategoryId = result['id'];
+        _selectedCategoryName = result['name'];
+        _selectedCategoryImage = result['image'];
+      });
+    }
   }
 
   @override
@@ -375,9 +367,7 @@ class _BusinessFormState extends State<BusinessForm> {
 
               buildLabel('Business Category (Optional)'),
               InkWell(
-                onTap: () {
-                  _navigateToCategorySelection();
-                },
+                onTap: _navigateToCategorySelection,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                   decoration: BoxDecoration(
@@ -395,18 +385,17 @@ class _BusinessFormState extends State<BusinessForm> {
                             height: 35.h,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8.r),
-                              shape: BoxShape.rectangle,
                               image: DecorationImage(
-                                image: _selectedCategory != null
-                                    ? _getCategoryImage(_selectedCategory!)
-                                    : const AssetImage('assets/images/c5.png') as ImageProvider,
+                                image: _selectedCategoryImage != null
+                                    ? NetworkImage(_selectedCategoryImage!)
+                                    : const AssetImage('assets/images/placeholder.jpg') as ImageProvider,
                                 fit: BoxFit.cover,
                               ),
                             ),
                           ),
                           SizedBox(width: 10.w),
                           Text(
-                            _selectedCategory ?? 'Select Category',
+                            _selectedCategoryName ?? 'Select Category',
                             style: GoogleFonts.poppins(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w400,
@@ -424,6 +413,8 @@ class _BusinessFormState extends State<BusinessForm> {
                   ),
                 ),
               ),
+
+
 
               SizedBox(height: 16.h),
               buildLabel('Business Name', isRequired: true),

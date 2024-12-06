@@ -35,7 +35,7 @@ class _OportunityScreenState extends State<OportunityScreen> {
         titleSpacing: 7.w,
         centerTitle: true,
         title: Text(
-          'Oportunity',
+          'Opportunity',
           style: TextStyle(
             fontSize: 20.0.sp,
             fontWeight: FontWeight.w400,

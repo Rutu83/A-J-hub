@@ -51,8 +51,16 @@ class BusinessListState extends State<BusinessList> {
         },
       );
 
+      // Print the full response body for debugging
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body)['data'];
+
+        // Print the decoded data for debugging
+        debugPrint('Decoded data: $data');
+
         setState(() {
           businessData = data ?? [];
           isLoading = false;
@@ -65,6 +73,9 @@ class BusinessListState extends State<BusinessList> {
         isLoading = false;
         businessData = [];
       });
+
+      // Print the error for debugging
+      debugPrint('Error fetching business data: $e');
     }
   }
 
@@ -102,14 +113,21 @@ class BusinessListState extends State<BusinessList> {
   }
 
   Future<void> _deleteBusinessProfile(String businessId) async {
+    // Print the business ID being passed for deletion
+    print('Attempting to delete business profile with ID: $businessId');
+
     setState(() {
-      isLoading = true;
+      isLoading = true; // Show loading indicator
     });
 
     final String apiUrl = 'https://ajhub.co.in/api/delete/business-profile/$businessId';
-    String token = ''; // Ensure token is correct
+    String token = appStore.token;
 
     try {
+      // Print the URL and token for debugging
+      print('API URL: $apiUrl');
+      print('Authorization token: $token');
+
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
@@ -118,22 +136,50 @@ class BusinessListState extends State<BusinessList> {
         },
       );
 
+      // Print response status and body for debugging
+      print('Response Status: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
       if (response.statusCode == 200) {
-        await fetchBusinessData();
-        setState(() {});
+        final responseData = json.decode(response.body);
+
+        // Print the decoded response data
+        print('Response Data: $responseData');
+
+        if (responseData['success'] == true) {
+          // Business deleted successfully
+          print('Business deleted successfully.');
+          await fetchBusinessData(); // Fetch updated business data
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Business deleted successfully.')),
+          );
+        } else {
+          // Handle failure response
+          print('Failed to delete business: ${responseData['message']}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['message'] ?? 'Failed to delete business.')),
+          );
+        }
       } else {
         _handleErrorResponse(response);
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error deleting business profile: $e');
-      }
+      // Print error if any occurs during the process
+      print('Error deleting business profile: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('An error occurred. Please try again later.')),
+      );
     } finally {
       setState(() {
-        isLoading = false;
+        isLoading = false; // Hide loading indicator
       });
     }
   }
+
+
+
+
+
 
   void _navigateToAddBusiness() {
     Navigator.push(
