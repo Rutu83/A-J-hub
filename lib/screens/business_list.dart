@@ -113,7 +113,7 @@ class BusinessListState extends State<BusinessList> {
   }
 
   Future<void> _deleteBusinessProfile(String businessId) async {
-    // Print the business ID being passed for deletion
+
     print('Attempting to delete business profile with ID: $businessId');
 
     setState(() {
@@ -147,9 +147,12 @@ class BusinessListState extends State<BusinessList> {
         print('Response Data: $responseData');
 
         if (responseData['success'] == true) {
-          // Business deleted successfully
-          print('Business deleted successfully.');
-          await fetchBusinessData(); // Fetch updated business data
+          // Remove the deleted item from the local list
+          setState(() {
+            businessData.removeWhere((business) => business['id'].toString() == businessId);
+            isLoading = false;
+          });
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Business deleted successfully.')),
           );
@@ -160,6 +163,7 @@ class BusinessListState extends State<BusinessList> {
             SnackBar(content: Text(responseData['message'] ?? 'Failed to delete business.')),
           );
         }
+
       } else {
         _handleErrorResponse(response);
       }
