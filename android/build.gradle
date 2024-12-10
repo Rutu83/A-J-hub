@@ -11,7 +11,7 @@ subprojects {
     if (project.name == 'image_gallery_saver') {
         afterEvaluate {
             android {
-                compileSdkVersion = 34 // Ensure this matches your project's compileSdkVersion
+                compileSdkVersion = 34
             }
         }
     }
