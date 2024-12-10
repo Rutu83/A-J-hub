@@ -18,7 +18,7 @@ def flutterVersionName = localProperties.getProperty("flutter.versionName", "1.0
 android {
     namespace = "com.allinonemarketing.allinone_app"
     compileSdk = 34
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "25.2.9519653" // Replace with your NDK version
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -34,8 +34,23 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
-            signingConfig = signingConfigs.debug // Replace with your release signing config
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("release-key.jks") // Replace with your keystore file
+            storePassword "store-password"   // Replace with your keystore password
+            keyAlias "key-alias"             // Replace with your key alias
+            keyPassword "key-password"       // Replace with your key password
         }
     }
 
@@ -45,7 +60,7 @@ android {
 }
 
 flutter {
-    source = "../.."
+    source = "../.." // Ensure this path is correct
 }
 
 ext.kotlin_version = '1.9.0'

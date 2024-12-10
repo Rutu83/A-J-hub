@@ -1,9 +1,54 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class CharityPage extends StatelessWidget {
-  const CharityPage({super.key});
+
+class CharityScreen extends StatefulWidget {
+  @override
+  _CharityScreenState createState() => _CharityScreenState();
+}
+
+class _CharityScreenState extends State<CharityScreen> {
+
+  Map<String, dynamic>? charityData;
+  String Total = '';
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCharityData();
+  }
+
+  Future<void> fetchCharityData() async {
+    const String url = 'https://ajhub.co.in/api/charity/total';
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        setState(() {
+          charityData = json.decode(response.body);
+
+          Total = (charityData!['total_charity'] / 5).toStringAsFixed(0);
+          print('Total divided by 5: $Total');
+          print('Total divided by 5: $charityData');
+          isLoading = false;
+        });
+      } else {
+        print('Failed to load data. Status code: ${response.statusCode}');
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error occurred: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +177,7 @@ class CharityPage extends StatelessWidget {
                           context,
                           'Skill School',
                           Icons.school,
-                          '₹ 52465',
+                          '₹ $Total',
                           Colors.red,
                               () => showCustomBottomSheet(context, buildSkillSchoolContent()),
                         ),
@@ -143,7 +188,7 @@ class CharityPage extends StatelessWidget {
                           context,
                           'Food',
                           Icons.fastfood,
-                          '₹ 46598',
+                          '₹ $Total',
                           Colors.red,
                               () => showCustomBottomSheet(context, buildFoodContent()),
                         ),
@@ -159,7 +204,7 @@ class CharityPage extends StatelessWidget {
                           context,
                           'Tree Plantation',
                           Icons.park,
-                          '₹ 4545',
+                          '₹ $Total',
                           Colors.red,
                               () => showCustomBottomSheet(context, buildTreePlantationContent()),
                         ),
@@ -175,7 +220,7 @@ class CharityPage extends StatelessWidget {
                           context,
                           'Indian Games',
                           Icons.sports_kabaddi,
-                          '₹ 7567',
+                          '₹ $Total',
                           Colors.red,
                               () => showCustomBottomSheet(context, buildIndianGamesContent()),
                         ),
@@ -186,7 +231,7 @@ class CharityPage extends StatelessWidget {
                           context,
                           'Child Care',
                           Icons.child_care,
-                          '₹ 8756',
+                          '₹ $Total',
                           Colors.red,
                               () => showCustomBottomSheet(context, buildChildCareContent()),
                         ),

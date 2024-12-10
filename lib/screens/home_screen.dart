@@ -224,7 +224,7 @@ class HomeScreenState extends State<HomeScreen> {
                       _buildButton(context, Icons.favorite, 'Charity', buttonWidth, () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const CharityPage()),
+                          MaterialPageRoute(builder: (context) =>  CharityScreen()),
                         );
                       }),
                       _buildButton(context, Icons.group, 'Community', buttonWidth, () {
@@ -242,8 +242,9 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-            _buildImageBanner(),
+
             _buildUpcomingCategorySection(),
+            _buildImageBanner(),
             const SizedBox(height: 10),
             _buildFestivalCategorySection(),
             isLoading ? _buildSkeletonLoading() : _buildSubcategorySections(),

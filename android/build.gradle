@@ -8,11 +8,9 @@ allprojects {
 rootProject.buildDir = "../build"
 
 subprojects {
-    if (project.name == 'image_gallery_saver') {
-        afterEvaluate {
-            android {
-                compileSdkVersion = 34
-            }
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            project.android.compileSdkVersion = 34
         }
     }
 }
