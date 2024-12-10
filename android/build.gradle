@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        google() // Google Maven repository
+        mavenCentral() // Central Maven repository for dependencies
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.1.1' // Latest Android Gradle Plugin
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20" // Compatible Kotlin version
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -8,14 +19,20 @@ allprojects {
 rootProject.buildDir = "../build"
 
 subprojects {
-    afterEvaluate { project ->
-        if (project.hasProperty("android")) {
-            project.android.compileSdkVersion = 34
+    // Custom build directory for subprojects
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+
+    // Align all subprojects to use Kotlin JVM target 1.8
+    afterEvaluate {
+        if (project.hasProperty("kotlinOptions")) {
+            project.kotlinOptions {
+                jvmTarget = "1.8"
+            }
         }
     }
 }
 
-
+// Clean task to delete the root project's build directory
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }

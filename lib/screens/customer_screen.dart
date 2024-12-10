@@ -124,7 +124,11 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildNewReleasesSection(),
+
+            _buildUpcomingCategorySection(),
+            _buildFestivalCategorySection(),
+
+
             const SizedBox(height: 10),
             isLoading ? _buildSkeletonLoading() : _buildContent(),
           ],
@@ -150,6 +154,318 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       ),
     );
   }
+
+
+  Widget _buildUpcomingCategorySection() {
+    if (isLoading) {
+      return _buildSkeletonLoading();
+    }
+
+    if (hasError) {
+      return const SizedBox(
+
+      );
+    }
+
+    if (categoriesData == null) {
+      return const SizedBox.shrink(); // Return an empty widget if no data
+    }
+
+    List<Widget> items = [];
+    String sectionTitle = 'Upcoming';
+    var upcomingCategory = categoriesData!.categories.firstWhere(
+          (category) => category.name.toLowerCase() == 'upcoming',
+      orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
+    );
+
+    if (upcomingCategory.subcategories.isEmpty) {
+      return const SizedBox.shrink(); // Return an empty widget if no subcategories
+    }
+
+    for (var subcategory in upcomingCategory.subcategories) {
+      String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/placeholder.jpg';
+      items.add(_buildUpcomingCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: true));
+    }
+
+    return _buildUpcomingHorizontalCard(sectionTitle: sectionTitle, items: items);
+  }
+
+
+
+
+
+  Widget _buildUpcomingHorizontalCard({required String sectionTitle, required List<Widget> items}) {
+    return Container(
+
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        child: Column(
+
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 26.h,
+                  width: 6.w,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5.r),
+                      bottom: Radius.circular(5.r),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  sectionTitle,
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 5.h),
+            SizedBox(
+              height: 120.h,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: items,
+              ),
+            ),
+            SizedBox(height: 5.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
+
+
+  Widget _buildUpcomingCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategorySelected(imagePaths: images),
+          ),
+        );
+      },
+      child: Container(
+        width: 101.w,
+        margin: EdgeInsets.only(right: 8.w),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 120.w,
+              height: 90.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(222.r), // Rounded corners
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(222.r),
+                child: imageUrl.startsWith('http') // Check if imageUrl is a network URL
+                    ? _buildNetworkImage(imageUrl)
+                    : _buildAssetImage(imageUrl),
+              ),
+            ),
+
+            if (showTitle) SizedBox(height: 6.h),
+            if (showTitle)
+              Text(
+                title,
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNetworkImage(String url) {
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return _buildErrorPlaceholder();
+      },
+    );
+  }
+
+  Widget _buildAssetImage(String path) {
+    return Image.asset(
+      path,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) {
+        return _buildErrorPlaceholder();
+      },
+    );
+  }
+
+  Widget _buildErrorPlaceholder() {
+    return Container(
+      color: Colors.grey,
+      child: const Icon(Icons.error, color: Colors.white),
+    );
+  }
+
+
+
+  Widget _buildFestivalCategorySection() {
+    if (isLoading) {
+      return _buildSkeletonLoading();
+    }
+
+    if (hasError) {
+      return Container();
+    }
+
+    if (categoriesData == null) {
+      return const SizedBox.shrink();
+    }
+
+    List<Widget> items = [];
+    String sectionTitle = 'Festival';
+
+    var festivalCategory = categoriesData!.categories.firstWhere(
+          (category) => category.name.toLowerCase() == 'festival',
+      orElse: () => CategoryWithSubcategory(name: 'No Festival', subcategories: []),
+    );
+
+    if (festivalCategory.subcategories.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    for (var subcategory in festivalCategory.subcategories) {
+      if (subcategory.images.isNotEmpty) {
+        items.add(_buildCardItem(subcategory.name, subcategory.images[0], subcategory.images, showTitle: false));
+      }
+    }
+
+    return _buildHorizontalCardSection2(sectionTitle: sectionTitle, items: items);
+  }
+
+
+
+  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 26.h,
+                  width: 6.w,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5.r),
+                      bottom: Radius.circular(5.r),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  sectionTitle,
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 5.h),
+            SizedBox(
+              height: 110.h,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: items,
+              ),
+            ),
+            SizedBox(height: 5.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategorySelected(imagePaths: images),
+          ),
+        );
+      },
+      child: Container(
+        width: 120.w,
+        margin: EdgeInsets.only(right: 8.w),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 120.w,
+              height: 90.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 120.w,
+                      height: 90.h,
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: 120.w,
+                    height: 90.h,
+                    color: Colors.grey,
+                    child: const Icon(Icons.error, color: Colors.red),
+                  ),
+                ),
+              ),
+            ),
+            if (showTitle) SizedBox(height: 6.h),
+            if (showTitle)
+              Text(
+                title,
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
 
   Widget _buildContent() {
     if (isLoading) {
@@ -200,7 +516,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
     for (var subcategory in subcategoryData!.subcategories) {
       List<Widget> items = subcategory.images.map((imageUrl) {
-        return _buildCardItem(
+        return _buildCardItem2(
           subcategory.name,
           subcategory.plays,
           imageUrl,
@@ -238,7 +554,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-  Widget _buildCardItem(String title, String plays, String imageUrl, List<String> allImages) {
+  Widget _buildCardItem2(String title, String plays, String imageUrl, List<String> allImages) {
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -333,166 +649,11 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-  Widget _buildNewReleasesSection() {
-    if (isLoading) {
-      return _buildSkeletonLoading(); // Use skeleton loader
-    }
-
-    if (categoriesData == null) {
-      return const SizedBox.shrink(); // Return an empty widget if no data
-    }
-
-    var upcomingCategory = categoriesData!.categories.firstWhere(
-          (category) => category.name.toLowerCase() == 'upcoming',
-      orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
-    );
-
-    if (upcomingCategory.subcategories.isEmpty) {
-      return const SizedBox.shrink(); // Return an empty widget if no subcategories
-    }
-
-    List<Widget> items = [];
-    for (var subcategory in upcomingCategory.subcategories) {
-      String imageUrl = subcategory.images.isNotEmpty
-          ? subcategory.images[0]
-          : 'assets/images/placeholder.jpg';
-
-      items.add(_buildCardItem1(
-        subcategory.name,
-        imageUrl,
-        subcategory.images,
-      ));
-    }
-
-    return _buildHorizontalCardSection2(
-      sectionTitle: 'Upcoming',
-      items: items,
-    );
-  }
 
 
 
 
-  Widget _buildCardItem1(String title, String imageUrl, List<String> images) {
-    return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
-      onTapUp: (_) {
-        _controller.reverse();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images),
-          ),
-        );
-      },
-      onTapCancel: () => _controller.reverse(),
-      child: Transform.scale(
-        scale: _animation.value,
-        child: Container(
-          width: 101.w,
-          margin: EdgeInsets.only(right: 8.w),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50.r),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CachedNetworkImage(
-                imageUrl: imageUrl,
-                imageBuilder: (context, imageProvider) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
-                    ),
-                    border: Border.all(color: Colors.red.shade50, width: 2),
-                  ),
-                ),
-                placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(
-                    width: 90.w,
-                    height: 90.w,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey[300],
-                    ),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  width: 90.w,
-                  height: 90.w,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey,
-                  ),
-                  child: const Icon(Icons.error, color: Colors.red),
-                ),
-              ),
-              SizedBox(height: 6.h),
-              Text(
-                title,
-                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
-
-  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
-    if (items.isEmpty) {
-      return const SizedBox.shrink(); // Return an empty widget if no items
-    }
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(height: 5.h),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                height: 26.h,
-                width: 4.w,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(5),
-                    bottom: Radius.circular(5),
-                  ),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                sectionTitle,
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          SizedBox(height: 5.h),
-          SizedBox(
-            height: 120.h,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: items,
-            ),
-          ),
-          SizedBox(height: 5.h),
-        ],
-      ),
-    );
-  }
-}
+ }
 
 
