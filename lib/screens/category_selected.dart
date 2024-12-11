@@ -11,7 +11,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path;
@@ -125,29 +124,18 @@ class CategorySelectedState extends State<CategorySelected> {
     fetchBusinessData();
   }
 
-  // Function to build image (either from local or network)
   Widget _buildImage(String imagePath) {
     if (imagePath.startsWith('http')) {
       return CachedNetworkImage(
         imageUrl: imagePath,
         fit: BoxFit.cover,
-        placeholder: (context, url) => Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            width: 1.sw,
-            height: 0.44.sh,
-            color: Colors.grey[300],
-          ),
-        ),
+        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
         errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
       );
     } else {
       return Image.asset(
         imagePath,
         fit: BoxFit.cover,
-        width: 1.sw,
-        height: 0.44.sh,
         errorBuilder: (context, error, stackTrace) {
           return const Icon(Icons.error, color: Colors.red);
         },
@@ -371,48 +359,54 @@ class CategorySelectedState extends State<CategorySelected> {
     );
   }
 
-  // Download and Share image functions
   Future<void> _downloadImage(String imageUrl) async {
     try {
       _showLoadingDialog(context, "Downloading...");
       await _checkStoragePermission();
 
-      setState(() {
-        isDownloading = true;
-        downloadProgress = 0.0;
-      });
-
-      // Simulating the download progress
-      for (int i = 0; i <= 100; i++) {
-        await Future.delayed(const Duration(milliseconds: 30));
-        setState(() {
-          downloadProgress = i / 100;
-        });
-      }
-
-      final combinedImage = await _combineImageAndFrame(imageUrl, framePaths[selectedFrameIndex]);
+      final combinedImage = await _combineImageAndFrame(
+        imageUrl,
+        framePaths[selectedFrameIndex],
+      );
       final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
 
-      var dir = Directory('/storage/emulated/0/Pictures/AJHUB');
+      // Save to public Pictures directory
+      final dir = Directory('/storage/emulated/0/Pictures/AJHUB');
       if (!await dir.exists()) await dir.create(recursive: true);
 
-      String fileName = path.basename(imageUrl);
+      String fileName = 'AJHUB_${DateTime.now().millisecondsSinceEpoch}.png';
       String savePath = path.join(dir.path, fileName);
+
       final file = File(savePath);
       await file.writeAsBytes(pngBytes);
 
-      await _refreshGallery(savePath);
-      _openImage(savePath); // Open the image after saving it
+      // Notify MediaStore about the new file
+      final Uri uri = Uri.file(savePath);
+      await _refreshGallery(uri);
 
       Navigator.pop(context); // Dismiss the loading dialog
+
+      // Show success message with file path
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Image downloaded successfully! \nPath: $savePath'),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 4), // Extend duration to allow users to read the path
+          behavior: SnackBarBehavior.floating, // Floating snackbar for better visibility
+        ),
+      );
     } catch (e) {
       Navigator.pop(context); // Ensure dialog is dismissed in case of error
+      print(e);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Failed to download image: $e'),
+        backgroundColor: Colors.red,
       ));
     }
   }
+
+
 
   Future<void> _shareImage(String imagePath) async {
     try {
@@ -461,42 +455,51 @@ class CategorySelectedState extends State<CategorySelected> {
     );
   }
 
-  // Function to refresh the gallery after saving an image
-  Future<void> _refreshGallery(String filePath) async {
-    final result = await File(filePath).create(recursive: true);
-    await result.setLastModified(DateTime.now());
-    await Future.delayed(const Duration(seconds: 1));
-
-    const channel = MethodChannel('com.allinonemarketing.allinone_app/gallery');
-    await channel.invokeMethod('refreshGallery', {'filePath': filePath});
+  Future<void> _refreshGallery(Uri fileUri) async {
+    try {
+      const methodChannel = MethodChannel('com.allinonemarketing.allinone_app/gallery');
+      await methodChannel.invokeMethod('refreshGallery', {'fileUri': fileUri.toString()});
+    } catch (e) {
+      print('Error refreshing gallery: $e');
+    }
   }
+
 
   Future<ui.Image> _combineImageAndFrame(String imagePath, String framePath) async {
     final ui.Image image = await _loadUiImage(imagePath);
     final ui.Image frame = await _loadUiImage(framePath);
-
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder);
-
     final paint = Paint();
-
     // Draw the main image
     canvas.drawImage(image, Offset.zero, paint);
-
     // Draw the frame overlay
     canvas.drawImage(frame, Offset.zero, paint);
-
     final combinedImage = recorder.endRecording().toImage(
       image.width,
       image.height,
     );
-
     return combinedImage;
   }
 
-  Future<ui.Image> _loadUiImage(String assetPath) async {
-    final ByteData data = await rootBundle.load(assetPath);
-    final Uint8List bytes = Uint8List.view(data.buffer);
+
+  Future<ui.Image> _loadUiImage(String imagePath) async {
+    Uint8List bytes;
+
+    if (imagePath.startsWith('http')) {
+      // Fetch the image from the network
+      final response = await http.get(Uri.parse(imagePath));
+      if (response.statusCode == 200) {
+        bytes = response.bodyBytes;
+      } else {
+        throw Exception('Failed to load network image: ${response.statusCode}');
+      }
+    } else {
+      // Load local asset
+      final ByteData data = await rootBundle.load(imagePath);
+      bytes = Uint8List.view(data.buffer);
+    }
+
     final Completer<ui.Image> completer = Completer();
     ui.decodeImageFromList(bytes, (ui.Image img) {
       completer.complete(img);
@@ -504,41 +507,25 @@ class CategorySelectedState extends State<CategorySelected> {
     return completer.future;
   }
 
-  // Open the image after downloading
-  Future<void> _openImage(String filePath) async {
-    try {
-      final result = await ImageGallerySaver.saveFile(filePath);
-      if (result['isSuccess'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image saved and opened successfully!')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to open the image.')),
-        );
+
+  Future<void> _checkStoragePermission() async {
+    if (Platform.isAndroid) {
+      PermissionStatus status = await Permission.manageExternalStorage.status;
+
+      if (status.isDenied || status.isRestricted) {
+        status = await Permission.manageExternalStorage.request();
       }
 
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error opening image: $e')),
-      );
+      if (!status.isGranted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Storage permission is required to save the image.')),
+        );
+        throw Exception('Storage permission denied');
+      }
+    } else {
+      throw Exception('This functionality is only available on Android devices.');
     }
   }
-
-
-
-  // Check storage permission function
-  Future<void> _checkStoragePermission() async {
-    final status = await Permission.storage.request();
-
-    if (!status.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Storage permission is required to save the image.')),
-      );
-      throw 'Storage permission denied';
-    }
-  }
-
 }
 
 

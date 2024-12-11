@@ -386,7 +386,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.business_center_outlined, "My Business"),
         _buildMenuOption(Icons.library_books_outlined, "Team List"),
         _buildMenuOption(Icons.supervised_user_circle_outlined, "Activation"),
-        _buildMenuOption(Icons.supervised_user_circle_outlined, "Activation2"),
+        _buildMenuOption(Icons.supervised_user_circle_outlined, "Activate Your Membership"),
         _buildMenuOption(Icons.transfer_within_a_station_outlined, "Transaction History"),
         _buildMenuOption(Icons.image_outlined, "Downloaded Images"),
         _buildMenuOption(Icons.insert_emoticon_sharp, "FeedBack"),
@@ -445,18 +445,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           }
           else if (label == "Logout") {
-            var pref = await SharedPreferences.getInstance();
-            await pref.remove(SplashScreenState.keyLogin);
-            await pref.remove(TOKEN);
-            await pref.remove(NAME);
-            await pref.remove(EMAIL);
-            await appStore.setToken('', isInitializing: true);
-            await appStore.setName('', isInitializing: true);
-            await appStore.setEmail('', isInitializing: true);
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-            );
+
+            _showLogOutAccountDialog();
+
           } else if (label == "Delete Account") {
             _showDeleteAccountDialog();
           } else if (url != null) {
@@ -494,13 +485,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             );
 
-          } else if (label == "Activation2") {
+          } else if (label == "Activate Your Membership") {
 
 
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>  ActivateMembershipPage(),
+                builder: (context) =>  const ActivateMembershipPage(),
               ),
             );
 
@@ -568,6 +559,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+    );
+  }
+
+
+  void _showLogOutAccountDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Log out'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Perform log out actions
+                var pref = await SharedPreferences.getInstance();
+                await pref.remove(SplashScreenState.keyLogin);
+                await pref.remove(TOKEN);
+                await pref.remove(NAME);
+                await pref.remove(EMAIL);
+                await appStore.setToken('', isInitializing: true);
+                await appStore.setName('', isInitializing: true);
+                await appStore.setEmail('', isInitializing: true);
+
+                // Navigate to LoginScreen
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              child: const Text('Log out', style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 

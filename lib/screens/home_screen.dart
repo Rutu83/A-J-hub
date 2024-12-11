@@ -249,7 +249,7 @@ class HomeScreenState extends State<HomeScreen> {
             _buildFestivalCategorySection(),
             isLoading ? _buildSkeletonLoading() : _buildSubcategorySections(),
             const SizedBox(height: 10),
-            _buildDailyUseSection(context),
+            _buildDailyUseSection(context,isLoading),
 
           ],
         ),
@@ -330,7 +330,7 @@ class HomeScreenState extends State<HomeScreen> {
               color: Colors.white,  // Background color (if needed)
               borderRadius: BorderRadius.circular(15.0),  // Add border radius
               image: const DecorationImage(
-                image: AssetImage('assets/images/banner2.jpg'), // Image from assets
+                image: AssetImage('assets/images/banner3.jpg'), // Image from assets
                 fit: BoxFit.contain,  // Adjust the fit type as needed
               ),
             ),
@@ -646,7 +646,36 @@ class HomeScreenState extends State<HomeScreen> {
 
 
 
-  Widget _buildDailyUseSection(BuildContext context) {
+  Widget _buildDailyUseSection(BuildContext context, bool isLoading) {
+    // Check if data is loading
+    if (isLoading) {
+      return Container(
+        color: Colors.white, // Set the background color if needed
+        padding: EdgeInsets.all(16.w), // Add padding around the skeleton list
+        child: Center(
+          child: ListView.builder(
+            physics: const NeverScrollableScrollPhysics(), // Prevent scrolling
+            shrinkWrap: true, // Adjust to the content height
+            itemCount: 4, // Number of skeleton items to display
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+                child: Container(
+                  height: 100.h,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+
+    }
+
     // List to store daily use items
     List<Widget> items = [];
 
@@ -654,10 +683,13 @@ class HomeScreenState extends State<HomeScreen> {
     if (daillyuseData != null && daillyuseData!.subcategories.isNotEmpty) {
       for (var category in daillyuseData!.subcategories) {
         String title = category.name;
-        String imageUrl = category.images.isNotEmpty ? category.images[0] : 'assets/images/placeholder.jpg';
+        String imageUrl = category.images.isNotEmpty
+            ? category.images[0]
+            : 'assets/images/placeholder.jpg';
 
         // Convert List<String> to List<Map<String, String>>
-        List<Map<String, String>> topicMaps = category.images.map((url) => {'image': url}).toList();
+        List<Map<String, String>> topicMaps =
+        category.images.map((url) => {'image': url}).toList();
 
         items.add(_buildDailyUseItemCard(title, imageUrl, topicMaps, context));
       }
@@ -669,6 +701,8 @@ class HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Icon(Icons.error_outline, size: 40.h, color: Colors.red),
+            SizedBox(height: 10.h),
             Text(
               'No daily use data found.',
               style: GoogleFonts.roboto(
@@ -715,7 +749,8 @@ class HomeScreenState extends State<HomeScreen> {
                 SizedBox(width: 8.w),
                 Text(
                   'Daily Use',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  style:
+                  TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
                 ),
               ],
             ),

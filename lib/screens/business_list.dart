@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/business_form.dart';
 import 'package:allinone_app/screens/edit_business_form.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;

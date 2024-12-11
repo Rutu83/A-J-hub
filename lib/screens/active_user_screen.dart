@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:flutter/foundation.dart';

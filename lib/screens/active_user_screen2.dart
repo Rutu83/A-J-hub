@@ -433,6 +433,14 @@ class _ActivateMembershipPageState extends State<ActivateMembershipPage> {
                   : () {
                 _submitPayment();
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 6, // Adds a shadow effect for better visibility
+              ),
               child: _isSubmitting
                   ? const SizedBox(
                 height: 20,
@@ -456,14 +464,6 @@ class _ActivateMembershipPageState extends State<ActivateMembershipPage> {
                     ),
                   ),
                 ],
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 6, // Adds a shadow effect for better visibility
               ),
             ),
 

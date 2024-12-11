@@ -32,7 +32,6 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   bool hasError = false;
   String errorMessage = '';
   late AnimationController _controller;
-  late Animation<double> _animation;
   Future<List<CategoriesWithSubcategoriesResponse>>? futureCategories;
   CategoriesWithSubcategoriesResponse? categoriesData;
 
@@ -50,7 +49,6 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       setState(() {});
     });
 
-    _animation = Tween<double>(begin: 1.0, end: 1.1).animate(_controller);
     fetchSubcategoryData();
     fetchCategoriesData();
   }

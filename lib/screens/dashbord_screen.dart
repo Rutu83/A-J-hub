@@ -44,7 +44,7 @@ class DashboardScreenState extends State<DashboardScreen> {
               children: [
                 _buildMenuItem(Icons.home, "Home", 0),
                 SizedBox(width: 20.w),
-                _buildMenuItem(Icons.business, "Category", 1),
+                _buildMenuItem(Icons.business, "Branding", 1),
                 SizedBox(width: 20.w),
                 // BusinessScreen(),
                 GestureDetector(

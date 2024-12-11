@@ -158,7 +158,7 @@ class _ReferEarnState extends State<ReferEarn> {
           Expanded(
             child: ElevatedButton(
               onPressed: () {
-                // Action for Refer Now button
+                _shareOnWhatsApp('Check out my referral code: 12345');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
