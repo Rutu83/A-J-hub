@@ -102,6 +102,7 @@ flutter:
     - assets/images/slider/
     - assets/animation/
     - assets/icons/
+    - assets/frames/
 
 #    - images/lottie/
 

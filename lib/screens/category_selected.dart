@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:allinone_app/dynamic_fram/fram_1.dart';
+import 'package:allinone_app/dynamic_fram/fram_2.dart';
+import 'package:allinone_app/dynamic_fram/fram_3.dart';
 import 'package:allinone_app/screens/business_list.dart';
-import 'package:http/http.dart' as http;
-import 'package:allinone_app/main.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,19 +26,14 @@ class CategorySelectedState extends State<CategorySelected> {
   String ownerName = ' ';
   String mobileNumber = ' ';
   String address = ' ';
+  final List<Widget> frameWidgets = [];
 
-  final List<String> framePaths = [
-    'assets/images/fram7.png',
-    'assets/images/fram8.png',
-    'assets/images/fram9.png',
-    'assets/images/fram10.png'
-  ];
 
   @override
   void initState() {
     super.initState();
+
     printActiveBusinessData();
-    startAutoScroll();
   }
 
   @override
@@ -60,6 +56,28 @@ class CategorySelectedState extends State<CategorySelected> {
         mobileNumber = activeBusiness['mobile_number'] ?? 'Not Provided';
         address = activeBusiness['address'] ?? 'Not Provided';
       });
+
+      frameWidgets.addAll([
+        Fram1(
+          businessName: businessName.toString(),
+          phoneNumber: mobileNumber,
+          emailAddress: 'business2@example.com',
+          address: '456 Another St, City',
+        ),
+        Fram2(
+          businessName: businessName.toString(),
+          phoneNumber: mobileNumber,
+          emailAddress: 'business2@example.com',
+          address: '456 Another St, City',
+        ),
+        Fram3(
+          businessName: businessName.toString(),
+          phoneNumber: mobileNumber,
+          emailAddress: 'business2@example.com',
+          address: '456 Another St, City',
+        ),
+      ]);
+
     } else {
       _showNoBusinessDialog();
     }
@@ -104,13 +122,7 @@ class CategorySelectedState extends State<CategorySelected> {
     );
   }
 
-  void startAutoScroll() {
-    _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      setState(() {
-        selectedFrameIndex = (selectedFrameIndex + 1) % framePaths.length;
-      });
-    });
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +149,7 @@ class CategorySelectedState extends State<CategorySelected> {
         children: [
           // Poster image with dynamic frame
           SizedBox(
-            height: 0.44.sh,
+            height: 0.504.sh,
             width: 1.sw,
             child: Stack(
               alignment: Alignment.center,
@@ -149,28 +161,71 @@ class CategorySelectedState extends State<CategorySelected> {
                   top: 0,
                   bottom: 0,
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.r),
+                    borderRadius: BorderRadius.circular(4.r),
                     child: _buildImage(widget.imagePaths[selectedIndex]),
                   ),
                 ),
 
-                // Frame overlay
                 Positioned(
-                  left: 5.w,
-                  right: 5.w,
+                  left: 7.0,
+                  right: 5.0,
                   top: 0,
                   bottom: 0,
-                  child: FrameOverlayWidget(
-                    framePath: framePaths[selectedFrameIndex],
-                    businessName: businessName.isNotEmpty ? businessName : 'Business Name',
-                    phoneNumber: mobileNumber.isNotEmpty ? mobileNumber : 'Phone Number',
-                    email: ownerName.isNotEmpty ? ownerName : 'Owner Name',
-                    address: address.isNotEmpty ? address : 'Address',
+                  child: PageView.builder(
+                    itemCount: frameWidgets.length,
+                    controller: PageController(initialPage: selectedFrameIndex),
+                    onPageChanged: (index) {
+                      setState(() {
+                        selectedFrameIndex = index;
+                      });
+                    },
+                    itemBuilder: (context, index) {
+                      return frameWidgets[index];
+                    },
                   ),
                 ),
+
+                // Indicator at the bottom
+
+                // Frame overlay
+                // Positioned(
+                //   left: 7.w,
+                //   right: 5.w,
+                //   top: 0,
+                //   bottom: 0,
+                //   child: Fram1(
+                //     businessName: businessName.toString(),
+                //     phoneNumber: mobileNumber.toString(),
+                //     emailAddress: 'business2@example.com',
+                //     address: address.toString(),),
+                // ),
               ],
             ),
           ),
+          SizedBox(height: 5.h),
+          Positioned(
+            bottom: 1,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                frameWidgets.length,
+                    (index) => Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: selectedFrameIndex == index
+                        ? Colors.black
+                        : Colors.grey,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
           SizedBox(height: 8.h),
           // Image Grid for selecting different images
           Expanded(
@@ -249,144 +304,3 @@ class CategorySelectedState extends State<CategorySelected> {
   }
 }
 
-class FrameOverlayWidget extends StatelessWidget {
-  final String framePath;
-  final String businessName;
-  final String phoneNumber;
-  final String email;
-  final String address;
-
-  const FrameOverlayWidget({
-    Key? key,
-    required this.framePath,
-    required this.businessName,
-    required this.phoneNumber,
-    required this.email,
-    required this.address,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Background frame image
-        Image.asset(
-          framePath,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-        ),
-
-        // Business name
-        Positioned(
-          top: 20,
-          left: 20,
-          child: Text(
-            businessName,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-
-        // Phone number
-        Positioned(
-          top: 50,
-          left: 20,
-          child: Row(
-            children: [
-              const Icon(Icons.phone, color: Colors.white, size: 14),
-              const SizedBox(width: 5),
-              Text(
-                phoneNumber,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Email
-        Positioned(
-          top: 80,
-          left: 20,
-          child: Row(
-            children: [
-              const Icon(Icons.email, color: Colors.white, size: 14),
-              const SizedBox(width: 5),
-              Text(
-                email,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Address
-        Positioned(
-          top: 110,
-          left: 20,
-          child: Row(
-            children: [
-              const Icon(Icons.location_on, color: Colors.white, size: 14),
-              const SizedBox(width: 5),
-              Expanded(
-                child: Text(
-                  address,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Additional Data 1: Footer Text
-        Positioned(
-          bottom: 20,
-          left: 20,
-          child: Text(
-            "Powered by YourAppName",
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 12,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ),
-
-        // Additional Data 2: Center Overlay Text
-        Positioned(
-          top: MediaQuery.of(context).size.height * 0.4,
-          left: MediaQuery.of(context).size.width * 0.3,
-          child: Text(
-            "Your Frame Center Info",
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              shadows: [
-                Shadow(
-                  offset: Offset(1.5, 1.5),
-                  blurRadius: 3.0,
-                  color: Colors.black,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
