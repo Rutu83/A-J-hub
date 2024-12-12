@@ -24,14 +24,24 @@ class BusinessListState extends State<BusinessList> {
     super.initState();
     fetchStoredBusinessID();
     fetchBusinessData();
+    printActiveBusinessData();
   }
+
+
 
   Future<void> fetchStoredBusinessID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       selectedBusiness = prefs.getInt('selected_business_id');
+      String? activeBusinessData = prefs.getString('active_business');
+      if (activeBusinessData != null) {
+        final activeBusiness = json.decode(activeBusinessData);
+        // Update UI or state with the active business's data if needed
+        debugPrint('Active Business: $activeBusiness');
+      }
     });
   }
+
 
   Future<void> storeBusinessID(int id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -51,20 +61,48 @@ class BusinessListState extends State<BusinessList> {
         },
       );
 
-      // Print the full response body for debugging
       debugPrint('Response status: ${response.statusCode}');
       debugPrint('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body)['data'];
 
-        // Print the decoded data for debugging
-        debugPrint('Decoded data: $data');
-
         setState(() {
           businessData = data ?? [];
           isLoading = false;
+
+          if (businessData.isNotEmpty) {
+            // Find the first active business
+            final activeBusiness = businessData.firstWhere(
+                  (business) => business['status'] == 'active',
+              orElse: () => businessData.first,
+            );
+
+            selectedBusiness = activeBusiness['id'];
+
+            // Store active business data in shared preferences
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.setString('active_business', json.encode(activeBusiness));
+              debugPrint('Active Business Data Stored: ${json.encode(activeBusiness)}');
+            });
+          } else {
+            // Clear preferences if no businesses are found
+            clearPreferences();
+            selectedBusiness = null;
+            debugPrint('No business profiles found for this user.');
+          }
         });
+      } else if (response.statusCode == 404) {
+        // Handle 404 response specifically
+        setState(() {
+          businessData = [];
+          isLoading = false;
+        });
+
+        // Clear preferences as no data is available
+        await clearPreferences();
+        selectedBusiness = null;
+        debugPrint('No business profiles found for this user (404).');
       } else {
         _handleErrorResponse(response);
       }
@@ -74,10 +112,10 @@ class BusinessListState extends State<BusinessList> {
         businessData = [];
       });
 
-      // Print the error for debugging
       debugPrint('Error fetching business data: $e');
     }
   }
+
 
   void _handleErrorResponse(http.Response response) {
     setState(() {
@@ -113,8 +151,6 @@ class BusinessListState extends State<BusinessList> {
   }
 
   Future<void> _deleteBusinessProfile(String businessId) async {
-
-
     setState(() {
       isLoading = true; // Show loading indicator
     });
@@ -123,8 +159,6 @@ class BusinessListState extends State<BusinessList> {
     String token = appStore.token;
 
     try {
-      // Print the URL and token for debugging
-
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
@@ -133,38 +167,29 @@ class BusinessListState extends State<BusinessList> {
         },
       );
 
-      // Print response status and body for debugging
-
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
+        debugPrint('Delete Response: ${json.decode(response.body)}');
 
-        // Print the decoded response data
+        // Refresh the business data after deletion
+        await fetchBusinessData();
 
-        if (responseData['success'] == true) {
-          // Remove the deleted item from the local list
-          setState(() {
-            businessData.removeWhere((business) => business['id'].toString() == businessId);
-            isLoading = false;
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Business deleted successfully.')),
-          );
-        } else {
-          // Handle failure response
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(responseData['message'] ?? 'Failed to delete business.')),
-          );
+        if (businessData.isEmpty) {
+          // Clear preferences if no businesses are left
+          await clearPreferences();
+          debugPrint('All businesses deleted. Preferences cleared.');
         }
 
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Business deleted successfully.')),
+        );
       } else {
         _handleErrorResponse(response);
       }
     } catch (e) {
-      // Print error if any occurs during the process
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('An error occurred. Please try again later.')),
       );
+      debugPrint('Error deleting business: $e');
     } finally {
       setState(() {
         isLoading = false; // Hide loading indicator
@@ -173,6 +198,85 @@ class BusinessListState extends State<BusinessList> {
   }
 
 
+  Future<void> _updateBusinessStatus(int businessId) async {
+    const String apiUrl = 'https://ajhub.co.in/api/status/business-profile/';
+    String token = appStore.token;
+
+    try {
+      final response = await http.post(
+        Uri.parse('$apiUrl$businessId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['success'] == true) {
+          // Find the updated business from the list
+          final updatedBusiness = businessData.firstWhere(
+                (business) => business['id'] == businessId,
+          );
+
+          // Store active business data in shared preferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('active_business', json.encode(updatedBusiness));
+          debugPrint('Active Business Stored: ${json.encode(updatedBusiness)}');
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Business ID $businessId activated successfully.')),
+          );
+
+          // Fetch updated data
+          await fetchBusinessData();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['message'] ?? 'Failed to update business status.')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update business status. Please try again.')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred. Please try again later.')),
+      );
+      debugPrint('Error updating business status: $e');
+    }
+  }
+
+
+  Future<void> printActiveBusinessData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? activeBusinessData = prefs.getString('active_business');
+
+    if (activeBusinessData != null) {
+      final activeBusiness = json.decode(activeBusinessData);
+
+      // Print each field one by one
+      debugPrint('Active Business Data:');
+      debugPrint('ID: ${activeBusiness['id']}');
+      debugPrint('Name: ${activeBusiness['business_name']}');
+      debugPrint('Owner: ${activeBusiness['owner_name']}');
+      debugPrint('Mobile: ${activeBusiness['mobile_number']}');
+      debugPrint('Email: ${activeBusiness['email']}');
+      debugPrint('Address: ${activeBusiness['address']}');
+      debugPrint('Status: ${activeBusiness['status']}');
+    } else {
+      debugPrint('No active business data found in preferences.');
+    }
+  }
+
+
+  Future<void> clearPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('selected_business_id');
+    await prefs.remove('active_business');
+    debugPrint('Preferences cleared.');
+  }
 
 
 
@@ -205,12 +309,17 @@ class BusinessListState extends State<BusinessList> {
                 return BusinessCard(
                   business: business,
                   selectedBusiness: selectedBusiness,
-                  onRadioChanged: (int? value) {
+                  onRadioChanged: (int? value) async {
                     if (value != null) {
                       setState(() {
                         selectedBusiness = value;
-                        storeBusinessID(value);
                       });
+
+                      // Store the selected business ID in SharedPreferences
+                      await storeBusinessID(value);
+
+                      // Send API request to update the business status
+                      await _updateBusinessStatus(value);
                     }
                   },
                   onUpdate: (){
@@ -243,23 +352,33 @@ class BusinessListState extends State<BusinessList> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.image_not_supported,
+            Icons.warning_amber_rounded,
             size: 60,
-            color: Colors.grey[600],
+            color: Colors.red[600],
           ),
           const SizedBox(height: 10),
           Text(
-            'No Business Data Available',
+            'No business profiles found for this user.',
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w500,
               color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _navigateToAddBusiness,
+            child: const Text('Add Business'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
             ),
           ),
         ],
       ),
     );
   }
+
 }
 
 class BusinessCard extends StatelessWidget {

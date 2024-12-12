@@ -53,9 +53,21 @@ class _ReferEarnState extends State<ReferEarn> {
 
 
 
-  Future<void> _shareOnWhatsApp(String message) async {
+  Future<void> _shareOnWhatsApp(String referralCode) async {
     const String phoneNumber = '+919925850305'; // Replace with your desired phone number
-    final String encodedMessage = Uri.encodeComponent(message); // Encode the message to handle spaces and special characters
+    // Create the custom message with the referral code
+    final String message = '''
+*Join AJHub today and unlock exciting benefits!* 🚀
+
+Greetings! 🎉 I have become a primary member of AJHub. You too can join and start earning ₹200 for every successful Promote Sign up using my referral code: $referralCode 💸 Build your Circle, grow your network, and unlock even more earning potential! 📈
+
+Start Promoting today and maximize your income! 💰
+
+*Referral Code*: $referralCode 🔑
+''';
+
+    // Encode the message to handle spaces and special characters
+    final String encodedMessage = Uri.encodeComponent(message);
     final String url = 'https://wa.me/$phoneNumber?text=$encodedMessage';
 
     if (await canLaunch(url)) {
@@ -64,6 +76,7 @@ class _ReferEarnState extends State<ReferEarn> {
       throw 'Could not open WhatsApp';
     }
   }
+
 
 
   @override
@@ -158,7 +171,7 @@ class _ReferEarnState extends State<ReferEarn> {
           Expanded(
             child: ElevatedButton(
               onPressed: () {
-                _shareOnWhatsApp('Check out my referral code: 12345');
+                _shareOnWhatsApp(referralCode);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -180,7 +193,7 @@ class _ReferEarnState extends State<ReferEarn> {
           const SizedBox(width: 5),
           ElevatedButton(
             onPressed: () {
-              _shareOnWhatsApp('Check out my referral code: 12345');
+              _shareOnWhatsApp(referralCode);
             },
             style: ButtonStyle(
              backgroundColor: WidgetStateProperty.all(Colors.white),

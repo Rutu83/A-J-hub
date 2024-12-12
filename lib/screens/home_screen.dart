@@ -1,9 +1,9 @@
 import 'dart:convert';
-
 import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
 import 'package:allinone_app/model/daillyuse_modal.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
 import 'package:allinone_app/screens/active_user_screen.dart';
+import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_topics.dart';
 import 'package:allinone_app/screens/charity_screen.dart';
 import 'package:allinone_app/screens/refer_earn.dart';
@@ -188,6 +188,20 @@ class HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
+            ),
+
+            IconButton(
+              icon: Icon(
+                Icons.business_center_outlined,
+                size: 22.0.sp,
+                color: Colors.black,
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) =>  const BusinessList()),
+                );
+              },
             ),
             IconButton(
               icon: Icon(

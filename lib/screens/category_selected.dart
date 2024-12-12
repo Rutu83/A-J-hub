@@ -1,23 +1,12 @@
-// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'dart:ui' as ui;
-import 'package:allinone_app/main.dart';
-import 'package:allinone_app/screens/category_edit_business_form.dart';
-import 'package:allinone_app/utils/shimmer/shimmer.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:path/path.dart' as path;
-import 'package:flutter/services.dart';
+import 'package:allinone_app/screens/business_list.dart';
 import 'package:http/http.dart' as http;
-
-
+import 'package:allinone_app/main.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -29,123 +18,102 @@ class CategorySelected extends StatefulWidget {
 }
 
 class CategorySelectedState extends State<CategorySelected> {
+  Timer? _autoScrollTimer;
   int selectedIndex = 0; // Index for selected image
-  int selectedFrameIndex = 0; // Index for sliding frames
-  bool isDownloading = false; // Flag to manage download state
-  double downloadProgress = 0.0;
-  List<String> framePaths = []; // List to hold frame image paths
-  String businessName = '';
-  String ownerName = '';
-  String mobileNumber = '';
-  String address = '';
+  int selectedFrameIndex = 0; // Index for selected frame
+  String businessName = ' ';
+  String ownerName = ' ';
+  String mobileNumber = ' ';
+  String address = ' ';
 
-
-
-
-
-  Future<void> fetchBusinessData() async {
-    const String apiUrl = 'https://ajhub.co.in/api/getbusinessprofile'; // No specific ID
-    String? token = appStore.token; // Fetch token
-
-    try {
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        List<dynamic> businesses = responseData['data'];
-
-        if (kDebugMode) {
-          print(response.body);
-        }
-
-        if (businesses.isNotEmpty) {
-          // Filter active businesses based on the status field
-          List<dynamic> activeBusinesses = businesses.where((business) {
-            return business['status'] == 'active'; // or `business['is_active'] == true`
-          }).toList();
-
-          if (activeBusinesses.isNotEmpty) {
-            final activeBusiness = activeBusinesses.first;
-
-            // Update the TextEditingControllers with the active business data
-
-            businessName = activeBusiness['business_name'] ?? '';
-            ownerName = activeBusiness['owner_name'] ?? '';
-            mobileNumber = activeBusiness['mobile_number'] ?? '';
-           address = activeBusiness['address'] ?? '';
-
-            if (kDebugMode) {
-              print('Active business data loaded successfully.');
-            }
-          } else {
-            if (kDebugMode) {
-              print('No active businesses found');
-            }
-          }
-        } else {
-          if (kDebugMode) {
-            print('No businesses found');
-          }
-        }
-      } else {
-        if (kDebugMode) {
-          print('Failed to fetch business data: ${response.statusCode}');
-          print('Response: ${response.body}');
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching business data: $e');
-      }
-    }
-  }
-
-
-
-  // Function to load frames from JSON
-  Future<void> _loadFrames() async {
-    final String jsonString = await rootBundle.loadString('assets/frame_config.json');
-    final Map<String, dynamic> data = jsonDecode(jsonString);
-    setState(() {
-      framePaths = data['frames'].values.map<String>((frame) => frame['image'] as String).toList();
-    });
-  }
+  final List<String> framePaths = [
+    'assets/images/fram7.png',
+    'assets/images/fram8.png',
+    'assets/images/fram9.png',
+    'assets/images/fram10.png'
+  ];
 
   @override
   void initState() {
     super.initState();
-    _loadFrames(); // Load frames when the widget is initialized
-    fetchBusinessData();
+    printActiveBusinessData();
+    startAutoScroll();
   }
 
-  Widget _buildImage(String imagePath) {
-    if (imagePath.startsWith('http')) {
-      return CachedNetworkImage(
-        imageUrl: imagePath,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-        errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
-      );
+  @override
+  void dispose() {
+    _autoScrollTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> printActiveBusinessData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? activeBusinessData = prefs.getString('active_business');
+
+    if (activeBusinessData != null) {
+      final activeBusiness = json.decode(activeBusinessData);
+
+      // Set data to variables
+      setState(() {
+        businessName = activeBusiness['business_name'] ?? 'Not Provided';
+        ownerName = activeBusiness['owner_name'] ?? 'Not Provided';
+        mobileNumber = activeBusiness['mobile_number'] ?? 'Not Provided';
+        address = activeBusiness['address'] ?? 'Not Provided';
+      });
     } else {
-      return Image.asset(
-        imagePath,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return const Icon(Icons.error, color: Colors.red);
-        },
-      );
+      _showNoBusinessDialog();
     }
+  }
+
+  void _showNoBusinessDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('No Active Business'),
+          content: const Text(
+            'No active business data found. Please add or select a business.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog and navigate back
+                Navigator.pop(context); // Go back to the previous screen
+              },
+              child: const Text(
+                'Back',
+                style: TextStyle(color: Colors.grey),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close the dialog
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const BusinessList()),
+                );
+              },
+              child: const Text(
+                'Go to Business List',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void startAutoScroll() {
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      setState(() {
+        selectedFrameIndex = (selectedFrameIndex + 1) % framePaths.length;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Initialize ScreenUtil for responsive design
     ScreenUtil.init(context);
 
     return Scaffold(
@@ -155,7 +123,7 @@ class CategorySelectedState extends State<CategorySelected> {
           'Select Frame',
           style: TextStyle(
             color: Colors.black,
-            fontSize: 18.sp, // Responsive font size
+            fontSize: 18.sp,
           ),
         ),
         leading: IconButton(
@@ -164,50 +132,17 @@ class CategorySelectedState extends State<CategorySelected> {
             Navigator.pop(context);
           },
         ),
-        actions: [
-          IconButton(
-            icon: Image.asset(
-              'assets/icons/editing.png',
-              width: 20.w,
-              height: 20.h,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CategoryEditBusinessForm(),
-                ),
-              );
-            },
-          ),
-
-          IconButton(
-            icon: const Icon(Icons.download, color: Colors.black),
-            onPressed: () {
-              _downloadImage(widget.imagePaths[selectedIndex]);
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.share, color: Colors.black),
-            onPressed: () {
-              _shareImage(widget.imagePaths[selectedIndex]);
-            },
-          ),
-
-          const SizedBox(width: 10),
-        ],
       ),
       body: Column(
         children: [
-          // Fixed Image with frame sliding applied
+          // Poster image with dynamic frame
           SizedBox(
             height: 0.44.sh,
             width: 1.sw,
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Main image container with Positioned
+                // Main Image
                 Positioned(
                   left: 5.w,
                   right: 5.w,
@@ -218,90 +153,25 @@ class CategorySelectedState extends State<CategorySelected> {
                     child: _buildImage(widget.imagePaths[selectedIndex]),
                   ),
                 ),
-                // Frame overlay (selected frame)
+
+                // Frame overlay
                 Positioned(
                   left: 5.w,
                   right: 5.w,
                   top: 0,
                   bottom: 0,
-                  child: CarouselSlider.builder(
-                    itemCount: framePaths.length,
-                    options: CarouselOptions(
-                      height: 0.54.sh,
-                      enableInfiniteScroll: false,
-                      enlargeCenterPage: false,
-                      viewportFraction: 1.0,
-                      onPageChanged: (index, reason) {
-                        setState(() {
-                          selectedFrameIndex = index;
-                        });
-                      },
-                    ),
-                    itemBuilder: (context, index, realIndex) {
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(8.r),
-                        child: framePaths[index].startsWith('http')
-                            ? CachedNetworkImage(
-                          imageUrl: framePaths[index],
-                          fit: BoxFit.fitWidth,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              width: 1.sw - 10.w,
-                              height: 0.54.sh,
-                              color: Colors.grey[300],
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            width: 1.sw - 10.w,
-                            height: 0.54.sh,
-                            color: Colors.grey,
-                            child: const Icon(Icons.error, color: Colors.red),
-                          ),
-                        )
-                            : Image.asset(
-                          framePaths[index],
-                          fit: BoxFit.fitWidth,
-                          width: 1.sw - 10.w,
-                          height: 0.54.sh,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey,
-                              child: const Icon(Icons.error, color: Colors.red),
-                            );
-                          },
-                        ),
-                      );
-                    },
+                  child: FrameOverlayWidget(
+                    framePath: framePaths[selectedFrameIndex],
+                    businessName: businessName.isNotEmpty ? businessName : 'Business Name',
+                    phoneNumber: mobileNumber.isNotEmpty ? mobileNumber : 'Phone Number',
+                    email: ownerName.isNotEmpty ? ownerName : 'Owner Name',
+                    address: address.isNotEmpty ? address : 'Address',
                   ),
                 ),
               ],
             ),
           ),
-
-          // Dots Indicator for the frame slider
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: framePaths.asMap().entries.map((entry) {
-              return GestureDetector(
-                onTap: () => setState(() {
-                  selectedFrameIndex = entry.key;
-                }),
-                child: Container(
-                  width: 6.w,
-                  height: 6.h,
-                  margin: EdgeInsets.symmetric(vertical: 8.h, horizontal: 4.w),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: selectedFrameIndex == entry.key ? Colors.red : Colors.grey,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
           SizedBox(height: 8.h),
-
           // Image Grid for selecting different images
           Expanded(
             child: GridView.builder(
@@ -359,173 +229,164 @@ class CategorySelectedState extends State<CategorySelected> {
     );
   }
 
-  Future<void> _downloadImage(String imageUrl) async {
-    try {
-      _showLoadingDialog(context, "Downloading...");
-      await _checkStoragePermission();
-
-      final combinedImage = await _combineImageAndFrame(
-        imageUrl,
-        framePaths[selectedFrameIndex],
-      );
-      final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
-      final pngBytes = byteData!.buffer.asUint8List();
-
-      // Save to public Pictures directory
-      final dir = Directory('/storage/emulated/0/Pictures/AJHUB');
-      if (!await dir.exists()) await dir.create(recursive: true);
-
-      String fileName = 'AJHUB_${DateTime.now().millisecondsSinceEpoch}.png';
-      String savePath = path.join(dir.path, fileName);
-
-      final file = File(savePath);
-      await file.writeAsBytes(pngBytes);
-
-      // Notify MediaStore about the new file
-      final Uri uri = Uri.file(savePath);
-      await _refreshGallery(uri);
-
-      Navigator.pop(context); // Dismiss the loading dialog
-
-      // Show success message with file path
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Image downloaded successfully! \nPath: $savePath'),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 4), // Extend duration to allow users to read the path
-          behavior: SnackBarBehavior.floating, // Floating snackbar for better visibility
-        ),
-      );
-    } catch (e) {
-      Navigator.pop(context); // Ensure dialog is dismissed in case of error
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to download image: $e'),
-        backgroundColor: Colors.red,
-      ));
-    }
-  }
-
-
-
-  Future<void> _shareImage(String imagePath) async {
-    try {
-      _showLoadingDialog(context, "Preparing to Share...");
-      final combinedImage = await _combineImageAndFrame(imagePath, framePaths[selectedFrameIndex]);
-
-      final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
-      final pngBytes = byteData!.buffer.asUint8List();
-
-      XFile xFile = XFile.fromData(pngBytes, mimeType: 'image/png');
-      await Share.shareXFiles([xFile], text: 'Aj Hub Mobile App');
-
-      Navigator.pop(context); // Dismiss the loading dialog
-    } catch (e) {
-      Navigator.pop(context); // Ensure dialog is dismissed in case of error
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to share image: $e'),
-      ));
-    }
-  }
-
-  void _showLoadingDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent user from dismissing the dialog
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(color: Colors.red),
-                const SizedBox(width: 16),
-                Text(
-                  message,
-                  style: TextStyle(fontSize: 16.sp),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _refreshGallery(Uri fileUri) async {
-    try {
-      const methodChannel = MethodChannel('com.allinonemarketing.allinone_app/gallery');
-      await methodChannel.invokeMethod('refreshGallery', {'fileUri': fileUri.toString()});
-    } catch (e) {
-      print('Error refreshing gallery: $e');
-    }
-  }
-
-
-  Future<ui.Image> _combineImageAndFrame(String imagePath, String framePath) async {
-    final ui.Image image = await _loadUiImage(imagePath);
-    final ui.Image frame = await _loadUiImage(framePath);
-    final ui.PictureRecorder recorder = ui.PictureRecorder();
-    final Canvas canvas = Canvas(recorder);
-    final paint = Paint();
-    // Draw the main image
-    canvas.drawImage(image, Offset.zero, paint);
-    // Draw the frame overlay
-    canvas.drawImage(frame, Offset.zero, paint);
-    final combinedImage = recorder.endRecording().toImage(
-      image.width,
-      image.height,
-    );
-    return combinedImage;
-  }
-
-
-  Future<ui.Image> _loadUiImage(String imagePath) async {
-    Uint8List bytes;
-
+  Widget _buildImage(String imagePath) {
     if (imagePath.startsWith('http')) {
-      // Fetch the image from the network
-      final response = await http.get(Uri.parse(imagePath));
-      if (response.statusCode == 200) {
-        bytes = response.bodyBytes;
-      } else {
-        throw Exception('Failed to load network image: ${response.statusCode}');
-      }
+      return CachedNetworkImage(
+        imageUrl: imagePath,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+        errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
+      );
     } else {
-      // Load local asset
-      final ByteData data = await rootBundle.load(imagePath);
-      bytes = Uint8List.view(data.buffer);
-    }
-
-    final Completer<ui.Image> completer = Completer();
-    ui.decodeImageFromList(bytes, (ui.Image img) {
-      completer.complete(img);
-    });
-    return completer.future;
-  }
-
-
-  Future<void> _checkStoragePermission() async {
-    if (Platform.isAndroid) {
-      PermissionStatus status = await Permission.manageExternalStorage.status;
-
-      if (status.isDenied || status.isRestricted) {
-        status = await Permission.manageExternalStorage.request();
-      }
-
-      if (!status.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Storage permission is required to save the image.')),
-        );
-        throw Exception('Storage permission denied');
-      }
-    } else {
-      throw Exception('This functionality is only available on Android devices.');
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.error, color: Colors.red);
+        },
+      );
     }
   }
 }
 
+class FrameOverlayWidget extends StatelessWidget {
+  final String framePath;
+  final String businessName;
+  final String phoneNumber;
+  final String email;
+  final String address;
 
+  const FrameOverlayWidget({
+    Key? key,
+    required this.framePath,
+    required this.businessName,
+    required this.phoneNumber,
+    required this.email,
+    required this.address,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // Background frame image
+        Image.asset(
+          framePath,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+        ),
+
+        // Business name
+        Positioned(
+          top: 20,
+          left: 20,
+          child: Text(
+            businessName,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+
+        // Phone number
+        Positioned(
+          top: 50,
+          left: 20,
+          child: Row(
+            children: [
+              const Icon(Icons.phone, color: Colors.white, size: 14),
+              const SizedBox(width: 5),
+              Text(
+                phoneNumber,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Email
+        Positioned(
+          top: 80,
+          left: 20,
+          child: Row(
+            children: [
+              const Icon(Icons.email, color: Colors.white, size: 14),
+              const SizedBox(width: 5),
+              Text(
+                email,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Address
+        Positioned(
+          top: 110,
+          left: 20,
+          child: Row(
+            children: [
+              const Icon(Icons.location_on, color: Colors.white, size: 14),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  address,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Additional Data 1: Footer Text
+        Positioned(
+          bottom: 20,
+          left: 20,
+          child: Text(
+            "Powered by YourAppName",
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
+
+        // Additional Data 2: Center Overlay Text
+        Positioned(
+          top: MediaQuery.of(context).size.height * 0.4,
+          left: MediaQuery.of(context).size.width * 0.3,
+          child: Text(
+            "Your Frame Center Info",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  offset: Offset(1.5, 1.5),
+                  blurRadius: 3.0,
+                  color: Colors.black,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
