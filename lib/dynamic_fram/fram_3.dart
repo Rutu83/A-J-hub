@@ -8,12 +8,12 @@ class Fram3 extends StatelessWidget {
   final String address;
 
   const Fram3({
-    Key? key,
+    super.key,
     required this.businessName,
     required this.phoneNumber,
     required this.emailAddress,
     required this.address,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +34,7 @@ class Fram3 extends StatelessWidget {
           child: Container(
             width: containerWidth,
             height: containerHeight,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/frames/fr1.png'),
                 fit: BoxFit.cover, // Ensures the image covers the frame properly
