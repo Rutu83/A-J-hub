@@ -159,7 +159,7 @@ class FAQPageState extends State<FAQPage> {
   }
 
   void _openWhatsApp() async {
-    const phone = "919662545518";
+    const phone = "+919925850305";
     final message = Uri.encodeComponent("Hi, I need support!");
     final whatsappUrl = "https://wa.me/$phone?text=$message";
 

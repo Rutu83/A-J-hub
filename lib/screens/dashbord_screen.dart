@@ -30,8 +30,8 @@ class DashboardScreenState extends State<DashboardScreen> {
           },
           children: const [
             HomeScreen(),
-            CustomerScreen(),
             OportunityScreen(),
+            CustomerScreen(),
             ProfileScreen(),
           ],
         ),
@@ -44,7 +44,8 @@ class DashboardScreenState extends State<DashboardScreen> {
               children: [
                 _buildMenuItem(Icons.home, "Home", 0),
                 SizedBox(width: 20.w),
-                _buildMenuItem(Icons.business, "Branding", 1),
+                _buildMenuItem(Icons.card_giftcard, "Opportunity", 2),
+
                 SizedBox(width: 20.w),
                 // BusinessScreen(),
                 GestureDetector(
@@ -69,8 +70,8 @@ class DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 SizedBox(width: 20.w),
+                _buildMenuItem(Icons.business, "Branding", 1),
 
-                _buildMenuItem(Icons.card_giftcard, "Opportunity", 2),
                 SizedBox(width: 20.w),
                 _buildMenuItem(Icons.account_circle, "Account", 3),  // Account tab
 

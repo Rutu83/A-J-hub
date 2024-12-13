@@ -3,6 +3,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/main.dart';
+import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/category_selection_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,9 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? _selectedCategory; // Variable to store selected business category
   String? _selectedId; // Variable to store selected business category
-
+  List<dynamic> businessData = [];
+  int? selectedBusiness;
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -177,14 +180,15 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
 
 
   Future<void> _updateBusinessProfile() async {
+    setState(() {
+      _isLoading = true; // Start loading
+    });
+
     final String token = appStore.token; // Retrieve your token from appStore
-    final String apiUrl = 'https://ajhub.co.in/api/update/businessprofile/$_selectedId'; // Assuming 'id' is the business ID
+    final String apiUrl = 'https://ajhub.co.in/api/update/businessprofile/$_selectedId';
 
     try {
       final response = await http.post(
-
-
-
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
@@ -199,7 +203,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
           'address': _addressController.text,
           'state_id': selectedState,
           'category_id': _selectedCategoryId,
-          // Include additional fields as necessary
         }),
       );
 
@@ -207,23 +210,96 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
         if (kDebugMode) {
           print('Profile updated successfully: ${response.body}');
         }
-        // Pass true as the result to indicate success
-        Navigator.pop(context, true);
+        // Fetch updated data
+        await fetchBusinessData2();
       } else {
         if (kDebugMode) {
           print('Failed to update profile: ${response.statusCode}');
           print('Response body: ${response.body}');
         }
       }
-
     } catch (e) {
       if (kDebugMode) {
         print('Error updating profile: $e');
       }
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading
+      });
     }
   }
 
 
+  Future<void> fetchBusinessData2() async {
+    const apiUrl = 'https://ajhub.co.in/api/getbusinessprofile';
+    String token = appStore.token; // Replace with your actual token
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body)['data'];
+
+        setState(() {
+          businessData = data ?? [];
+          _isLoading = false;
+
+          if (businessData.isNotEmpty) {
+            // Find the first active business
+            final activeBusiness = businessData.firstWhere(
+                  (business) => business['status'] == 'active',
+              orElse: () => businessData.first,
+            );
+
+            selectedBusiness = activeBusiness['id'];
+
+            // Store active business data in shared preferences
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.setString('active_business', json.encode(activeBusiness));
+              debugPrint('Active Business Data Stored: ${json.encode(activeBusiness)}');
+            });
+
+            // Navigate back two screens
+            Navigator.popUntil(context, (route) => route.isFirst); // Pop until reaching the first route
+          } else {
+            // Clear preferences if no businesses are found
+            clearPreferences();
+            selectedBusiness = null;
+            debugPrint('No business profiles found for this user.');
+          }
+        });
+      } else if (response.statusCode == 404) {
+        // Handle 404 response specifically
+        setState(() {
+          businessData = [];
+          _isLoading = false;
+        });
+
+        // Clear preferences as no data is available
+        await clearPreferences();
+        selectedBusiness = null;
+        debugPrint('No business profiles found for this user (404).');
+      } else {
+        debugPrint('Failed to fetch business data. Response: ${response.body}');
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        businessData = [];
+      });
+
+      debugPrint('Error fetching business data: $e');
+    }
+  }
 
 
   // Show bottom sheet with camera and gallery options
@@ -302,7 +378,7 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         centerTitle: true,
-        title: const Text('Business Detail'),
+        title: const Text('Active Business Detail'),
       ),
       body: Stack(
         children: [
@@ -508,18 +584,32 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 50.h, // Ensure both buttons have the same height
+                      height: 50.h, // Ensure consistent height
                       child: ElevatedButton(
-                        onPressed: _updateBusinessProfile, // Define this function to handle form submission
+                        onPressed: _isLoading ? null : _updateBusinessProfile,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red, // Button background color
+                          backgroundColor: Colors.red,
                         ),
-                        child: Text(
-                          'Edit',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            color: Colors.white,
-                          ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _isLoading
+                                ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                                : Text(
+                              'Update',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),

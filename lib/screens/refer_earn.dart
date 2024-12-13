@@ -54,7 +54,6 @@ class _ReferEarnState extends State<ReferEarn> {
 
 
   Future<void> _shareOnWhatsApp(String referralCode) async {
-    const String phoneNumber = '+919925850305'; // Replace with your desired phone number
     // Create the custom message with the referral code
     final String message = '''
 *Join AJHub today and unlock exciting benefits!* 🚀
@@ -68,7 +67,7 @@ Start Promoting today and maximize your income! 💰
 
     // Encode the message to handle spaces and special characters
     final String encodedMessage = Uri.encodeComponent(message);
-    final String url = 'https://wa.me/$phoneNumber?text=$encodedMessage';
+    final String url = 'https://wa.me/?text=$encodedMessage';
 
     if (await canLaunch(url)) {
       await launch(url);
@@ -76,6 +75,7 @@ Start Promoting today and maximize your income! 💰
       throw 'Could not open WhatsApp';
     }
   }
+
 
 
 

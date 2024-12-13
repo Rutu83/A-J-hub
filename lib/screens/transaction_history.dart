@@ -28,6 +28,8 @@ class  TransactionHistoryState extends State<TransactionHistory> {
       // Directly fetch the parsed transaction data
       final List<TransactionResponse> response = await getTransactionData(transactionmodal: []);
 
+      print(response);
+
       setState(() {
         transactions = response.map((e) => e.transactions).expand((e) => e).toList();
         _isLoading = false;
@@ -58,10 +60,24 @@ class  TransactionHistoryState extends State<TransactionHistory> {
     // Calculate total balance based on filtered transactions
     double totalBalance = filteredTransactions.fold(
       0.0,
-          (sum, tx) => tx.transactionStatus == 'Credit'
-          ? sum + double.parse(tx.amount)
-          : sum - double.parse(tx.amount),
+          (sum, tx) {
+        if (tx.transactionStatus != 'Credit' && tx.transactionStatus != 'Debit') {
+          print('Skipping transaction with invalid status: ${tx.transactionStatus}');
+          return sum;
+        }
+
+        try {
+          final double amount = double.parse(tx.amount);
+          double updatedSum = tx.transactionStatus == 'Credit' ? sum + amount : sum - amount;
+          return updatedSum < 0 ? 0 : updatedSum; // Ensure balance doesn't go below 0
+        } catch (e) {
+          print('Error parsing amount for transaction: ${tx.amount}');
+          return sum;
+        }
+      },
     );
+
+
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -231,15 +247,14 @@ class  TransactionHistoryState extends State<TransactionHistory> {
                     ),
                   ),
                   Text(
-                    '₹${totalBalance.toStringAsFixed(2)}',
+                    '₹${totalBalance < 0 ? '0.00' : totalBalance.toStringAsFixed(2)}',
                     style: GoogleFonts.poppins(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: totalBalance >= 0
-                          ? Colors.green
-                          : Colors.red,
+                      color: totalBalance >= 0 ? Colors.green : Colors.red,
                     ),
                   ),
+
                 ],
               ),
             ),
@@ -253,6 +268,10 @@ class  TransactionHistoryState extends State<TransactionHistory> {
                 itemBuilder: (context, index) {
                   final transaction = filteredTransactions[index];
                   final isCredit = transaction.transactionStatus == 'Credit';
+
+                  filteredTransactions.forEach((tx) {
+                    print('Transaction: ${tx.userName}, Amount: ${tx.amount}, Status: ${tx.transactionStatus}');
+                  });
 
                   return ListTile(
                     leading: CircleAvatar(

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:allinone_app/main.dart';
 import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
 import 'package:allinone_app/model/daillyuse_modal.dart';
 import 'package:allinone_app/model/subcategory_model.dart';
@@ -17,6 +18,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:allinone_app/screens/category_selected.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:http/http.dart' as http;
@@ -32,7 +34,8 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
 
 
-
+  List<dynamic> businessData = [];
+  int? selectedBusiness;
   List<String> _imageUrls = [];
   int _currentIndex = 0;
 
@@ -52,11 +55,89 @@ class HomeScreenState extends State<HomeScreen> {
       statusBarColor: Colors.transparent,
     ));
     _fetchBannerData();
+    fetchBusinessData();
     fetchCategoriesData();
     fetchSubcategoryData();
     fetchDailyUseCategoryData();
 
   }
+
+
+
+  Future<void> fetchBusinessData() async {
+    const apiUrl = 'https://ajhub.co.in/api/getbusinessprofile';
+    String token = appStore.token; // Replace with your actual token
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      debugPrint('Response status: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body)['data'];
+
+        setState(() {
+          businessData = data ?? [];
+          isLoading = false;
+
+          if (businessData.isNotEmpty) {
+            // Find the first active business
+            final activeBusiness = businessData.firstWhere(
+                  (business) => business['status'] == 'active',
+              orElse: () => businessData.first,
+            );
+
+            selectedBusiness = activeBusiness['id'];
+
+            // Store active business data in shared preferences
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.setString('active_business', json.encode(activeBusiness));
+              debugPrint('Active Business Data Stored: ${json.encode(activeBusiness)}');
+            });
+          } else {
+            // Clear preferences if no businesses are found
+            clearPreferences();
+            selectedBusiness = null;
+            debugPrint('No business profiles found for this user.');
+          }
+        });
+      } else if (response.statusCode == 404) {
+        // Handle 404 response specifically
+        setState(() {
+          businessData = [];
+          isLoading = false;
+        });
+
+        // Clear preferences as no data is available
+        await clearPreferences();
+        selectedBusiness = null;
+        debugPrint('No business profiles found for this user (404).');
+      } else {
+
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        businessData = [];
+      });
+
+      debugPrint('Error fetching business data: $e');
+    }
+  }
+
+
+
+
+
+
+
 
   Future<void> _fetchBannerData() async {
     const apiUrl = 'https://ajhub.co.in/api/getbanners';

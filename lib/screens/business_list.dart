@@ -323,7 +323,17 @@ class BusinessListState extends State<BusinessList> {
                     }
                   },
                   onUpdate: (){
-                    Navigator.push(context, (MaterialPageRoute(builder: (context)=>EditBusinessForm(business: business))));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditBusinessForm(business: business),
+                      ),
+                    ).then((result) {
+                      if (result == true) {
+                        // Refresh the business data when coming back
+                        fetchBusinessData();
+                      }
+                    });
                   },
                   onDelete: () =>
                       _confirmDelete(business['id'].toString()),

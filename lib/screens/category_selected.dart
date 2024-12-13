@@ -19,6 +19,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+
 
 
 
@@ -45,7 +47,7 @@ class CategorySelectedState extends State<CategorySelected> {
   bool isLoading = true;
   bool allFramesLoaded = false;
   bool isFramesLoading = true;
-
+  List<String> framePaths = []; // List to hold frame image paths
 
   @override
   void initState() {
@@ -124,7 +126,7 @@ class CategorySelectedState extends State<CategorySelected> {
 
     try {
       // Simulate frame loading (replace this with actual loading logic if needed)
-      await Future.delayed(const Duration(seconds: 2)); // Simulate loading delay
+      await Future.delayed(const Duration(seconds: 1)); // Simulate loading delay
 
       // Create the frames with the fetched data
       frameWidgets = [
@@ -207,7 +209,11 @@ class CategorySelectedState extends State<CategorySelected> {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Define dynamic width and height for the container
+    final containerWidth = screenWidth * 0.97; // 90% of screen width
+    final containerHeight = containerWidth; // Keep it square
 
     return Scaffold(
       appBar: AppBar(
@@ -251,7 +257,7 @@ class CategorySelectedState extends State<CategorySelected> {
         IconButton(
           icon: const Icon(Icons.share, color: Colors.black),
           onPressed: () {
-          //  _shareImage(widget.imagePaths[selectedIndex]);
+           _shareImage(widget.imagePaths[selectedIndex]);
           },
         ),
 
@@ -269,7 +275,7 @@ class CategorySelectedState extends State<CategorySelected> {
           isFramesLoading
               ? _buildSkeletonLoader() // Show skeleton loader while loading
               :  SizedBox(
-            height: 0.455.sh,
+            height: containerHeight,
             width: 1.sw,
             child: Stack(
               alignment: Alignment.center,
@@ -287,7 +293,7 @@ class CategorySelectedState extends State<CategorySelected> {
                 ),
                 Positioned(
                   left: 6.0,
-                  right: 0.0,
+                  right: 6.0,
                   top: 0,
                   bottom: 0,
                   child: PageView.builder(
@@ -449,6 +455,39 @@ class CategorySelectedState extends State<CategorySelected> {
     }
   }
 
+  Future<void> _shareImage(String imagePath) async {
+    try {
+      _showLoadingDialog(context, "Preparing to Share...");
+
+      // Combine image and frame
+      final combinedImage = await _combineImageAndFrame(
+          imagePath,
+          framePaths.isNotEmpty ? framePaths[selectedFrameIndex] : ''
+      );
+
+      // Convert to PNG bytes
+      final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+
+      // Write to a temporary file
+      final directory = await getTemporaryDirectory();
+      final filePath = '${directory.path}/shared_image.png';
+      final file = File(filePath);
+      await file.writeAsBytes(pngBytes);
+
+      // Share the file
+      await Share.shareXFiles([XFile(filePath)], text: 'Aj Hub Mobile App');
+
+      Navigator.pop(context); // Dismiss the loading dialog
+    } catch (e) {
+      print(e);
+      Navigator.pop(context); // Ensure dialog is dismissed in case of error
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Failed to share image: $e'),
+      ));
+    }
+  }
+
   void _showLoadingDialog(BuildContext context, String message) {
     showDialog(
       context: context,
@@ -475,34 +514,36 @@ class CategorySelectedState extends State<CategorySelected> {
       },
     );
   }
-
-  Future<void> _refreshGallery(Uri fileUri) async {
-    try {
-      const methodChannel = MethodChannel('com.allinonemarketing.allinone_app/gallery');
-      await methodChannel.invokeMethod('refreshGallery', {'fileUri': fileUri.toString()});
-    } catch (e) {
-      print('Error refreshing gallery: $e');
-    }
-  }
-
-
   Future<ui.Image> _combineImageAndFrame(String imagePath, String framePath) async {
     final ui.Image image = await _loadUiImage(imagePath);
     final ui.Image frame = await _loadUiImage(framePath);
+
+    final int width = image.width;
+    final int height = image.height;
+
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder);
-    final paint = Paint();
-    // Draw the main image
-    canvas.drawImage(image, Offset.zero, paint);
-    // Draw the frame overlay
-    canvas.drawImage(frame, Offset.zero, paint);
-    final combinedImage = recorder.endRecording().toImage(
-      image.width,
-      image.height,
-    );
-    return combinedImage;
-  }
 
+    final Paint paint = Paint();
+
+    // Draw main image scaled to the canvas
+    canvas.drawImageRect(
+      image,
+      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+      Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
+      paint,
+    );
+
+    // Draw frame scaled to the canvas
+    canvas.drawImageRect(
+      frame,
+      Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble()),
+      Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
+      paint,
+    );
+
+    return recorder.endRecording().toImage(width, height);
+  }
 
   Future<ui.Image> _loadUiImage(String imagePath) async {
     Uint8List bytes;
@@ -529,46 +570,6 @@ class CategorySelectedState extends State<CategorySelected> {
   }
 
 
-  Future<void> _checkStoragePermission() async {
-    if (Platform.isAndroid) {
-      PermissionStatus status = await Permission.manageExternalStorage.status;
 
-      if (status.isDenied || status.isRestricted) {
-        status = await Permission.manageExternalStorage.request();
-      }
-
-      if (!status.isGranted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Storage permission is required to save the image.')),
-        );
-        throw Exception('Storage permission denied');
-      }
-    } else {
-      throw Exception('This functionality is only available on Android devices.');
-    }
-  }
-
-
-//
-//
-//
-// Widget _buildImage(String imagePath) {
-//     if (imagePath.startsWith('http')) {
-//       return CachedNetworkImage(
-//         imageUrl: imagePath,
-//         fit: BoxFit.cover,
-//         placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-//         errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
-//       );
-//     } else {
-//       return Image.asset(
-//         imagePath,
-//         fit: BoxFit.cover,
-//         errorBuilder: (context, error, stackTrace) {
-//           return const Icon(Icons.error, color: Colors.red);
-//         },
-//       );
-//     }
-//   }
 }
 
