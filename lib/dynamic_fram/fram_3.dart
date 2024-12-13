@@ -99,7 +99,7 @@ class Fram3 extends StatelessWidget {
         } else {
           // Show a CircularProgressIndicator while loading
           return Center(
-            child: CircularProgressIndicator( color: Colors.white,),
+          //  child: CircularProgressIndicator( color: Colors.white,),
           );
         }
       },

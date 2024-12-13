@@ -118,7 +118,7 @@ class Fram1 extends StatelessWidget {
         } else {
           // Show CircularProgressIndicator while loading
           return Center(
-            child: CircularProgressIndicator( color: Colors.white,), // Blocks all other content
+          //  child: CircularProgressIndicator( color: Colors.white,), // Blocks all other content
           );
         }
       },

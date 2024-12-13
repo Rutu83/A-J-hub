@@ -7,6 +7,7 @@ import 'package:allinone_app/dynamic_fram/fram_2.dart';
 import 'package:allinone_app/dynamic_fram/fram_3.dart';
 import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_edit_business_form.dart';
+import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -40,8 +41,10 @@ class CategorySelectedState extends State<CategorySelected> {
   String mobileNumber = ' ';
   String address = ' ';
   String website = ' ';
-  final List<Widget> frameWidgets = [];
+  List<Widget> frameWidgets = []; // Remove 'final' to make it mutable
   bool isLoading = true;
+  bool allFramesLoaded = false;
+  bool isFramesLoading = true;
 
 
   @override
@@ -49,6 +52,8 @@ class CategorySelectedState extends State<CategorySelected> {
     super.initState();
 
     printActiveBusinessData();
+    _loadFrames();
+    _initializeData();
   }
 
   @override
@@ -57,56 +62,105 @@ class CategorySelectedState extends State<CategorySelected> {
     super.dispose();
   }
 
+
+  Future<void> _initializeData() async {
+    await _loadFrames();
+    setState(() {
+      isLoading = false; // Everything loaded
+    });
+  }
+
+
   Future<void> printActiveBusinessData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? activeBusinessData = prefs.getString('active_business');
+    setState(() {
+      isLoading = true; // Start the loading state
+    });
 
-    if (activeBusinessData != null) {
-      final activeBusiness = json.decode(activeBusinessData);
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? activeBusinessData = prefs.getString('active_business');
 
+      if (activeBusinessData != null) {
+        final activeBusiness = json.decode(activeBusinessData);
 
-      if (kDebugMode) {
-        print(activeBusiness);
+        if (kDebugMode) {
+          print(activeBusiness);
+        }
+
+        // Set data to variables
+        setState(() {
+          businessName = activeBusiness['business_name'] ?? 'Not Provided';
+          ownerName = activeBusiness['owner_name'] ?? 'Not Provided';
+          mobileNumber = activeBusiness['mobile_number'] ?? 'Not Provided';
+          emailAddress = activeBusiness['email'] ?? 'Not Provided';
+          address = activeBusiness['address'] ?? 'Not Provided';
+          website = activeBusiness['website'] ?? 'Not Provided';
+        });
+
+        // After fetching the data, load frames
+        await _loadFrames();
+      } else {
+        _showNoBusinessDialog();
       }
-      // Set data to variables
+    } catch (error) {
+      print("Error loading active business data: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error loading data: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
       setState(() {
-        businessName = activeBusiness['business_name'] ?? 'Not Provided';
-        ownerName = activeBusiness['owner_name'] ?? 'Not Provided';
-        mobileNumber = activeBusiness['mobile_number'] ?? 'Not Provided';
-        emailAddress = activeBusiness['email'] ?? 'Not Provided';
-        address = activeBusiness['address'] ?? 'Not Provided';
-        website = activeBusiness['website'] ?? 'Not Provided';
+        isLoading = false; // End the loading state
       });
+    }
+  }
 
-      frameWidgets.addAll([
+  Future<void> _loadFrames() async {
+    setState(() {
+      isFramesLoading = true; // Indicate frames are loading
+    });
+
+    try {
+      // Simulate frame loading (replace this with actual loading logic if needed)
+      await Future.delayed(const Duration(seconds: 2)); // Simulate loading delay
+
+      // Create the frames with the fetched data
+      frameWidgets = [
         Fram1(
-          businessName: businessName.toString(),
+          businessName: businessName,
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
         ),
         Fram2(
-          businessName: businessName.toString(),
+          businessName: businessName,
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
         ),
         Fram3(
-          businessName: businessName.toString(),
+          businessName: businessName,
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
           website: website,
         ),
-      ]);
-
- setState(() {
-        isLoading = false;
+      ];
+    } catch (error) {
+      print("Error loading frames: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error loading frames: $error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        isFramesLoading = false; // Indicate frames are no longer loading
+        allFramesLoaded = true; // Mark frames as fully loaded
       });
-
-
-    } else {
-      _showNoBusinessDialog();
     }
   }
 
@@ -212,7 +266,9 @@ class CategorySelectedState extends State<CategorySelected> {
           : Column(
         children: [
           // Poster image with dynamic frame
-          SizedBox(
+          isFramesLoading
+              ? _buildSkeletonLoader() // Show skeleton loader while loading
+              :  SizedBox(
             height: 0.455.sh,
             width: 1.sw,
             child: Stack(
@@ -328,74 +384,70 @@ class CategorySelectedState extends State<CategorySelected> {
   }
 
 
-  // Future<void> _downloadImage(String imageUrl) async {
-  //   try {
-  //     _showLoadingDialog(context, "Downloading...");
-  //     await _checkStoragePermission();
-  //
-  //     final combinedImage = await _combineImageAndFrame(
-  //       imageUrl,
-  //       framePaths[selectedFrameIndex],
-  //     );
-  //     final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
-  //     final pngBytes = byteData!.buffer.asUint8List();
-  //
-  //     // Save to public Pictures directory
-  //     final dir = Directory('/storage/emulated/0/Pictures/AJHUB');
-  //     if (!await dir.exists()) await dir.create(recursive: true);
-  //
-  //     String fileName = 'AJHUB_${DateTime.now().millisecondsSinceEpoch}.png';
-  //     String savePath = path.join(dir.path, fileName);
-  //
-  //     final file = File(savePath);
-  //     await file.writeAsBytes(pngBytes);
-  //
-  //     // Notify MediaStore about the new file
-  //     final Uri uri = Uri.file(savePath);
-  //     await _refreshGallery(uri);
-  //
-  //     Navigator.pop(context); // Dismiss the loading dialog
-  //
-  //     // Show success message with file path
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Image downloaded successfully! \nPath: $savePath'),
-  //         backgroundColor: Colors.green,
-  //         duration: const Duration(seconds: 4), // Extend duration to allow users to read the path
-  //         behavior: SnackBarBehavior.floating, // Floating snackbar for better visibility
-  //       ),
-  //     );
-  //   } catch (e) {
-  //     Navigator.pop(context); // Ensure dialog is dismissed in case of error
-  //     print(e);
-  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //       content: Text('Failed to download image: $e'),
-  //       backgroundColor: Colors.red,
-  //     ));
-  //   }
-  // }
-  //
-  //
-  //
-  // Future<void> _shareImage(String imagePath) async {
-  //   try {
-  //     _showLoadingDialog(context, "Preparing to Share...");
-  //     final combinedImage = await _combineImageAndFrame(imagePath, framePaths[selectedFrameIndex]);
-  //
-  //     final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
-  //     final pngBytes = byteData!.buffer.asUint8List();
-  //
-  //     XFile xFile = XFile.fromData(pngBytes, mimeType: 'image/png');
-  //     await Share.shareXFiles([xFile], text: 'Aj Hub Mobile App');
-  //
-  //     Navigator.pop(context); // Dismiss the loading dialog
-  //   } catch (e) {
-  //     Navigator.pop(context); // Ensure dialog is dismissed in case of error
-  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //       content: Text('Failed to share image: $e'),
-  //     ));
-  //   }
-  // }
+
+
+  Widget _buildSkeletonLoader() {
+    return Center(
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Skeleton for main image
+            Container(
+              width: 1.sw,
+              height: 0.455.sh,
+              decoration: BoxDecoration(
+                color: Colors.grey[300]!,
+                borderRadius: BorderRadius.circular(4.r),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            // Skeleton for frame indicator
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                3,
+                    (index) => Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey[300]!,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Build Image with Placeholder
+  Widget _buildImage(String imagePath) {
+    if (imagePath.startsWith('http')) {
+      return CachedNetworkImage(
+        imageUrl: imagePath,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          color: Colors.grey.shade300,
+        ),
+        errorWidget: (context, url, error) =>
+        const Icon(Icons.error, color: Colors.red),
+      );
+    } else {
+      return Image.asset(
+        imagePath,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return const Icon(Icons.error, color: Colors.red);
+        },
+      );
+    }
+  }
 
   void _showLoadingDialog(BuildContext context, String message) {
     showDialog(
@@ -497,26 +549,26 @@ class CategorySelectedState extends State<CategorySelected> {
   }
 
 
-
-
-
-Widget _buildImage(String imagePath) {
-    if (imagePath.startsWith('http')) {
-      return CachedNetworkImage(
-        imageUrl: imagePath,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-        errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
-      );
-    } else {
-      return Image.asset(
-        imagePath,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return const Icon(Icons.error, color: Colors.red);
-        },
-      );
-    }
-  }
+//
+//
+//
+// Widget _buildImage(String imagePath) {
+//     if (imagePath.startsWith('http')) {
+//       return CachedNetworkImage(
+//         imageUrl: imagePath,
+//         fit: BoxFit.cover,
+//         placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+//         errorWidget: (context, url, error) => const Icon(Icons.error, color: Colors.red),
+//       );
+//     } else {
+//       return Image.asset(
+//         imagePath,
+//         fit: BoxFit.cover,
+//         errorBuilder: (context, error, stackTrace) {
+//           return const Icon(Icons.error, color: Colors.red);
+//         },
+//       );
+//     }
+//   }
 }
 
