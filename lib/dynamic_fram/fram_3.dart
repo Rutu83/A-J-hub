@@ -6,6 +6,7 @@ class Fram3 extends StatelessWidget {
   final String phoneNumber;
   final String emailAddress;
   final String address;
+  final String website;
 
   const Fram3({
     super.key,
@@ -13,100 +14,95 @@ class Fram3 extends StatelessWidget {
     required this.phoneNumber,
     required this.emailAddress,
     required this.address,
+    required this.website,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Get device dimensions
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     // Define dynamic width and height for the container
     final containerWidth = screenWidth * 0.97; // 90% of screen width
     final containerHeight = containerWidth; // Keep it square
 
-    return Stack(
-      children: <Widget>[
-        // Background Frame Image
-        Positioned(
-          top: 0,
-          left: 0,
-          child: Container(
-            width: containerWidth,
-            height: containerHeight,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/frames/fr1.png'),
-                fit: BoxFit.cover, // Ensures the image covers the frame properly
+    return FutureBuilder(
+      future: precacheImage(const AssetImage('assets/frames/frm3.png'), context),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          // Show the frame with text once the image is loaded
+          return Stack(
+            children: [
+              // Background Image
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/frames/frm3.png'),
+                      fit: BoxFit.cover, // Covers the container proportionally
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ),
-        // Business Name
-        Positioned(
-          top: containerHeight * 0.88, // 88% from the top
-          left: containerWidth * 0.02, // 2% from the left
-          child: Text(
-            businessName,
-            textAlign: TextAlign.left,
-            style: const TextStyle(
-              color: Colors.white,
-              fontFamily: 'Inter',
-              fontSize: 12,
-              fontWeight: FontWeight.normal,
-              height: 1.2, // Slightly increased line height for better readability
-            ),
-          ),
-        ),
-        // Phone Number
-        Positioned(
-          top: containerHeight * 0.96, // 95% from the top
-          left: containerWidth * 0.02, // 2% from the left
-          child: Text(
-            phoneNumber,
-            textAlign: TextAlign.left,
-            style: const TextStyle(
-              color: Colors.white,
-              fontFamily: 'Inter',
-              fontSize: 11,
-              fontWeight: FontWeight.normal,
-              height: 1.1,
-            ),
-          ),
-        ),
-        // Email
-        Positioned(
-          top: containerHeight * 0.88, // 88% from the top
-          left: containerWidth * 0.64, // 67% from the left
-          child: Text(
-            emailAddress,
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'Inter',
-              fontSize: 10.sp,
-              fontWeight: FontWeight.normal,
-              height: 1.1,
-            ),
-          ),
-        ),
-        // Address
-        Positioned(
-          top: containerHeight * 0.95, // 95% from the top
-          left: containerWidth * 0.64, // 67% from the left
-          child: Text(
-            address,
-            textAlign: TextAlign.left,
-            style: TextStyle(
-              color: Colors.white,
-              fontFamily: 'Inter',
-              fontSize: 11.sp,
-              fontWeight: FontWeight.normal,
-              height: 1.1,
-            ),
-          ),
-        ),
-      ],
+
+              // Phone Number Text
+              Positioned(
+                top: 4.h, // Dynamically positioned based on screen height
+                left: 4.w, // Dynamically positioned based on screen width
+                child: Text(
+                  phoneNumber,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Inter',
+                    fontSize: 22.sp, // Scales text size
+                    fontWeight: FontWeight.normal,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+
+              // Address Text
+              Positioned(
+                bottom: 5,
+                left: 10, // Positioned from the left
+                child: Text(
+                  address,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Inter',
+                    fontSize: 10.sp, // Scales text size
+                    fontWeight: FontWeight.normal,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+
+              // Website Text
+              Positioned(
+                top: 974.h, // Dynamically positioned based on screen height
+                left: 814.w, // Dynamically positioned based on screen width
+                child: Text(
+                  website,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Inter',
+                    fontSize: 22.sp, // Scales text size
+                    fontWeight: FontWeight.normal,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          );
+        } else {
+          // Show a CircularProgressIndicator while loading
+          return Center(
+            child: CircularProgressIndicator( color: Colors.white,),
+          );
+        }
+      },
     );
   }
 }

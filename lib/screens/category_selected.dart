@@ -39,6 +39,7 @@ class CategorySelectedState extends State<CategorySelected> {
   String ownerName = ' ';
   String mobileNumber = ' ';
   String address = ' ';
+  String website = ' ';
   final List<Widget> frameWidgets = [];
   bool isLoading = true;
 
@@ -74,6 +75,7 @@ class CategorySelectedState extends State<CategorySelected> {
         mobileNumber = activeBusiness['mobile_number'] ?? 'Not Provided';
         emailAddress = activeBusiness['email'] ?? 'Not Provided';
         address = activeBusiness['address'] ?? 'Not Provided';
+        website = activeBusiness['website'] ?? 'Not Provided';
       });
 
       frameWidgets.addAll([
@@ -94,6 +96,7 @@ class CategorySelectedState extends State<CategorySelected> {
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
+          website: website,
         ),
       ]);
 
