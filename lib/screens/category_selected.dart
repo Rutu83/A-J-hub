@@ -5,6 +5,8 @@ import 'dart:ui';
 import 'package:allinone_app/dynamic_fram/fram_1.dart';
 import 'package:allinone_app/dynamic_fram/fram_2.dart';
 import 'package:allinone_app/dynamic_fram/fram_3.dart';
+import 'package:allinone_app/dynamic_fram/fram_4.dart';
+import 'package:allinone_app/dynamic_fram/fram_5.dart';
 import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_edit_business_form.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
@@ -149,6 +151,20 @@ class CategorySelectedState extends State<CategorySelected> {
           address: address,
           website: website,
         ),
+        Fram4(
+          businessName: businessName,
+          phoneNumber: mobileNumber,
+          emailAddress: emailAddress,
+          address: address,
+          website: website,
+        ),
+        Fram5(
+          businessName: businessName,
+          phoneNumber: mobileNumber,
+          emailAddress: emailAddress,
+          address: address,
+          website: website,
+        ),
       ];
     } catch (error) {
       print("Error loading frames: $error");
@@ -213,7 +229,7 @@ class CategorySelectedState extends State<CategorySelected> {
 
     // Define dynamic width and height for the container
     final containerWidth = screenWidth * 0.97; // 90% of screen width
-    final containerHeight = containerWidth; // Keep it square
+    final containerHeight = containerWidth ; // Keep it square
 
     return Scaffold(
       appBar: AppBar(
@@ -275,7 +291,7 @@ class CategorySelectedState extends State<CategorySelected> {
           isFramesLoading
               ? _buildSkeletonLoader() // Show skeleton loader while loading
               :  SizedBox(
-            height: containerHeight,
+            height: containerHeight * 1,
             width: 1.sw,
             child: Stack(
               alignment: Alignment.center,

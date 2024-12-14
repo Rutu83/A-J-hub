@@ -21,6 +21,7 @@ class Fram3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get device dimensions
     final screenWidth = MediaQuery.of(context).size.width;
 
     // Define dynamic width and height for the container
@@ -28,80 +29,133 @@ class Fram3 extends StatelessWidget {
     final containerHeight = containerWidth; // Keep it square
 
     return FutureBuilder(
-      future: precacheImage(const AssetImage('assets/frames/frm3.png'), context),
+      future: precacheImage(
+        const AssetImage('assets/frames/fr1.png'),
+        context,
+      ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          // Show the frame with text once the image is loaded
-          return Container(
-            width: containerWidth,
-            height: containerHeight,
-            child: Stack(
-              children: [
-                // Background Image
-                Positioned.fill(
+          // Show image and text once loading is complete
+          return Stack(
+            children: <Widget>[
+              // Background Frame Image
+              Positioned(
+                top: 0,
+                left: 0,
+                child: SizedBox(
+                  width: containerWidth,
+                  height: containerHeight,
                   child: Container(
-                    decoration: BoxDecoration(
-                      image: const DecorationImage(
-                        image: AssetImage('assets/frames/frm3.png'),
-                        fit: BoxFit.cover, // Ensures the image covers the container proportionally
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('assets/frames/fr1.png'),
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
                 ),
-
-                // Phone Number Text
-                Positioned(
-                  bottom: containerHeight * 0.06,
-                  left: containerWidth * 0.1, // Align with address text
-                  child: Row(
-                    children: [
-                      const Icon(Icons.phone, color: Colors.white, size: 14),
-                      SizedBox(width: 5.w),
-                      _buildDynamicText(phoneNumber, 20, 12.sp),
-                    ],
-                  ),
+              ),
+              // Business Name
+              Positioned(
+                top: containerHeight * 0.88, // 88% from the top
+                left: containerWidth * 0.02, // 2% from the left
+                child: Row(
+                  children: [
+                    const Icon(Icons.business, color: Colors.white, size: 12),
+                    SizedBox(
+                      width: containerWidth * 0.09, // Limit width
+                      child: _buildDynamicText(businessName, 20, 12.sp),
+                    ),
+                  ],
                 ),
-
-                // Address Text
-                Positioned(
-                  bottom: containerHeight * 0.01, // Closer to the bottom
-                  left: containerWidth * 0.1, // Align with phone number
-                  child: Row(
-                    children: [
-                      const Icon(Icons.location_on, color: Colors.white, size: 14),
-                      SizedBox(
-                        width: containerWidth * 0.5, // Allow more space for address
-                        child: _buildDynamicText(address, 50, 14.sp), // Increased size
-                      ),
-                    ],
-                  ),
+              ),
+              // Phone Number
+              Positioned(
+                top: containerHeight * 0.96, // 96% from the top
+                left: containerWidth * 0.02, // 2% from the left
+                child: Row(
+                  children: [
+                    const Icon(Icons.phone, color: Colors.white, size: 12),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    SizedBox(
+                      width: containerWidth * 0.2, // Limit width
+                      child: _buildDynamicText(phoneNumber, 20, 11.sp),
+                    ),
+                  ],
                 ),
-
-                // Website Text
-                Positioned(
-                  bottom: containerHeight * 0.01, // Align at the very bottom
-                  right: 0, // Align to the right
-                  child: Row(
-                    children: [
-                      const Icon(Icons.language, color: Colors.white, size: 14),
-                      SizedBox(
-                        width: containerWidth * 0.3, // Adjust width for website
-                        child: _buildDynamicText(website, 40, 12.sp),
-                      ),
-                    ],
-                  ),
+              ),
+              // Email
+              Positioned(
+                top: containerHeight * 0.88, // 88% from the top
+                left: containerWidth * 0.62, // 62% from the left
+                child: Row(
+                  children: [
+                    const Icon(Icons.email, color: Colors.white, size: 12),
+                    SizedBox(width: 5.w),
+                    SizedBox(
+                      width: containerWidth * 0.3, // Limit width
+                      child: _buildDynamicText(emailAddress, 30, 10.sp),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              // Address
+              Positioned(
+                top: containerHeight * 0.95, // 95% from the top
+                left: containerWidth * 0.62, // 62% from the left
+                child: Row(
+                  children: [
+                    const Icon(Icons.location_on, color: Colors.white, size: 12),
+                    SizedBox(width: 5.w),
+                    SizedBox(
+                      width: containerWidth * 0.3, // Limit width
+                      child: _buildDynamicText(address, 30, 10.sp),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           );
         } else {
-          // Show a CircularProgressIndicator while loading
-          return Center(
+          // Show CircularProgressIndicator while loading
+          return  Center(
             child: _buildSkeletonLoader(),
           );
         }
       },
     );
+  }
+
+  Widget _buildDynamicText(String text, int maxCharacters, double fontSize) {
+    // If the text exceeds maxCharacters, truncate with ellipsis
+    if (text.length > maxCharacters) {
+      return Text(
+        '${text.substring(0, maxCharacters)}...', // Truncate text
+        overflow: TextOverflow.ellipsis,
+        style: GoogleFonts.inter(
+          color: Colors.white,
+          fontSize: fontSize,
+          fontWeight: FontWeight.normal,
+          height: 1.2,
+        ),
+      );
+    } else {
+      // Adjust font size dynamically for shorter text
+      return FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          text,
+          style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: fontSize,
+            fontWeight: FontWeight.normal,
+            height: 1.2,
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildSkeletonLoader() {
@@ -142,35 +196,5 @@ class Fram3 extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildDynamicText(String text, int maxCharacters, double fontSize) {
-    // If the text exceeds maxCharacters, truncate with ellipsis
-    if (text.length > maxCharacters) {
-      return Text(
-        '${text.substring(0, maxCharacters)}...', // Truncate text
-        overflow: TextOverflow.ellipsis,
-        style: GoogleFonts.inter(
-          color: Colors.white,
-          fontSize: fontSize,
-          fontWeight: FontWeight.normal,
-          height: 1.2,
-        ),
-      );
-    } else {
-      // Adjust font size dynamically for shorter text
-      return FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          text,
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: fontSize,
-            fontWeight: FontWeight.normal,
-            height: 1.2,
-          ),
-        ),
-      );
-    }
   }
 }

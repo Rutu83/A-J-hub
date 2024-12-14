@@ -1,21 +1,22 @@
-import 'dart:math' as math;
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Fram2 extends StatelessWidget {
+class Fram4 extends StatelessWidget {
   final String businessName;
   final String phoneNumber;
   final String emailAddress;
   final String address;
+  final String website;
 
-  const Fram2({
+  const Fram4({
     super.key,
     required this.businessName,
     required this.phoneNumber,
     required this.emailAddress,
     required this.address,
+    required this.website,
   });
 
   @override

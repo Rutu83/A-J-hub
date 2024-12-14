@@ -54,15 +54,30 @@ class HomeScreenState extends State<HomeScreen> {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
-    _fetchBannerData();
-    fetchBusinessData();
-    fetchCategoriesData();
-    fetchSubcategoryData();
-    fetchDailyUseCategoryData();
+    fetchAllData();
 
   }
 
+  Future<void> fetchAllData() async {
+    try {
+      await Future.wait([
+        fetchBusinessData(),
+        _fetchBannerData(),
+        fetchCategoriesData(),
+        fetchSubcategoryData(),
+        fetchDailyUseCategoryData(),
+      ]);
+    } catch (e) {
+      debugPrint('Error fetching data: $e');
+    }
+  }
 
+
+  @override
+  void dispose() {
+
+    super.dispose();
+  }
 
   Future<void> fetchBusinessData() async {
     const apiUrl = 'https://ajhub.co.in/api/getbusinessprofile';

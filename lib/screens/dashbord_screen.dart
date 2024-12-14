@@ -44,7 +44,7 @@ class DashboardScreenState extends State<DashboardScreen> {
               children: [
                 _buildMenuItem(Icons.home, "Home", 0),
                 SizedBox(width: 20.w),
-                _buildMenuItem(Icons.card_giftcard, "Opportunity", 2),
+                _buildMenuItem(Icons.card_giftcard, "Opportunity", 1),
 
                 SizedBox(width: 20.w),
                 // BusinessScreen(),
@@ -70,7 +70,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 SizedBox(width: 20.w),
-                _buildMenuItem(Icons.business, "Branding", 1),
+                _buildMenuItem(Icons.business, "Branding", 2),
 
                 SizedBox(width: 20.w),
                 _buildMenuItem(Icons.account_circle, "Account", 3),  // Account tab
