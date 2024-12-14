@@ -54,6 +54,8 @@ class HomeScreenState extends State<HomeScreen> {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
+
+
     fetchAllData();
 
   }
@@ -266,9 +268,9 @@ class HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Hello, AIO',
+                    'Welcome, ${appStore.Name}',
                     style: TextStyle(
-                      fontSize: 16.0.sp,
+                      fontSize: 14.0.sp,
                       fontWeight: FontWeight.w400,
                       color: Colors.black,
                     ),
@@ -478,11 +480,15 @@ class HomeScreenState extends State<HomeScreen> {
                   builder: (BuildContext context) {
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(15.0), // Apply border radius here
-                      child: Image.network(
-                        url,
-                        fit: BoxFit.fill,
+                      child: Container(
                         width: MediaQuery.of(context).size.width,
-                      ),
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: CachedNetworkImageProvider(cacheKey: url,url),
+                            fit: BoxFit.fill, // Ensures the image fits as intended
+                          ),
+                        ),
+                      )
                     );
                   },
                 );
@@ -568,29 +574,27 @@ class HomeScreenState extends State<HomeScreen> {
               height: 90.h,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.r),
+                image: imageUrl.startsWith('http')
+                    ? DecorationImage(
+                  image: CachedNetworkImageProvider(cacheKey:imageUrl ,imageUrl),
+                  fit: BoxFit.cover,
+                  onError: (exception, stackTrace) {
+                    // Error fallback
+                    debugPrint('Error loading image: $exception');
+                  },
+                )
+                    : DecorationImage(
+                  image: AssetImage(imageUrl),
+                  fit: BoxFit.cover,
+                ),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12.r),
                 child: imageUrl.startsWith('http')
-                    ? Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey,
-                      child: const Icon(Icons.error),
-                    );
-                  },
-                )
-                    : Image.asset(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      color: Colors.grey,
-                      child: const Icon(Icons.error),
-                    );
-                  },
+                    ? null
+                    : Container(
+                  color: Colors.grey,
+                  child: const Icon(Icons.error),
                 ),
               ),
             ),

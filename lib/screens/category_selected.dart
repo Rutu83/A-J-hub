@@ -137,12 +137,14 @@ class CategorySelectedState extends State<CategorySelected> {
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
+          website: website,
         ),
         Fram2(
           businessName: businessName,
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
+          website: website,
         ),
         Fram3(
           businessName: businessName,
@@ -308,8 +310,8 @@ class CategorySelectedState extends State<CategorySelected> {
                   ),
                 ),
                 Positioned(
-                  left: 6.0,
-                  right: 6.0,
+                  left: 4.0,
+                  right: 4.0,
                   top: 0,
                   bottom: 0,
                   child: PageView.builder(
