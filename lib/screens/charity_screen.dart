@@ -178,8 +178,8 @@ class _CharityScreenState extends State<CharityScreen> {
                           'Skill School',
                           Icons.school,
                           '₹ $Total',
-                          Colors.red,
-                              () => showCustomBottomSheet(context, buildSkillSchoolContent()),
+                          Colors.red
+                            //  () => showCustomBottomSheet(context, buildSkillSchoolContent()),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -189,8 +189,8 @@ class _CharityScreenState extends State<CharityScreen> {
                           'Food',
                           Icons.fastfood,
                           '₹ $Total',
-                          Colors.red,
-                              () => showCustomBottomSheet(context, buildFoodContent()),
+                          Colors.red
+                            //  () => showCustomBottomSheet(context, buildFoodContent()),
                         ),
                       ),
                     ],
@@ -205,8 +205,8 @@ class _CharityScreenState extends State<CharityScreen> {
                           'Tree Plantation',
                           Icons.park,
                           '₹ $Total',
-                          Colors.red,
-                              () => showCustomBottomSheet(context, buildTreePlantationContent()),
+                          Colors.red
+                           //   () => showCustomBottomSheet(context, buildTreePlantationContent()),
                         ),
                       ),
                     ],
@@ -221,8 +221,8 @@ class _CharityScreenState extends State<CharityScreen> {
                           'Indian Games',
                           Icons.sports_kabaddi,
                           '₹ $Total',
-                          Colors.red,
-                              () => showCustomBottomSheet(context, buildIndianGamesContent()),
+                          Colors.red
+                            //  () => showCustomBottomSheet(context, buildIndianGamesContent()),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -232,8 +232,8 @@ class _CharityScreenState extends State<CharityScreen> {
                           'Child Care',
                           Icons.child_care,
                           '₹ $Total',
-                          Colors.red,
-                              () => showCustomBottomSheet(context, buildChildCareContent()),
+                          Colors.red
+                             // () => showCustomBottomSheet(context, buildChildCareContent()),
                         ),
                       ),
                     ],
@@ -251,7 +251,7 @@ class _CharityScreenState extends State<CharityScreen> {
 
 
 
-  Widget buildCustomButton(BuildContext context, String title, IconData icon, String amount, Color color, VoidCallback onPressed) {
+  Widget buildCustomButton(BuildContext context, String title, IconData icon, String amount, Color color) {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
@@ -260,7 +260,9 @@ class _CharityScreenState extends State<CharityScreen> {
         ),
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       ),
-      onPressed: onPressed,
+      onPressed: (){
+
+      },
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

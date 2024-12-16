@@ -1,7 +1,7 @@
+import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 
 class Fram1 extends StatelessWidget {
-
   final String businessName;
   final String phoneNumber;
   final String emailAddress;
@@ -9,106 +9,126 @@ class Fram1 extends StatelessWidget {
   final String website;
 
   const Fram1({
-    super.key,
+    Key? key,
     required this.businessName,
     required this.phoneNumber,
     required this.emailAddress,
     required this.address,
     required this.website,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Get screen dimensions
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final containerWidth = screenWidth * 0.97;
+    final containerHeight = containerWidth;
 
-    return Container(
-      width: screenWidth * 0.9, // 90% of screen width
-      height: screenHeight * 0.5, // 50% of screen height
-      child: Stack(
-        children: <Widget>[
-          // Background Image
-          Positioned.fill(
+    return FutureBuilder(
+      future: _simulateFrameLoading(), // Simulate loading
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Show shimmer loader during loading
+          return Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
             child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: const AssetImage('assets/frames/frm1.png'),
-                  fit: BoxFit.cover, // Scale the image to cover the container
+              width: containerWidth,
+              height: containerHeight,
+              color: Colors.grey.shade300,
+            ),
+          );
+        } else {
+          // Show the frame and text when loaded
+          return SizedBox(
+            width: containerWidth,
+            height: containerHeight,
+            child: Stack(
+              children: [
+                // Background Frame Image
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      'assets/frames/frm6.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Center(
+                          child: Text('Failed to load frame'),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
 
-          // Phone Number Text
-          Positioned(
-            top: screenHeight * 0.424, // 42% from the top of the screen height
-            left: screenWidth * 0.4, // 40% from the left of the screen width
-            child: Text(
-              phoneNumber,
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Inter',
-                fontSize: screenWidth * 0.025, // Responsive font size
-                fontWeight: FontWeight.normal,
-                height: 1,
-              ),
-            ),
-          ),
+                // Email Address (Bottom Left)
+                Positioned(
+                  bottom: (containerHeight * 0.05 + containerHeight * 0.06) / 2,
+                  left: containerWidth * 0.08,
+                  child: _buildText(
+                    text: emailAddress,
+                    fontSize: containerWidth * 0.029,
+                    color: Colors.black,
+                  ),
+                ),
 
-          // Website Text
-          Positioned(
-            top: screenHeight * 0.45, // 45% from the top
-            left: screenWidth * 0.52, // 52% from the left
-            child: Text(
-              website,
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Colors.black,
-                fontFamily: 'Inter',
-                fontSize: screenWidth * 0.025, // Responsive font size
-                fontWeight: FontWeight.normal,
-                height: 1,
-              ),
-            ),
-          ),
+                // Phone Number (Bottom Center)
+                Positioned(
+                  bottom: containerHeight * 0.11,
+                  right: containerWidth * 0.38,
+                  child: _buildText(
+                    text: phoneNumber,
+                    fontSize: containerWidth * 0.029,
+                    color: Colors.white,
+                  ),
+                ),
 
-          // Location Text
-          Positioned(
-            top: screenHeight * 0.477, // 47% from the top
-            left: screenWidth * 0.08, // 8% from the left
-            child: Text(
-              address,
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Colors.white,
-                fontFamily: 'Inter',
-                fontSize: screenWidth * 0.025, // Responsive font size
-                fontWeight: FontWeight.normal,
-                height: 1,
-              ),
-            ),
-          ),
+                // Website (Bottom Right)
+                Positioned(
+                  bottom: (containerHeight * 0.05 + containerHeight * 0.06) / 2,
+                  right: containerWidth * 0.15,
+                  child: _buildText(
+                    text: website,
+                    fontSize: containerWidth * 0.029,
+                    color: Colors.black,
+                  ),
+                ),
 
-          // Email ID Text
-          Positioned(
-            top: screenHeight * 0.452, // 45% from the top
-            left: screenWidth * 0.08, // 8% from the left
-            child: Text(
-              emailAddress,
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                color: Colors.black,
-                fontFamily: 'Inter',
-                fontSize: screenWidth * 0.025, // Responsive font size
-                fontWeight: FontWeight.normal,
-                height: 1,
-              ),
+                // Address (Bottom Left Below Icons)
+                Positioned(
+                  bottom: containerHeight * 0.0033,
+                  left: containerWidth * 0.08,
+                  child: _buildText(
+                    text: address,
+                    fontSize: containerWidth * 0.029,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+          );
+        }
+      },
+    );
+  }
+
+  // Helper Widget to Build Text
+  Widget _buildText({
+    required String text,
+    required double fontSize,
+    required Color color,
+  }) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: color,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w500,
       ),
     );
+  }
+
+  // Simulate Frame Loading Delay
+  Future<void> _simulateFrameLoading() async {
+    await Future.delayed(const Duration(seconds: 1)); // Simulate loading time
   }
 }

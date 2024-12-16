@@ -13,18 +13,14 @@ import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:ui' as ui;
-import 'package:share_plus/share_plus.dart';
-import 'package:path/path.dart' as path;
-import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-
-
-
+import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/services.dart';
+import 'package:gallery_saver_plus/gallery_saver.dart';
+import 'dart:ui' as ui;
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -45,11 +41,14 @@ class CategorySelectedState extends State<CategorySelected> {
   String mobileNumber = ' ';
   String address = ' ';
   String website = ' ';
-  List<Widget> frameWidgets = []; // Remove 'final' to make it mutable
+  List<Widget> frameWidgets = [];
   bool isLoading = true;
   bool allFramesLoaded = false;
   bool isFramesLoading = true;
-  List<String> framePaths = []; // List to hold frame image paths
+  bool isProcessing = false;
+  String progressMessage = ""; // Message to show during processing
+
+  final GlobalKey _repaintKey = GlobalKey();
 
   @override
   void initState() {
@@ -66,7 +65,6 @@ class CategorySelectedState extends State<CategorySelected> {
     super.dispose();
   }
 
-
   Future<void> _initializeData() async {
     await _loadFrames();
     setState(() {
@@ -74,10 +72,9 @@ class CategorySelectedState extends State<CategorySelected> {
     });
   }
 
-
   Future<void> printActiveBusinessData() async {
     setState(() {
-      isLoading = true; // Start the loading state
+      isLoading = true; // Start loading
     });
 
     try {
@@ -91,7 +88,6 @@ class CategorySelectedState extends State<CategorySelected> {
           print(activeBusiness);
         }
 
-        // Set data to variables
         setState(() {
           businessName = activeBusiness['business_name'] ?? 'Not Provided';
           ownerName = activeBusiness['owner_name'] ?? 'Not Provided';
@@ -101,7 +97,6 @@ class CategorySelectedState extends State<CategorySelected> {
           website = activeBusiness['website'] ?? 'Not Provided';
         });
 
-        // After fetching the data, load frames
         await _loadFrames();
       } else {
         _showNoBusinessDialog();
@@ -116,21 +111,19 @@ class CategorySelectedState extends State<CategorySelected> {
       );
     } finally {
       setState(() {
-        isLoading = false; // End the loading state
+        isLoading = false; // End loading
       });
     }
   }
 
   Future<void> _loadFrames() async {
     setState(() {
-      isFramesLoading = true; // Indicate frames are loading
+      isFramesLoading = true; // Start loading frames
     });
 
     try {
-      // Simulate frame loading (replace this with actual loading logic if needed)
-      await Future.delayed(const Duration(seconds: 1)); // Simulate loading delay
 
-      // Create the frames with the fetched data
+
       frameWidgets = [
         Fram1(
           businessName: businessName,
@@ -178,8 +171,8 @@ class CategorySelectedState extends State<CategorySelected> {
       );
     } finally {
       setState(() {
-        isFramesLoading = false; // Indicate frames are no longer loading
-        allFramesLoaded = true; // Mark frames as fully loaded
+        isFramesLoading = false;
+        allFramesLoaded = true;
       });
     }
   }
@@ -196,8 +189,8 @@ class CategorySelectedState extends State<CategorySelected> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Close the dialog and navigate back
-                Navigator.pop(context); // Go back to the previous screen
+                Navigator.pop(context);
+                Navigator.pop(context);
               },
               child: const Text(
                 'Back',
@@ -206,7 +199,7 @@ class CategorySelectedState extends State<CategorySelected> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pop(context); // Close the dialog
+                Navigator.pop(context);
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const BusinessList()),
@@ -223,371 +216,270 @@ class CategorySelectedState extends State<CategorySelected> {
     );
   }
 
+  Future<void> _downloadImage() async {
+    setState(() {
+      isProcessing = true;
+      progressMessage = "Downloading image...";
+    });
 
+    try {
+      final boundary =
+      _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) throw Exception('Unable to capture frame.');
+
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData?.buffer.asUint8List();
+
+      if (pngBytes != null) {
+        final directory = Directory('/storage/emulated/0/Pictures/AJHUB');
+        if (!directory.existsSync()) directory.createSync(recursive: true);
+
+        final filePath =
+            '${directory.path}/frame_${DateTime.now().millisecondsSinceEpoch}.png';
+        final file = File(filePath);
+        await file.writeAsBytes(pngBytes);
+
+        await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Image downloaded successfully!')),
+        );
+      }
+    } catch (error) {
+      print("Error downloading image: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error downloading image: $error')),
+      );
+    } finally {
+      setState(() {
+        isProcessing = false;
+        progressMessage = "";
+      });
+    }
+  }
+
+  Future<void> _shareImage() async {
+    setState(() {
+      isProcessing = true;
+      progressMessage = "Preparing image for sharing...";
+    });
+
+    try {
+      final boundary =
+      _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) throw Exception('Unable to capture frame.');
+
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData?.buffer.asUint8List();
+
+      final directory = await getTemporaryDirectory();
+      final filePath =
+          '${directory.path}/shared_frame_${DateTime.now().millisecondsSinceEpoch}.png';
+      final file = File(filePath);
+      await file.writeAsBytes(pngBytes!);
+
+      await Share.shareXFiles(
+        [XFile(filePath)],
+        text: 'AJ HUb Mobile App!',
+      );
+    } catch (error) {
+      print("Error sharing image: $error");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error sharing image: $error')),
+      );
+    } finally {
+      setState(() {
+        isProcessing = false;
+        progressMessage = "";
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    // Define dynamic width and height for the container
-    final containerWidth = screenWidth * 0.97; // 90% of screen width
-    final containerHeight = containerWidth ; // Keep it square
+    final containerWidth = MediaQuery.of(context).size.width * 0.97;
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
           'Select Frame',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 18.sp,
-          ),
+          style: TextStyle(color: Colors.black, fontSize: 18.sp),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.sp),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),  actions: [
-        IconButton(
-          icon: Image.asset(
-            'assets/icons/editing.png',
-            width: 20.w,
-            height: 20.h,
-            color: Colors.black,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const CategoryEditBusinessForm(),
-              ),
-            );
-          },
+          onPressed: () => Navigator.pop(context),
         ),
-
-        IconButton(
-          icon: const Icon(Icons.download, color: Colors.black),
-          onPressed: () {
-           // _downloadImage(widget.imagePaths[selectedIndex]);
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.share, color: Colors.black),
-          onPressed: () {
-           _shareImage(widget.imagePaths[selectedIndex]);
-          },
-        ),
-
-        const SizedBox(width: 10),
-      ],
-
-      ),
-      body: isLoading
-          ? const Center(
-        child: CircularProgressIndicator(), // Show progress indicator
-      )
-          : Column(
-        children: [
-          // Poster image with dynamic frame
-          isFramesLoading
-              ? _buildSkeletonLoader() // Show skeleton loader while loading
-              :  SizedBox(
-            height: containerHeight * 1,
-            width: 1.sw,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Main Image
-                Positioned(
-                  left: 5.w,
-                  right: 5.w,
-                  top: 0,
-                  bottom: 0,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4.r),
-                    child: _buildImage(widget.imagePaths[selectedIndex]),
-                  ),
-                ),
-                Positioned(
-                  left: 4.0,
-                  right: 4.0,
-                  top: 0,
-                  bottom: 0,
-                  child: PageView.builder(
-                    itemCount: frameWidgets.length,
-                    controller: PageController(initialPage: selectedFrameIndex),
-                    onPageChanged: (index) {
-                      setState(() {
-                        selectedFrameIndex = index;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      return frameWidgets[index];
-                    },
-                  ),
-                ),
-              ],
+        actions: [
+          IconButton(
+            icon: Image.asset(
+              'assets/icons/editing.png',
+              width: 20.w,
+              height: 20.h,
+              color: Colors.black,
             ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CategoryEditBusinessForm(),
+                ),
+              );
+            },
           ),
-          SizedBox(height: 5.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              frameWidgets.length,
-                  (index) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 5),
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: selectedFrameIndex == index
-                      ? Colors.black
-                      : Colors.grey,
-                ),
-              ),
-            ),
+
+
+          IconButton(
+            icon: const Icon(Icons.download, color: Colors.black),
+            onPressed: !isProcessing ? _downloadImage : null,
           ),
-          SizedBox(height: 8.h),
-          // Image Grid for selecting different images
-          Expanded(
-            child: GridView.builder(
-              padding: EdgeInsets.all(8.r),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 12.w,
-                mainAxisSpacing: 12.h,
-              ),
-              itemCount: widget.imagePaths.length,
-              itemBuilder: (context, index) {
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selectedIndex = index;
-                    });
-                  },
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15.r),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 4.0,
-                              offset: Offset(2, 2),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(22.r),
-                          child: _buildImage(widget.imagePaths[index]),
-                        ),
-                      ),
-                      if (selectedIndex == index)
-                        Positioned(
-                          bottom: 5.h,
-                          right: 5.w,
-                          child: Icon(
-                            Icons.check_circle_rounded,
-                            color: Colors.red,
-                            size: 28.sp,
-                          ),
-                        ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          )
+          IconButton(
+            icon: const Icon(Icons.share, color: Colors.black),
+            onPressed: !isProcessing ? _shareImage : null,
+          ),
         ],
       ),
-
-    );
-  }
-
-
-
-
-  Widget _buildSkeletonLoader() {
-    return Center(
-      child: Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Skeleton for main image
-            Container(
-              width: 1.sw,
-              height: 0.455.sh,
-              decoration: BoxDecoration(
-                color: Colors.grey[300]!,
-                borderRadius: BorderRadius.circular(4.r),
-              ),
-            ),
-            SizedBox(height: 16.h),
-            // Skeleton for frame indicator
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                3,
-                    (index) => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 5),
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey[300]!,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                RepaintBoundary(
+                  key: _repaintKey,
+                  child: SizedBox(
+                    height: containerWidth,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Positioned(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: CachedNetworkImage(
+                              imageUrl: widget.imagePaths[selectedIndex],
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          left: 0.0,
+                          right: 0.0,
+                          top: 0,
+                          bottom: 0,
+                          child: PageView.builder(
+                            itemCount: frameWidgets.length,
+                            controller: PageController(initialPage: selectedFrameIndex),
+                            scrollDirection: Axis.horizontal,
+                            onPageChanged: (index) {
+                              setState(() {
+                                selectedFrameIndex = index;
+                              });
+                            },
+                            itemBuilder: (context, index) {
+                              return frameWidgets[index];
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // Build Image with Placeholder
-  Widget _buildImage(String imagePath) {
-    if (imagePath.startsWith('http')) {
-      return CachedNetworkImage(
-        imageUrl: imagePath,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Container(
-          color: Colors.grey.shade300,
-        ),
-        errorWidget: (context, url, error) =>
-        const Icon(Icons.error, color: Colors.red),
-      );
-    } else {
-      return Image.asset(
-        imagePath,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return const Icon(Icons.error, color: Colors.red);
-        },
-      );
-    }
-  }
-
-  Future<void> _shareImage(String imagePath) async {
-    try {
-      _showLoadingDialog(context, "Preparing to Share...");
-
-      // Combine image and frame
-      final combinedImage = await _combineImageAndFrame(
-          imagePath,
-          framePaths.isNotEmpty ? framePaths[selectedFrameIndex] : ''
-      );
-
-      // Convert to PNG bytes
-      final byteData = await combinedImage.toByteData(format: ui.ImageByteFormat.png);
-      final pngBytes = byteData!.buffer.asUint8List();
-
-      // Write to a temporary file
-      final directory = await getTemporaryDirectory();
-      final filePath = '${directory.path}/shared_image.png';
-      final file = File(filePath);
-      await file.writeAsBytes(pngBytes);
-
-      // Share the file
-      await Share.shareXFiles([XFile(filePath)], text: 'Aj Hub Mobile App');
-
-      Navigator.pop(context); // Dismiss the loading dialog
-    } catch (e) {
-      print(e);
-      Navigator.pop(context); // Ensure dialog is dismissed in case of error
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Failed to share image: $e'),
-      ));
-    }
-  }
-
-  void _showLoadingDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent user from dismissing the dialog
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(color: Colors.red),
-                const SizedBox(width: 16),
-                Text(
-                  message,
-                  style: TextStyle(fontSize: 16.sp),
+                SizedBox(height: 10.h),
+                // Frame Indicators
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    frameWidgets.length,
+                        (index) => Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: selectedFrameIndex == index ? Colors.black : Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20.h),
+                // Bottom Image Selection
+                GridView.builder(
+                  padding: const EdgeInsets.all(10),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: widget.imagePaths.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedIndex = index;
+                        });
+                      },
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  blurRadius: 4.0,
+                                  offset: Offset(2, 2),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: CachedNetworkImage(
+                                imageUrl: widget.imagePaths[index],
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => const CircularProgressIndicator(),
+                                errorWidget: (context, url, error) =>
+                                const Icon(Icons.error, color: Colors.red),
+                              ),
+                            ),
+                          ),
+                          if (selectedIndex == index)
+                            const Positioned(
+                              bottom: 5,
+                              right: 5,
+                              child: Icon(
+                                Icons.check_circle_rounded,
+                                color: Colors.red,
+                                size: 24,
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
           ),
-        );
-      },
+          if (isProcessing)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 10),
+                    Text(progressMessage, style: const TextStyle(color: Colors.white)),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
-  Future<ui.Image> _combineImageAndFrame(String imagePath, String framePath) async {
-    final ui.Image image = await _loadUiImage(imagePath);
-    final ui.Image frame = await _loadUiImage(framePath);
-
-    final int width = image.width;
-    final int height = image.height;
-
-    final ui.PictureRecorder recorder = ui.PictureRecorder();
-    final Canvas canvas = Canvas(recorder);
-
-    final Paint paint = Paint();
-
-    // Draw main image scaled to the canvas
-    canvas.drawImageRect(
-      image,
-      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-      Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
-      paint,
-    );
-
-    // Draw frame scaled to the canvas
-    canvas.drawImageRect(
-      frame,
-      Rect.fromLTWH(0, 0, frame.width.toDouble(), frame.height.toDouble()),
-      Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()),
-      paint,
-    );
-
-    return recorder.endRecording().toImage(width, height);
-  }
-
-  Future<ui.Image> _loadUiImage(String imagePath) async {
-    Uint8List bytes;
-
-    if (imagePath.startsWith('http')) {
-      // Fetch the image from the network
-      final response = await http.get(Uri.parse(imagePath));
-      if (response.statusCode == 200) {
-        bytes = response.bodyBytes;
-      } else {
-        throw Exception('Failed to load network image: ${response.statusCode}');
-      }
-    } else {
-      // Load local asset
-      final ByteData data = await rootBundle.load(imagePath);
-      bytes = Uint8List.view(data.buffer);
-    }
-
-    final Completer<ui.Image> completer = Completer();
-    ui.decodeImageFromList(bytes, (ui.Image img) {
-      completer.complete(img);
-    });
-    return completer.future;
-  }
-
-
-
 }
-
