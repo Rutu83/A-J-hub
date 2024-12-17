@@ -61,7 +61,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                     ),
                     child: ClipOval(
                       child: Image.asset(
-                        'assets/images/aj2.jpg',
+                        'assets/images/aj_logo_white.png',
                         height: 70.h,
                         width: 70.h,
                         fit: BoxFit.cover,

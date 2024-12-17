@@ -2,7 +2,6 @@ import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 
 class Fram2 extends StatelessWidget {
-
   final String businessName;
   final String phoneNumber;
   final String emailAddress;
@@ -22,13 +21,12 @@ class Fram2 extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final containerWidth = screenWidth * 0.97;
-    final containerHeight = containerWidth;
+    final containerHeight = containerWidth * 1.05; // Slightly taller frame
 
     return FutureBuilder(
-      future: _simulateFrameLoading(), // Simulate loading
+      future: _simulateFrameLoading(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show shimmer loader during loading
           return Shimmer.fromColors(
             baseColor: Colors.grey.shade300,
             highlightColor: Colors.grey.shade100,
@@ -39,7 +37,6 @@ class Fram2 extends StatelessWidget {
             ),
           );
         } else {
-          // Show the frame and text when loaded
           return SizedBox(
             width: containerWidth,
             height: containerHeight,
@@ -48,9 +45,9 @@ class Fram2 extends StatelessWidget {
                 // Background Frame Image
                 Positioned.fill(
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                     child: Image.asset(
-                      'assets/frames/frm6.png',
+                      'assets/frames/frm2.png',
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return const Center(
@@ -61,46 +58,46 @@ class Fram2 extends StatelessWidget {
                   ),
                 ),
 
-                // Email Address (Bottom Left)
+                // Phone Number (Top Left)
                 Positioned(
-                  bottom: (containerHeight * 0.05 + containerHeight * 0.06) / 2,
-                  left: containerWidth * 0.08,
+                  top: containerHeight * 0.03,
+                  left: containerWidth * 0.07,
                   child: _buildText(
-                    text: emailAddress,
-                    fontSize: containerWidth * 0.029,
-                    color: Colors.black,
+                    text: phoneNumber,
+                    fontSize: containerWidth * 0.035,
+                    color: Colors.white,
                   ),
                 ),
 
-                // Phone Number (Bottom Center)
+                // Email Address (Bottom Left)
                 Positioned(
-                  bottom: containerHeight * 0.11,
-                  right: containerWidth * 0.38,
+                  bottom: containerHeight * 0.10,
+                  left: containerWidth * 0.05,
                   child: _buildText(
-                    text: phoneNumber,
-                    fontSize: containerWidth * 0.029,
+                    text: emailAddress,
+                    fontSize: containerWidth * 0.035,
+                    color: Colors.white,
+                  ),
+                ),
+
+                // Address (Bottom Left Underline)
+                Positioned(
+                  bottom: (containerHeight * 0.02 + containerHeight * 0.01) / 2,
+                  left: containerWidth * 0.07,
+                  child: _buildText(
+                    text: address,
+                    fontSize: containerWidth * 0.035,
                     color: Colors.white,
                   ),
                 ),
 
                 // Website (Bottom Right)
                 Positioned(
-                  bottom: (containerHeight * 0.05 + containerHeight * 0.06) / 2,
-                  right: containerWidth * 0.15,
+                  bottom: (containerHeight * 0.15 + containerHeight * 0.16) / 2,
+                  left: containerWidth * 0.05,
                   child: _buildText(
                     text: website,
-                    fontSize: containerWidth * 0.029,
-                    color: Colors.black,
-                  ),
-                ),
-
-                // Address (Bottom Left Below Icons)
-                Positioned(
-                  bottom: containerHeight * 0.0033,
-                  left: containerWidth * 0.08,
-                  child: _buildText(
-                    text: address,
-                    fontSize: containerWidth * 0.029,
+                    fontSize: containerWidth * 0.035,
                     color: Colors.white,
                   ),
                 ),
@@ -130,6 +127,6 @@ class Fram2 extends StatelessWidget {
 
   // Simulate Frame Loading Delay
   Future<void> _simulateFrameLoading() async {
-    await Future.delayed(const Duration(seconds: 1)); // Simulate loading time
+    await Future.delayed(const Duration(seconds: 1));
   }
 }

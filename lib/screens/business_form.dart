@@ -155,9 +155,7 @@ class _BusinessFormState extends State<BusinessForm> {
         request.fields['email'] = _emailController.text.isNotEmpty
             ? _emailController.text
             : ''; // Optional
-        request.fields['website'] = _websiteController.text.isNotEmpty
-            ? _websiteController.text
-            : ''; // Optional
+        request.fields['website'] = _websiteController.text; // Optional
         request.fields['address'] = _addressController.text;
         request.fields['category_id'] = _selectedCategoryId!;
         request.fields['state_id'] = selectedState ?? '';
@@ -482,18 +480,13 @@ class _BusinessFormState extends State<BusinessForm> {
 
 
               SizedBox(height: 16.h),
-              buildLabel('Website Name', isRequired: true),
+              buildLabel('Website Name'),
               _buildTextFormField(
                 controller: _websiteController,
                 hintText: 'Enter website name',
                 icon: Icons.web,
                 keyboardType: TextInputType.url,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your website name';
-                  }
-                  return null;
-                },
+
               ),
 
               SizedBox(height: 16.h),

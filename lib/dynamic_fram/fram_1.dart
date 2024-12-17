@@ -49,7 +49,7 @@ class Fram1 extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.asset(
-                      'assets/frames/frm6.png',
+                      'assets/frames/frm1.png',
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return const Center(
@@ -62,8 +62,8 @@ class Fram1 extends StatelessWidget {
 
                 // Email Address (Bottom Left)
                 Positioned(
-                  bottom: (containerHeight * 0.05 + containerHeight * 0.06) / 2,
-                  left: containerWidth * 0.08,
+                  bottom: containerHeight * 0.06,
+                  left: containerWidth * 0.06,
                   child: _buildText(
                     text: emailAddress,
                     fontSize: containerWidth * 0.029,
@@ -73,7 +73,8 @@ class Fram1 extends StatelessWidget {
 
                 // Phone Number (Bottom Center)
                 Positioned(
-                  bottom: containerHeight * 0.11,
+                  bottom: (containerHeight * 0.11 + containerHeight * 0.12) / 2,
+                //  bottom: containerHeight * 0.11,
                   right: containerWidth * 0.38,
                   child: _buildText(
                     text: phoneNumber,
@@ -84,8 +85,8 @@ class Fram1 extends StatelessWidget {
 
                 // Website (Bottom Right)
                 Positioned(
-                  bottom: (containerHeight * 0.05 + containerHeight * 0.06) / 2,
-                  right: containerWidth * 0.15,
+                  bottom: containerHeight * 0.06,
+                  right: containerWidth * 0.13,
                   child: _buildText(
                     text: website,
                     fontSize: containerWidth * 0.029,
@@ -96,7 +97,7 @@ class Fram1 extends StatelessWidget {
                 // Address (Bottom Left Below Icons)
                 Positioned(
                   bottom: containerHeight * 0.0033,
-                  left: containerWidth * 0.08,
+                  left: containerWidth * 0.06,
                   child: _buildText(
                     text: address,
                     fontSize: containerWidth * 0.029,

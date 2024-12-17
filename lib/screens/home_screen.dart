@@ -256,11 +256,11 @@ class HomeScreenState extends State<HomeScreen> {
           padding: EdgeInsets.only(left: 8.w),
           child: CircleAvatar(
             radius: 20.0.r,
-            backgroundImage: const NetworkImage(
-                'https://miro.medium.com/v2/resize:fit:1400/1*AxTSMdh-xZoluQ10nkqqrg.png'),
-            backgroundColor: Colors.black,
+            backgroundImage: const AssetImage('assets/images/app_logo.png'),
+            backgroundColor: Colors.red.shade50,
           ),
         ),
+
         title: Row(
           children: [
             Expanded(

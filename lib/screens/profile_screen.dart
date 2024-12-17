@@ -165,22 +165,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                shape: BoxShape.circle,
                                border: Border.all(
                                  color: Colors.red, // Border color
-                                 width: 3.0, // Border width
+                                 width: 1.0, // Border width
                                ),
                              ),
                              child: CircleAvatar(
                                radius: 33.r,
-                               backgroundImage: _imageLoadFailed
-                                   ? const AssetImage('assets/images/aj1.jpg') as ImageProvider
-                                   : const NetworkImage('https://www.google.co.in/'),
-                               onBackgroundImageError: (_, __) {
-                                 if (!_imageLoadFailed) {
-                                   _imageLoadFailed = true;
-                                 }
-                               },
-
+                               backgroundImage: const AssetImage('assets/images/app_logo.png'), // Only the logo is displayed
+                               backgroundColor: Colors.red.shade50, // Optional background color
                              ),
                            ),
+
+
 
                            const Spacer(),
                            _buildInfoColumn('₹ ${totalIncome ?? 0}', "Total Income", Colors.black),

@@ -479,18 +479,13 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                   ),
 
                   SizedBox(height: 16.h),
-                  buildLabel('Website Name', isRequired: true),
+                  buildLabel('Website Name', isRequired: false),
                   _buildTextFormField(
                     controller: _websiteController,
                     hintText: 'Enter website name',
                     icon: Icons.web,
                     keyboardType: TextInputType.url,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your website name';
-                      }
-                      return null;
-                    },
+
                   ),
 
                   SizedBox(height: 16.h),
