@@ -157,7 +157,8 @@ class _BusinessFormState extends State<BusinessForm> {
             : ''; // Optional
         request.fields['website'] = _websiteController.text; // Optional
         request.fields['address'] = _addressController.text;
-        request.fields['category_id'] = _selectedCategoryId!;
+        request.fields['category_id'] = _selectedCategoryId ?? ''; // Use an empty string if null
+
         request.fields['state_id'] = selectedState ?? '';
 
         // Add logo as a file
@@ -202,6 +203,7 @@ class _BusinessFormState extends State<BusinessForm> {
             // Display the error message using the dialog
             _showErrorDialog('Error: ${response.statusCode}', error);
           } catch (e) {
+
             // If there's an issue with JSON parsing, log the raw message
             debugPrint('Failed to parse error message: $errorMessage');
             _showErrorDialog('Error', 'An unexpected error occurred: $errorMessage');
