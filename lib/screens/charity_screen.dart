@@ -6,11 +6,13 @@ import 'dart:convert';
 
 
 class CharityScreen extends StatefulWidget {
+  const CharityScreen({super.key});
+
   @override
-  _CharityScreenState createState() => _CharityScreenState();
+   CharityScreenState createState() =>  CharityScreenState();
 }
 
-class _CharityScreenState extends State<CharityScreen> {
+class  CharityScreenState extends State<CharityScreen> {
 
   Map<String, dynamic>? charityData;
   String Total = '';
@@ -31,18 +33,24 @@ class _CharityScreenState extends State<CharityScreen> {
           charityData = json.decode(response.body);
 
           Total = (charityData!['total_charity'] / 5).toStringAsFixed(0);
-          print('Total divided by 5: $Total');
-          print('Total divided by 5: $charityData');
+          if (kDebugMode) {
+            print('Total divided by 5: $Total');
+            print('Total divided by 5: $charityData');
+          }
           isLoading = false;
         });
       } else {
-        print('Failed to load data. Status code: ${response.statusCode}');
+        if (kDebugMode) {
+          print('Failed to load data. Status code: ${response.statusCode}');
+        }
         setState(() {
           isLoading = false;
         });
       }
     } catch (e) {
-      print('Error occurred: $e');
+      if (kDebugMode) {
+        print('Error occurred: $e');
+      }
       setState(() {
         isLoading = false;
       });

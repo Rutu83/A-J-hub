@@ -28,7 +28,9 @@ class  TransactionHistoryState extends State<TransactionHistory> {
       // Directly fetch the parsed transaction data
       final List<TransactionResponse> response = await getTransactionData(transactionmodal: []);
 
-      print(response);
+      if (kDebugMode) {
+        print(response);
+      }
 
       setState(() {
         transactions = response.map((e) => e.transactions).expand((e) => e).toList();
@@ -62,7 +64,9 @@ class  TransactionHistoryState extends State<TransactionHistory> {
       0.0,
           (sum, tx) {
         if (tx.transactionStatus != 'Credit' && tx.transactionStatus != 'Debit') {
-          print('Skipping transaction with invalid status: ${tx.transactionStatus}');
+          if (kDebugMode) {
+            print('Skipping transaction with invalid status: ${tx.transactionStatus}');
+          }
           return sum;
         }
 
@@ -71,7 +75,9 @@ class  TransactionHistoryState extends State<TransactionHistory> {
           double updatedSum = tx.transactionStatus == 'Credit' ? sum + amount : sum - amount;
           return updatedSum < 0 ? 0 : updatedSum; // Ensure balance doesn't go below 0
         } catch (e) {
-          print('Error parsing amount for transaction: ${tx.amount}');
+          if (kDebugMode) {
+            print('Error parsing amount for transaction: ${tx.amount}');
+          }
           return sum;
         }
       },
@@ -269,9 +275,11 @@ class  TransactionHistoryState extends State<TransactionHistory> {
                   final transaction = filteredTransactions[index];
                   final isCredit = transaction.transactionStatus == 'Credit';
 
-                  filteredTransactions.forEach((tx) {
-                    print('Transaction: ${tx.userName}, Amount: ${tx.amount}, Status: ${tx.transactionStatus}');
-                  });
+                  for (var tx in filteredTransactions) {
+                    if (kDebugMode) {
+                      print('Transaction: ${tx.userName}, Amount: ${tx.amount}, Status: ${tx.transactionStatus}');
+                    }
+                  }
 
                   return ListTile(
                     leading: CircleAvatar(

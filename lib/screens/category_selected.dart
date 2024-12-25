@@ -9,7 +9,6 @@ import 'package:allinone_app/dynamic_fram/fram_4.dart';
 import 'package:allinone_app/dynamic_fram/fram_5.dart';
 import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_edit_business_form.dart';
-import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +17,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/services.dart';
 import 'package:gallery_saver_plus/gallery_saver.dart';
 import 'dart:ui' as ui;
 
@@ -102,7 +100,9 @@ class CategorySelectedState extends State<CategorySelected> {
         _showNoBusinessDialog();
       }
     } catch (error) {
-      print("Error loading active business data: $error");
+      if (kDebugMode) {
+        print("Error loading active business data: $error");
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error loading data: $error'),
@@ -162,7 +162,9 @@ class CategorySelectedState extends State<CategorySelected> {
         ),
       ];
     } catch (error) {
-      print("Error loading frames: $error");
+      if (kDebugMode) {
+        print("Error loading frames: $error");
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error loading frames: $error'),
@@ -247,7 +249,9 @@ class CategorySelectedState extends State<CategorySelected> {
         );
       }
     } catch (error) {
-      print("Error downloading image: $error");
+      if (kDebugMode) {
+        print("Error downloading image: $error");
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error downloading image: $error')),
       );
@@ -285,7 +289,9 @@ class CategorySelectedState extends State<CategorySelected> {
         text: 'AJ HUb Mobile App!',
       );
     } catch (error) {
-      print("Error sharing image: $error");
+      if (kDebugMode) {
+        print("Error sharing image: $error");
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error sharing image: $error')),
       );

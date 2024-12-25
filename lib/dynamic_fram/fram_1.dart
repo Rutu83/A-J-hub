@@ -9,13 +9,13 @@ class Fram1 extends StatelessWidget {
   final String website;
 
   const Fram1({
-    Key? key,
+    super.key,
     required this.businessName,
     required this.phoneNumber,
     required this.emailAddress,
     required this.address,
     required this.website,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

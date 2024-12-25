@@ -32,12 +32,6 @@ Future<void> clearPreferences() async {
 
 
 
-
-
-
-
-
-
 // login
 Future<LoginResponse> loginUser(Map request) async {
   appStore.setLoading(true);
@@ -333,3 +327,35 @@ Future<List<TransactionResponse>> getTransactionData({required List<TransactionR
 
 
 
+Future<void> fetchData(Function(List<Map<String, dynamic>>) updateProducts, Function(String) updateData) async {
+  const String url = "https://ajhub.co.in/api/inquiries/active";
+  String token = appStore.token;
+
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {"Authorization": "Bearer $token"},
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      if (kDebugMode) {
+        print("Data fetched successfully: $jsonData");
+      }
+      updateProducts(List<Map<String, dynamic>>.from(jsonData));
+    } else {
+      if (kDebugMode) {
+        print("Failed to fetch data. Status code: ${response.statusCode}");
+      }
+      if (kDebugMode) {
+        print("Response: ${response.body}");
+      }
+      updateData("Failed to fetch data. Status code: ${response.statusCode}");
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print("An error occurred: $e");
+    }
+    updateData("An error occurred: $e");
+  }
+}

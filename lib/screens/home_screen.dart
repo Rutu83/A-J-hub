@@ -174,13 +174,17 @@ class HomeScreenState extends State<HomeScreen> {
         setState(() {
           isLoading = false;
         });
-        print('Failed to fetch banners: ${response.statusCode}');
+        if (kDebugMode) {
+          print('Failed to fetch banners: ${response.statusCode}');
+        }
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      print('Error fetching banners: $e');
+      if (kDebugMode) {
+        print('Error fetching banners: $e');
+      }
     }
   }
 
@@ -336,7 +340,7 @@ class HomeScreenState extends State<HomeScreen> {
                       _buildButton(context, Icons.favorite, 'Charity', buttonWidth, () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) =>  CharityScreen()),
+                          MaterialPageRoute(builder: (context) =>  const CharityScreen()),
                         );
                       }),
                       _buildButton(context, Icons.group, 'Community', buttonWidth, () {

@@ -15,10 +15,10 @@ class ActivateMembershipPage extends StatefulWidget {
   const ActivateMembershipPage({super.key});
 
   @override
-  _ActivateMembershipPageState createState() => _ActivateMembershipPageState();
+   ActivateMembershipPageState createState() =>  ActivateMembershipPageState();
 }
 
-class _ActivateMembershipPageState extends State<ActivateMembershipPage> {
+class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
 
 
   XFile? _selectedImage;

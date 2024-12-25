@@ -14,6 +14,7 @@ import 'package:allinone_app/screens/faq_page.dart';
 import 'package:allinone_app/screens/feedback_screen.dart';
 import 'package:allinone_app/screens/image_download_screen.dart';
 import 'package:allinone_app/screens/kyc_screen.dart';
+import 'package:allinone_app/screens/product_and_service.dart';
 import 'package:allinone_app/screens/refer_earn.dart';
 import 'package:allinone_app/screens/team_member_list.dart';
 import 'package:allinone_app/screens/transaction_history.dart';
@@ -47,7 +48,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<Map<String, dynamic>>? futureUserDetail;
   UniqueKey keyForStatus = UniqueKey();
   bool _isLoading = true;
-  bool _imageLoadFailed = false;
   Future<List<BusinessModal>>? futureBusiness;
   BusinessModal? businessData;
 
@@ -89,7 +89,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       Map<String, dynamic> userDetail = await getUserDetail();
 
-      print('/////////////////////////$userDetail');
+      if (kDebugMode) {
+        print('/////////////////////////$userDetail');
+      }
 
       setState(() {
         userId = userDetail['_id'];
@@ -174,8 +176,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                backgroundColor: Colors.red.shade50, // Optional background color
                              ),
                            ),
-
-
 
                            const Spacer(),
                            _buildInfoColumn('₹ ${totalIncome ?? 0}', "Total Income", Colors.black),
@@ -382,6 +382,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _buildMenuOption(Icons.library_books_outlined, "Team List"),
         _buildMenuOption(Icons.supervised_user_circle_outlined, "Activation"),
         _buildMenuOption(Icons.supervised_user_circle_outlined, "Activate Your Membership"),
+        _buildMenuOption(Icons.handshake_outlined, "Our Product & Services"),
         _buildMenuOption(Icons.transfer_within_a_station_outlined, "Transaction History"),
         _buildMenuOption(Icons.image_outlined, "Downloaded Images"),
         _buildMenuOption(Icons.insert_emoticon_sharp, "FeedBack"),
@@ -480,7 +481,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             );
 
-          } else if (label == "Activate Your Membership") {
+          }  else if (label == "Our Product & Services") {
+
+
+          Navigator.push(
+          context,
+          MaterialPageRoute(
+          builder: (context) =>  const OurProductAndService(),
+          ),
+          );
+
+          }else if (label == "Activate Your Membership") {
 
 
             Navigator.push(

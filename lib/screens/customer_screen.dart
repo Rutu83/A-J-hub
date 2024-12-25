@@ -193,47 +193,44 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
 
   Widget _buildUpcomingHorizontalCard({required String sectionTitle, required List<Widget> items}) {
-    return Container(
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
+      child: Column(
 
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
-        child: Column(
-
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 5.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 26.h,
-                  width: 6.w,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(5.r),
-                      bottom: Radius.circular(5.r),
-                    ),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(height: 5.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Container(
+                height: 26.h,
+                width: 6.w,
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(5.r),
+                    bottom: Radius.circular(5.r),
                   ),
                 ),
-                SizedBox(width: 8.w),
-                Text(
-                  sectionTitle,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: 120.h,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: items,
               ),
+              SizedBox(width: 8.w),
+              Text(
+                sectionTitle,
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          SizedBox(height: 5.h),
+          SizedBox(
+            height: 120.h,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: items,
             ),
-            SizedBox(height: 5.h),
-          ],
-        ),
+          ),
+          SizedBox(height: 5.h),
+        ],
       ),
     );
   }

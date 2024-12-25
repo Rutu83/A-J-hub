@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/business_form.dart';
 import 'package:allinone_app/screens/edit_business_form.dart';
+import 'package:allinone_app/utils/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -21,6 +22,7 @@ class BusinessListState extends State<BusinessList> {
 
   @override
   void initState() {
+
     super.initState();
     fetchStoredBusinessID();
     fetchBusinessData();
@@ -237,12 +239,12 @@ class BusinessListState extends State<BusinessList> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update business status. Please try again.')),
+          const SnackBar(content: Text('Failed to update business status. Please try again.')),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred. Please try again later.')),
+        const SnackBar(content: Text('An error occurred. Please try again later.')),
       );
       debugPrint('Error updating business status: $e');
     }
@@ -379,10 +381,10 @@ class BusinessListState extends State<BusinessList> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: _navigateToAddBusiness,
-            child: const Text('Add Business'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
+            child: const Text('Add Business'),
           ),
         ],
       ),
