@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/business_form.dart';
 import 'package:allinone_app/screens/edit_business_form.dart';
-import 'package:allinone_app/utils/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -22,7 +21,6 @@ class BusinessListState extends State<BusinessList> {
 
   @override
   void initState() {
-
     super.initState();
     fetchStoredBusinessID();
     fetchBusinessData();
