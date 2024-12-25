@@ -227,6 +227,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         final successMessage = responseData['message'] ?? 'Enquiry submitted successfully!';
         debugPrint("Enquiry submitted successfully: $responseData");
 
+        Navigator.pop(context);
+
         // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -250,7 +252,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ),
           ),
         );
+
+
       } else {
+        Navigator.pop(context);
         // Handle failed submission
         debugPrint("Failed to submit enquiry: ${response.statusCode}, ${response.body}");
         final responseData = json.decode(response.body);
