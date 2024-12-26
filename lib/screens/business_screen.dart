@@ -83,9 +83,13 @@ class _BusinessScreenState extends State<BusinessScreen> {
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
         backgroundColor: Colors.white,
-        title: const Text(
+        title:  Text(
           "My Business",
-          style: TextStyle(color: Colors.black),
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black, // Set text color to white
+          ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -115,7 +119,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
                     child: Lottie.asset('assets/animation/error_lottie.json'),
                   ),
                   Text(
-                    'NoBusiness data found.',
+                    'No Business data found.',
                     style: GoogleFonts.roboto(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -414,18 +418,32 @@ class _BusinessScreenState extends State<BusinessScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildIncomeContainer("1st Circle Income", businessData?.business?.sponserIncome.toString() ?? '0', Icons.account_balance_wallet),
-            _buildIncomeContainer('Total Income', businessData?.business?.totalIncome.toString() ?? '0', Icons.attach_money),
+            _buildIncomeContainer(
+              "1st Circle Income",
+              businessData?.business?.sponserIncome.toString() ?? '0',
+              Icons.account_balance_wallet,
+            ),
+            _buildIncomeContainer(
+              'Total Income',
+              businessData?.business?.totalIncome.toString() ?? '0',
+              Icons.attach_money,
+            ),
           ],
         ),
-        const SizedBox(
-          height: 10,
-        ),
+        const SizedBox(height: 16.0), // More spacing for better layout
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _buildIncomeContainer('Direct Circle', businessData?.business?.directTeamCount.toString() ?? '0', Icons.people),
-            _buildIncomeContainer('Total Circle', businessData?.business?.totalTeamCount.toString() ?? '0', Icons.group),
+            _buildIncomeContainer(
+              'Direct Circle',
+              businessData?.business?.directTeamCount.toString() ?? '0',
+              Icons.people,
+            ),
+            _buildIncomeContainer(
+              'Total Circle',
+              businessData?.business?.totalTeamCount.toString() ?? '0',
+              Icons.group,
+            ),
           ],
         ),
       ],
@@ -433,45 +451,59 @@ class _BusinessScreenState extends State<BusinessScreen> {
   }
 
   Widget _buildIncomeContainer(String title, String income, IconData icon) {
-    return Container(
-      height: 100,
-      width: 160.w,
-      decoration: BoxDecoration(
-        color: Colors.white,  // Background color
-        borderRadius: BorderRadius.circular(12),  // Rounded corners
-        boxShadow: const [
-          BoxShadow(blurRadius: 4, color: Colors.black26, offset: Offset(0, 2))  // Subtle shadow for depth
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: Colors.blue,
-              size: 30,  // Icon size
-            ),
-           // const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-           // const SizedBox(height: 8),
-            Text(
-              '₹$income',
-              style: GoogleFonts.adamina(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 18, // Adjust font size for better visibility
-              ),
+    return Expanded(
+      child: Container(
+        height: 120.h,
+        margin: const EdgeInsets.symmetric(horizontal: 8.0), // Space between containers
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16), // Smooth rounded corners
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1), // Subtle shadow
+              blurRadius: 8,
+              offset: const Offset(0, 4), // Shadow offset
             ),
           ],
+          border: Border.all(color: Colors.grey.shade300, width: 1.5), // Soft border
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(6.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50, // Light background for the icon
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: Colors.blue.shade600,
+                  size: 28, // Icon size
+                ),
+              ),
+              const SizedBox(height: 12.0), // Space between icon and title
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                '₹$income',
+                style: GoogleFonts.poppins(
+                  color: Colors.red.shade600,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16.sp, // Larger font for emphasis
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

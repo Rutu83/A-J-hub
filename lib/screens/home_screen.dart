@@ -65,7 +65,7 @@ class HomeScreenState extends State<HomeScreen> {
       await Future.wait([
         fetchBusinessData(),
         _fetchBannerData(),
-        fetchCategoriesData(),
+       fetchCategoriesData(),
         fetchSubcategoryData(),
         fetchDailyUseCategoryData(),
       ]);
@@ -174,17 +174,17 @@ class HomeScreenState extends State<HomeScreen> {
         setState(() {
           isLoading = false;
         });
-        if (kDebugMode) {
-          print('Failed to fetch banners: ${response.statusCode}');
-        }
+        // if (kDebugMode) {
+        //   print('Failed to fetch banners: ${response.statusCode}');
+        // }
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      if (kDebugMode) {
-        print('Error fetching banners: $e');
-      }
+      // if (kDebugMode) {
+      //   print('Error fetching banners: $e');
+      // }
     }
   }
 
@@ -403,7 +403,6 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   void openWhatsApp(BuildContext context) async {
     const phone = "919925850305"; // Correct format with country code
     final message = Uri.encodeComponent(''); // Add your message here if needed
@@ -426,7 +425,6 @@ class HomeScreenState extends State<HomeScreen> {
       );
     }
   }
-
 
   Widget _buildImageBanner() {
     return Padding(
@@ -458,10 +456,14 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-
-
   Widget _buildBannerSlider() {
+    // Check if the image URLs list is empty
+    if (_imageUrls.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.all(8.0.w),
+      );
+    }
+
     return Padding(
       padding: EdgeInsets.all(8.0.w),
       child: Column(
@@ -487,12 +489,27 @@ class HomeScreenState extends State<HomeScreen> {
                       child: Container(
                         width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
                           image: DecorationImage(
-                            image: CachedNetworkImageProvider(cacheKey: url,url),
+                            image: CachedNetworkImageProvider(url),
                             fit: BoxFit.fill, // Ensures the image fits as intended
+                            onError: (error, stackTrace) {
+                              // Handle error if the image fails to load
+                              print("Error loading image: $error");
+                            },
                           ),
                         ),
-                      )
+                        child: CachedNetworkImage(
+                          imageUrl: url,
+                          fit: BoxFit.fill,
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(color: Colors.grey,), // Placeholder loading spinner
+                          ),
+                          errorWidget: (context, url, error) => const Center(
+                            child: Icon(Icons.error, color: Colors.red), // Icon in case of error
+                          ),
+                        ),
+                      ),
                     );
                   },
                 );
@@ -519,9 +536,109 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildSkeletonLoading2() {
+    return Padding(padding: EdgeInsets.only(left: 15,bottom: 10),
+    child: SizedBox(
+      height: 150.0,  // Height to match your card's height
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: 5,  // Simulate 5 skeleton cards
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.only(right: 8.0),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: 120.0, // Width to match your card's width
+                margin: EdgeInsets.only(right: 8.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.0), // Rounded corners like your card
+                  color: Colors.white,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Skeleton for the image (image dimensions match your final card)
+                    Container(
+                      width: 120.0,
+                      height: 90.0, // Image height matches the actual card
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12.0), // Match card's rounded corners
+                        color: Colors.grey[200], // Light grey background for the skeleton image
+                      ),
+                    ),
+                    SizedBox(height: 8.0),
+                    // Skeleton for the title text
+                    Container(
+                      width: 80.0, // Title width
+                      height: 14.0, // Title height
+                      color: Colors.grey[200], // Light grey color for the text skeleton
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+    );
+  }
+
+  Widget _buildSkeletonLoading3() {
+    return Padding(padding: EdgeInsets.only(left: 15,bottom: 10),
+      child: SizedBox(
+        height: 120.0,  // Height to match your card's height
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: 5,  // Simulate 5 skeleton cards
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: EdgeInsets.only(right: 8.0),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: 120.0, // Width to match your card's width
+                  margin: EdgeInsets.only(right: 8.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.0), // Rounded corners like your card
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Skeleton for the image (image dimensions match your final card)
+                      Container(
+                        width: 120.0,
+                        height: 90.0, // Image height matches the actual card
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12.0), // Match card's rounded corners
+                          color: Colors.grey[200], // Light grey background for the skeleton image
+                        ),
+                      ),
+                      SizedBox(height: 8.0),
+                      // Skeleton for the title text
+                      Container(
+                        width: 80.0, // Title width
+                        height: 14.0, // Title height
+                        color: Colors.grey[200], // Light grey color for the text skeleton
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _buildUpcomingCategorySection() {
     if (isLoading) {
-      return _buildSkeletonLoading();
+      return _buildSkeletonLoading2();
     }
 
     if (hasError) {
@@ -556,6 +673,14 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildUpcomingCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
+        // Check if the image URL is valid and if the images list is not empty
+        if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
+          // Show error message when the data is invalid
+          _showErrorMessage(context);
+          return; // Prevent navigation to the next screen
+        }
+
+        // Proceed with navigation if data is valid
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -616,9 +741,29 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showErrorMessage(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Error'),
+          content: Text('Something went wrong. Cannot navigate to the next screen.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildFestivalCategorySection() {
     if (isLoading) {
-      return _buildSkeletonLoading();
+      return _buildSkeletonLoading3();
     }
 
     if (hasError) {
@@ -642,67 +787,26 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     for (var subcategory in festivalCategory.subcategories) {
-      if (subcategory.images.isNotEmpty) {
-        items.add(_buildCardItem(subcategory.name, subcategory.images[0], subcategory.images, showTitle: false));
-      }
+      // Check if images are available, else provide a default image
+      String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/default_festival.jpg';
+
+      items.add(_buildCardFestival(subcategory.name, imageUrl, subcategory.images, showTitle: false));
     }
 
     return _buildHorizontalCardSection(sectionTitle: sectionTitle, items: items);
   }
 
-  Widget _buildSubcategorySections() {
-    if (isLoading) {
-      return _buildSkeletonLoading(); // Show skeleton loading when data is loading
-    }
-
-    if (hasError) {
-      return Container(
-        height: 200.h,
-        width: 300.w,
-        decoration: const BoxDecoration(),
-        child: Lottie.asset('assets/animation/error_lottie.json'),
-      );
-    }
-
-    if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
-      return const SizedBox();
-    }
-
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildSubcategory(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubcategory() {
-    List<Widget> sections = [];
-
-    for (var subcategory in subcategoryData!.subcategories) {
-      List<Widget> items = subcategory.images.map((imageUrl) {
-        return _buildCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: false);
-      }).toList();
-
-      subcategory.images.map((imageUrl) {
-        return {'image': imageUrl};
-      }).toList();
-
-      sections.add(_buildHorizontalCardSection(
-        sectionTitle: subcategory.name,
-        items: items,
-      ));
-    }
-
-    return Column(children: sections);
-  }
-
-
-
-  Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+  Widget _buildCardFestival(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
+        // Check if the image URL is valid and if the images list is not empty
+        if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
+          // Show error message when the data is invalid
+          _showErrorMessage(context);
+          return; // Prevent navigation to the next screen
+        }
+
+        // Proceed with navigation if data is valid
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -762,205 +866,60 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-
-  Widget _buildDailyUseSection(BuildContext context, bool isLoading) {
-    // Check if data is loading
+  Widget _buildSubcategorySections() {
     if (isLoading) {
+      return _buildSkeletonLoading(); // Show skeleton loading when data is loading
+    }
+
+    if (hasError) {
       return Container(
-        color: Colors.white, // Set the background color if needed
-        padding: EdgeInsets.all(16.w), // Add padding around the skeleton list
-        child: Center(
-          child: ListView.builder(
-            physics: const NeverScrollableScrollPhysics(), // Prevent scrolling
-            shrinkWrap: true, // Adjust to the content height
-            itemCount: 4, // Number of skeleton items to display
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
-                child: Container(
-                  height: 100.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      );
-
-    }
-
-    // List to store daily use items
-    List<Widget> items = [];
-
-    // Check if daillyuseData is not null and has subcategories
-    if (daillyuseData != null && daillyuseData!.subcategories.isNotEmpty) {
-      for (var category in daillyuseData!.subcategories) {
-        String title = category.name;
-        String imageUrl = category.images.isNotEmpty
-            ? category.images[0]
-            : 'assets/images/placeholder.jpg';
-
-        // Convert List<String> to List<Map<String, String>>
-        List<Map<String, String>> topicMaps =
-        category.images.map((url) => {'image': url}).toList();
-
-        items.add(_buildDailyUseItemCard(title, imageUrl, topicMaps, context));
-      }
-    }
-
-    // If the data is empty or null, show an error message
-    if (daillyuseData == null || daillyuseData!.subcategories.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 40.h, color: Colors.red),
-            SizedBox(height: 10.h),
-            Text(
-              'No daily use data found.',
-              style: GoogleFonts.roboto(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
+        height: 200.h,
+        width: 300.w,
+        decoration: const BoxDecoration(),
+        child: Lottie.asset('assets/animation/error_lottie.json'),
       );
     }
 
-    // Calculate number of rows required for the grid
-    int crossAxisCount = 4; // Number of items per row
-    int rowCount = (items.length / crossAxisCount).ceil();
-    double rowHeight = 120.h; // Approximate height of each grid item, including spacing
+    if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
+      return const SizedBox();
+    }
 
-    // Calculate dynamic height based on the number of rows
-    double gridHeight = rowCount * rowHeight;
-
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 5.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 26.h,
-                  width: 6.w,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(5.r),
-                      bottom: Radius.circular(5.r),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Text(
-                  'Daily Use',
-                  style:
-                  TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: gridHeight,
-              child: GridView.builder(
-                primary: false,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 8.w,
-                  mainAxisSpacing: 15.h,
-                  childAspectRatio: 0.80,
-                ),
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  return items[index];
-                },
-              ),
-            ),
-            SizedBox(height: 10.h),
-          ],
-        ),
-      ),
-    );
-  }
-
-
-  Widget _buildDailyUseItemCard(String title, String imageUrl, List<Map<String, String>> topicMaps, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategoryTopics(
-              title: title,
-              images: topicMaps,
-            ),
-          ),
-        );
-      },
+    return SingleChildScrollView(
       child: Column(
         children: [
-          CachedNetworkImage(
-            imageUrl: imageUrl,
-            width: 80.w,
-            height: 75.h,
-            fit: BoxFit.cover,
-            placeholder: (context, url) => Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
-              child: Container(
-                width: 80.w,
-                height: 75.h,
-                color: Colors.grey[300],
-              ),
-            ),
-            errorWidget: (context, url, error) => Container(
-              width: 80.w,
-              height: 75.h,
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: const Icon(Icons.error, color: Colors.red),
-            ),
-          ),
-          Text(
-            title,
-            style: TextStyle(fontSize: 10.sp),
-            textAlign: TextAlign.center,
-          ),
+          _buildSubcategory(),
         ],
       ),
     );
   }
 
+  Widget _buildSubcategory() {
+    List<Widget> sections = [];
 
+    for (var subcategory in subcategoryData!.subcategories) {
+      List<Widget> items = subcategory.images.map((imageUrl) {
+        return _buildCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: false);
+      }).toList();
 
+      subcategory.images.map((imageUrl) {
+        return {'image': imageUrl};
+      }).toList();
 
+      sections.add(_buildHorizontalCardSection(
+        sectionTitle: subcategory.name,
+        items: items,
+      ));
+    }
 
-
-
+    return Column(children: sections);
+  }
 
   Widget _buildSkeletonLoading() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Column(
-        children: List.generate(5, (index) => Padding(
+        children: List.generate(2, (index) => Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           child: Container(height: 140.h, color: Colors.white),
         )),
@@ -1059,8 +1018,347 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+    return InkWell(
+      onTap: () {
+        // Check if the image URL is valid and if the images list is not empty
+        if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
+          // Show error message when the data is invalid
+          _showErrorMessage(context);
+          return; // Prevent navigation to the next screen
+        }
 
+        // Proceed with navigation if data is valid
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CategorySelected(imagePaths: images),
+          ),
+        );
+      },
+      child: Container(
+        width: 120.w,
+        margin: EdgeInsets.only(right: 8.w),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 120.w,
+              height: 90.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.r),
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Shimmer.fromColors(
+                    baseColor: Colors.grey[300]!,
+                    highlightColor: Colors.grey[100]!,
+                    child: Container(
+                      width: 120.w,
+                      height: 90.h,
+                      color: Colors.grey[300],
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: 120.w,
+                    height: 90.h,
+                    color: Colors.grey,
+                    child: const Icon(Icons.error, color: Colors.red),
+                  ),
+                ),
+              ),
+            ),
+            if (showTitle) SizedBox(height: 6.h),
+            if (showTitle)
+              Text(
+                title,
+                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
+  Widget _buildDailyUseSection(BuildContext context, bool isLoading) {
+    // Check if data is loading
+    if (isLoading) {
+      return _buildSkeletonLoadingForDailyUse(context); // Show skeleton loader
+    }
 
+    // List to store daily use items
+    List<Widget> items = [];
+
+    // Check if daillyuseData is not null and has subcategories
+    if (daillyuseData != null && daillyuseData!.subcategories.isNotEmpty) {
+      for (var category in daillyuseData!.subcategories) {
+        String title = category.name;
+        String imageUrl = category.images.isNotEmpty
+            ? category.images[0]
+            : 'assets/images/placeholder.jpg';
+
+        // Convert List<String> to List<Map<String, String>>
+        List<Map<String, String>> topicMaps =
+        category.images.map((url) => {'image': url}).toList();
+
+        items.add(_buildDailyUseItemCard(title, imageUrl, topicMaps, context));
+      }
+    }
+
+    // If the data is empty or null, show an error message
+    if (daillyuseData == null || daillyuseData!.subcategories.isEmpty) {
+      return const SizedBox.shrink(); // Return an empty widget if no data
+    }
+
+    // Calculate number of rows required for the grid
+    int crossAxisCount = 4; // Number of items per row
+    int rowCount = (items.length / crossAxisCount).ceil();
+    double rowHeight = 120.h; // Approximate height of each grid item, including spacing
+
+    // Calculate dynamic height based on the number of rows
+    double gridHeight = rowCount * rowHeight;
+
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 26.h,
+                  width: 6.w,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5.r),
+                      bottom: Radius.circular(5.r),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  'Daily Use',
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 5.h),
+            SizedBox(
+              height: gridHeight,
+              child: GridView.builder(
+                primary: false,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 8.w,
+                  mainAxisSpacing: 15.h,
+                  childAspectRatio: 0.80,
+                ),
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  return items[index];
+                },
+              ),
+            ),
+            SizedBox(height: 10.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDailyUseItemCard(String title, String imageUrl, List<Map<String, String>> topicMaps, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (topicMaps.isEmpty) {
+          // Show a dialog if topicMaps is empty
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('No Topics Available'),
+              content: Text('There are no topics available to display. Please try again later.'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);  // Close the dialog
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            ),
+          );
+        } else {
+          try {
+            // Try to navigate to the next screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CategoryTopics(
+                  title: title,
+                  images: topicMaps,
+                ),
+              ),
+            );
+          } catch (e) {
+            // Handle any navigation error
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text('Error'),
+                content: Text('An error occurred while navigating. Please try again later.'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);  // Close the error dialog
+                    },
+                    child: Text('OK'),
+                  ),
+                ],
+              ),
+            );
+          }
+        }
+      },
+      child: Column(
+        children: [
+          CachedNetworkImage(
+            imageUrl: imageUrl,
+            width: 80.w,
+            height: 75.h,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: 80.w,
+                height: 75.h,
+                color: Colors.grey[300],
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              width: 80.w,
+              height: 75.h,
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: const Icon(Icons.error, color: Colors.red),
+            ),
+          ),
+          Text(
+            title,
+            style: TextStyle(fontSize: 10.sp),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkeletonLoadingForDailyUse(BuildContext context) {
+    // Number of items in the grid
+    int crossAxisCount = 4; // Number of items per row
+    int skeletonItemCount = 8; // Assuming you want 8 skeleton items to display
+
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 26.h,
+                  width: 6.w,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5.r),
+                      bottom: Radius.circular(5.r),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  'Daily Use',
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 5.h),
+            // Skeleton Loader for Grid Items
+            SizedBox(
+              height: 120.h * 2, // Adjust based on the number of items and their size
+              child: GridView.builder(
+                primary: false,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 8.w,
+                  mainAxisSpacing: 15.h,
+                  childAspectRatio: 0.80,
+                ),
+                itemCount: skeletonItemCount, // Display skeleton items
+                itemBuilder: (context, index) {
+                  return _buildSkeletonItem();
+                },
+              ),
+            ),
+            SizedBox(height: 10.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonItem() {
+    return Column(
+      children: [
+        Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            width: 80.w,
+            height: 70.h,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(12.r), // Add border radius here
+            ),
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            width: 60.w,
+            height: 10.h,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(6.r), // Border radius for text area
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
 }

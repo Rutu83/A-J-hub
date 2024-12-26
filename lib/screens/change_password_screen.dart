@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'package:allinone_app/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 
 class ChangePasswordPage extends StatefulWidget {
@@ -37,13 +39,36 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
 
 
   // Show Snack Bar Message
-  void _showSnackBar(BuildContext context, String message, Color bgColor) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16.0)),
-      backgroundColor: bgColor,
-      duration: const Duration(seconds: 2),
-    ));
+  void _showSnackBar(BuildContext context, String message, Color color) {
+    final snackBar = SnackBar(
+      content: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
+        ],
+      ),
+      backgroundColor: color,
+      behavior: SnackBarBehavior.floating, // Floating above the layout
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12), // Rounded corners
+      ),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // Margin for floating effect
+      duration: const Duration(seconds: 4), // Auto-dismiss duration
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
+
 
   Future<void> _changePassword() async {
     if (!_formKey.currentState!.validate()) {
@@ -101,63 +126,83 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
 
 
   Widget _buildPasswordTextField(String labelText, TextEditingController controller, {bool isConfirm = false}) {
-    return TextFormField(
-      controller: controller,
-      obscureText: isConfirm ? !_isConfirmPasswordVisible : !_isPasswordVisible, // Toggle visibility
-      decoration: InputDecoration(
-        isCollapsed: true,
-        contentPadding: const EdgeInsets.all(16),
-        labelText: labelText,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12), // Add border radius
-          borderSide: const BorderSide(color: Colors.grey, width: 1.5), // Customize the border color and width
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.grey, width: 1.5),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.black, width: 2.0), // Border when focused
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 1.5), // Border for errors
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.red, width: 2.0), // Focused border during error
-        ),
-        fillColor: Colors.white,
-        filled: true, // Needed for the shadow to work
-
-        // Add the eye icon to toggle visibility
-        suffixIcon: IconButton(
-          icon: Icon(
-            isConfirm
-                ? (_isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off)
-                : (_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          labelText,
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
-          onPressed: () {
-            setState(() {
-              if (isConfirm) {
-                _isConfirmPasswordVisible = !_isConfirmPasswordVisible; // Toggle for confirm password
-              } else {
-                _isPasswordVisible = !_isPasswordVisible; // Toggle for password
-              }
-            });
+        ),
+        const SizedBox(height: 8.0), // Spacing between label and text field
+        TextFormField(
+          controller: controller,
+          obscureText: isConfirm ? !_isConfirmPasswordVisible : !_isPasswordVisible, // Toggle visibility
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            hintText: 'Enter $labelText',
+            hintStyle: TextStyle(
+              fontSize: 14.sp,
+              color: Colors.grey.shade500,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12), // Rounded border
+              borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.black, width: 2.0), // Black border on focus
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.red.shade300, width: 1.5), // Red border for errors
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.red.shade300, width: 2.0), // Red border on focus during error
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50, // Light background color
+            suffixIcon: IconButton(
+              icon: Icon(
+                isConfirm
+                    ? (_isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off)
+                    : (_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                color: Colors.grey.shade600, // Icon color
+              ),
+              onPressed: () {
+                setState(() {
+                  if (isConfirm) {
+                    _isConfirmPasswordVisible = !_isConfirmPasswordVisible; // Toggle for confirm password
+                  } else {
+                    _isPasswordVisible = !_isPasswordVisible; // Toggle for password
+                  }
+                });
+              },
+            ),
+          ),
+          style: TextStyle(
+            fontSize: 14.sp,
+            color: Colors.black87,
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return '$labelText is required';
+            }
+            if (isConfirm && value != _newPasswordController.text) {
+              return 'Passwords do not match';
+            }
+            return null;
           },
         ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return '$labelText is required';
-        }
-        if (isConfirm && value != _newPasswordController.text) {
-          return 'Passwords do not match';
-        }
-        return null;
-      },
+      ],
     );
   }
 
@@ -166,17 +211,19 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        surfaceTintColor: Colors.transparent,
+        title: Text(
+          'Change Password',
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white, // Set text color to white
+          ),
+        ),
         backgroundColor: Colors.red,
         centerTitle: true,
-        leading:  InkWell(
-          onTap: (){
-            Navigator.pop(context);
-          },
-          child: const Icon(Icons.arrow_back,color: Colors.white,),
-        ),
-        title: const Text('Change Password', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
+
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -184,42 +231,76 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
             key: _formKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 26.0),
-                SizedBox(
-                  height: 300,
-                  width: 300,
-                  child: Image.asset('assets/images/change_password.jpg'),
+
+                // Image Section
+                Container(
+                  height: 250,
+                  width: 250,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/change_password.jpg',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
 
-                const SizedBox(height: 16.0),
+                const SizedBox(height: 30.0),
+
+                // Password Fields
                 _buildPasswordTextField('Current Password', _currentPasswordController),
                 const SizedBox(height: 25.0),
                 _buildPasswordTextField('New Password', _newPasswordController),
                 const SizedBox(height: 25.0),
                 _buildPasswordTextField('Confirm Password', _confirmPasswordController, isConfirm: true),
-                const SizedBox(height: 35.0),
+
+                const SizedBox(height: 40.0),
+
+                // Reset Password Button
                 InkWell(
                   onTap: _isLoading ? null : _changePassword,
                   child: Container(
                     height: 58,
-                    width: 266,
+                    width: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      color: Colors.red,
+                      gradient: LinearGradient(
+                        colors: [Colors.red.shade700, Colors.red],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2), // Shadow color
-                          spreadRadius: 2, // Spread radius
-                          blurRadius: 5, // Blur radius
-                          offset: const Offset(0, 3), // Offset for the shadow
+                          color: Colors.red.withOpacity(0.4),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
                     alignment: Alignment.center,
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Reset Password', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        : Text(
+                      'Reset Password',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.0,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -227,6 +308,7 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
           ),
         ),
       ),
+
     );
   }
 }

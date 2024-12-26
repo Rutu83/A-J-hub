@@ -63,7 +63,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     futureBusiness = fetchBusinessData();
   }
 
-
   Future<List<BusinessModal>> fetchBusinessData() async {
     try {
       final data = await getBusinessData(businessmodal: []);
@@ -89,9 +88,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       Map<String, dynamic> userDetail = await getUserDetail();
 
-      if (kDebugMode) {
-        print('/////////////////////////$userDetail');
-      }
 
       setState(() {
         userId = userDetail['_id'];
@@ -132,78 +128,116 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        forceMaterialTransparency: true,
+        elevation: 4, // Adds subtle shadow to separate AppBar from content
         surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
         titleSpacing: 7.w,
         centerTitle: true,
         title: Text(
           'Profile',
-          style: GoogleFonts.roboto(
-            fontSize: 18.0.sp,
-            fontWeight: FontWeight.w400,
-            color: Colors.black,
+          style: GoogleFonts.poppins( // Updated to use Poppins font
+            fontSize: 20.0.sp, // Slightly increased font size
+            fontWeight: FontWeight.w600, // Made title bold for better visibility
+            color: Colors.black87, // Slightly softened black color for aesthetics
+          ),
+        ),
+        iconTheme: IconThemeData(
+          color: Colors.red, // Ensures icons match the theme color
+          size: 20.sp, // Adjusted icon size for consistency
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(15.r), // Adds rounded corners to the bottom
           ),
         ),
       ),
+
       body: _isLoading
           ? _buildSkeletonLoader()
           : SingleChildScrollView(
                child: Container(
-                 margin: const EdgeInsets.only(bottom: 0.0),
-                 padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+
+                 padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 1.0),
                  child: Column(
                    crossAxisAlignment: CrossAxisAlignment.center,
                    children: [
-                     Padding(
-                       padding: const EdgeInsets.symmetric(horizontal: 10),
-                       child: Row(
-                         children: [
-                           Container(
-                             width: 72.r, // Set this to radius * 2 + border width to account for the border
-                             height: 72.r,
-                             decoration: BoxDecoration(
-                               color: Colors.white, // Background color of the border
-                               shape: BoxShape.circle,
-                               border: Border.all(
-                                 color: Colors.red, // Border color
-                                 width: 1.0, // Border width
-                               ),
-                             ),
-                             child: CircleAvatar(
-                               radius: 33.r,
-                               backgroundImage: const AssetImage('assets/images/app_logo.png'), // Only the logo is displayed
-                               backgroundColor: Colors.red.shade50, // Optional background color
-                             ),
+                 Container(
+                 padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
+                 decoration: BoxDecoration(
+                   //color: Colors.grey.shade50, // Subtle background color
+                   borderRadius: BorderRadius.circular(12.r), // Rounded corners
+                   // boxShadow: [
+                   //   BoxShadow(
+                   //     color: Colors.grey.withOpacity(0.3), // Light shadow
+                   //     blurRadius: 8,
+                   //     offset: const Offset(0, 4), // Shadow position
+                   //   ),
+                   // ],
+                 ),
+                 child: Row(
+                   crossAxisAlignment: CrossAxisAlignment.center,
+                   children: [
+                     Container(
+                       width: 80.w, // Responsive width
+                       height: 80.w, // Responsive height
+                       decoration: BoxDecoration(
+                         color: Colors.white,
+                         shape: BoxShape.circle,
+                         border: Border.all(
+                           color: Colors.red, // Border color
+                           width: 2.0, // Thicker border for prominence
+                         ),
+                         boxShadow: [
+                           BoxShadow(
+                             color: Colors.grey.withOpacity(0.3),
+                             blurRadius: 5,
+                             offset: const Offset(0, 2),
                            ),
-
-                           const Spacer(),
-                           _buildInfoColumn('₹ ${totalIncome ?? 0}', "Total Income", Colors.black),
-                           SizedBox(width: 10.w),
-                           _buildInfoColumn(totalDownline, "Total Team", Colors.black),
-                           SizedBox(width: 10.w),
-                           _buildInfoColumn(directDownline, "Direct Joins", Colors.black),
                          ],
                        ),
-                      ),
-                    SizedBox(height: 20.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _buildWalletBox(
-                          "₹ ${GreenWallet ?? 0}", // Show 0 if GreenWallet is null
-                          "Green Wallet",
-                          Colors.red,
-                        ),
+                       child: CircleAvatar(
+                         radius: 28.w, // Dynamic radius based on width
+                         backgroundImage: const AssetImage('assets/images/app_logo.png'),
+                         backgroundColor: Colors.red.shade50,
+                       ),
+                     ),
+                     SizedBox(width: 15.w), // Adjusted spacing for clarity on smaller screens
+                     Expanded(
+                       child: Column(
+                         crossAxisAlignment: CrossAxisAlignment.start, // Aligns text to the start
+                         children: [
+                           Row(
+                             mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distributes evenly across the row
+                             children: [
+                               _buildInfoColumn('₹ ${totalIncome ?? 0}', "Total Income", Colors.black),
+                               _buildInfoColumn(totalDownline, "Total Team", Colors.black),
+                               _buildInfoColumn(directDownline, "Direct Joins", Colors.black),
+                             ],
+                           ),
+                         ],
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
 
-                        _buildWalletBox(
-                          "₹ ${TDSIncome ?? 0}", // Show 0 if TDSIncome is null
-                          "TDS(Tax)",
-                          Colors.red,
-                        ),
 
-                      ],
-                    ),
+          SizedBox(height: 20.h),
+                     Row(
+                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                       children: [
+                         _buildWalletBox(
+                           "₹ ${GreenWallet ?? 0}", // Show 0 if GreenWallet is null
+                           "Green Wallet",
+                           Colors.green,
+                         ),
+                         _buildWalletBox(
+                           "₹ ${TDSIncome ?? 0}", // Show 0 if TDSIncome is null
+                           "TDS (Tax)",
+                           Colors.red,
+                         ),
+                       ],
+                     ),
                     SizedBox(height: 20.h),
                     _buildMenuOptions(),
                     SizedBox(height: 30.h),
@@ -225,92 +259,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             children: [
               Container(
-                width: 72.r,
-                height: 72.r,
+                width: 80.r,
+                height: 80.r,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
               ),
-              const Spacer(),
+              SizedBox(width: 16.w),
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    width: 50.w,
-                    height: 16.h,
-                    color: Colors.white,
-                  ),
-                  SizedBox(height: 5.h),
-                  Container(
-                    width: 70.w,
-                    height: 12.h,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-              SizedBox(width: 4.w),
-              Column(
-                children: [
-                  Container(
-                    width: 70.w,
-                    height: 16.h,
-                    color: Colors.white,
-                  ),
-                  SizedBox(height: 5.h),
-                  Container(
-                    width: 70.w,
-                    height: 12.h,
-                    color: Colors.white,
-                  ),
-                ],
-              ),
-              SizedBox(width: 4.w),
-              Column(
-                children: [
-                  Container(
-                    width: 70.w,
-                    height: 16.h,
-                    color: Colors.white,
-                  ),
-                  SizedBox(height: 5.h),
-                  Container(
-                    width: 70.w,
-                    height: 12.h,
-                    color: Colors.white,
-                  ),
+                  Container(width: 150.w, height: 16.h, color: Colors.white),
+                  SizedBox(height: 8.h),
+                  Container(width: 100.w, height: 12.h, color: Colors.white),
                 ],
               ),
             ],
           ),
           SizedBox(height: 20.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Container(
-                width: 120.w,
-                height: 60.h,
-                color: Colors.white,
-              ),
-              Container(
-                width: 120.w,
-                height: 60.h,
-                color: Colors.white,
-              ),
-            ],
-          ),
-          SizedBox(height: 20.h),
-          Column(
-            children: List.generate(8, (index) {
-              return Container(
-                height: 50.h,
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-              );
-            }),
-          ),
+          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
+          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
+          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
+          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
+          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
+          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
+
         ],
       ),
     );
@@ -341,12 +315,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildWalletBox(String amount, String label, Color color) {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 19.h, horizontal: 30.w),
+      width: 150.w, // Set a fixed width for uniformity
+      padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 15.w),
       decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(12.r),
-        boxShadow: const [BoxShadow(color: Colors.black26, blurRadius: 5)],
+        gradient: LinearGradient(
+          colors: [
+            color == Colors.red ? Colors.red.shade400 : Colors.grey.shade500,
+            color == Colors.red ? Colors.red.shade600 : Colors.grey.shade700,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(15.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
+
       child: Column(
         children: [
           Text(
@@ -376,30 +365,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildMenuOptions() {
     return Column(
       children: [
-        _buildMenuOption(Icons.groups, "Join Our Community"),
-        _buildMenuOption(Icons.person_outline, "My Profile"),
-        _buildMenuOption(Icons.business_center_outlined, "My Business"),
-        _buildMenuOption(Icons.library_books_outlined, "Team List"),
-        _buildMenuOption(Icons.supervised_user_circle_outlined, "Activation"),
-        _buildMenuOption(Icons.supervised_user_circle_outlined, "Activate Your Membership"),
-        _buildMenuOption(Icons.handshake_outlined, "Our Product & Services"),
-        _buildMenuOption(Icons.transfer_within_a_station_outlined, "Transaction History"),
-        _buildMenuOption(Icons.image_outlined, "Downloaded Images"),
-        _buildMenuOption(Icons.insert_emoticon_sharp, "FeedBack"),
-        _buildMenuOption(Icons.question_answer_outlined, "FAQs"),
-        _buildMenuOption(Icons.info_outline, "Terms of use", 'https://www.ajhub.co.in/term-condition'),
-        _buildMenuOption(Icons.account_balance_outlined, "KYC Details"),
-        _buildMenuOption(Icons.privacy_tip_outlined, "Privacy Policy", 'https://www.ajhub.co.in/policy'),
-        _buildMenuOption(Icons.help_center_outlined, "Help & Support"),
-        // _buildMenuOption(Icons.receipt_long_rounded, "Our Product & Service",'https://www.google.co.in/'),
-        _buildMenuOption(Icons.local_police_outlined, "Refund & Policy",'https://www.ajhub.co.in/refund-policy'),
-        _buildMenuOption(Icons.money, "Refer & Earn"),
-        _buildMenuOption(Icons.lock_outline, "Change Password"),
-        _buildMenuOption(Icons.login, "Logout"),
-        _buildMenuOption(Icons.delete_outline, "Delete Account"),
+
+        _buildMenuOption(Icons.person, "My Profile"), // Person icon for profile
+        _buildMenuOption(Icons.business, "My Business"), // Business icon
+        _buildMenuOption(Icons.groups, "Join Our Community"), // Groups for community
+        _buildMenuOption(Icons.group, "Team List"), // Group icon for team
+        _buildMenuOption(Icons.verified_user, "Activation"), // Verified icon for activation
+        _buildMenuOption(Icons.card_membership, "Activate Your Membership"), // Membership card icon
+        _buildMenuOption(Icons.shopping_bag, "Our Product & Services"), // Shopping bag for products
+        _buildMenuOption(Icons.receipt, "Transaction History"), // Receipt icon for transactions
+        _buildMenuOption(Icons.download, "Downloaded Images"), // Download icon
+        _buildMenuOption(Icons.feedback, "Feedback"), // Feedback icon
+        _buildMenuOption(Icons.question_answer, "FAQs"), // FAQ icon
+        _buildMenuOption(Icons.article, "Terms of Use", 'https://www.ajhub.co.in/term-condition'), // Article icon for terms
+        _buildMenuOption(Icons.account_balance_wallet, "KYC Details"), // Wallet for KYC
+        _buildMenuOption(Icons.privacy_tip, "Privacy Policy", 'https://www.ajhub.co.in/policy'), // Privacy icon
+        _buildMenuOption(Icons.support, "Help & Support"), // Support icon
+        _buildMenuOption(Icons.policy, "Refund & Policy", 'https://www.ajhub.co.in/refund-policy'), // Policy icon
+        _buildMenuOption(Icons.share, "Refer & Earn"), // Share icon for referrals
+        _buildMenuOption(Icons.lock, "Change Password"), // Lock icon for password change
+        _buildMenuOption(Icons.logout, "Logout"), // Logout icon
+        _buildMenuOption(Icons.delete_forever, "Delete Account"), // Delete icon for account
       ],
     );
   }
+
+
+
 
   void openWhatsApp(BuildContext context) async {
     const phone = "919925850305"; // Correct format with country code
@@ -424,26 +416,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-
-
   Widget _buildMenuOption(IconData icon, String label, [String? url]) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () async {
-
           if (label == "Join Our Community") {
             openWhatsApp(context);
-          }else if (label == "FAQs") {
+          } else if (label == "FAQs") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const FAQPage()),
             );
-          }
-          else if (label == "Logout") {
-
+          } else if (label == "Logout") {
             _showLogOutAccountDialog();
-
           } else if (label == "Delete Account") {
             _showDeleteAccountDialog();
           } else if (url != null) {
@@ -459,59 +445,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
           } else if (label == "Transaction History") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) =>  const TransactionHistory()),
+              MaterialPageRoute(builder: (context) => const TransactionHistory()),
             );
-          }else if (label == "Team List") {
+          } else if (label == "Team List") {
             if (businessData != null) {
-
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TeamMemberList(userData: businessData!.business?.levelDownline),
+                  builder: (context) =>
+                      TeamMemberList(userData: businessData!.business?.levelDownline),
                 ),
               );
             }
           } else if (label == "Activation") {
-
-
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => const ActiveUserPage(),
               ),
             );
-
-          }  else if (label == "Our Product & Services") {
-
-
-          Navigator.push(
-          context,
-          MaterialPageRoute(
-          builder: (context) =>  const OurProductAndService(),
-          ),
-          );
-
-          }else if (label == "Activate Your Membership") {
-
-
+          } else if (label == "Our Product & Services") {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>  const ActivateMembershipPage(),
+                builder: (context) => const OurProductAndService(),
               ),
             );
-
-          }else if (label == "FeedBack") {
+          } else if (label == "Activate Your Membership") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) =>   const FeedbackScreen()),
+              MaterialPageRoute(
+                builder: (context) => const ActivateMembershipPage(),
+              ),
             );
-          }  else if (label == "My Business") {
+          } else if (label == "Feedback") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FeedbackScreen()),
+            );
+          } else if (label == "My Business") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const BusinessList()),
             );
-          }   else if (label == "Downloaded Images") {
+          } else if (label == "Downloaded Images") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const DownloadedImagesPage()),
@@ -528,13 +505,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           } else if (label == "Help & Support") {
             openWhatsApp(context);
-          }
-          else if (label == "Change Password") {
+          } else if (label == "Change Password") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
             );
-          }else if (label == "KYC Details") {
+          } else if (label == "KYC Details") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const KycScreen()),
@@ -546,24 +522,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
         },
         child: Container(
-          padding: EdgeInsets.all(15.w),
+          padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 15.w), // Reduced padding for a compact design
           decoration: BoxDecoration(
-            color: Colors.grey.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Row(
-            children: [
-              Icon(icon, color: Colors.red, size: 22.sp),
-              SizedBox(width: 12.w),
-              Text(
-                label,
-                style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w500),
+            color: Colors.white, // Clean white background
+            border: Border.all(
+              color: Colors.grey.shade300, // Light grey border for subtle contrast
+              width: 1.0, // Thin border for a minimalistic look
+            ),
+            borderRadius: BorderRadius.circular(12.r), // Slightly smaller rounded corners
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04), // Lighter shadow for less depth
+                blurRadius: 6,
+                offset: const Offset(0, 2), // Reduced shadow offset for subtle effect
               ),
-              const Spacer(),
-              Icon(Icons.arrow_forward_ios_outlined, color: Colors.black54, size: 18.sp),
             ],
           ),
-        ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center, // Vertically aligns all items
+            children: [
+              Container(
+                padding: EdgeInsets.all(6.w), // Reduced padding for smaller icon background
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50, // Light red background for the icon
+                  shape: BoxShape.circle, // Circular icon container
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.red.withOpacity(0.08), // Subtle red shadow for emphasis
+                      blurRadius: 4,
+                      offset: const Offset(0, 1), // Smaller shadow for compact design
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  icon,
+                  color: Colors.red.shade700, // Deep red color for the icon
+                  size: 22.sp, // Slightly smaller icon size
+                ),
+              ),
+              SizedBox(width: 12.w), // Reduced spacing between icon and label
+              Expanded(
+                child: Text(
+                  label,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.sp, // Smaller font size for compact text
+                    fontWeight: FontWeight.w500, // Medium weight for clarity
+                    color: Colors.black87, // Neutral black for text readability
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_outlined,
+                color: Colors.grey.shade500, // Softer grey for navigation icon
+                size: 16.sp, // Reduced size for compactness
+              ),
+            ],
+          ),
+        )
+
+
+
       ),
     );
   }

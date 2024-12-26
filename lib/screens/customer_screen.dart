@@ -24,6 +24,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   final String redirectUri = 'https://ajsystem.in';
   final String clientSecret = 'c6113899241a471aa8dae63ac9f24b27';
 
+
   final List<String> scopes = ['user-library-read', 'user-read-email'];
 
   Future<SubcategoryResponse>? futureSubcategory;
@@ -140,7 +141,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: Column(
-        children: List.generate(5, (index) {
+        children: List.generate(3, (index) {
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 5.h),
             child: Container(
@@ -156,7 +157,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
   Widget _buildUpcomingCategorySection() {
     if (isLoading) {
-      return _buildSkeletonLoading();
+      return _buildSkeletonLoading2();
     }
 
     if (hasError) {
@@ -242,6 +243,14 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   Widget _buildUpcomingCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
+        // Check if the image URL is valid and if the images list is not empty
+        if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
+          // Show error message when the data is invalid
+          _showErrorMessage(context);
+          return; // Prevent navigation to the next screen
+        }
+
+        // Proceed with navigation if data is valid
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -317,7 +326,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
   Widget _buildFestivalCategorySection() {
     if (isLoading) {
-      return _buildSkeletonLoading();
+      return _buildSkeletonLoading3();
     }
 
     if (hasError) {
@@ -341,65 +350,25 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     }
 
     for (var subcategory in festivalCategory.subcategories) {
-      if (subcategory.images.isNotEmpty) {
-        items.add(_buildCardItem(subcategory.name, subcategory.images[0], subcategory.images, showTitle: false));
-      }
+      // Check if images are available, else provide a default image
+      String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/default_festival.jpg';
+
+      items.add(_buildCardFestival(subcategory.name, imageUrl, subcategory.images, showTitle: false));
     }
 
     return _buildHorizontalCardSection2(sectionTitle: sectionTitle, items: items);
   }
-
-
-
-  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 5.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 26.h,
-                  width: 6.w,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(5.r),
-                      bottom: Radius.circular(5.r),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Text(
-                  sectionTitle,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: 110.h,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: items,
-              ),
-            ),
-            SizedBox(height: 5.h),
-          ],
-        ),
-      ),
-    );
-  }
-
-
-  Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+  Widget _buildCardFestival(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
+        // Check if the image URL is valid and if the images list is not empty
+        if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
+          // Show error message when the data is invalid
+          _showErrorMessage(context);
+          return; // Prevent navigation to the next screen
+        }
+
+        // Proceed with navigation if data is valid
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -458,6 +427,174 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       ),
     );
   }
+  void _showErrorMessage(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Something went wrong. Cannot navigate to the next screen.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSkeletonLoading3() {
+    return Padding(padding: const EdgeInsets.only(left: 15,bottom: 10),
+      child: SizedBox(
+        height: 120.0,  // Height to match your card's height
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: 5,  // Simulate 5 skeleton cards
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: 120.0, // Width to match your card's width
+                  margin: const EdgeInsets.only(right: 8.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.0), // Rounded corners like your card
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Skeleton for the image (image dimensions match your final card)
+                      Container(
+                        width: 120.0,
+                        height: 90.0, // Image height matches the actual card
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12.0), // Match card's rounded corners
+                          color: Colors.grey[200], // Light grey background for the skeleton image
+                        ),
+                      ),
+                      const SizedBox(height: 8.0),
+                      // Skeleton for the title text
+                      Container(
+                        width: 80.0, // Title width
+                        height: 14.0, // Title height
+                        color: Colors.grey[200], // Light grey color for the text skeleton
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSkeletonLoading2() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 15, bottom: 10),
+      child: SizedBox(
+        height: 120.0,  // Height to match your card's height
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: 5,  // Simulate 5 skeleton cards
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: 120.0, // Width to match your card's width
+                  margin: const EdgeInsets.only(right: 8.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12.0), // Rounded corners for the container
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Skeleton for the circular image
+                      Container(
+                        width: 60.0,  // Circular shape: set width and height equal
+                        height: 60.0, // Make sure it's equal to create a circle
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30.0), // Half of width/height for a circle
+                          color: Colors.grey[200], // Light grey background for the skeleton image
+                        ),
+                      ),
+                      const SizedBox(height: 8.0),
+                      // Skeleton for the title text
+                      Container(
+                        width: 80.0, // Title width
+                        height: 14.0, // Title height
+                        color: Colors.grey[200], // Light grey color for the text skeleton
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+
+  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
+    return Container(
+      color: Colors.white,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 5.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 26.h,
+                  width: 6.w,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5.r),
+                      bottom: Radius.circular(5.r),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  sectionTitle,
+                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 5.h),
+            SizedBox(
+              height: 110.h,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: items,
+              ),
+            ),
+            SizedBox(height: 5.h),
+          ],
+        ),
+      ),
+    );
+  }
+
+
 
 
 
@@ -509,6 +646,15 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   Widget _buildSubcategorySections() {
     List<Widget> sections = [];
 
+    // Check if subcategoryData is null or empty
+    if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
+      // Show an error message if no data exists
+      _showErrorMessage(context);
+      return Center(
+        child: Text('No subcategories available.'),
+      );
+    }
+
     for (var subcategory in subcategoryData!.subcategories) {
       List<Widget> items = subcategory.images.map((imageUrl) {
         return _buildCardItem2(
@@ -530,15 +676,21 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
           sectionTitle: subcategory.name,
           items: items,
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => CategoryTopics(
-                  title: subcategory.name,
-                  images: topicMaps,
+            // Only navigate if subcategory has data
+            if (subcategory.images.isNotEmpty) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CategoryTopics(
+                    title: subcategory.name,
+                    images: topicMaps,
+                  ),
                 ),
-              ),
-            );
+              );
+            } else {
+              // If images are empty, show a message
+              _showErrorMessage(context);
+            }
           },
         ),
       );
@@ -548,16 +700,20 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       children: sections,
     );
   }
-
   Widget _buildCardItem2(String title, String plays, String imageUrl, List<String> allImages) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: allImages),
-          ),
-        );
+        // Check if the image URL or allImages list is empty or null
+        if (imageUrl.isEmpty || allImages.isEmpty) {
+          _showErrorMessage(context);  // Show error message if data is missing
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategorySelected(imagePaths: allImages),
+            ),
+          );
+        }
       },
       child: SizedBox(
         width: 120.w,

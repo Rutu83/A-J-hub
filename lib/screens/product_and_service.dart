@@ -54,9 +54,9 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
         title: Text(
           'Our Products & Services',
           style: GoogleFonts.poppins(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white, // Set text color to white
           ),
         ),
         backgroundColor: Colors.red,

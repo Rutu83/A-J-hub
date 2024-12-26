@@ -3,6 +3,7 @@ import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/business_form.dart';
 import 'package:allinone_app/screens/edit_business_form.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -292,8 +293,21 @@ class BusinessListState extends State<BusinessList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Business'),
+        surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
+        elevation: 2, // Slight shadow for depth
+        centerTitle: true,
+        iconTheme: IconThemeData(
+          color: Colors.black, // Icon color to match the theme
+        ),
+        title: Text(
+          'Business',
+          style: GoogleFonts.poppins(
+            fontSize: 18.sp, // Adjust font size for readability
+            fontWeight: FontWeight.w600, // Medium-bold weight for emphasis
+            color: Colors.black, // Neutral black color for better visibility
+          ),
+        ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.red))
@@ -420,7 +434,9 @@ class BusinessCard extends StatelessWidget {
             value: business['id'],
             groupValue: selectedBusiness,
             onChanged: onRadioChanged,
+            activeColor: Colors.red, // Set the active color to red
           ),
+
           Expanded(
             child: Container(
               height: 150,

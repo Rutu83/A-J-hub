@@ -168,12 +168,13 @@ class ActiveUserPageState extends State<ActiveUserPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           'Active User',
           style: GoogleFonts.poppins(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white, // Set text color to white
           ),
         ),
         backgroundColor: Colors.red,
@@ -183,9 +184,9 @@ class ActiveUserPageState extends State<ActiveUserPage> {
       ),
 
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.red,))
           : _isSubmitting
-        ? const Center(child: CircularProgressIndicator()) :
+        ? const Center(child: CircularProgressIndicator(color: Colors.red,)) :
         Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

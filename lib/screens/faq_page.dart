@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FAQPage extends StatefulWidget {
@@ -56,62 +57,86 @@ class FAQPageState extends State<FAQPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: InkWell(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: const Icon(Icons.keyboard_backspace),
+        title: Text(
+          'Frequently Asked Questions',
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white, // Set text color to white
+          ),
         ),
-        title: const Text(
-          "Frequently Asked Questions",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
+        backgroundColor: Colors.red,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
+
       body: Column(
         children: [
+          // FAQ List
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               itemCount: faqList.length,
               itemBuilder: (context, index) {
                 final item = faqList[index];
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Card(
                     color: Colors.white,
-                    elevation: 3,
-                    shadowColor: Colors.grey.withOpacity(0.3),
+                    elevation: 4,
+                    shadowColor: Colors.grey.withOpacity(0.2),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
+                      borderRadius: BorderRadius.circular(16.0),
                       side: BorderSide(
-                        color: Colors.red.withOpacity(0.3),
+                        color: Colors.grey.withOpacity(0.2),
                         width: 1.0,
                       ),
                     ),
                     child: ExpansionTile(
                       iconColor: Colors.red,
-                      collapsedIconColor: Colors.black54,
-                      title: Text(
-                        item["question"]!,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
+                      collapsedIconColor: Colors.black45,
+                      collapsedBackgroundColor: Colors.grey.shade50,
+                      backgroundColor: Colors.grey.shade100,
+                      tilePadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      title: Row(
+                        children: [
+                          Icon(
+                            Icons.support_agent,
+                            color: Colors.red.shade500,
+                            size: 20.0,
+                          ),
+                          const SizedBox(width: 10.0),
+                          Expanded(
+                            child: Text(
+                              item["question"]!,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       children: [
-                        Padding(
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red.shade50,
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(16.0),
+                              bottomRight: Radius.circular(16.0),
+                            ),
+                          ),
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8.0),
+                            horizontal: 16.0,
+                            vertical: 12.0,
+                          ),
                           child: Text(
                             item["answer"]!,
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black54,
-                              height: 1.5,
+                              height: 1.6,
                             ),
                           ),
                         ),
@@ -122,32 +147,45 @@ class FAQPageState extends State<FAQPage> {
               },
             ),
           ),
+
+          // WhatsApp Button
           Padding(
-            padding:
-            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             child: ElevatedButton.icon(
               onPressed: _openWhatsApp,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding:
-                const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                backgroundColor: Colors.green.shade700,
+                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
+                  borderRadius: BorderRadius.circular(24.0),
                 ),
-                elevation: 6,
-                shadowColor: Colors.grey.withOpacity(0.4),
+                elevation: 8,
+                shadowColor: Colors.green.withOpacity(0.3),
               ),
-              icon: Image.asset(
-                'assets/icons/whatsapp.png',
-                height: 24,
-                width: 24,
-                fit: BoxFit.contain,
+              icon: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  Image.asset(
+                    'assets/icons/whatsapp.png',
+                    height: 20,
+                    width: 20,
+                    fit: BoxFit.contain,
+                  ),
+                ],
               ),
               label: const Text(
-                "Reach out to us",
+                "Chat with Us",
                 style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: FontWeight.w700,
                   color: Colors.white,
                 ),
               ),
@@ -155,6 +193,8 @@ class FAQPageState extends State<FAQPage> {
           ),
         ],
       ),
+
+
     );
   }
 

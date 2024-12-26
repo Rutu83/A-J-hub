@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ReferEarn extends StatefulWidget {
@@ -83,18 +84,19 @@ Start Promoting today and maximize your income! 💰
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.white),
-        backgroundColor: Colors.red,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_sharp),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
+        title: Text(
           'Refer & Earn',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.white, // Set text color to white
+          ),
         ),
+        backgroundColor: Colors.red,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
+
       body: _isLoading
           ? const Center(
         child: CircularProgressIndicator(
@@ -130,31 +132,48 @@ Start Promoting today and maximize your income! 💰
 
   Widget _buildCopyField() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: DottedBorder(
         borderType: BorderType.RRect,
         radius: const Radius.circular(12),
+        dashPattern: [8, 4], // Customize the dash pattern
         color: Colors.red,
         strokeWidth: 2,
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Colors.red.shade50, // Light background for contrast
+          ),
           child: Row(
             children: [
               Expanded(
                 child: Text(
                   'Your Referral Code: $referralCode',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.red.shade900, // Darker red for better readability
+                  ),
                 ),
               ),
               IconButton(
                 onPressed: () {
                   Clipboard.setData(ClipboardData(text: referralCode)).then((_) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Referral code copied to clipboard!')),
+                      SnackBar(
+                        content: Text(
+                          'Referral code copied to clipboard!',
+                          style: TextStyle(fontSize: 14.sp),
+                        ),
+                        backgroundColor: Colors.green.shade700,
+                        duration: const Duration(seconds: 2),
+                      ),
                     );
                   });
                 },
                 icon: const Icon(Icons.copy, color: Colors.red),
+                tooltip: 'Copy Referral Code',
               ),
             ],
           ),
@@ -165,7 +184,7 @@ Start Promoting today and maximize your income! 💰
 
   Widget _buildButtonRow() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Row(
         children: [
           Expanded(
@@ -175,42 +194,46 @@ Start Promoting today and maximize your income! 💰
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(vertical: 18.0),
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                elevation: 6,
+                shadowColor: Colors.red.withOpacity(0.4),
               ),
-              child: const Text(
+              child: Text(
                 'Refer Now',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 18,
+                  fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 5),
+          const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () {
               _shareOnWhatsApp(referralCode);
             },
-            style: ButtonStyle(
-             backgroundColor: WidgetStateProperty.all(Colors.white),
-              shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.r),
-              )),
-             elevation: WidgetStateProperty.all(0), // No internal shadow
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              padding: const EdgeInsets.all(12.0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              elevation: 3,
+              shadowColor: Colors.grey.withOpacity(0.2),
             ),
             child: Image.asset(
-              'assets/images/whatsapp2.png', // Make sure to use a suitable WhatsApp icon
-              width: 70, // Adjust size of the icon
-              height: 70, // Adjust size of the icon
+              'assets/images/whatsapp2.png', // Use a high-resolution WhatsApp icon
+              width: 36, // Adjust the size
+              height: 36, // Adjust the size
             ),
           ),
-
         ],
       ),
     );
   }
+
 }
