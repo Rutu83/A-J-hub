@@ -347,12 +347,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               // Centered Description
               Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
                       style: GoogleFonts.poppins(
-                        fontSize: 14.sp,
+                        fontSize: 12.sp,
                         color: Colors.black87,
                         fontWeight: FontWeight.w500,
                       ),
@@ -378,50 +378,59 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 5),
 
               // Image Slider
               Column(
                 children: [
                   images.isNotEmpty
-                      ? CarouselSlider(
-                    options: CarouselOptions(
-                      height: 400.h,
-                      enlargeCenterPage: true,
-                      autoPlay: false,
-                      onPageChanged: (index, reason) {
-                        setState(() {
-                          _currentIndex = index;
-                        });
-                      },
-                      viewportFraction: 0.8,
+                      ? Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.red, // Border color
+                        width: 2.0, // Border width
+                      ),
+                      borderRadius: BorderRadius.circular(15), // Rounded corners for border
                     ),
-                    items: images.map((imagePath) {
-                      return Builder(
-                        builder: (BuildContext context) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Image.network(
-                              imagePath,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.grey.shade300, // Background color for placeholder
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.broken_image,
-                                      color: Colors.white,
-                                      size: 50,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
+                    child: CarouselSlider(
+                      options: CarouselOptions(
+                        height: 400.h,
+                        enlargeCenterPage: true,
+                        autoPlay: false,
+                        onPageChanged: (index, reason) {
+                          setState(() {
+                            _currentIndex = index;
+                          });
                         },
-                      );
-                    }).toList(),
+                        viewportFraction: 0.8,
+                      ),
+                      items: images.map((imagePath) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(15),
+                              child: Image.network(
+                                imagePath,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.grey.shade300, // Background color for placeholder
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.broken_image,
+                                        color: Colors.white,
+                                        size: 50,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
+                    ),
                   )
                       : Container(
                     height: 400.h,
@@ -462,13 +471,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ],
               ),
 
-              SizedBox(height: 20.h),
+
 
               Center(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 0.0),
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
+
                     children: [
                       // Icon for Description
                       const Icon(
@@ -478,20 +487,59 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                       // const SizedBox(height: 8), // Space between icon and text
                       // // Product Description
-                      Center(
-                        child: Html(
-                          data: widget.product['description'], // Render HTML content directly
-                          style: {
-                            "p": Style(
-                              fontSize: FontSize(14.sp),
-                              fontFamily: GoogleFonts.poppins().fontFamily,
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w500,
-                              textAlign: TextAlign.center, // Center-align the text
-                            ),
-                          },
+
+
+
+                      //
+                      // Center(
+                      //   child: Html(
+                      //     data: widget.product['description'], // Render HTML content directly
+                      //     style: {
+                      //       "p": Style(
+                      //         fontSize: FontSize(14.sp), // Adjust font size dynamically
+                      //         fontFamily: GoogleFonts.poppins().fontFamily, // Use Poppins font
+                      //         color: Colors.black87, // Text color
+                      //         fontWeight: FontWeight.w500, // Medium weight
+                      //         textAlign: TextAlign.center, // Center-align the text
+                      //         margin: Margins.only(top: 8,bottom: 0), // Add a margin of 8px at the top
+                      //       ),
+                      //       "strong": Style(
+                      //         fontSize: FontSize(16.sp), // Slightly larger font for bold text
+                      //         fontWeight: FontWeight.bold, // Bold style
+                      //         color: Colors.black, // Strong emphasis
+                      //       ),
+                      //       "br": Style(
+                      //         whiteSpace: WhiteSpace.pre, // Handle <br> as a normal line break
+                      //       ),
+                      //     },
+                      //   ),
+                      // ),
+
+
+
+                  Center(
+                    child: Html(
+                      data: cleanHtml(widget.product['description']), // Preprocess HTML content
+                      style: {
+                        "p": Style(
+                          fontSize: FontSize(14.sp), // Adjust font size dynamically
+                          fontFamily: GoogleFonts.poppins().fontFamily, // Use Poppins font
+                          color: Colors.black87, // Text color
+                          fontWeight: FontWeight.w500, // Medium weight
+                          textAlign: TextAlign.center, // Center-align the text
+                          margin: Margins.only(top: 8,bottom: 0), // Top margin only
                         ),
-                      ),
+                        "strong": Style(
+                          fontSize: FontSize(16.sp), // Slightly larger font for bold text
+                          fontWeight: FontWeight.bold, // Bold style
+                          color: Colors.black, // Strong emphasis
+                        ),
+                        "br": Style(
+                          whiteSpace: WhiteSpace.normal, // Handle <br> as a single line break
+                        ),
+                      },
+                    ),
+                  )
 
                     ],
                   ),
@@ -615,5 +663,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
 
     );
+  }
+
+
+  String cleanHtml(String html) {
+    // Remove excessive <br> tags and trim spaces
+    return html.replaceAll(RegExp(r'(<br\s*/?>\s*)+'), '<br>').trim();
   }
 }

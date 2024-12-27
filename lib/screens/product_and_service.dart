@@ -90,24 +90,23 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
       )
           :Column(
         children: [
-
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 8), // Reduced horizontal padding
               child: ListView.builder(
                 itemCount: products.length,
                 itemBuilder: (context, index) {
                   final product = products[index];
                   final borderColor = borderColors[index % borderColors.length];
                   return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 15),
+                    margin: const EdgeInsets.symmetric(vertical: 10), // Reduced vertical margin
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(
                         color: borderColor,
                         width: 1,
                       ),
-                      borderRadius: BorderRadius.circular(15),
+                      borderRadius: BorderRadius.circular(12), // Reduced corner radius
                       boxShadow: [
                         BoxShadow(
                           color: borderColor.withOpacity(0.1),
@@ -118,47 +117,62 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                       ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(6.0),
+                      padding: const EdgeInsets.all(4.0), // Reduced padding
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Product Image
                           Container(
                             decoration: BoxDecoration(
                               border: Border.all(
-                                color: Colors.grey.shade50,
+                                color: Colors.grey.shade100,
                                 width: 1,
                               ),
-                              borderRadius: BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(12),
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(12),
                               child: Image.network(
                                 product['thumb_image']!,
-                                height: 130.h,
+                                height: 100.h, // Reduced image height
                                 width: double.infinity,
                                 fit: BoxFit.cover,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) {
+                                    return child; // Image is fully loaded
+                                  }
+                                  // Show shimmer effect while loading
+                                  return Shimmer.fromColors(
+                                    baseColor: Colors.grey.shade300,
+                                    highlightColor: Colors.grey.shade100,
+                                    child: Container(
+                                      height: 100.h,
+                                      width: double.infinity,
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  );
+                                },
                                 errorBuilder: (context, error, stackTrace) {
                                   // Placeholder when image fails to load
                                   return Container(
-                                    color: Colors.grey.shade200, // Background color for placeholder
-                                    height: 130.h,
+                                    color: Colors.grey.shade200,
+                                    height: 100.h,
                                     width: double.infinity,
                                     child: const Center(
                                       child: Icon(
                                         Icons.broken_image,
-                                        size: 50,
+                                        size: 40, // Reduced icon size
                                         color: Colors.white,
                                       ),
-                                    )
+                                    ),
                                   );
                                 },
                               ),
                             ),
                           ),
-
-
+                          // Product Title
                           Container(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                            padding: const EdgeInsets.only(left: 6.0, right: 6.0), // Reduced padding
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -166,7 +180,7 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                                   child: Text(
                                     product['title']!,
                                     style: GoogleFonts.poppins(
-                                      fontSize: 16.sp,
+                                      fontSize: 14.sp, // Reduced font size
                                       fontWeight: FontWeight.bold,
                                       color: borderColor,
                                     ),
@@ -185,7 +199,7 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                                   icon: Icon(
                                     Icons.arrow_right,
                                     color: borderColor,
-                                    size: 25.sp,
+                                    size: 20.sp, // Reduced icon size
                                   ),
                                 ),
                               ],
@@ -193,14 +207,14 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                           ),
                           // Product Description
                           Container(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(6.0), // Reduced padding
                             child: Text(
                               product['short_description']!,
                               style: GoogleFonts.poppins(
-                                fontSize: 12.sp,
+                                fontSize: 10.sp, // Reduced font size
                                 color: Colors.black54,
                               ),
-                              maxLines: 4,
+                              maxLines: 3, // Reduced max lines
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
@@ -214,6 +228,7 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
           ),
         ],
       ),
+
     );
   }
 

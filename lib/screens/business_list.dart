@@ -297,7 +297,7 @@ class BusinessListState extends State<BusinessList> {
         backgroundColor: Colors.white,
         elevation: 2, // Slight shadow for depth
         centerTitle: true,
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.black, // Icon color to match the theme
         ),
         title: Text(

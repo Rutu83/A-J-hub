@@ -254,7 +254,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images),
+            builder: (context) => CategorySelected(imagePaths: images,title: title),
           ),
         );
       },
@@ -372,7 +372,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images),
+            builder: (context) => CategorySelected(imagePaths: images,title: title),
           ),
         );
       },
@@ -650,7 +650,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
       // Show an error message if no data exists
       _showErrorMessage(context);
-      return Center(
+      return const Center(
         child: Text('No subcategories available.'),
       );
     }
@@ -710,7 +710,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CategorySelected(imagePaths: allImages),
+              builder: (context) => CategorySelected(imagePaths: allImages, title: title,),
             ),
           );
         }

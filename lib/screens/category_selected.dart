@@ -7,6 +7,7 @@ import 'package:allinone_app/dynamic_fram/fram_2.dart';
 import 'package:allinone_app/dynamic_fram/fram_3.dart';
 import 'package:allinone_app/dynamic_fram/fram_4.dart';
 import 'package:allinone_app/dynamic_fram/fram_5.dart';
+import 'package:allinone_app/screens/active_user_screen2.dart';
 import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_edit_business_form.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,8 +24,9 @@ import 'dart:ui' as ui;
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
+  final String title;
 
-  const CategorySelected({super.key, required this.imagePaths});
+  const CategorySelected({super.key, required this.imagePaths, required this.title});
 
   @override
   CategorySelectedState createState() => CategorySelectedState();
@@ -51,7 +54,7 @@ class CategorySelectedState extends State<CategorySelected> {
   @override
   void initState() {
     super.initState();
-
+print(widget.title);
     printActiveBusinessData();
     _loadFrames();
     _initializeData();
@@ -118,13 +121,11 @@ class CategorySelectedState extends State<CategorySelected> {
 
   Future<void> _loadFrames() async {
     setState(() {
-      isFramesLoading = true; // Start loading frames
+      isFramesLoading = true;
     });
 
     try {
-
-
-      frameWidgets = [
+    frameWidgets = [
         Fram1(
           businessName: businessName,
           phoneNumber: mobileNumber,
@@ -218,6 +219,91 @@ class CategorySelectedState extends State<CategorySelected> {
     );
   }
 
+
+
+  static const maxDownloads = 5;
+
+  Future<void> _incrementDownloadCount(String filePath) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Safely decode the data and ensure type casting
+    Map<String, dynamic> downloadedPaths = json.decode(
+      prefs.getString('downloaded_paths') ?? '{}',
+    );
+    Map<String, List<String>> downloadedPathsSafe = downloadedPaths.map(
+          (key, value) => MapEntry(key, List<String>.from(value ?? [])),
+    );
+
+    Map<String, int> categoryDownloadCount = Map<String, int>.from(
+      json.decode(prefs.getString('category_download_count') ?? '{}'),
+    );
+
+    // Initialize counts for the current title if not already present
+    categoryDownloadCount[widget.title] = categoryDownloadCount[widget.title] ?? 0;
+    downloadedPathsSafe[widget.title] = downloadedPathsSafe[widget.title] ?? [];
+
+    // Check if the download limit is reached
+    if (categoryDownloadCount[widget.title]! < maxDownloads) {
+      categoryDownloadCount[widget.title] = categoryDownloadCount[widget.title]! + 1;
+      downloadedPathsSafe[widget.title]!.add(filePath);
+
+      await prefs.setString('category_download_count', json.encode(categoryDownloadCount));
+      await prefs.setString('downloaded_paths', json.encode(downloadedPathsSafe));
+
+      if (categoryDownloadCount[widget.title] == maxDownloads) {
+     //   _showCompletionPopup(widget.title);
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Maximum downloads for "${widget.title}" reached!')),
+      );
+    }
+  }
+
+
+  void _showCompletionPopup(String title) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Download Completed'),
+        content: Text('All 5 images for "$title" have been successfully downloaded.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<int> _getDownloadCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    Map<String, int> categoryDownloadCount =
+    Map<String, int>.from(json.decode(prefs.getString('category_download_count') ?? '{}'));
+    _showDownloads();
+    return categoryDownloadCount[widget.title] ?? 0;
+  }
+
+  Future<void> _showDownloads() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Decode the data safely and ensure correct type casting
+    Map<String, dynamic> downloadedPaths = json.decode(
+      prefs.getString('downloaded_paths') ?? '{}',
+    );
+    Map<String, List<String>> downloadedPathsSafe = downloadedPaths.map(
+          (key, value) => MapEntry(key, List<String>.from(value ?? [])),
+    );
+
+    // Safely access the paths for the current title
+    List<String> pathsForTitle = downloadedPathsSafe[widget.title] ?? [];
+
+
+  }
+
+
+
   Future<void> _downloadImage() async {
     setState(() {
       isProcessing = true;
@@ -225,8 +311,13 @@ class CategorySelectedState extends State<CategorySelected> {
     });
 
     try {
-      final boundary =
-      _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final downloadCount = await _getDownloadCount();
+      if (downloadCount >= maxDownloads) {
+        _showUpgradePopup();
+        return;
+      }
+
+      final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) throw Exception('Unable to capture frame.');
 
       final image = await boundary.toImage(pixelRatio: 3.0);
@@ -243,18 +334,62 @@ class CategorySelectedState extends State<CategorySelected> {
         await file.writeAsBytes(pngBytes);
 
         await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
+        await _incrementDownloadCount(filePath);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Image downloaded successfully!')),
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            backgroundColor: Colors.grey.shade400,
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Image downloaded successfully!',
+                    style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
+
+
       }
     } catch (error) {
       if (kDebugMode) {
         print("Error downloading image: $error");
       }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error downloading image: $error')),
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: Colors.grey.shade400,
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Error downloading image: $error',
+                  style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
+
+
     } finally {
       setState(() {
         isProcessing = false;
@@ -262,6 +397,37 @@ class CategorySelectedState extends State<CategorySelected> {
       });
     }
   }
+
+
+  void _showUpgradePopup() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Upgrade Membership'),
+        content: const Text(
+            'You have reached the maximum download limit. Upgrade to premium membership for unlimited downloads.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ActivateMembershipPage()),
+              );
+            },
+            child: const Text('Upgrade Now'),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Future<void> _shareImage() async {
     setState(() {
@@ -310,43 +476,89 @@ class CategorySelectedState extends State<CategorySelected> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0, // Remove shadow for a cleaner design
         title: Text(
           'Select Frame',
-          style: TextStyle(color: Colors.black, fontSize: 18.sp),
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.bold, // Emphasize title
+          ),
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black, size: 24.sp),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          IconButton(
-            icon: Image.asset(
-              'assets/icons/editing.png',
-              width: 20.w,
-              height: 20.h,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CategoryEditBusinessForm(),
+          // Edit Button with Background
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0), // Add spacing
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[200], // Light background color
+                shape: BoxShape.circle,  // Circular background
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.edit,
+                  size: 24.0,
+                  color: Colors.black,
                 ),
-              );
-            },
+                tooltip: 'Edit Category',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const CategoryEditBusinessForm(),
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
 
-
-          IconButton(
-            icon: const Icon(Icons.download, color: Colors.black),
-            onPressed: !isProcessing ? _downloadImage : null,
+          // Download Button with Background
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.file_download,
+                  size: 24.0,
+                  color: Colors.black,
+                ),
+                tooltip: 'Download Image',
+                onPressed: !isProcessing ? _downloadImage : null,
+              ),
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.share, color: Colors.black),
-            onPressed: !isProcessing ? _shareImage : null,
+
+          // Share Button with Background
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.share,
+                  size: 24.0,
+                  color: Colors.black,
+                ),
+                tooltip: 'Share Image',
+                onPressed: !isProcessing ? _shareImage : null,
+              ),
+            ),
           ),
         ],
       ),
+
       body: Stack(
         children: [
           SingleChildScrollView(

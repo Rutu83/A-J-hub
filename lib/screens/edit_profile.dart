@@ -127,7 +127,7 @@ class _EditProfileState extends State<EditProfile> {
         backgroundColor: Colors.white,
         elevation: 2, // Slight shadow for depth
         centerTitle: true,
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.black, // Icon color to match the theme
         ),
         title: Text(
@@ -259,7 +259,7 @@ class _EditProfileState extends State<EditProfile> {
 
   Widget _buildLogo() {
     return Container(
-      margin: EdgeInsets.all(6),
+      margin: const EdgeInsets.all(6),
       padding: EdgeInsets.all(16.r), // Add padding around the logo
       decoration: BoxDecoration(
         color: Colors.white, // Background color for the logo container

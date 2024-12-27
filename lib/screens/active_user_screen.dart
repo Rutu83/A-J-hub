@@ -211,7 +211,7 @@ class ActiveUserPageState extends State<ActiveUserPage> {
                           const Icon(Icons.person, color: Colors.red),
                           const SizedBox(width: 8),
                           Text(
-                            'User Id',
+                            'User Name',
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

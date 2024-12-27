@@ -1,7 +1,7 @@
+import 'package:allinone_app/screens/product_and_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:allinone_app/screens/business_screen.dart';
-import 'package:allinone_app/screens/customer_screen.dart';
 import 'package:allinone_app/screens/home_screen.dart';
 import 'package:allinone_app/screens/oportunity.dart';
 import 'package:allinone_app/screens/profile_screen.dart';
@@ -28,10 +28,11 @@ class DashboardScreenState extends State<DashboardScreen> {
               _selectedIndex = index;
             });
           },
-          children: const [
+          children:  const [
             HomeScreen(),
             OportunityScreen(),
-            CustomerScreen(),
+           // CustomerScreen(),
+            OurProductAndService(),
             ProfileScreen(),
           ],
         ),

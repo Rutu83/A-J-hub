@@ -292,7 +292,7 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
                     alignment: Alignment.center,
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(
+                        : const Text(
                       'Reset Password',
                       style: TextStyle(
                         color: Colors.white,

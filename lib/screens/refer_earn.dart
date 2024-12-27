@@ -136,7 +136,7 @@ Start Promoting today and maximize your income! 💰
       child: DottedBorder(
         borderType: BorderType.RRect,
         radius: const Radius.circular(12),
-        dashPattern: [8, 4], // Customize the dash pattern
+        dashPattern: const [8, 4], // Customize the dash pattern
         color: Colors.red,
         strokeWidth: 2,
         child: Container(

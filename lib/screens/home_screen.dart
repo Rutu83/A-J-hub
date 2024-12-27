@@ -14,7 +14,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:allinone_app/screens/category_selected.dart';
@@ -495,7 +494,9 @@ class HomeScreenState extends State<HomeScreen> {
                             fit: BoxFit.fill, // Ensures the image fits as intended
                             onError: (error, stackTrace) {
                               // Handle error if the image fails to load
-                              print("Error loading image: $error");
+                              if (kDebugMode) {
+                                print("Error loading image: $error");
+                              }
                             },
                           ),
                         ),
@@ -537,7 +538,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSkeletonLoading2() {
-    return Padding(padding: EdgeInsets.only(left: 15,bottom: 10),
+    return Padding(padding: const EdgeInsets.only(left: 15,bottom: 10),
     child: SizedBox(
       height: 150.0,  // Height to match your card's height
       child: ListView.builder(
@@ -545,13 +546,13 @@ class HomeScreenState extends State<HomeScreen> {
         itemCount: 5,  // Simulate 5 skeleton cards
         itemBuilder: (context, index) {
           return Padding(
-            padding: EdgeInsets.only(right: 8.0),
+            padding: const EdgeInsets.only(right: 8.0),
             child: Shimmer.fromColors(
               baseColor: Colors.grey[300]!,
               highlightColor: Colors.grey[100]!,
               child: Container(
                 width: 120.0, // Width to match your card's width
-                margin: EdgeInsets.only(right: 8.0),
+                margin: const EdgeInsets.only(right: 8.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12.0), // Rounded corners like your card
                   color: Colors.white,
@@ -568,7 +569,7 @@ class HomeScreenState extends State<HomeScreen> {
                         color: Colors.grey[200], // Light grey background for the skeleton image
                       ),
                     ),
-                    SizedBox(height: 8.0),
+                    const SizedBox(height: 8.0),
                     // Skeleton for the title text
                     Container(
                       width: 80.0, // Title width
@@ -587,7 +588,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSkeletonLoading3() {
-    return Padding(padding: EdgeInsets.only(left: 15,bottom: 10),
+    return Padding(padding: const EdgeInsets.only(left: 15,bottom: 10),
       child: SizedBox(
         height: 120.0,  // Height to match your card's height
         child: ListView.builder(
@@ -595,13 +596,13 @@ class HomeScreenState extends State<HomeScreen> {
           itemCount: 5,  // Simulate 5 skeleton cards
           itemBuilder: (context, index) {
             return Padding(
-              padding: EdgeInsets.only(right: 8.0),
+              padding: const EdgeInsets.only(right: 8.0),
               child: Shimmer.fromColors(
                 baseColor: Colors.grey[300]!,
                 highlightColor: Colors.grey[100]!,
                 child: Container(
                   width: 120.0, // Width to match your card's width
-                  margin: EdgeInsets.only(right: 8.0),
+                  margin: const EdgeInsets.only(right: 8.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12.0), // Rounded corners like your card
                     color: Colors.white,
@@ -618,7 +619,7 @@ class HomeScreenState extends State<HomeScreen> {
                           color: Colors.grey[200], // Light grey background for the skeleton image
                         ),
                       ),
-                      SizedBox(height: 8.0),
+                      const SizedBox(height: 8.0),
                       // Skeleton for the title text
                       Container(
                         width: 80.0, // Title width
@@ -684,9 +685,13 @@ class HomeScreenState extends State<HomeScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images),
+            builder: (context) => CategorySelected(
+              imagePaths: images,
+              title: title, // Pass the title here
+            ),
           ),
         );
+
       },
       child: Container(
         width: 101.w,
@@ -746,14 +751,14 @@ class HomeScreenState extends State<HomeScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Error'),
-          content: Text('Something went wrong. Cannot navigate to the next screen.'),
+          title: const Text('Error'),
+          content: const Text('Something went wrong. Cannot navigate to the next screen.'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         );
@@ -810,7 +815,7 @@ class HomeScreenState extends State<HomeScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images),
+            builder: (context) => CategorySelected(imagePaths: images, title: title,),
           ),
         );
       },
@@ -1032,7 +1037,7 @@ class HomeScreenState extends State<HomeScreen> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images),
+            builder: (context) => CategorySelected(imagePaths: images, title: title,),
           ),
         );
       },
@@ -1188,14 +1193,14 @@ class HomeScreenState extends State<HomeScreen> {
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
-              title: Text('No Topics Available'),
-              content: Text('There are no topics available to display. Please try again later.'),
+              title: const Text('No Topics Available'),
+              content: const Text('There are no topics available to display. Please try again later.'),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);  // Close the dialog
                   },
-                  child: Text('OK'),
+                  child: const Text('OK'),
                 ),
               ],
             ),
@@ -1217,14 +1222,14 @@ class HomeScreenState extends State<HomeScreen> {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: Text('Error'),
-                content: Text('An error occurred while navigating. Please try again later.'),
+                title: const Text('Error'),
+                content: const Text('An error occurred while navigating. Please try again later.'),
                 actions: [
                   TextButton(
                     onPressed: () {
                       Navigator.pop(context);  // Close the error dialog
                     },
-                    child: Text('OK'),
+                    child: const Text('OK'),
                   ),
                 ],
               ),

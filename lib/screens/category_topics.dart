@@ -9,8 +9,11 @@ class CategoryTopics extends StatelessWidget {
 
   const CategoryTopics({super.key, required this.title, required this.images});
 
+
   @override
   Widget build(BuildContext context) {
+    print('.........................................$title');
+
     // Check if images data is null or empty
     if (images == null || images!.isEmpty) {
       return Scaffold(
@@ -62,7 +65,7 @@ class CategoryTopics extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        CategorySelected(imagePaths: allImageUrls),
+                        CategorySelected(imagePaths: allImageUrls, title: title),
                   ),
                 );
               },
