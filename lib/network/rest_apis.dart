@@ -41,6 +41,9 @@ Future<LoginResponse> loginUser(Map request) async {
     LoginResponse res = LoginResponse.fromJson(await (handleResponse(
         await buildHttpResponse('login',
             request: request, method: HttpMethodType.POST))));
+
+    print('{{{{{{{{{${res}}}}}}}}}}}}}');
+
     return res;
   } catch (e) {
 
@@ -59,6 +62,8 @@ Future<void> saveUserDataMobile(LoginResponse loginResponse, UserData data) asyn
   await appStore.setLoggedIn(true);
   await appStore.setName(data.username.validate());
   await appStore.setEmail(data.email.validate());
+  await appStore.setStatus(data.status.validate());
+
 
   appStore.setLoading(false);
   ///Set app configurations

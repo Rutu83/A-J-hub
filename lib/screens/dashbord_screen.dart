@@ -1,4 +1,8 @@
+import 'package:allinone_app/main.dart';
+import 'package:allinone_app/network/rest_apis.dart';
+import 'package:allinone_app/screens/active_user_screen2.dart';
 import 'package:allinone_app/screens/product_and_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:allinone_app/screens/business_screen.dart';
@@ -16,6 +20,49 @@ class DashboardScreen extends StatefulWidget {
 class DashboardScreenState extends State<DashboardScreen> {
   final PageController _pageController = PageController();
   int _selectedIndex = 0;
+
+
+
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    fetchUserData();
+
+   }
+
+
+  void fetchUserData() async {
+    try {
+      Map<String, dynamic> userDetail = await getUserDetail();
+      if (kDebugMode) {
+        print('...........................................................');
+        print(userDetail);
+      }
+
+      // Check if the status is 'active' or 'inactive'
+      String status = userDetail['status'] ?? ''; // Get status from the response
+      if (status == 'inactive') {
+        // If status is 'inactive', show the activation dialog
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showActivationDialog();
+        });
+      } else {
+        // If status is 'active', print the status
+        print('////////////////////////////////$status');
+      }
+
+      // Store user details as variables
+
+
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error fetching user data: $e");
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +130,68 @@ class DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
+  void _showActivationDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true, // Allow dismissing the dialog by tapping outside
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent, // Make background transparent
+          child: Stack(
+            children: [
+              // GestureDetector to navigate on image click
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ActivateMembershipPage()), // Navigate to the ActivateMembershipPage
+                  ).then((_) {
+                    Navigator.pop(context); // Pop dialog when navigating back
+                  });
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24.0), // Increased border radius
+                  child: Image.asset(
+                    'assets/images/offers/or.jpg', // Your image asset path
+                    width: MediaQuery.of(context).size.width * 0.8, // Adjust width based on screen width
+                    height: MediaQuery.of(context).size.height * 0.5, // Increased height
+                    fit: BoxFit.cover, // Adjust the fit to cover the area
+                  ),
+                ),
+              ),
+              // Close button (cross icon) at the top-right corner with background
+              Positioned(
+                top: 10,
+                right: 10,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context); // Close the dialog when tapped
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(6), // Padding around the icon
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.5), // Background color for the close icon
+                      borderRadius: BorderRadius.circular(20), // Rounded background for the icon
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white, // White color for the close icon
+                      size: 15, // Size of the close icon
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
+
+
 
 
 

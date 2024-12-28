@@ -102,6 +102,7 @@ flutter:
     - assets/frame_config.json
     - assets/images/
     - assets/images/slider/
+    - assets/images/offers/
     - assets/images/products/
     - assets/animation/
     - assets/icons/

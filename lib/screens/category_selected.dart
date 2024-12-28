@@ -7,6 +7,7 @@ import 'package:allinone_app/dynamic_fram/fram_2.dart';
 import 'package:allinone_app/dynamic_fram/fram_3.dart';
 import 'package:allinone_app/dynamic_fram/fram_4.dart';
 import 'package:allinone_app/dynamic_fram/fram_5.dart';
+import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/active_user_screen2.dart';
 import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_edit_business_form.dart';
@@ -39,6 +40,7 @@ class CategorySelectedState extends State<CategorySelected> {
   String businessName = ' ';
   String emailAddress = ' ';
   String ownerName = ' ';
+  String  status = ' ';
   String mobileNumber = ' ';
   String address = ' ';
   String website = ' ';
@@ -47,14 +49,14 @@ class CategorySelectedState extends State<CategorySelected> {
   bool allFramesLoaded = false;
   bool isFramesLoading = true;
   bool isProcessing = false;
-  String progressMessage = ""; // Message to show during processing
+  String progressMessage = "";
 
   final GlobalKey _repaintKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-print(widget.title);
+    fetchUserData();
     printActiveBusinessData();
     _loadFrames();
     _initializeData();
@@ -219,8 +221,6 @@ print(widget.title);
     );
   }
 
-
-
   static const maxDownloads = 5;
 
   Future<void> _incrementDownloadCount(String filePath) async {
@@ -260,23 +260,6 @@ print(widget.title);
     }
   }
 
-
-  void _showCompletionPopup(String title) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Download Completed'),
-        content: Text('All 5 images for "$title" have been successfully downloaded.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Future<int> _getDownloadCount() async {
     final prefs = await SharedPreferences.getInstance();
     Map<String, int> categoryDownloadCount =
@@ -301,8 +284,6 @@ print(widget.title);
 
 
   }
-
-
 
   Future<void> _downloadImage() async {
     setState(() {
@@ -398,6 +379,97 @@ print(widget.title);
     }
   }
 
+  Future<void> _downloadImage1() async {
+    setState(() {
+      isProcessing = true;
+      progressMessage = "Downloading image...";
+    });
+
+    try {
+      // Skip download count check to remove limit
+      // final downloadCount = await _getDownloadCount();
+      // if (downloadCount >= maxDownloads) {
+      //   _showUpgradePopup();
+      //   return;
+      // }
+
+      final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) throw Exception('Unable to capture frame.');
+
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData?.buffer.asUint8List();
+
+      if (pngBytes != null) {
+        final directory = Directory('/storage/emulated/0/Pictures/AJHUB');
+        if (!directory.existsSync()) directory.createSync(recursive: true);
+
+        final filePath = '${directory.path}/frame_${DateTime.now().millisecondsSinceEpoch}.png';
+        final file = File(filePath);
+        await file.writeAsBytes(pngBytes);
+
+        await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
+
+        // Skip download count increment since we are removing the limit
+        // await _incrementDownloadCount(filePath);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(5),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            backgroundColor: Colors.grey.shade400,
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Image downloaded successfully!',
+                    style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    } catch (error) {
+      if (kDebugMode) {
+        print("Error downloading image: $error");
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          backgroundColor: Colors.grey.shade400,
+          content: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.white),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Failed to download image. Please try again later.',
+                  style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } finally {
+      setState(() {
+        isProcessing = false;
+      });
+    }
+  }
+
 
   void _showUpgradePopup() {
     showDialog(
@@ -428,6 +500,28 @@ print(widget.title);
     );
   }
 
+  Future<void> fetchUserData() async {
+    try {
+      Map<String, dynamic> userDetail = await getUserDetail();
+      if (kDebugMode) {
+        print('...........................................................');
+        print(userDetail);
+      }
+
+      // Check if the status is 'active' or 'inactive'
+       status = userDetail['status'] ?? ''; // Get status from the response
+
+      // Print "yes" if status is active, otherwise print nothing
+      if (status == 'active') {
+        print("yes");
+      }
+
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error fetching user data: $e");
+      }
+    }
+  }
 
   Future<void> _shareImage() async {
     setState(() {
@@ -532,7 +626,7 @@ print(widget.title);
                   color: Colors.black,
                 ),
                 tooltip: 'Download Image',
-                onPressed: !isProcessing ? _downloadImage : null,
+                onPressed: status == 'active' && !isProcessing ? _downloadImage1 : (status != 'inactive' && !isProcessing ? _downloadImage : null),
               ),
             ),
           ),

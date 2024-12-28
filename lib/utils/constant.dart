@@ -114,6 +114,8 @@ const USER_ID = 'USER_ID';
 
 const NAME = 'NAME';
 
+const STATUS = 'STATUS';
+
 const EMAIL = 'EMAIL';
 
 const VENDOR_TYPE = 'VENDOR_TYPE';

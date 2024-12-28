@@ -38,6 +38,9 @@ abstract class _AppStore with Store {
   @observable
   String Name = '';
 
+  @observable
+  String Status = '';
+
 
   @observable
   String Email = '';
@@ -69,6 +72,18 @@ abstract class _AppStore with Store {
     try {
       Name = val;
       if (!isInitializing) await setValue(NAME, val);
+    } catch (e) {
+      // Handle error
+      //print("Error setting first name: $e");
+    }
+  }
+
+
+  @action
+  Future<void> setStatus(String val, {bool isInitializing = false}) async {
+    try {
+      Status = val;
+      if (!isInitializing) await setValue(STATUS, val);
     } catch (e) {
       // Handle error
       //print("Error setting first name: $e");

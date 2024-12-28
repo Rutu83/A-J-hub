@@ -12,7 +12,6 @@ class CategoryTopics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('.........................................$title');
 
     // Check if images data is null or empty
     if (images == null || images!.isEmpty) {

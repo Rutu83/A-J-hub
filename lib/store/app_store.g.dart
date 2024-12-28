@@ -162,6 +162,14 @@ mixin _$AppStore on _AppStore, Store {
         .run(() => super.setName(val, isInitializing: isInitializing));
   }
 
+  late final _$setStatusAsyncAction =
+  AsyncAction('_AppStore.setstatus', context: context);
+
+  @override
+  Future<void> setStatus(String val, {bool isInitializing = false}) {
+    return _$setStatusAsyncAction
+        .run(() => super.setStatus(val, isInitializing: isInitializing));
+  }
 
 
   late final _$setEmailAsyncAction =
@@ -232,6 +240,7 @@ isLoading: ${isLoading},
 number: ${number},
 name: ${Name}
 email: ${Email}
+status: ${Status}
     ''';
   }
 }
