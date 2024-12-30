@@ -133,7 +133,54 @@ class _BusinessFormState extends State<BusinessForm> {
         _isLoading = true; // Start loading indicator
       });
 
+      // Validate required fields
+      if (_selectedCategoryId == null || _selectedCategoryId!.isEmpty) {
+        _showSnackbar('Please select a category.', Colors.red);
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      if (selectedState == null || selectedState!.isEmpty) {
+        _showSnackbar('Please select a state.', Colors.red);
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      // Validate website URL format
+      if (_websiteController.text.isNotEmpty &&
+          !RegExp(r"^(https?://)?([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?$")
+              .hasMatch(_websiteController.text)) {
+        _showSnackbar('Please enter a valid website URL.', Colors.red);
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
       try {
+        // Check if the logo file size is within the allowed limit (2048 KB = 2 MB)
+        if (_image != null) {
+          int fileSize = await _image!.length(); // Get the file size in bytes
+          if (fileSize > 2048 * 1024) { // If the file is larger than 2 MB
+            _showSnackbar('The logo image must not exceed 2 MB.', Colors.red);
+            setState(() {
+              _isLoading = false;
+            });
+            return;
+          }
+        } else {
+          // If the logo is not provided, show an error
+          _showSnackbar('Please provide a logo for your business.', Colors.red);
+          setState(() {
+            _isLoading = false;
+          });
+          return;
+        }
+
         // Create a multipart request
         var request = http.MultipartRequest(
           'POST',
@@ -158,7 +205,6 @@ class _BusinessFormState extends State<BusinessForm> {
         request.fields['website'] = _websiteController.text; // Optional
         request.fields['address'] = _addressController.text;
         request.fields['category_id'] = _selectedCategoryId ?? ''; // Use an empty string if null
-
         request.fields['state_id'] = selectedState ?? '';
 
         // Add logo as a file
@@ -182,32 +228,59 @@ class _BusinessFormState extends State<BusinessForm> {
         if (response.statusCode == 200 || response.statusCode == 201) {
           // Successfully submitted
           debugPrint('Business profile submitted successfully!');
+          _showSnackbar('Business profile submitted successfully!', Colors.green);
           setState(() {
             _isLoading = false;
           });
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const BusinessList()),
-          );
+          Navigator.pop(context);
         } else {
-          // Handle server errors
+          // Handle server errors based on the status code
           final errorMessage = await response.stream.bytesToString();
 
-          // Parse the error message if it's in JSON format
-          try {
-            var errorJson = json.decode(errorMessage);
-            String error = errorJson['error'] ?? 'Unknown error';
-            debugPrint('Failed: ${response.statusCode}');
-            debugPrint('Response Body: $error');
+          String errorMsg = 'An unexpected error occurred. Please try again.';
 
-            // Display the error message using the dialog
-            _showErrorDialog('Error: ${response.statusCode}', error);
-          } catch (e) {
-
-            // If there's an issue with JSON parsing, log the raw message
-            debugPrint('Failed to parse error message: $errorMessage');
-            _showErrorDialog('Error', 'An unexpected error occurred: $errorMessage');
+          // Set different error messages based on status code
+          switch (response.statusCode) {
+            case 400:
+              errorMsg = 'The request could not be understood or was missing required parameters.';
+              break;
+            case 401:
+              errorMsg = 'You are not authorized to perform this action. Please check your credentials.';
+              break;
+            case 403:
+              errorMsg = 'You do not have permission to access this resource.';
+              break;
+            case 404:
+              errorMsg = 'The requested resource was not found.';
+              break;
+            case 422:
+              var errorJson = json.decode(errorMessage);
+              if (errorJson['category_id'] != null) {
+                errorMsg = 'Please select a category.';
+              } else if (errorJson['website'] != null) {
+                errorMsg = 'Please enter a valid website URL.';
+              } else if (errorJson['state_id'] != null) {
+                errorMsg = 'Please select a state.';
+              }
+              break;
+            case 500:
+              errorMsg = 'An unexpected error occurred on the server. Please try again later.';
+              break;
+            case 502:
+              errorMsg = 'There was an issue connecting to the server. Please try again later.';
+              break;
+            case 503:
+              errorMsg = 'The server is temporarily unavailable. Please try again later.';
+              break;
+            default:
+              errorMsg = 'An unexpected error occurred. Please try again.';
+              break;
           }
+
+          // Display the error message using the snackbar
+          _showSnackbar(errorMsg, Colors.red);
+          debugPrint('Failed: ${response.statusCode}');
+          debugPrint('Response Body: $errorMessage');
 
           setState(() {
             _isLoading = false;
@@ -219,7 +292,7 @@ class _BusinessFormState extends State<BusinessForm> {
         debugPrintStack(stackTrace: stackTrace);
 
         // Show a generic error message
-        _showErrorDialog('Error', 'An unexpected error occurred. Please try again.');
+        _showSnackbar('An unexpected error occurred. Please try again.', Colors.red);
         setState(() {
           _isLoading = false;
         });
@@ -227,29 +300,47 @@ class _BusinessFormState extends State<BusinessForm> {
     }
   }
 
+  void _showSnackbar(String message, Color color) {
+    // Dismiss any existing SnackBars first
+    ScaffoldMessenger.of(context).clearSnackBars();
 
-
-
-// Show error message in a dialog
-  void _showErrorDialog(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+    // Show the new SnackBar with custom floating behavior
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,  // Makes the Snackbar float above the content
+        margin: const EdgeInsets.all(5),      // Adds margin around the Snackbar
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),  // Rounded corners for a sleek look
+        ),
+        backgroundColor: color,  // Set the background color (green for success, red for error)
+        content: Row(
+          children: [
+            // Icon displayed in the Snackbar
+            const Icon(Icons.check_circle, color: Colors.white),
+            const SizedBox(width: 10),  // Spacer between the icon and the message
+            Expanded(
+              child: Text(
+                message,  // The dynamic message you want to display
+                style: GoogleFonts.poppins(
+                  fontSize: 14.sp,  // Adjust font size as needed
+                  color: Colors.black,  // Text color inside the Snackbar
+                ),
+              ),
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
+
+
+
+
+
+
+
+
+
 
 
   // Navigate to the category selection screen
@@ -364,7 +455,7 @@ class _BusinessFormState extends State<BusinessForm> {
 
               SizedBox(height: 16.h),
 
-              buildLabel('Business Category (Optional)'),
+              buildLabel('Business Category', isRequired: true),
               InkWell(
                 onTap: _navigateToCategorySelection,
                 child: Container(
