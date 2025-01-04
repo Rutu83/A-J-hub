@@ -148,13 +148,6 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
-
-
-
-
-
-
   Future<void> _fetchBannerData() async {
     const apiUrl = 'https://ajhub.co.in/api/getbanners';
     try {
