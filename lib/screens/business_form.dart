@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/main.dart';
-import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_selection_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

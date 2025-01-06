@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -33,7 +34,7 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('https://ajhub.co.in/api/forget-password'),
+        Uri.parse('${BASE_URL}forget-password'),
         body: {
           'email': email,
         },

@@ -8,6 +8,7 @@ import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_topics.dart';
 import 'package:allinone_app/screens/charity_screen.dart';
 import 'package:allinone_app/screens/refer_earn.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
@@ -81,7 +82,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchBusinessData() async {
-    const apiUrl = 'https://ajhub.co.in/api/getbusinessprofile';
+    const apiUrl = '${BASE_URL}getbusinessprofile';
     String token = appStore.token; // Replace with your actual token
 
     try {
@@ -149,7 +150,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchBannerData() async {
-    const apiUrl = 'https://ajhub.co.in/api/getbanners';
+    const apiUrl = '${BASE_URL}getbanners';
     try {
       final response = await http.get(Uri.parse(apiUrl));
 

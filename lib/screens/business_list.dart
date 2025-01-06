@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/business_form.dart';
 import 'package:allinone_app/screens/edit_business_form.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -50,7 +51,7 @@ class BusinessListState extends State<BusinessList> {
   }
 
   Future<void> fetchBusinessData() async {
-    const apiUrl = 'https://ajhub.co.in/api/getbusinessprofile';
+    const apiUrl = '${BASE_URL}getbusinessprofile';
     String token = appStore.token; // Replace with your actual token
 
     try {

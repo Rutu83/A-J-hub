@@ -42,7 +42,9 @@ Future<LoginResponse> loginUser(Map request) async {
         await buildHttpResponse('login',
             request: request, method: HttpMethodType.POST))));
 
-    print('{{{{{{{{{${res}}}}}}}}}}}}}');
+    if (kDebugMode) {
+      print('{{{{{{{{{$res}}}}}}}}}}}}');
+    }
 
     return res;
   } catch (e) {

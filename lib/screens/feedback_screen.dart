@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:allinone_app/screens/dashbord_screen.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -249,7 +250,7 @@ class  FeedbackScreenState extends State<FeedbackScreen> {
     });
 
     // Replace with your API URL and token
-    const String apiUrl = "https://ajhub.co.in/api/feedback";
+    const String apiUrl = "${BASE_URL}feedback";
     String token = appStore.token; // Replace with actual token
 
     try {

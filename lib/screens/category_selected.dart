@@ -50,7 +50,6 @@ class CategorySelectedState extends State<CategorySelected> {
   bool isFramesLoading = true;
   bool isProcessing = false;
   String progressMessage = "";
-
   final GlobalKey _repaintKey = GlobalKey();
 
   @override
@@ -71,13 +70,13 @@ class CategorySelectedState extends State<CategorySelected> {
   Future<void> _initializeData() async {
     await _loadFrames();
     setState(() {
-      isLoading = false; // Everything loaded
+      isLoading = false;
     });
   }
 
   Future<void> printActiveBusinessData() async {
     setState(() {
-      isLoading = true; // Start loading
+      isLoading = true;
     });
 
     try {
@@ -86,10 +85,7 @@ class CategorySelectedState extends State<CategorySelected> {
 
       if (activeBusinessData != null) {
         final activeBusiness = json.decode(activeBusinessData);
-
-        if (kDebugMode) {
-          print(activeBusiness);
-        }
+        if (kDebugMode) {print(activeBusiness);}
 
         setState(() {
           businessName = activeBusiness['business_name'] ?? 'Not Provided';
@@ -116,7 +112,7 @@ class CategorySelectedState extends State<CategorySelected> {
       );
     } finally {
       setState(() {
-        isLoading = false; // End loading
+        isLoading = false;
       });
     }
   }
@@ -226,7 +222,6 @@ class CategorySelectedState extends State<CategorySelected> {
   Future<void> _incrementDownloadCount(String filePath) async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Safely decode the data and ensure type casting
     Map<String, dynamic> downloadedPaths = json.decode(
       prefs.getString('downloaded_paths') ?? '{}',
     );
@@ -238,11 +233,9 @@ class CategorySelectedState extends State<CategorySelected> {
       json.decode(prefs.getString('category_download_count') ?? '{}'),
     );
 
-    // Initialize counts for the current title if not already present
     categoryDownloadCount[widget.title] = categoryDownloadCount[widget.title] ?? 0;
     downloadedPathsSafe[widget.title] = downloadedPathsSafe[widget.title] ?? [];
 
-    // Check if the download limit is reached
     if (categoryDownloadCount[widget.title]! < maxDownloads) {
       categoryDownloadCount[widget.title] = categoryDownloadCount[widget.title]! + 1;
       downloadedPathsSafe[widget.title]!.add(filePath);
@@ -251,7 +244,7 @@ class CategorySelectedState extends State<CategorySelected> {
       await prefs.setString('downloaded_paths', json.encode(downloadedPathsSafe));
 
       if (categoryDownloadCount[widget.title] == maxDownloads) {
-     //   _showCompletionPopup(widget.title);
+
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -271,7 +264,6 @@ class CategorySelectedState extends State<CategorySelected> {
   Future<void> _showDownloads() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Decode the data safely and ensure correct type casting
     Map<String, dynamic> downloadedPaths = json.decode(
       prefs.getString('downloaded_paths') ?? '{}',
     );
@@ -279,10 +271,7 @@ class CategorySelectedState extends State<CategorySelected> {
           (key, value) => MapEntry(key, List<String>.from(value ?? [])),
     );
 
-    // Safely access the paths for the current title
     List<String> pathsForTitle = downloadedPathsSafe[widget.title] ?? [];
-
-
   }
 
   Future<void> _downloadImage() async {
@@ -513,7 +502,9 @@ class CategorySelectedState extends State<CategorySelected> {
 
       // Print "yes" if status is active, otherwise print nothing
       if (status == 'active') {
-        print("yes");
+        if (kDebugMode) {
+          print("yes");
+        }
       }
 
     } catch (e) {

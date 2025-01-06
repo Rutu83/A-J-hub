@@ -1,4 +1,3 @@
-import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/active_user_screen2.dart';
 import 'package:allinone_app/screens/product_and_service.dart';
@@ -51,7 +50,9 @@ class DashboardScreenState extends State<DashboardScreen> {
         });
       } else {
         // If status is 'active', print the status
-        print('////////////////////////////////$status');
+        if (kDebugMode) {
+          print('////////////////////////////////$status');
+        }
       }
 
       // Store user details as variables

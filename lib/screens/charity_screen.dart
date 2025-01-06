@@ -1,3 +1,4 @@
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,7 +26,7 @@ class  CharityScreenState extends State<CharityScreen> {
   }
 
   Future<void> fetchCharityData() async {
-    const String url = 'https://ajhub.co.in/api/charity/total';
+    const String url = '${BASE_URL}charity/total';
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {

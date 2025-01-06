@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -93,7 +94,7 @@ class ActiveUserPageState extends State<ActiveUserPage> {
       return;
     }
 
-    const String apiUrl = 'https://ajhub.co.in/api/active/user';
+    const String apiUrl = '${BASE_URL}active/user';
 
     setState(() {
       _isSubmitting = true; // Show loading indicator

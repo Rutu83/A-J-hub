@@ -1,5 +1,6 @@
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -169,7 +170,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
 
   void _submitEnquiry(String enquiry, int productId) async {
-    // Debug prints for local verification
+
     debugPrint("Product ID: $productId");
     debugPrint("Enquiry: $enquiry");
     debugPrint("UserId: $UserId");
@@ -177,7 +178,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     debugPrint("Email: $email");
     debugPrint("Phone: $phone");
 
-    const String apiUrl = "https://ajhub.co.in/api/submit-inquery";
+    const String apiUrl = "${BASE_URL}submit-inquery";
     String token = appStore.token;
 
     Map<String, dynamic> requestBody = {
@@ -340,7 +341,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(0.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -381,20 +382,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               const SizedBox(height: 5),
 
               // Image Slider
-              Column(
-                children: [
-                  images.isNotEmpty
-                      ? Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.red, // Border color
-                        width: 2.0, // Border width
-                      ),
-                      borderRadius: BorderRadius.circular(15), // Rounded corners for border
-                    ),
-                    child: CarouselSlider(
+
+              Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10),
+                child: Column(
+                  children: [
+                    images.isNotEmpty
+                        ? CarouselSlider(
                       options: CarouselOptions(
-                        height: 400.h,
+                        height: 400, // Fixed height of 450
                         enlargeCenterPage: true,
                         autoPlay: false,
                         onPageChanged: (index, reason) {
@@ -402,74 +398,93 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             _currentIndex = index;
                           });
                         },
-                        viewportFraction: 0.8,
+                        viewportFraction: 1.0, // Set this to 1 to make the image take full width
                       ),
                       items: images.map((imagePath) {
                         return Builder(
                           builder: (BuildContext context) {
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(15),
-                              child: Image.network(
-                                imagePath,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: Colors.grey.shade300, // Background color for placeholder
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.broken_image,
-                                        color: Colors.white,
-                                        size: 50,
+                            return Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey.shade200, // Border color
+                                  width: 1.0, // Border width
+                                ),
+                                borderRadius: BorderRadius.circular(20), // Border radius for rounded corners
+
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20), // Apply rounded corners to the image
+                                child: Image.network(
+                                  imagePath,
+                                  fit: BoxFit.cover, // Ensure the image fully covers the space
+                                  width: double.infinity, // Full width
+                                  height: 400, // Fixed height of 450
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey.shade300, // Background color for placeholder
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.broken_image,
+                                          color: Colors.white,
+                                          size: 50,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
                             );
                           },
                         );
                       }).toList(),
-                    ),
-                  )
-                      : Container(
-                    height: 400.h,
-                    color: Colors.grey.shade300,
-                    child: const Center(
-                      child: Text(
-                        'No Images Available',
-                        style: TextStyle(color: Colors.black54, fontSize: 18),
+                    )
+                        : Container(
+                      height: 400, // Fixed height of 450
+                      color: Colors.grey.shade300,
+                      child: const Center(
+                        child: Text(
+                          'No Images Available',
+                          style: TextStyle(color: Colors.black54, fontSize: 18),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  // Dots Indicator
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: images.asMap().entries.map((entry) {
-                      return GestureDetector(
-                        onTap: () => setState(() {
-                          _currentIndex = entry.key;
-                        }),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200), // Animation duration
-                          curve: Curves.easeInOut, // Animation curve
-                          width: _currentIndex == entry.key ? 12.0 : 8.0, // Enlarged width for active indicator
-                          height: 9, // Constant height
-                          margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: (Theme.of(context).brightness == Brightness.dark
-                                ? Colors.white
-                                : Colors.red)
-                                .withOpacity(_currentIndex == entry.key ? 0.9 : 0.4),
+                    const SizedBox(height: 10),
+                    // Dots Indicator
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: images.asMap().entries.map((entry) {
+                        return GestureDetector(
+                          onTap: () => setState(() {
+                            _currentIndex = entry.key;
+                          }),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200), // Animation duration
+                            curve: Curves.easeInOut, // Animation curve
+                            width: _currentIndex == entry.key ? 12.0 : 8.0, // Enlarged width for active indicator
+                            height: 9, // Constant height
+                            margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: (Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white
+                                  : Colors.red)
+                                  .withOpacity(_currentIndex == entry.key ? 0.9 : 0.4),
+                            ),
                           ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              )
+              ,
+
+
+
+
+
+
+
 
 
 

@@ -3,6 +3,7 @@ import 'dart:io'; // This is required for File operations
 
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -25,7 +26,7 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
   bool _isSubmitting = false;
   final ImagePicker _picker = ImagePicker();
 
-  final String apiUrl = "https://ajhub.co.in/api/payment/approve";
+  final String apiUrl = "${BASE_URL}payment/approve";
   final String token = appStore.token; // Replace with your actual token
 
   // Method to pick a file using ImagePicker

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/main.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -39,7 +40,7 @@ class KycScreenState extends State<KycScreen> {
 
 
   Future<void> _getKycData() async {
-    const String apiUrl = "https://ajhub.co.in/api/kyc/submit";
+    const String apiUrl = "${BASE_URL}kyc/submit";
     final String bearerToken = appStore.token;
 
     try {
@@ -103,7 +104,7 @@ class KycScreenState extends State<KycScreen> {
   }
 
   Future<void> _updateKycData() async {
-    const String apiUrl = "https://ajhub.co.in/api/kyc/submit";
+    const String apiUrl = "${BASE_URL}kyc/submit";
     final String bearerToken = appStore.token;
 
     if (bearerToken.isEmpty) {

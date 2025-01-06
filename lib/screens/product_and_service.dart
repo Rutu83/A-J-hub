@@ -98,130 +98,136 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                 itemBuilder: (context, index) {
                   final product = products[index];
                   final borderColor = borderColors[index % borderColors.length];
-                  return Container(
-                    margin: const EdgeInsets.symmetric(vertical: 10), // Reduced vertical margin
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(
-                        color: borderColor,
-                        width: 1,
-                      ),
-                      borderRadius: BorderRadius.circular(12), // Reduced corner radius
-                      boxShadow: [
-                        BoxShadow(
-                          color: borderColor.withOpacity(0.1),
-                          spreadRadius: 1,
-                          blurRadius: 2,
-                          offset: const Offset(0, 1),
+                  return InkWell(
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetailPage(product: product),
                         ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0), // Reduced padding
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Product Image
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey.shade100,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.network(
-                                product['thumb_image']!,
-                                height: 100.h, // Reduced image height
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) {
-                                    return child; // Image is fully loaded
-                                  }
-                                  // Show shimmer effect while loading
-                                  return Shimmer.fromColors(
-                                    baseColor: Colors.grey.shade300,
-                                    highlightColor: Colors.grey.shade100,
-                                    child: Container(
-                                      height: 100.h,
-                                      width: double.infinity,
-                                      color: Colors.grey.shade300,
-                                    ),
-                                  );
-                                },
-                                errorBuilder: (context, error, stackTrace) {
-                                  // Placeholder when image fails to load
-                                  return Container(
-                                    color: Colors.grey.shade200,
-                                    height: 100.h,
-                                    width: double.infinity,
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.broken_image,
-                                        size: 40, // Reduced icon size
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          // Product Title
-                          Container(
-                            padding: const EdgeInsets.only(left: 6.0, right: 6.0), // Reduced padding
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    product['title']!,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14.sp, // Reduced font size
-                                      fontWeight: FontWeight.bold,
-                                      color: borderColor,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProductDetailPage(product: product),
-                                      ),
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.arrow_right,
-                                    color: borderColor,
-                                    size: 20.sp, // Reduced icon size
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Product Description
-                          Container(
-                            padding: const EdgeInsets.all(6.0), // Reduced padding
-                            child: Text(
-                              product['short_description']!,
-                              style: GoogleFonts.poppins(
-                                fontSize: 10.sp, // Reduced font size
-                                color: Colors.black54,
-                              ),
-                              maxLines: 3, // Reduced max lines
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                      );
+
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 10), // Reduced vertical margin
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
+                          color: borderColor,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.circular(12), // Reduced corner radius
+                        boxShadow: [
+                          BoxShadow(
+                            color: borderColor.withOpacity(0.1),
+                            spreadRadius: 1,
+                            blurRadius: 2,
+                            offset: const Offset(0, 1),
                           ),
                         ],
                       ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0), // Reduced padding
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Product Image
+                            Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.grey.shade100,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Image.network(
+                                  product['thumb_image']!,
+                                  height: 100.h, // Reduced image height
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (context, child, loadingProgress) {
+                                    if (loadingProgress == null) {
+                                      return child; // Image is fully loaded
+                                    }
+                                    // Show shimmer effect while loading
+                                    return Shimmer.fromColors(
+                                      baseColor: Colors.grey.shade300,
+                                      highlightColor: Colors.grey.shade100,
+                                      child: Container(
+                                        height: 100.h,
+                                        width: double.infinity,
+                                        color: Colors.grey.shade300,
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder: (context, error, stackTrace) {
+                                    // Placeholder when image fails to load
+                                    return Container(
+                                      color: Colors.grey.shade200,
+                                      height: 100.h,
+                                      width: double.infinity,
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.broken_image,
+                                          size: 40, // Reduced icon size
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            // Product Title
+                            Container(
+                              padding: const EdgeInsets.only(left: 6.0, right: 6.0), // Reduced padding
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      product['title']!,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14.sp, // Reduced font size
+                                        fontWeight: FontWeight.bold,
+                                        color: borderColor,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {
+
+                                    },
+                                    icon: Icon(
+                                      Icons.arrow_right,
+                                      color: borderColor,
+                                      size: 20.sp, // Reduced icon size
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // Product Description
+                            Container(
+                              padding: const EdgeInsets.all(6.0), // Reduced padding
+                              child: Text(
+                                product['short_description']!,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 10.sp, // Reduced font size
+                                  color: Colors.black54,
+                                ),
+                                maxLines: 3, // Reduced max lines
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  );
+                  ) ;
                 },
               ),
             ),
