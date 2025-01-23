@@ -38,6 +38,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String status = '';
   var userId;
   var totalDownline;
   var directDownline;
@@ -91,6 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       setState(() {
         userId = userDetail['_id'];
+        status = userDetail['statgfus'];
         totalDownline = userDetail['total_downline_count'] ?? '0';
         directDownline = userDetail['direct_team_count'] ?? '0';
 
@@ -417,10 +419,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildMenuOption(IconData icon, String label, [String? url]) {
+    // Check if the "Refer & Earn" or "My Business" button should be disabled
+    bool isButtonDisabled = (label == "Refer & Earn" || label == "My Business") && status != "active";
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () async {
+        onTap: isButtonDisabled
+            ? null  // Disable the tap if the status is not active
+            : () async {
           if (label == "Join Our Community") {
             openWhatsApp(context);
           } else if (label == "FAQs") {
@@ -494,10 +501,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               MaterialPageRoute(builder: (context) => const DownloadedImagesPage()),
             );
           } else if (label == "Refer & Earn") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ReferEarn()),
-            );
+            if (status == "active") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ReferEarn()),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("This feature is disabled because your status is not active."),
+                ),
+              );
+            }
           } else if (label == "Contact Us") {
             Navigator.push(
               context,
@@ -522,65 +537,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
         },
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 15.w), // Reduced padding for a compact design
+          padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 15.w),
           decoration: BoxDecoration(
-            color: Colors.white, // Clean white background
+            color: isButtonDisabled ? Colors.grey.shade200 : Colors.white, // Lighter grey for disabled state
             border: Border.all(
-              color: Colors.grey.shade300, // Light grey border for subtle contrast
-              width: 1.0, // Thin border for a minimalistic look
+              color: isButtonDisabled ? Colors.grey.shade400 : Colors.grey.shade300, // Subtle border for disabled state
+              width: 1.0,
             ),
-            borderRadius: BorderRadius.circular(12.r), // Slightly smaller rounded corners
-            boxShadow: [
+            borderRadius: BorderRadius.circular(12.r),
+            boxShadow: isButtonDisabled
+                ? []  // Remove shadow when disabled to make it appear flat
+                : [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04), // Lighter shadow for less depth
+                color: Colors.black.withOpacity(0.04),
                 blurRadius: 6,
-                offset: const Offset(0, 2), // Reduced shadow offset for subtle effect
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center, // Vertically aligns all items
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                padding: EdgeInsets.all(6.w), // Reduced padding for smaller icon background
+                padding: EdgeInsets.all(6.w),
                 decoration: BoxDecoration(
-                  color: Colors.red.shade50, // Light red background for the icon
-                  shape: BoxShape.circle, // Circular icon container
-                  boxShadow: [
+                  color: isButtonDisabled ? Colors.grey.shade100 : Colors.red.shade50, // Lighter background for disabled icon
+                  shape: BoxShape.circle,
+                  boxShadow: isButtonDisabled
+                      ? []  // Remove shadow for disabled state
+                      : [
                     BoxShadow(
-                      color: Colors.red.withOpacity(0.08), // Subtle red shadow for emphasis
+                      color: Colors.red.withOpacity(0.08),
                       blurRadius: 4,
-                      offset: const Offset(0, 1), // Smaller shadow for compact design
+                      offset: const Offset(0, 1),
                     ),
                   ],
                 ),
                 child: Icon(
                   icon,
-                  color: Colors.red.shade700, // Deep red color for the icon
-                  size: 22.sp, // Slightly smaller icon size
+                  color: isButtonDisabled ? Colors.grey.shade600 : Colors.red.shade700, // Disabled icon color
+                  size: 22.sp,
                 ),
               ),
-              SizedBox(width: 12.w), // Reduced spacing between icon and label
+              SizedBox(width: 12.w),
               Expanded(
                 child: Text(
                   label,
                   style: GoogleFonts.poppins(
-                    fontSize: 14.sp, // Smaller font size for compact text
-                    fontWeight: FontWeight.w500, // Medium weight for clarity
-                    color: Colors.black87, // Neutral black for text readability
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                    color: isButtonDisabled ? Colors.grey.shade600 : Colors.black87, // Disabled text color
                   ),
                 ),
               ),
               Icon(
                 Icons.arrow_forward_ios_outlined,
-                color: Colors.grey.shade500, // Softer grey for navigation icon
-                size: 16.sp, // Reduced size for compactness
+                color: isButtonDisabled ? Colors.grey.shade600 : Colors.grey.shade500, // Disabled arrow color
+                size: 16.sp,
               ),
             ],
           ),
-        )
-
-
+        ),
 
       ),
     );

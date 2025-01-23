@@ -26,7 +26,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   final TextEditingController _enquiryController = TextEditingController();
 
   int _currentIndex = 0; // Current index for the slider indicator
-  int UserId = 0; // Use Uid as UserId (since it's a string in the response)
+  int userId = 0; // Use Uid as UserId (since it's a string in the response)
   String firstName = ''; // Default value for firstName
   String email = ''; // Default value for email
   String phone = ''; // Store phone as a String
@@ -56,7 +56,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       }
 
       setState(() {
-        UserId = userDetail['userId'] ?? ''; // Assign Uid as UserId
+        userId = userDetail['userId'] ?? ''; // Assign Uid as UserId
         firstName = userDetail['username'] ?? ''; // Default to empty string if null
         email = userDetail['email'] ?? ''; // Default to empty string if null
         phone = userDetail['phone_number'] ?? ''; // Handle phone as String
@@ -173,7 +173,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
     debugPrint("Product ID: $productId");
     debugPrint("Enquiry: $enquiry");
-    debugPrint("UserId: $UserId");
+    debugPrint("UserId: $userId");
     debugPrint("First Name: $firstName");
     debugPrint("Email: $email");
     debugPrint("Phone: $phone");
@@ -182,7 +182,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     String token = appStore.token;
 
     Map<String, dynamic> requestBody = {
-      "user_id": UserId,
+      "user_id": userId,
       "project_id": productId,
       "inquery_note": enquiry,
       "email": email,

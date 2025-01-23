@@ -13,6 +13,7 @@ import 'package:allinone_app/model/team_model.dart';
 import 'package:allinone_app/model/transaction_model.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
 import 'package:allinone_app/network/network_utils.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:http/http.dart' as http;
@@ -43,7 +44,7 @@ Future<LoginResponse> loginUser(Map request) async {
             request: request, method: HttpMethodType.POST))));
 
     if (kDebugMode) {
-      print('{{{{{{{{{$res}}}}}}}}}}}}');
+      print('{{{{{{{{{${res.userData}}}}}}}}}}}}}');
     }
 
     return res;
@@ -105,7 +106,7 @@ Future<void> updateProfile({
 
 
   final String authToken = appStore.token;
-  const String apiUrl = 'https://ajhub.co.in/api/profile/update';
+  const String apiUrl = '${BASE_URL}profile/update';
 
   final Map<String, dynamic> payload = {
     'username': name,
@@ -118,7 +119,7 @@ Future<void> updateProfile({
       Uri.parse(apiUrl),
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer $authToken", // Fix the token format with Bearer
+        "Authorization": "Bearer $authToken",
       },
       body: json.encode(payload),
     );
@@ -129,8 +130,6 @@ Future<void> updateProfile({
         print('Status Code: ${response.statusCode}');
       }
       onSuccess();
-      // _showSnackBar(context, 'Password changed successfully', Colors.green);
-      // Navigator.pop(context); // Navigate back after successful password change
     } else {
       // Show error from server response
 

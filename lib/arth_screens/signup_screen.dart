@@ -414,11 +414,11 @@ class SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    if (selectedDropdown1 == 'Select Sponsor' || selectedDropdown2 == 'Select Your Parent') {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select both Sponsor and Parent')));
-      return;
-    }
+    // if (selectedDropdown1 == 'Select Sponsor' || selectedDropdown2 == 'Select Your Parent') {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //       const SnackBar(content: Text('Please select both Sponsor and Parent')));
+    //   return;
+    // }
 
     if (_formKey.currentState!.validate()) {
       if (_passwordController.text != _confirmPasswordController.text) {
@@ -1053,12 +1053,6 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
               borderSide: BorderSide(color: Colors.red.shade900 ), // Red border on error
             ),
           ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please $label';
-            }
-            return null;
-          },
         );
       },
     );

@@ -97,6 +97,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
 
       String error = e.toString();
 
+
       if (error.contains("Token is Expired")) {
         error = "Invalid email or password.";
       }
