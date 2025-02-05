@@ -1,4 +1,5 @@
 import 'package:allinone_app/network/rest_apis.dart';
+import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:allinone_app/screens/business_list.dart'; // Import the BusinessList screen
 
 class ReferEarn extends StatefulWidget {
   const ReferEarn({super.key});
@@ -17,6 +19,7 @@ class ReferEarn extends StatefulWidget {
 class _ReferEarnState extends State<ReferEarn> {
   bool _isLoading = true;
   String referralCode = "Loading...";
+  String File = ' ';
 
   @override
   void initState() {
@@ -26,7 +29,7 @@ class _ReferEarnState extends State<ReferEarn> {
       statusBarIconBrightness: Brightness.light, // Light-colored icons
       statusBarBrightness: Brightness.dark, // Dark content for iOS
     ));
-
+    File = 'assets/images/refer_earn.png';
     fetchUserData();
   }
 
@@ -52,10 +55,10 @@ class _ReferEarnState extends State<ReferEarn> {
     }
   }
 
-
+  // Check if the user's membership is active (replace with actual condition)
+  bool isMembershipActive = false;  // Set based on your actual membership logic
 
   Future<void> _shareOnWhatsApp(String referralCode) async {
-    // Create the custom message with the referral code
     final String message = '''
 *Join AJHub today and unlock exciting benefits!* 🚀
 
@@ -66,7 +69,6 @@ Start Promoting today and maximize your income! 💰
 *Referral Code*: $referralCode 🔑
 ''';
 
-    // Encode the message to handle spaces and special characters
     final String encodedMessage = Uri.encodeComponent(message);
     final String url = 'https://wa.me/?text=$encodedMessage';
 
@@ -77,8 +79,38 @@ Start Promoting today and maximize your income! 💰
     }
   }
 
-
-
+  void _showReferralDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Activate Membership"),
+          content: Text(
+            "You can get referral benefits after activating your membership.",
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text("Go to My Business"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Navigate to the BusinessList screen
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const BusinessList()),
+                );
+              },
+            ),
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,14 +121,13 @@ Start Promoting today and maximize your income! 💰
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.white, // Set text color to white
+            color: Colors.white,
           ),
         ),
         backgroundColor: Colors.red,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-
       body: _isLoading
           ? const Center(
         child: CircularProgressIndicator(
@@ -107,7 +138,7 @@ Start Promoting today and maximize your income! 💰
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildImage('assets/images/refer_earn.png'),
+            _buildImage(File),
             _buildCopyField(),
             const SizedBox(height: 30),
             _buildButtonRow(),
@@ -120,7 +151,17 @@ Start Promoting today and maximize your income! 💰
   Widget _buildImage(String assetPath) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
-      child: ClipRRect(
+      child: _isLoading
+          ? Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: Container(
+          width: double.infinity,
+          height: 200.h,
+          color: Colors.white,
+        ),
+      )
+          : ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Image.asset(
           assetPath,
@@ -136,14 +177,14 @@ Start Promoting today and maximize your income! 💰
       child: DottedBorder(
         borderType: BorderType.RRect,
         radius: const Radius.circular(12),
-        dashPattern: const [8, 4], // Customize the dash pattern
+        dashPattern: const [8, 4],
         color: Colors.red,
         strokeWidth: 2,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: Colors.red.shade50, // Light background for contrast
+            color: Colors.red.shade50,
           ),
           child: Row(
             children: [
@@ -153,7 +194,7 @@ Start Promoting today and maximize your income! 💰
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
-                    color: Colors.red.shade900, // Darker red for better readability
+                    color: Colors.red.shade900,
                   ),
                 ),
               ),
@@ -190,7 +231,11 @@ Start Promoting today and maximize your income! 💰
           Expanded(
             child: ElevatedButton(
               onPressed: () {
-                _shareOnWhatsApp(referralCode);
+                if (!isMembershipActive) {
+                  _showReferralDialog(); // Show the dialog if membership is not active
+                } else {
+                  _shareOnWhatsApp(referralCode); // Proceed with referral if membership is active
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -226,14 +271,13 @@ Start Promoting today and maximize your income! 💰
               shadowColor: Colors.grey.withOpacity(0.2),
             ),
             child: Image.asset(
-              'assets/images/whatsapp2.png', // Use a high-resolution WhatsApp icon
-              width: 36, // Adjust the size
-              height: 36, // Adjust the size
+              'assets/images/whatsapp2.png',
+              width: 36,
+              height: 36,
             ),
           ),
         ],
       ),
     );
   }
-
 }

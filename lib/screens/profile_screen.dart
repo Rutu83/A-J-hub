@@ -21,6 +21,7 @@ import 'package:allinone_app/screens/transaction_history.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -92,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       setState(() {
         userId = userDetail['_id'];
-        status = userDetail['statgfus'];
+        status = userDetail['statgfus'].toString();
         totalDownline = userDetail['total_downline_count'] ?? '0';
         directDownline = userDetail['direct_team_count'] ?? '0';
 
@@ -137,10 +138,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         centerTitle: true,
         title: Text(
           'Profile',
-          style: GoogleFonts.poppins( // Updated to use Poppins font
-            fontSize: 20.0.sp, // Slightly increased font size
-            fontWeight: FontWeight.w600, // Made title bold for better visibility
-            color: Colors.black87, // Slightly softened black color for aesthetics
+          style: GoogleFonts.poppins(
+            fontSize: 20.0.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
         ),
         iconTheme: IconThemeData(
@@ -209,11 +210,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                          crossAxisAlignment: CrossAxisAlignment.start, // Aligns text to the start
                          children: [
                            Row(
-                             mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distributes evenly across the row
+                             mainAxisAlignment: MainAxisAlignment.spaceAround, // Distributes evenly across the row
                              children: [
-                               _buildInfoColumn('₹ ${totalIncome ?? 0}', "Total Income", Colors.black),
-                               _buildInfoColumn(totalDownline, "Total Team", Colors.black),
-                               _buildInfoColumn(directDownline, "Direct Joins", Colors.black),
+                               _buildInfoColumn('₹ ${totalIncome ?? 0}', "Gross Income", Colors.black),
+                            //   _buildInfoColumn(totalDownline, "Total Team", Colors.black),
+                               _buildInfoColumn(directDownline, "Total Refer", Colors.black),
                              ],
                            ),
                          ],
@@ -230,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                        children: [
                          _buildWalletBox(
                            "₹ ${GreenWallet ?? 0}", // Show 0 if GreenWallet is null
-                           "Green Wallet",
+                           "Net Income",
                            Colors.green,
                          ),
                          _buildWalletBox(
@@ -368,24 +369,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       children: [
 
-        _buildMenuOption(Icons.person, "My Profile"), // Person icon for profile
+        _buildMenuOption(CupertinoIcons.person_alt_circle, "My Profile"), // Person icon for profile
         _buildMenuOption(Icons.business, "My Business"), // Business icon
         _buildMenuOption(Icons.groups, "Join Our Community"), // Groups for community
-        _buildMenuOption(Icons.group, "Team List"), // Group icon for team
+    //    _buildMenuOption(CupertinoIcons.person_2_alt, "Team List"), // Group icon for team
         _buildMenuOption(Icons.verified_user, "Activation"), // Verified icon for activation
         _buildMenuOption(Icons.card_membership, "Activate Your Membership"), // Membership card icon
-        _buildMenuOption(Icons.shopping_bag, "Our Product & Services"), // Shopping bag for products
-        _buildMenuOption(Icons.receipt, "Transaction History"), // Receipt icon for transactions
-        _buildMenuOption(Icons.download, "Downloaded Images"), // Download icon
-        _buildMenuOption(Icons.feedback, "Feedback"), // Feedback icon
+        _buildMenuOption(CupertinoIcons.bag, "Our Product & Services"), // Shopping bag for products
+        _buildMenuOption(CupertinoIcons.arrow_right_arrow_left_circle, "Transaction History"), // Receipt icon for transactions
+        _buildMenuOption(CupertinoIcons.arrow_down_to_line, "Downloaded Images"), // Download icon
+        _buildMenuOption(CupertinoIcons.smiley, "Feedback"), // Feedback icon
         _buildMenuOption(Icons.question_answer, "FAQs"), // FAQ icon
-        _buildMenuOption(Icons.article, "Terms of Use", 'https://www.ajhub.co.in/term-condition'), // Article icon for terms
+        _buildMenuOption(CupertinoIcons.doc_plaintext, "Terms of Use", 'https://www.ajhub.co.in/term-condition'), // Article icon for terms
         _buildMenuOption(Icons.account_balance_wallet, "KYC Details"), // Wallet for KYC
         _buildMenuOption(Icons.privacy_tip, "Privacy Policy", 'https://www.ajhub.co.in/policy'), // Privacy icon
-        _buildMenuOption(Icons.support, "Help & Support"), // Support icon
-        _buildMenuOption(Icons.policy, "Refund & Policy", 'https://www.ajhub.co.in/refund-policy'), // Policy icon
+        _buildMenuOption(CupertinoIcons.question_circle, "Help & Support"), // Support icon
+        _buildMenuOption(CupertinoIcons.lock_shield, "Refund & Policy", 'https://www.ajhub.co.in/refund-policy'), // Policy icon
         _buildMenuOption(Icons.share, "Refer & Earn"), // Share icon for referrals
-        _buildMenuOption(Icons.lock, "Change Password"), // Lock icon for password change
+        _buildMenuOption(CupertinoIcons.lock_rotation, "Change Password"), // Lock icon for password change
         _buildMenuOption(Icons.logout, "Logout"), // Logout icon
         _buildMenuOption(Icons.delete_forever, "Delete Account"), // Delete icon for account
       ],
@@ -420,13 +421,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildMenuOption(IconData icon, String label, [String? url]) {
     // Check if the "Refer & Earn" or "My Business" button should be disabled
-    bool isButtonDisabled = (label == "Refer & Earn" || label == "My Business") && status != "active";
+    bool isButtonDisabled =  label == "My Business" && status != "active";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: isButtonDisabled
-            ? null  // Disable the tap if the status is not active
+            ? () {
+          // Show a Toast message when the button is disabled
+          showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text("Membership Required"),
+                content: Text(
+                 "You can add your business details after activating your membership package.",
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text("OK"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+
+        }  // Disable the tap if the status is not active
             : () async {
           if (label == "Join Our Community") {
             openWhatsApp(context);
@@ -501,18 +524,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               MaterialPageRoute(builder: (context) => const DownloadedImagesPage()),
             );
           } else if (label == "Refer & Earn") {
-            if (status == "active") {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ReferEarn()),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("This feature is disabled because your status is not active."),
-                ),
-              );
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ReferEarn()),
+            );
+            // if (status == "active") {
+            //   Navigator.push(
+            //     context,
+            //     MaterialPageRoute(builder: (context) => const ReferEarn()),
+            //   );
+            // } else {
+            //   ScaffoldMessenger.of(context).showSnackBar(
+            //     const SnackBar(
+            //       content: Text("This feature is disabled because your status is not active."),
+            //     ),
+            //   );
+            // }
           } else if (label == "Contact Us") {
             Navigator.push(
               context,
@@ -598,7 +625,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
         ),
-
       ),
     );
   }
@@ -622,15 +648,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onPressed: () async {
                 // Perform log out actions
                 var pref = await SharedPreferences.getInstance();
-                await pref.remove(SplashScreenState.keyLogin);
-                await pref.remove(TOKEN);
-                await pref.remove(NAME);
-                await pref.remove(EMAIL);
+
+                // Clear all session-related data from SharedPreferences
+                await pref.remove(SplashScreenState.keyLogin);  // User login data
+                await pref.remove(TOKEN);                      // User token
+                await pref.remove(NAME);                       // User name
+                await pref.remove(EMAIL);                      // User email
+                await pref.remove('active_business');          // Active business data
+
+
+
+                // Clear any other session variables if needed, for example:
                 await appStore.setToken('', isInitializing: true);
                 await appStore.setName('', isInitializing: true);
                 await appStore.setEmail('', isInitializing: true);
 
-                // Navigate to LoginScreen
+                // Navigate to the LoginScreen
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),

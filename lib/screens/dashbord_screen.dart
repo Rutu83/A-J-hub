@@ -1,6 +1,7 @@
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/active_user_screen2.dart';
 import 'package:allinone_app/screens/product_and_service.dart';
+import 'package:allinone_app/screens/refer_earn.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -78,7 +79,7 @@ class DashboardScreenState extends State<DashboardScreen> {
           },
           children:  const [
             HomeScreen(),
-            OportunityScreen(),
+            ReferEarn(),
            // CustomerScreen(),
             OurProductAndService(),
             ProfileScreen(),
@@ -93,7 +94,7 @@ class DashboardScreenState extends State<DashboardScreen> {
               children: [
                 _buildMenuItem(Icons.home, "Home", 0),
                 SizedBox(width: 20.w),
-                _buildMenuItem(Icons.card_giftcard, "Opportunity", 1),
+                _buildMenuItem(Icons.card_giftcard, "Refer and Earn", 1),
 
                 SizedBox(width: 20.w),
                 // BusinessScreen(),

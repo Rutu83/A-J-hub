@@ -87,6 +87,7 @@ class CategorySelectedState extends State<CategorySelected> {
         final activeBusiness = json.decode(activeBusinessData);
         if (kDebugMode) {print(activeBusiness);}
 
+
         setState(() {
           businessName = activeBusiness['business_name'] ?? 'Not Provided';
           ownerName = activeBusiness['owner_name'] ?? 'Not Provided';
@@ -98,7 +99,15 @@ class CategorySelectedState extends State<CategorySelected> {
 
         await _loadFrames();
       } else {
-        _showNoBusinessDialog();
+        setState(() {
+          businessName =  'Aj hub Mobile App';
+          ownerName =  'Aj hub Mobile App';
+          mobileNumber =  '96625 45518';
+          emailAddress =  'ankimjoshi58@gmail.com';
+          address =  'Palanpur , Banaskantha district in Gujarat,385001';
+          website =  'https://ajhub.co.in';
+        });
+        await _loadFrames();
       }
     } catch (error) {
       if (kDebugMode) {

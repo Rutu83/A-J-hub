@@ -3,10 +3,10 @@
 import 'package:allinone_app/model/business_mode.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/team_member_list.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,7 +37,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
       if (data.isNotEmpty) {
         businessData = data.first; // Store the first item
         if (kDebugMode) {
-          print(data);
+
         }
 
       }
@@ -142,10 +142,10 @@ class _BusinessScreenState extends State<BusinessScreen> {
                   children: [
                     _buildIncomeRow(),
                     const SizedBox(height: 10),
-                    _buildBenefitsAnalysis(),
-                    const SizedBox(height: 15),
-                    _buildButton(context),
-                    const SizedBox(height: 15),
+                    // _buildBenefitsAnalysis(),
+                     const SizedBox(height: 15),
+                    // _buildButton(context),
+                    // const SizedBox(height: 15),
 
                     buildCenteredRewardTitle('Reward', Icons.star),
 
@@ -380,6 +380,9 @@ class _BusinessScreenState extends State<BusinessScreen> {
   }
 
 
+
+
+
   Widget _buildButton(BuildContext context) {
     return InkWell(
       onTap: () {
@@ -400,17 +403,30 @@ class _BusinessScreenState extends State<BusinessScreen> {
           borderRadius: BorderRadius.circular(8),
           color: Colors.red,
         ),
-        child: const Text(
-          "Team Member List",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-            fontSize: 18.0,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              CupertinoIcons.person_2_fill,  // Cupertino icon for team members
+              color: Colors.white,
+              size: 24.0,  // Adjust icon size as needed
+            ),
+            const SizedBox(width: 8.0),  // Space between icon and text
+            Text(
+              "Team Member List",
+              style: GoogleFonts.roboto(  // Apply Google Font (Roboto)
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: 18.0,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+
 
   Widget _buildIncomeRow() {
     return Column(
@@ -419,33 +435,33 @@ class _BusinessScreenState extends State<BusinessScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildIncomeContainer(
-              "1st Circle Income",
+              "Referral Income",
               businessData?.business?.sponserIncome.toString() ?? '0',
               Icons.account_balance_wallet,
             ),
             _buildIncomeContainer(
-              'Total Income',
-              businessData?.business?.totalIncome.toString() ?? '0',
-              Icons.attach_money,
-            ),
-          ],
-        ),
-        const SizedBox(height: 16.0), // More spacing for better layout
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildIncomeContainer(
-              'Direct Circle',
+              'Refer User',
               businessData?.business?.directTeamCount.toString() ?? '0',
-              Icons.people,
-            ),
-            _buildIncomeContainer(
-              'Total Circle',
-              businessData?.business?.totalTeamCount.toString() ?? '0',
-              Icons.group,
+              CupertinoIcons.person_2_square_stack,
             ),
           ],
         ),
+        // const SizedBox(height: 16.0), // More spacing for better layout
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   children: [
+        //     _buildIncomeContainer(
+        //       'Direct Circle',
+        //       businessData?.business?.directTeamCount.toString() ?? '0',
+        //       Icons.people,
+        //     ),
+        //     _buildIncomeContainer(
+        //       'Total Circle',
+        //       businessData?.business?.totalTeamCount.toString() ?? '0',
+        //       Icons.group,
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }
@@ -494,14 +510,25 @@ class _BusinessScreenState extends State<BusinessScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              Text(
-                '₹$income',
+              if (title == "Refer User")
+            Text(
+                '$income',
                 style: GoogleFonts.poppins(
                   color: Colors.red.shade600,
                   fontWeight: FontWeight.bold,
                   fontSize: 16.sp, // Larger font for emphasis
                 ),
               ),
+
+              if (title != "Refer User")
+                Text(
+                  '₹$income',
+                  style: GoogleFonts.poppins(
+                    color: Colors.red.shade600,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.sp, // Larger font for emphasis
+                  ),
+                ),
             ],
           ),
         ),
@@ -509,110 +536,110 @@ class _BusinessScreenState extends State<BusinessScreen> {
     );
   }
 
-  Widget _buildBenefitsAnalysis() {
- //   double totalValue = (businessData?.business?.totle_user ?? 1).toDouble(); // Convert to double
-    double redValue = (businessData?.business?.totleUser ?? 0).toDouble(); // Convert to double
-    double blueValue = (businessData?.business?.totalTeamCount ?? 0).toDouble(); // Convert to double
+ //  Widget _buildBenefitsAnalysis() {
+ // //   double totalValue = (businessData?.business?.totle_user ?? 1).toDouble(); // Convert to double
+ //    double redValue = (businessData?.business?.totleUser ?? 0).toDouble(); // Convert to double
+ //    double blueValue = (businessData?.business?.totalTeamCount ?? 0).toDouble(); // Convert to double
+ //
+ //    // Calculate percentages for each section (as fraction of the total value)
+ //
+ //    return Container(
+ //      width: double.infinity,
+ //      decoration: BoxDecoration(
+ //        color: Colors.white,
+ //        borderRadius: BorderRadius.circular(12),
+ //        boxShadow: [
+ //          BoxShadow(
+ //            color: Colors.grey.withOpacity(0.5),
+ //            spreadRadius: 3,
+ //            blurRadius: 5,
+ //            offset: const Offset(0, 3), // Shadow effect applied to the container
+ //          ),
+ //        ],
+ //      ),
+ //      child: Column(
+ //        crossAxisAlignment: CrossAxisAlignment.start,
+ //        children: [
+ //          const Padding(
+ //            padding: EdgeInsets.all(8.0),
+ //            child: Text(
+ //              'Team Analysis',
+ //              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+ //            ),
+ //          ),
+ //          Center(
+ //            child: SizedBox(
+ //              height: 250,
+ //              width: 300,
+ //              child: PieChart(
+ //                PieChartData(
+ //                  sections: [
+ //                    _buildPieChartSection('Total Team', Colors.red, redValue.toInt(), context),
+ //                    _buildPieChartSection('Active Team', Colors.blue, blueValue.toInt(), context),
+ //                  ],
+ //                  centerSpaceRadius: 40,
+ //                  sectionsSpace: 2,
+ //                ),
+ //              ),
+ //            ),
+ //          ),
+ //          const SizedBox(height: 10),
+ //          _buildLegendRow(),
+ //          const SizedBox(height: 30),
+ //        ],
+ //      ),
+ //    );
+ //  }
 
-    // Calculate percentages for each section (as fraction of the total value)
+  // PieChartSectionData _buildPieChartSection(String title, Color color, int value, BuildContext context) {
+  //   double screenWidth = MediaQuery.of(context).size.width;
+  //   double fontSize = screenWidth < 350 ? 18 : 25; // Adjust font size for smaller screens
+  //   double radius = screenWidth < 350 ? 70 : 80; // Adjust radius for smaller screens
+  //
+  //   // Using a border color to make the section stand out
+  //   return PieChartSectionData(
+  //     color: color,
+  //     title: '$value', // Display original integer value inside the section
+  //     titleStyle: GoogleFonts.adamina(
+  //       color: Colors.white,
+  //       fontWeight: FontWeight.bold,
+  //       fontSize: fontSize, // Dynamically adjusted font size
+  //     ),
+  //     value: value.toDouble(), // Convert the value back to double for the pie chart
+  //     radius: radius, // Dynamically adjusted radius
+  //     showTitle: true, // Ensure title is shown inside each pie section
+  //     borderSide: BorderSide(color: Colors.white.withOpacity(0.5), width: 1), // Add a white border to each pie section
+  //     titlePositionPercentageOffset: 0.55, // Adjust the title's position inside the pie section
+  //   );
+  // }
+  //
+  // Widget _buildLegendRow() {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //     children: [
+  //       _buildLegendItem(Colors.red, 'Total Team'),
+  //       _buildLegendItem(Colors.blue, 'Active Team'),
+  //     ],
+  //   );
+  // }
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 3,
-            blurRadius: 5,
-            offset: const Offset(0, 3), // Shadow effect applied to the container
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Text(
-              'Team Analysis',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Center(
-            child: SizedBox(
-              height: 250,
-              width: 300,
-              child: PieChart(
-                PieChartData(
-                  sections: [
-                    _buildPieChartSection('Total Team', Colors.red, redValue.toInt(), context),
-                    _buildPieChartSection('Active Team', Colors.blue, blueValue.toInt(), context),
-                  ],
-                  centerSpaceRadius: 40,
-                  sectionsSpace: 2,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildLegendRow(),
-          const SizedBox(height: 30),
-        ],
-      ),
-    );
-  }
-
-  PieChartSectionData _buildPieChartSection(String title, Color color, int value, BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double fontSize = screenWidth < 350 ? 18 : 25; // Adjust font size for smaller screens
-    double radius = screenWidth < 350 ? 70 : 80; // Adjust radius for smaller screens
-
-    // Using a border color to make the section stand out
-    return PieChartSectionData(
-      color: color,
-      title: '$value', // Display original integer value inside the section
-      titleStyle: GoogleFonts.adamina(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-        fontSize: fontSize, // Dynamically adjusted font size
-      ),
-      value: value.toDouble(), // Convert the value back to double for the pie chart
-      radius: radius, // Dynamically adjusted radius
-      showTitle: true, // Ensure title is shown inside each pie section
-      borderSide: BorderSide(color: Colors.white.withOpacity(0.5), width: 1), // Add a white border to each pie section
-      titlePositionPercentageOffset: 0.55, // Adjust the title's position inside the pie section
-    );
-  }
-
-  Widget _buildLegendRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildLegendItem(Colors.red, 'Total Team'),
-        _buildLegendItem(Colors.blue, 'Active Team'),
-      ],
-    );
-  }
-
-  Widget _buildLegendItem(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 20,
-          height: 20,
-
-          decoration: BoxDecoration(
-              color: color,
-            borderRadius: BorderRadius.circular(15)
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(label),
-      ],
-    );
-  }
+  // Widget _buildLegendItem(Color color, String label) {
+  //   return Row(
+  //     children: [
+  //       Container(
+  //         width: 20,
+  //         height: 20,
+  //
+  //         decoration: BoxDecoration(
+  //             color: color,
+  //           borderRadius: BorderRadius.circular(15)
+  //         ),
+  //       ),
+  //       const SizedBox(width: 8),
+  //       Text(label),
+  //     ],
+  //   );
+  // }
 
   Widget _buildSkeletonLoader() {
     return ListView.builder(
