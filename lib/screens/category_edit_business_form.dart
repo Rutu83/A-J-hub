@@ -1,10 +1,10 @@
-// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
 
 import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/category_selection_screen.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,7 +21,7 @@ class CategoryEditBusinessForm extends StatefulWidget {
 }
 
 class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
-  File? _image; // Variable to store the image
+  File? _image;
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _ownerNameController = TextEditingController();
@@ -32,8 +32,8 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
   String? selectedState;
   List<dynamic> states = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String? _selectedCategory; // Variable to store selected business category
-  String? _selectedId; // Variable to store selected business category
+  String? _selectedCategory;
+  String? _selectedId;
   List<dynamic> businessData = [];
   int? selectedBusiness;
   bool _isLoading = false;
@@ -41,10 +41,9 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
   void initState() {
     super.initState();
     fetchStates();
-    fetchBusinessData(); // Fetch the business data based on stored ID
+    fetchBusinessData();
   }
 
-  // Fetch States
   Future<void> fetchStates() async {
     try {
       final response = await http.get(Uri.parse('https://ajhub.co.in/get-states-regby-country/1'));
@@ -53,30 +52,21 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
           states = json.decode(response.body);
           selectedState = null;
         });
-      } else {
-        if (kDebugMode) {
-          print(response.statusCode);
-          print(response.body);
-        }
-      }
+      } else {}
     } catch (e) {
       if (kDebugMode) {
         print(e);
-      }
-    }
+      }}
   }
 
-
-
-  // Fetch stored business ID
   Future<int?> getStoredBusinessID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getInt('selected_business_id');
   }
 
   Future<void> fetchBusinessData() async {
-    const String apiUrl = 'https://ajhub.co.in/api/getbusinessprofile'; // No specific ID
-    String? token = appStore.token; // Fetch token
+    const String apiUrl = '${BASE_URL}getbusinessprofile';
+    String? token = appStore.token;
 
     try {
       final response = await http.get(
@@ -91,20 +81,14 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
         final responseData = json.decode(response.body);
         List<dynamic> businesses = responseData['data'];
 
-       if (kDebugMode) {
-         print(response.body);
-       }
 
         if (businesses.isNotEmpty) {
-          // Filter active businesses based on the status field
           List<dynamic> activeBusinesses = businesses.where((business) {
-            return business['status'] == 'active'; // or `business['is_active'] == true`
+            return business['status'] == 'active';
           }).toList();
 
           if (activeBusinesses.isNotEmpty) {
             final activeBusiness = activeBusinesses.first;
-
-            // Update the TextEditingControllers with the active business data
             _selectedId = activeBusiness['id'].toString();
             _businessNameController.text = activeBusiness['business_name'] ?? '';
             _ownerNameController.text = activeBusiness['owner_name'] ?? '';
@@ -113,36 +97,16 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
             _websiteController.text = activeBusiness['website'] ?? '';
             _addressController.text = activeBusiness['address'] ?? '';
 
-            if (kDebugMode) {
-              print('Active business data loaded successfully.');
-            }
-          } else {
-            if (kDebugMode) {
-              print('No active businesses found');
-            }
-          }
-        } else {
-          if (kDebugMode) {
-            print('No businesses found');
-          }
-        }
-      } else {
-        if (kDebugMode) {
-          print('Failed to fetch business data: ${response.statusCode}');
-          print('Response: ${response.body}');
-        }
-      }
+          } else {}
+        } else {}
+      } else {}
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching business data: $e');
-      }
-    }
+        print(e);
+      }}
   }
 
 
-
-
-  // Method to pick image from gallery
   Future<void> _pickImageFromGallery() async {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -153,12 +117,10 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error picking image from gallery: $e');
-      }
-    }
+        print(e);
+      }}
   }
 
-  // Method to pick image from camera
   Future<void> _pickImageFromCamera() async {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.camera);
@@ -169,23 +131,18 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error picking image from camera: $e');
-      }
-    }
+      print(e);
+    }}
   }
-
-
-
-
-
 
   Future<void> _updateBusinessProfile() async {
     setState(() {
-      _isLoading = true; // Start loading
+      _isLoading = true;
     });
 
-    final String token = appStore.token; // Retrieve your token from appStore
-    final String apiUrl = 'https://ajhub.co.in/api/update/businessprofile/$_selectedId';
+    final String token = appStore.token;
+
+    final String apiUrl = '${BASE_URL}update/businessprofile/$_selectedId';
 
     try {
       final response = await http.post(
@@ -207,33 +164,24 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       );
 
       if (response.statusCode == 200) {
-        if (kDebugMode) {
-          print('Profile updated successfully: ${response.body}');
-        }
-        // Fetch updated data
+
         await fetchBusinessData2();
-      } else {
-        if (kDebugMode) {
-          print('Failed to update profile: ${response.statusCode}');
-          print('Response body: ${response.body}');
-        }
-      }
+      } else {}
     } catch (e) {
       if (kDebugMode) {
-        print('Error updating profile: $e');
+        print(e);
       }
     } finally {
       setState(() {
-        _isLoading = false; // Stop loading
+        _isLoading = false;
       });
     }
   }
 
 
   Future<void> fetchBusinessData2() async {
-    const apiUrl = 'https://ajhub.co.in/api/getbusinessprofile';
-    String token = appStore.token; // Replace with your actual token
-
+    const apiUrl = '${BASE_URL}getbusinessprofile';
+    String token = appStore.token;
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
@@ -243,9 +191,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
         },
       );
 
-      debugPrint('Response status: ${response.statusCode}');
-      debugPrint('Response body: ${response.body}');
-
       if (response.statusCode == 200) {
         final data = json.decode(response.body)['data'];
 
@@ -254,7 +199,7 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
           _isLoading = false;
 
           if (businessData.isNotEmpty) {
-            // Find the first active business
+
             final activeBusiness = businessData.firstWhere(
                   (business) => business['status'] == 'active',
               orElse: () => businessData.first,
@@ -262,34 +207,33 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
 
             selectedBusiness = activeBusiness['id'];
 
-            // Store active business data in shared preferences
+
             SharedPreferences.getInstance().then((prefs) {
               prefs.setString('active_business', json.encode(activeBusiness));
-              debugPrint('Active Business Data Stored: ${json.encode(activeBusiness)}');
             });
 
-            // Navigate back two screens
-            Navigator.popUntil(context, (route) => route.isFirst); // Pop until reaching the first route
+
+            Navigator.popUntil(context, (route) => route.isFirst);
+
           } else {
-            // Clear preferences if no businesses are found
+
             clearPreferences();
             selectedBusiness = null;
-            debugPrint('No business profiles found for this user.');
+
           }
         });
       } else if (response.statusCode == 404) {
-        // Handle 404 response specifically
         setState(() {
           businessData = [];
           _isLoading = false;
         });
 
-        // Clear preferences as no data is available
+
         await clearPreferences();
         selectedBusiness = null;
-        debugPrint('No business profiles found for this user (404).');
+
       } else {
-        debugPrint('Failed to fetch business data. Response: ${response.body}');
+
       }
     } catch (e) {
       setState(() {
@@ -297,12 +241,11 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
         businessData = [];
       });
 
-      debugPrint('Error fetching business data: $e');
     }
   }
 
 
-  // Show bottom sheet with camera and gallery options
+
   void _showImageSourceActionSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -315,16 +258,20 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                 leading: const Icon(Icons.photo_library),
                 title: const Text('Gallery'),
                 onTap: () {
-                  Navigator.pop(context); // Close the bottom sheet
-                  _pickImageFromGallery(); // Open gallery
+                  Navigator.pop(context);
+
+                  _pickImageFromGallery();
+
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('Camera'),
                 onTap: () {
-                  Navigator.pop(context); // Close the bottom sheet
-                  _pickImageFromCamera(); // Open camera
+                  Navigator.pop(context);
+
+                  _pickImageFromCamera();
+
                 },
               ),
             ],
@@ -333,8 +280,8 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       },
     );
   }
-  String? _selectedCategoryId;  // Store the selected category ID
-  // Navigate to the category selection screen
+  String? _selectedCategoryId;
+
   void _navigateToCategorySelection() async {
     await Navigator.push(
       context,
@@ -343,7 +290,8 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
           onCategorySelected: (String categoryId, String categoryName) {
             setState(() {
               _selectedCategory = categoryName;
-              _selectedCategoryId = categoryId;  // Capture the category ID
+              _selectedCategoryId = categoryId;
+
             });
           },
         ),
@@ -351,7 +299,7 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
     );
   }
 
-  // Get category image based on the selected category
+
   ImageProvider _getCategoryImage(String category) {
     switch (category) {
       case 'Retail':
@@ -382,7 +330,7 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       ),
       body: Stack(
         children: [
-          // Main Content: Form fields
+
           SingleChildScrollView(
             padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 80.h, top: 6),
             child: Form(
@@ -584,7 +532,7 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 50.h, // Ensure consistent height
+                      height: 50.h,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _updateBusinessProfile,
                         style: ElevatedButton.styleFrom(
@@ -623,7 +571,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
     );
   }
 
-  // Build a text form field
   Widget _buildTextFormField({
     required TextEditingController controller,
     required String hintText,
@@ -661,7 +608,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
     );
   }
 
-  // Build state dropdown
   Widget _buildStateDropdown() {
     return InkWell(
       onTap: () {
@@ -708,7 +654,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
     );
   }
 
-// Show state selection sheet
   void _showStateSelectionSheet() {
     showModalBottomSheet(
       context: context,
@@ -768,7 +713,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
     );
   }
 
-// Build a label with optional required indicator
   Widget buildLabel(String label, {bool isRequired = false}) {
     return RichText(
       text: TextSpan(

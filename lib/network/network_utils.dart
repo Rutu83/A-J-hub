@@ -1,5 +1,3 @@
-// ignore_for_file: depend_on_referenced_packages
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/arth_screens/login_screen.dart';
@@ -72,9 +70,9 @@ Uri buildBaseUrl(String endPoint) {
 }
 
 Future<String> refreshToken() async {
-  final refreshToken = appStore.token; // Assuming you store refresh token here
+  final refreshToken = appStore.token;
   final response = await http.post(
-    Uri.parse('https://yourapi.com/auth/refresh'), // Your refresh endpoint
+    Uri.parse('https://yourapi.com/auth/refresh'),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -83,7 +81,7 @@ Future<String> refreshToken() async {
 
   if (response.statusCode == 200) {
     final data = jsonDecode(response.body);
-    appStore.token = data['access_token']; // Update the JWT in appStore
+    appStore.token = data['access_token'];
     return data['access_token'];
   } else {
     throw Exception('Failed to refresh token');
@@ -187,22 +185,14 @@ void redirectToLogin() async{
   var pref = await SharedPreferences.getInstance();
   // var pref = await SharedPreferences.getInstance();
 
-  // Remove specific keys
   await pref.remove(SplashScreenState.keyLogin);
   await pref.remove(TOKEN);
   await pref.remove(ROLE);
   await pref.remove(VENDOR_TYPE);
   await pref.remove(NUMBER);
-
-  // Or you can clear all keys
-  // await pref.clear();
-
-  // Reset appStore variables to default states
   await appStore.setToken('', isInitializing: true);
   await appStore.setNumber('', isInitializing: true);
 
-
-  // Optionally, set loading state to false
   appStore.setLoading(false);
 
   await navigatorKeyNew.currentState!.push(

@@ -83,11 +83,6 @@ class LanguageEn extends BaseLanguage {
   @override
   String get profile => 'Profile';
 
-  @override
-  String get teaCup => 'TeaCup';
-
-  @override
-  String get coffeeCup => 'coffeeCup';
 
   @override
   String get addCustomer => 'Add Customer';
@@ -290,9 +285,6 @@ class LanguageEn extends BaseLanguage {
 
   @override
   String get calender => 'Calender';
-
-  @override
-  String get medium => 'medium';
 
   @override
   String get favourite => 'Favourite';

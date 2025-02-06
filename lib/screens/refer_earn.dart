@@ -1,4 +1,5 @@
 import 'package:allinone_app/network/rest_apis.dart';
+import 'package:allinone_app/screens/active_user_screen.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
@@ -7,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:allinone_app/screens/business_list.dart'; // Import the BusinessList screen
 
 class ReferEarn extends StatefulWidget {
   const ReferEarn({super.key});
@@ -19,17 +19,19 @@ class ReferEarn extends StatefulWidget {
 class _ReferEarnState extends State<ReferEarn> {
   bool _isLoading = true;
   String referralCode = "Loading...";
-  String File = ' ';
+  String file = ' ';
+
+
 
   @override
   void initState() {
     super.initState();
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, // Transparent status bar
-      statusBarIconBrightness: Brightness.light, // Light-colored icons
-      statusBarBrightness: Brightness.dark, // Dark content for iOS
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
     ));
-    File = 'assets/images/refer_earn.png';
+    file = 'assets/images/refer_earn.png';
     fetchUserData();
   }
 
@@ -55,8 +57,7 @@ class _ReferEarnState extends State<ReferEarn> {
     }
   }
 
-  // Check if the user's membership is active (replace with actual condition)
-  bool isMembershipActive = false;  // Set based on your actual membership logic
+  bool isMembershipActive = false;
 
   Future<void> _shareOnWhatsApp(String referralCode) async {
     final String message = '''
@@ -84,24 +85,23 @@ Start Promoting today and maximize your income! 💰
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Activate Membership"),
-          content: Text(
+          title: const Text("Activate Membership"),
+          content: const Text(
             "You can get referral benefits after activating your membership.",
           ),
           actions: <Widget>[
             TextButton(
-              child: Text("Go to My Business"),
+              child: const Text("Activate your Membership"),
               onPressed: () {
                 Navigator.of(context).pop();
-                // Navigate to the BusinessList screen
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const BusinessList()),
+                  MaterialPageRoute(builder: (context) => const ActiveUserPage()),
                 );
               },
             ),
             TextButton(
-              child: Text("OK"),
+              child: const Text("OK"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -138,7 +138,7 @@ Start Promoting today and maximize your income! 💰
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildImage(File),
+            _buildImage(file),
             _buildCopyField(),
             const SizedBox(height: 30),
             _buildButtonRow(),
@@ -232,9 +232,9 @@ Start Promoting today and maximize your income! 💰
             child: ElevatedButton(
               onPressed: () {
                 if (!isMembershipActive) {
-                  _showReferralDialog(); // Show the dialog if membership is not active
+                  _showReferralDialog();
                 } else {
-                  _shareOnWhatsApp(referralCode); // Proceed with referral if membership is active
+                  _shareOnWhatsApp(referralCode);
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -259,7 +259,12 @@ Start Promoting today and maximize your income! 💰
           const SizedBox(width: 8),
           ElevatedButton(
             onPressed: () {
-              _shareOnWhatsApp(referralCode);
+              if (!isMembershipActive) {
+                _showReferralDialog();
+              }else{
+                _shareOnWhatsApp(referralCode);
+              }
+
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,

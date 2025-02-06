@@ -1,5 +1,4 @@
 // ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names, use_build_context_synchronously, deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +28,7 @@ class _HelpSupportState extends State<HelpSupport> {
                   child:_buildAppBar(),
                 ),
                 Positioned(
-                  top: 100, // Adjust this value to control the position of the second container
+                  top: 100,
                   left: 0,
                   right: 0,
                   child:  buildImage('assets/images/help_support.jpg'),
@@ -59,10 +58,10 @@ class _HelpSupportState extends State<HelpSupport> {
         borderRadius: const BorderRadius.only( bottomLeft: Radius.circular(400.0),bottomRight:  Radius.circular(10.0)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2), // Shadow color with opacity
-            spreadRadius: 2, // Spread radius
-            blurRadius: 5, // Blur radius
-            offset: const Offset(0, 3), // Shadow offset: horizontal, vertical
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -86,14 +85,14 @@ class _HelpSupportState extends State<HelpSupport> {
       ),
     );
   }
-  // Builds image widget with fallback for network or asset image
+
   Widget buildImage(String imageUrl) {
     return Container(
       height: 250,
       width: 390,
       padding: const EdgeInsets.only(left: 10, right: 50),
       decoration: const BoxDecoration(
-        borderRadius: BorderRadius.only(topRight: Radius.circular(90)), // Optional: Rounded corners
+        borderRadius: BorderRadius.only(topRight: Radius.circular(90)),
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(topRight: Radius.circular(90)),
@@ -106,7 +105,7 @@ class _HelpSupportState extends State<HelpSupport> {
           imageUrl,
           fit: BoxFit.fill,
           errorBuilder: (context, error, stackTrace) {
-            return const Icon(Icons.error); // Fallback in case of error
+            return const Icon(Icons.error);
           },
         ),
       ),
@@ -114,7 +113,6 @@ class _HelpSupportState extends State<HelpSupport> {
 
   }
 
-  // Builds the title section
   Widget buildTitle() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -147,35 +145,33 @@ class _HelpSupportState extends State<HelpSupport> {
     );
   }
 
-  // Builds the contact details fields with click actions
   Widget buildContactField() {
     return Column(
       children: [
         buildContactContainer(
           iconPath: 'assets/images/backlog.png',
           contactInfo: 'Frequently Asked Questions',
-          onTap: (){}, // Opens phone dialer
+          onTap: (){},
         ),
         buildContactContainer(
           iconPath: 'assets/images/contact-book.png',
           contactInfo: 'Raise a Ticket',
-          onTap: (){}, // Opens WhatsApp
+          onTap: (){},
         ),
         buildContactContainer(
           iconPath: 'assets/images/customer-service.png',
           contactInfo: 'Contact Us',
-          onTap: (){}, // Opens email client
+          onTap: (){},
         ),
         buildContactContainer(
           iconPath: 'assets/images/review.png',
           contactInfo: 'Feedback',
-          onTap: (){}, // Opens email client
+          onTap: (){},
         ),
       ],
     );
   }
 
-  // Helper method to build each contact container
   Widget buildContactContainer({
     required String iconPath,
     required String contactInfo,
@@ -184,7 +180,7 @@ class _HelpSupportState extends State<HelpSupport> {
     return Padding(
       padding: const EdgeInsets.only(left: 12, right: 12, top: 20),
       child: GestureDetector(
-        onTap: onTap, // Add onTap event handler
+        onTap: onTap,
         child: Container(
           height: 65,
           width: double.infinity,
@@ -194,16 +190,16 @@ class _HelpSupportState extends State<HelpSupport> {
             border: Border.all(color: Colors.red.shade50),
             boxShadow: [
               BoxShadow(
-                color: Colors.red.withOpacity(0.10), // Soft shadow
-                blurRadius: 5, // Smooth blur
-                offset: const Offset(0, 2), // Vertical offset for depth
+                color: Colors.red.withOpacity(0.10),
+                blurRadius: 5,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
           child: Row(
             children: [
 
-              const SizedBox(width: 10), // Adds spacing between image and text
+              const SizedBox(width: 10),
               Container(
                 decoration: const BoxDecoration(
                   color: Colors.red,
@@ -220,7 +216,7 @@ class _HelpSupportState extends State<HelpSupport> {
                 ),
               ),
 
-              const SizedBox(width: 10), // Adds spacing between image and text
+              const SizedBox(width: 10),
               Text(
                 contactInfo,
                 style: const TextStyle(fontSize: 16),
@@ -229,7 +225,7 @@ class _HelpSupportState extends State<HelpSupport> {
               const Spacer(flex: 1,),
 
               const Icon(Icons.arrow_forward_ios_sharp,size: 20,weight: 1,color: Colors.black54,),
-               const SizedBox(width: 10), // Adds spacing between image and text
+               const SizedBox(width: 10),
             ],
           ),
         ),

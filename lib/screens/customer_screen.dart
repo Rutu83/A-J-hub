@@ -167,7 +167,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     }
 
     if (categoriesData == null) {
-      return const SizedBox.shrink(); // Return an empty widget if no data
+      return const SizedBox.shrink();
     }
 
     List<Widget> items = [];
@@ -178,7 +178,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
 
     if (upcomingCategory.subcategories.isEmpty) {
-      return const SizedBox.shrink(); // Return an empty widget if no subcategories
+      return const SizedBox.shrink();
     }
 
     for (var subcategory in upcomingCategory.subcategories) {
@@ -243,14 +243,13 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   Widget _buildUpcomingCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
-        // Check if the image URL is valid and if the images list is not empty
+
         if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
-          // Show error message when the data is invalid
+
           _showErrorMessage(context);
-          return; // Prevent navigation to the next screen
+          return;
         }
 
-        // Proceed with navigation if data is valid
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -271,11 +270,11 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
               width: 120.w,
               height: 90.h,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(222.r), // Rounded corners
+                borderRadius: BorderRadius.circular(222.r),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(222.r),
-                child: imageUrl.startsWith('http') // Check if imageUrl is a network URL
+                child: imageUrl.startsWith('http')
                     ? _buildNetworkImage(imageUrl)
                     : _buildAssetImage(imageUrl),
               ),
@@ -350,7 +349,6 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     }
 
     for (var subcategory in festivalCategory.subcategories) {
-      // Check if images are available, else provide a default image
       String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/default_festival.jpg';
 
       items.add(_buildCardFestival(subcategory.name, imageUrl, subcategory.images, showTitle: false));
@@ -361,14 +359,10 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   Widget _buildCardFestival(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
-        // Check if the image URL is valid and if the images list is not empty
         if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
-          // Show error message when the data is invalid
           _showErrorMessage(context);
-          return; // Prevent navigation to the next screen
+          return;
         }
-
-        // Proceed with navigation if data is valid
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -450,10 +444,10 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   Widget _buildSkeletonLoading3() {
     return Padding(padding: const EdgeInsets.only(left: 15,bottom: 10),
       child: SizedBox(
-        height: 120.0,  // Height to match your card's height
+        height: 120.0,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: 5,  // Simulate 5 skeleton cards
+          itemCount: 5,
           itemBuilder: (context, index) {
             return Padding(
               padding: const EdgeInsets.only(right: 8.0),

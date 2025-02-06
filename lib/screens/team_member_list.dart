@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class TeamMemberList extends StatefulWidget {
-  final List<LevelDownline>? userData; // Changed to specific type for better safety
+  final List<LevelDownline>? userData;
 
   const TeamMemberList({super.key, required this.userData});
 
@@ -15,8 +15,6 @@ class TeamMemberList extends StatefulWidget {
 
 class TeamMemberListState extends State<TeamMemberList> {
   int selectedLevel = 1;
-
-  // Income rates based on level
   static const Map<int, int> levelIncomeRates = {
     1: 200,
     2: 40,
@@ -41,7 +39,6 @@ class TeamMemberListState extends State<TeamMemberList> {
 
   @override
   void dispose() {
-    // Reset to system default orientation (portrait) when leaving the screen
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -49,12 +46,10 @@ class TeamMemberListState extends State<TeamMemberList> {
     super.dispose();
   }
 
-  // Function to format date
   String _formatDate(DateTime date) {
     return DateFormat('dd MMM yyyy').format(date);
   }
 
-  // Function to format the income nicely
   String _formatIncome(double income) {
     return NumberFormat.currency(symbol: '₹ ', decimalDigits: 2).format(income);
   }
@@ -65,11 +60,7 @@ class TeamMemberListState extends State<TeamMemberList> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     final levels = List.generate(10, (index) => index + 1);
-
-    // Filter users by selected level
     final users = (widget.userData ?? []).where((user) => user.level == selectedLevel).toList();
-
-    // Calculate income and counts
     final selectedLevelIncome = levelIncomeRates[selectedLevel]! * users.length;
     final totalIncome = widget.userData?.fold<double>(0, (sum, user) {
       return sum + (levelIncomeRates[user.level] ?? 0);
@@ -85,7 +76,7 @@ class TeamMemberListState extends State<TeamMemberList> {
             child: const Icon(Icons.arrow_back_ios_new),
           ),
           title: Text(
-            appStore.Name, // Display the name dynamically
+            appStore.Name,
             style: TextStyle(fontSize: screenWidth * 0.021),
           ),
           actions: [
@@ -108,7 +99,6 @@ class TeamMemberListState extends State<TeamMemberList> {
         ),
         body: Row(
           children: [
-            // Level list on the left
             SizedBox(
               width: screenWidth * 0.12,
               child: ListView.builder(
@@ -129,11 +119,10 @@ class TeamMemberListState extends State<TeamMemberList> {
                 },
               ),
             ),
-            // User details list on the right
             Expanded(
               child: Column(
                 children: [
-                  // Header
+
                   Container(
                     color: Colors.red,
                     padding: EdgeInsets.all(screenHeight * 0.01),
@@ -153,7 +142,7 @@ class TeamMemberListState extends State<TeamMemberList> {
                       ],
                     ),
                   ),
-                  // User rows
+
                   Expanded(
                     child: ListView.builder(
                       itemCount: users.length,

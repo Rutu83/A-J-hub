@@ -81,7 +81,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   // Future<void> fetchBusinessData() async {
   //   const apiUrl = '${BASE_URL}getbusinessprofile';
-  //   String token = appStore.token; // Replace with your actual token
+  //   String token = appStore.token;
   //
   //   try {
   //     final response = await http.get(
@@ -91,10 +91,6 @@ class HomeScreenState extends State<HomeScreen> {
   //         'Authorization': 'Bearer $token',
   //       },
   //     );
-  //
-  //     debugPrint('Response status: ${response.statusCode}');
-  //     debugPrint('Response body: ${response.body}');
-  //
   //     if (response.statusCode == 200) {
   //       final data = json.decode(response.body)['data'];
   //
@@ -103,47 +99,33 @@ class HomeScreenState extends State<HomeScreen> {
   //         isLoading = false;
   //
   //         if (businessData.isNotEmpty) {
-  //           // Find the first active business
   //           final activeBusiness = businessData.firstWhere(
   //                 (business) => business['status'] == 'active',
   //             orElse: () => businessData.first,
   //           );
   //
   //           selectedBusiness = activeBusiness['id'];
-  //
-  //           // Store active business data in shared preferences
   //           SharedPreferences.getInstance().then((prefs) {
   //             prefs.setString('active_business', json.encode(activeBusiness));
-  //             debugPrint('Active Business Data Stored: ${json.encode(activeBusiness)}');
   //           });
   //         } else {
-  //           // Clear preferences if no businesses are found
   //           clearPreferences();
   //           selectedBusiness = null;
-  //           debugPrint('No business profiles found for this user.');
   //         }
   //       });
   //     } else if (response.statusCode == 404) {
-  //       // Handle 404 response specifically
   //       setState(() {
   //         businessData = [];
   //         isLoading = false;
   //       });
-  //
-  //       // Clear preferences as no data is available
   //       await clearPreferences();
   //       selectedBusiness = null;
-  //       debugPrint('No business profiles found for this user (404).');
-  //     } else {
-  //
-  //     }
+  //     } else {}
   //   } catch (e) {
   //     setState(() {
   //       isLoading = false;
   //       businessData = [];
   //     });
-  //
-  //     debugPrint('Error fetching business data: $e');
   //   }
   // }
 
@@ -154,28 +136,19 @@ class HomeScreenState extends State<HomeScreen> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body)['data'];
-
-        // Extract image URLs from the response data
         setState(() {
           _imageUrls = List<String>.from(data.map((banner) => banner['banner_image_url']));
           isLoading = false;
         });
       } else {
-        // Handle failure response
         setState(() {
           isLoading = false;
         });
-        // if (kDebugMode) {
-        //   print('Failed to fetch banners: ${response.statusCode}');
-        // }
       }
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      // if (kDebugMode) {
-      //   print('Error fetching banners: $e');
-      // }
     }
   }
 
@@ -220,9 +193,6 @@ class HomeScreenState extends State<HomeScreen> {
       final data = await getCategoriesWithSubcategories();
       setState(() {
         categoriesData = data;
-        // if (kDebugMode) {
-        //   print(categoriesData);
-        // }
       });
     } catch (e) {
       setState(() {
@@ -302,9 +272,7 @@ class HomeScreenState extends State<HomeScreen> {
                 size: 22.0.sp,
                 color: Colors.black,
               ),
-              onPressed: () {
-                // Handle notification icon tap
-              },
+              onPressed: () {},
             ),
           ],
         ),
@@ -318,9 +286,9 @@ class HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.only(left: 6, right: 6, top: 0, bottom: 10),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  double buttonWidth = constraints.maxWidth / 4 - 12; // Divide width evenly among buttons
+                  double buttonWidth = constraints.maxWidth / 4 - 12;
                   return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Space buttons evenly
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       _buildButton(context, Icons.share, 'Refer', buttonWidth, () {
                         Navigator.push(
@@ -366,26 +334,26 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _buildButton(BuildContext context, IconData icon, String label, double width, VoidCallback onPressed) {
     return SizedBox(
-      width: width, // Dynamic width for the button
+      width: width,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white, // White text/icon color
-          backgroundColor: Colors.red, // Red background for the button
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.red,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0), // Rounded corners for the button
+            borderRadius: BorderRadius.circular(8.0),
           ),
           padding: const EdgeInsets.symmetric(vertical: 12.0),
         ),
-        onPressed: onPressed, // Pass the navigation or action callback
+        onPressed: onPressed,
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center, // Center-align icon and text
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 24), // Icon
-            const SizedBox(height: 4), // Spacing between icon and text
+            Icon(icon, size: 24),
+            const SizedBox(height: 4),
             Text(
               label,
-              textAlign: TextAlign.center, // Center-align the text
+              textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
           ],
@@ -395,22 +363,19 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void openWhatsApp(BuildContext context) async {
-    const phone = "919925850305"; // Correct format with country code
-    final message = Uri.encodeComponent(''); // Add your message here if needed
+    const phone = "919925850305";
+    final message = Uri.encodeComponent('');
     final whatsappUrl = "https://wa.me/$phone?text=$message";
 
     try {
-      // Check if the URL can be launched
       if (await canLaunch(whatsappUrl)) {
         await launch(whatsappUrl, forceSafariVC: false, forceWebView: false);
       } else {
-        // If WhatsApp is not installed or URL cannot be launched
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Could not open WhatsApp. Please ensure the app is installed.")),
         );
       }
     } catch (e) {
-      // Catch any errors and display them
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("An error occurred: $e")),
       );
@@ -429,14 +394,14 @@ class HomeScreenState extends State<HomeScreen> {
         },
         child: Center(
           child: Container(
-            width: double.infinity,  // Adjust width as needed
-            height: 120,  // Adjust height as needed
+            width: double.infinity,
+            height: 120,
             decoration: BoxDecoration(
-              color: Colors.white,  // Background color (if needed)
-              borderRadius: BorderRadius.circular(15.0),  // Add border radius
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15.0),
               image: const DecorationImage(
-                image: AssetImage('assets/images/banner3.jpg'), // Image from assets
-                fit: BoxFit.contain,  // Adjust the fit type as needed
+                image: AssetImage('assets/images/banner3.jpg'),
+                fit: BoxFit.contain,
               ),
             ),
           ),
@@ -448,7 +413,6 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBannerSlider() {
-    // Check if the image URLs list is empty
     if (_imageUrls.isEmpty) {
       return Padding(
         padding: EdgeInsets.all(8.0.w),
@@ -476,30 +440,25 @@ class HomeScreenState extends State<HomeScreen> {
                 return Builder(
                   builder: (BuildContext context) {
                     return ClipRRect(
-                      borderRadius: BorderRadius.circular(15.0), // Apply border radius here
+                      borderRadius: BorderRadius.circular(15.0),
                       child: Container(
                         width: MediaQuery.of(context).size.width,
                         decoration: BoxDecoration(
                           color: Colors.grey.shade300,
                           image: DecorationImage(
                             image: CachedNetworkImageProvider(url),
-                            fit: BoxFit.fill, // Ensures the image fits as intended
-                            onError: (error, stackTrace) {
-                              // Handle error if the image fails to load
-                              if (kDebugMode) {
-                                print("Error loading image: $error");
-                              }
-                            },
+                            fit: BoxFit.fill,
+                            onError: (error, stackTrace) {},
                           ),
                         ),
                         child: CachedNetworkImage(
                           imageUrl: url,
                           fit: BoxFit.fill,
                           placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(color: Colors.grey,), // Placeholder loading spinner
+                            child: CircularProgressIndicator(color: Colors.grey,),
                           ),
                           errorWidget: (context, url, error) => const Center(
-                            child: Icon(Icons.error, color: Colors.red), // Icon in case of error
+                            child: Icon(Icons.error, color: Colors.red),
                           ),
                         ),
                       ),
@@ -532,10 +491,10 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildSkeletonLoading2() {
     return Padding(padding: const EdgeInsets.only(left: 15,bottom: 10),
     child: SizedBox(
-      height: 150.0,  // Height to match your card's height
+      height: 150.0,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 5,  // Simulate 5 skeleton cards
+        itemCount: 5,
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.only(right: 8.0),
@@ -543,30 +502,28 @@ class HomeScreenState extends State<HomeScreen> {
               baseColor: Colors.grey[300]!,
               highlightColor: Colors.grey[100]!,
               child: Container(
-                width: 120.0, // Width to match your card's width
+                width: 120.0,
                 margin: const EdgeInsets.only(right: 8.0),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.0), // Rounded corners like your card
+                  borderRadius: BorderRadius.circular(12.0),
                   color: Colors.white,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Skeleton for the image (image dimensions match your final card)
                     Container(
                       width: 120.0,
-                      height: 90.0, // Image height matches the actual card
+                      height: 90.0,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12.0), // Match card's rounded corners
-                        color: Colors.grey[200], // Light grey background for the skeleton image
+                        borderRadius: BorderRadius.circular(12.0),
+                        color: Colors.grey[200],
                       ),
                     ),
                     const SizedBox(height: 8.0),
-                    // Skeleton for the title text
                     Container(
-                      width: 80.0, // Title width
-                      height: 14.0, // Title height
-                      color: Colors.grey[200], // Light grey color for the text skeleton
+                      width: 80.0,
+                      height: 14.0,
+                      color: Colors.grey[200],
                     ),
                   ],
                 ),
@@ -582,10 +539,10 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildSkeletonLoading3() {
     return Padding(padding: const EdgeInsets.only(left: 15,bottom: 10),
       child: SizedBox(
-        height: 120.0,  // Height to match your card's height
+        height: 120.0,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: 5,  // Simulate 5 skeleton cards
+          itemCount: 5,
           itemBuilder: (context, index) {
             return Padding(
               padding: const EdgeInsets.only(right: 8.0),
@@ -593,30 +550,27 @@ class HomeScreenState extends State<HomeScreen> {
                 baseColor: Colors.grey[300]!,
                 highlightColor: Colors.grey[100]!,
                 child: Container(
-                  width: 120.0, // Width to match your card's width
+                  width: 120.0,
                   margin: const EdgeInsets.only(right: 8.0),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0), // Rounded corners like your card
+                    borderRadius: BorderRadius.circular(12.0),
                     color: Colors.white,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Skeleton for the image (image dimensions match your final card)
                       Container(
                         width: 120.0,
-                        height: 90.0, // Image height matches the actual card
+                        height: 90.0,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12.0), // Match card's rounded corners
-                          color: Colors.grey[200], // Light grey background for the skeleton image
-                        ),
+                          borderRadius: BorderRadius.circular(12.0),
+                          color: Colors.grey[200],    ),
                       ),
                       const SizedBox(height: 8.0),
-                      // Skeleton for the title text
                       Container(
-                        width: 80.0, // Title width
-                        height: 14.0, // Title height
-                        color: Colors.grey[200], // Light grey color for the text skeleton
+                        width: 80.0,
+                        height: 14.0,
+                        color: Colors.grey[200],
                       ),
                     ],
                   ),
@@ -641,7 +595,7 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     if (categoriesData == null) {
-      return const SizedBox.shrink(); // Return an empty widget if no data
+      return const SizedBox.shrink();
     }
 
     List<Widget> items = [];
@@ -652,7 +606,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
 
     if (upcomingCategory.subcategories.isEmpty) {
-      return const SizedBox.shrink(); // Return an empty widget if no subcategories
+      return const SizedBox.shrink();
     }
 
     for (var subcategory in upcomingCategory.subcategories) {
@@ -666,20 +620,17 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildUpcomingCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
-        // Check if the image URL is valid and if the images list is not empty
         if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
-          // Show error message when the data is invalid
           _showErrorMessage(context);
-          return; // Prevent navigation to the next screen
+          return;
         }
 
-        // Proceed with navigation if data is valid
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => CategorySelected(
               imagePaths: images,
-              title: title, // Pass the title here
+              title: title,
             ),
           ),
         );
@@ -704,10 +655,7 @@ class HomeScreenState extends State<HomeScreen> {
                     ? DecorationImage(
                   image: CachedNetworkImageProvider(cacheKey:imageUrl ,imageUrl),
                   fit: BoxFit.cover,
-                  onError: (exception, stackTrace) {
-                    // Error fallback
-                    debugPrint('Error loading image: $exception');
-                  },
+                  onError: (exception, stackTrace) {},
                 )
                     : DecorationImage(
                   image: AssetImage(imageUrl),
@@ -784,7 +732,6 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     for (var subcategory in festivalCategory.subcategories) {
-      // Check if images are available, else provide a default image
       String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/default_festival.jpg';
 
       items.add(_buildCardFestival(subcategory.name, imageUrl, subcategory.images, showTitle: false));
@@ -796,14 +743,11 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildCardFestival(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
-        // Check if the image URL is valid and if the images list is not empty
         if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
-          // Show error message when the data is invalid
           _showErrorMessage(context);
-          return; // Prevent navigation to the next screen
+          return;
         }
 
-        // Proceed with navigation if data is valid
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -865,7 +809,7 @@ class HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSubcategorySections() {
     if (isLoading) {
-      return _buildSkeletonLoading(); // Show skeleton loading when data is loading
+      return _buildSkeletonLoading();
     }
 
     if (hasError) {
@@ -1018,14 +962,10 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
       onTap: () {
-        // Check if the image URL is valid and if the images list is not empty
         if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
-          // Show error message when the data is invalid
           _showErrorMessage(context);
-          return; // Prevent navigation to the next screen
+          return;
         }
-
-        // Proceed with navigation if data is valid
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -1086,15 +1026,10 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildDailyUseSection(BuildContext context, bool isLoading) {
-    // Check if data is loading
     if (isLoading) {
-      return _buildSkeletonLoadingForDailyUse(context); // Show skeleton loader
+      return _buildSkeletonLoadingForDailyUse(context);
     }
-
-    // List to store daily use items
     List<Widget> items = [];
-
-    // Check if daillyuseData is not null and has subcategories
     if (daillyuseData != null && daillyuseData!.subcategories.isNotEmpty) {
       for (var category in daillyuseData!.subcategories) {
         String title = category.name;
@@ -1110,17 +1045,13 @@ class HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    // If the data is empty or null, show an error message
+
     if (daillyuseData == null || daillyuseData!.subcategories.isEmpty) {
-      return const SizedBox.shrink(); // Return an empty widget if no data
+      return const SizedBox.shrink();
     }
-
-    // Calculate number of rows required for the grid
-    int crossAxisCount = 4; // Number of items per row
+    int crossAxisCount = 4;
     int rowCount = (items.length / crossAxisCount).ceil();
-    double rowHeight = 120.h; // Approximate height of each grid item, including spacing
-
-    // Calculate dynamic height based on the number of rows
+    double rowHeight = 120.h;
     double gridHeight = rowCount * rowHeight;
 
     return Container(
@@ -1181,7 +1112,6 @@ class HomeScreenState extends State<HomeScreen> {
     return GestureDetector(
       onTap: () {
         if (topicMaps.isEmpty) {
-          // Show a dialog if topicMaps is empty
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -1190,7 +1120,7 @@ class HomeScreenState extends State<HomeScreen> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context);  // Close the dialog
+                    Navigator.pop(context);
                   },
                   child: const Text('OK'),
                 ),
@@ -1199,7 +1129,6 @@ class HomeScreenState extends State<HomeScreen> {
           );
         } else {
           try {
-            // Try to navigate to the next screen
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -1210,7 +1139,6 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             );
           } catch (e) {
-            // Handle any navigation error
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
@@ -1219,7 +1147,7 @@ class HomeScreenState extends State<HomeScreen> {
                 actions: [
                   TextButton(
                     onPressed: () {
-                      Navigator.pop(context);  // Close the error dialog
+                      Navigator.pop(context);
                     },
                     child: const Text('OK'),
                   ),
@@ -1267,9 +1195,8 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildSkeletonLoadingForDailyUse(BuildContext context) {
-    // Number of items in the grid
-    int crossAxisCount = 4; // Number of items per row
-    int skeletonItemCount = 8; // Assuming you want 8 skeleton items to display
+    int crossAxisCount = 4;
+    int skeletonItemCount = 8;
 
     return Container(
       color: Colors.white,
@@ -1301,9 +1228,8 @@ class HomeScreenState extends State<HomeScreen> {
               ],
             ),
             SizedBox(height: 5.h),
-            // Skeleton Loader for Grid Items
             SizedBox(
-              height: 120.h * 2, // Adjust based on the number of items and their size
+              height: 120.h * 2,
               child: GridView.builder(
                 primary: false,
                 physics: const NeverScrollableScrollPhysics(),
@@ -1313,7 +1239,7 @@ class HomeScreenState extends State<HomeScreen> {
                   mainAxisSpacing: 15.h,
                   childAspectRatio: 0.80,
                 ),
-                itemCount: skeletonItemCount, // Display skeleton items
+                itemCount: skeletonItemCount,
                 itemBuilder: (context, index) {
                   return _buildSkeletonItem();
                 },
@@ -1337,7 +1263,7 @@ class HomeScreenState extends State<HomeScreen> {
             height: 70.h,
             decoration: BoxDecoration(
               color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(12.r), // Add border radius here
+              borderRadius: BorderRadius.circular(12.r),
             ),
           ),
         ),
@@ -1350,7 +1276,7 @@ class HomeScreenState extends State<HomeScreen> {
             height: 10.h,
             decoration: BoxDecoration(
               color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(6.r), // Border radius for text area
+              borderRadius: BorderRadius.circular(6.r),
             ),
           ),
         ),

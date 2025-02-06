@@ -21,7 +21,7 @@ class Fram2 extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final containerWidth = screenWidth * 0.97;
-    final containerHeight = containerWidth * 1.05; // Slightly taller frame
+    final containerHeight = containerWidth * 1.05;
 
     return FutureBuilder(
       future: _simulateFrameLoading(),
@@ -42,7 +42,6 @@ class Fram2 extends StatelessWidget {
             height: containerHeight,
             child: Stack(
               children: [
-                // Background Frame Image
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
@@ -58,7 +57,6 @@ class Fram2 extends StatelessWidget {
                   ),
                 ),
 
-                // Phone Number (Top Left)
                 Positioned(
                   top: containerHeight * 0.03,
                   left: containerWidth * 0.07,
@@ -69,7 +67,6 @@ class Fram2 extends StatelessWidget {
                   ),
                 ),
 
-                // Email Address (Bottom Left)
                 Positioned(
                   bottom: containerHeight * 0.10,
                   left: containerWidth * 0.05,
@@ -80,7 +77,6 @@ class Fram2 extends StatelessWidget {
                   ),
                 ),
 
-                // Address (Bottom Left Underline)
                 Positioned(
                   bottom: (containerHeight * 0.02 + containerHeight * 0.01) / 2,
                   left: containerWidth * 0.07,
@@ -91,7 +87,6 @@ class Fram2 extends StatelessWidget {
                   ),
                 ),
 
-                // Website (Bottom Right)
                 Positioned(
                   bottom: (containerHeight * 0.15 + containerHeight * 0.16) / 2,
                   left: containerWidth * 0.05,
@@ -109,7 +104,6 @@ class Fram2 extends StatelessWidget {
     );
   }
 
-  // Helper Widget to Build Text
   Widget _buildText({
     required String text,
     required double fontSize,
@@ -125,7 +119,6 @@ class Fram2 extends StatelessWidget {
     );
   }
 
-  // Simulate Frame Loading Delay
   Future<void> _simulateFrameLoading() async {
     await Future.delayed(const Duration(seconds: 1));
   }

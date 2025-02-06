@@ -21,7 +21,7 @@ class Fram4 extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final containerWidth = screenWidth * 0.97;
-    final containerHeight = containerWidth * 1.05; // Slightly taller frame
+    final containerHeight = containerWidth * 1.05;
 
     return FutureBuilder(
       future: _simulateFrameLoading(),
@@ -42,7 +42,7 @@ class Fram4 extends StatelessWidget {
             height: containerHeight,
             child: Stack(
               children: [
-                // Background Frame Image
+
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
@@ -68,8 +68,6 @@ class Fram4 extends StatelessWidget {
                   ),
                 ),
 
-
-                // Phone Number (Top Left near first phone icon)
                 Positioned(
                   top: (containerHeight * 0.08 + containerHeight * 0.07) / 2,
                   left: containerWidth * 0.08,
@@ -80,10 +78,9 @@ class Fram4 extends StatelessWidget {
                   ),
                 ),
 
-                // Email Address (Bottom Left near mail icon)
                 Positioned(
                   bottom: (containerHeight * 0.05 + containerHeight * 0.06) / 2,
-                 // bottom: containerHeight * 0.05,
+
                   left: containerWidth * 0.08,
                   child: _buildText(
                     text: emailAddress,
@@ -92,10 +89,6 @@ class Fram4 extends StatelessWidget {
                   ),
                 ),
 
-                // Address (Bottom Left near address icon)
-
-
-                // Website (Bottom Right near web icon)
                 Positioned(
                   bottom: containerHeight * 0.06,
                   right: containerWidth * 0.06,
@@ -122,8 +115,6 @@ class Fram4 extends StatelessWidget {
       },
     );
   }
-
-  // Helper Widget to Build Text
   Widget _buildText({
     required String text,
     required double fontSize,
@@ -139,7 +130,6 @@ class Fram4 extends StatelessWidget {
     );
   }
 
-  // Simulate Frame Loading Delay
   Future<void> _simulateFrameLoading() async {
     await Future.delayed(const Duration(seconds: 1));
   }

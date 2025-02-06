@@ -1,5 +1,4 @@
 import 'package:allinone_app/utils/configs.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -16,7 +15,7 @@ class CharityScreen extends StatefulWidget {
 class  CharityScreenState extends State<CharityScreen> {
 
   Map<String, dynamic>? charityData;
-  String Total = '';
+  String total = '';
   bool isLoading = true;
 
   @override
@@ -33,25 +32,15 @@ class  CharityScreenState extends State<CharityScreen> {
         setState(() {
           charityData = json.decode(response.body);
 
-          Total = (charityData!['total_charity'] / 5).toStringAsFixed(0);
-          if (kDebugMode) {
-            print('Total divided by 5: $Total');
-            print('Total divided by 5: $charityData');
-          }
+          total = (charityData!['total_charity'] / 5).toStringAsFixed(0);
           isLoading = false;
         });
       } else {
-        if (kDebugMode) {
-          print('Failed to load data. Status code: ${response.statusCode}');
-        }
         setState(() {
           isLoading = false;
         });
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error occurred: $e');
-      }
       setState(() {
         isLoading = false;
       });
@@ -64,60 +53,50 @@ class  CharityScreenState extends State<CharityScreen> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 80,
-        backgroundColor: Colors.red, // Deep red background color
+        backgroundColor: Colors.red,
         leading: IconButton(
           icon: const Icon(
-            Icons.arrow_back, // Back button icon
-            color: Colors.white, // White color for back button
+            Icons.arrow_back,
+            color: Colors.white,
           ),
           onPressed: () {
-            Navigator.pop(context); // Navigate back
+            Navigator.pop(context);
           },
         ),
         title: Row(
           children: [
             const Icon(
-              Icons.favorite, // Charity icon
-              color: Colors.white, // White icon color
+              Icons.favorite,
+              color: Colors.white,
               size: 28,
             ),
-            const SizedBox(width: 10), // Spacing between icon and text
+            const SizedBox(width: 10),
             Text(
               'Charity',
               style: GoogleFonts.roboto(
-                color: Colors.white, // White text color
+                color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ],
         ),
-        elevation: 4, // Adds a subtle shadow
-        shadowColor: Colors.red.shade200, // Light red shadow
+        elevation: 4,
+        shadowColor: Colors.red.shade200,
         actions: [
           IconButton(
             icon: const Icon(
-              Icons.share, // Share icon
-              color: Colors.white, // White color for action icon
+              Icons.share,
+              color: Colors.white,
             ),
-            onPressed: () {
-              // Action for share button
-              if (kDebugMode) {
-                print('Share button pressed');
-              }
-            },
+            onPressed: () {},
           ),
           IconButton(
             icon: const Icon(
-              Icons.info_outline, // Info icon
-              color: Colors.white, // White color for action icon
+              Icons.info_outline,
+              color: Colors.white,
             ),
-            onPressed: () {
-              // Action for info button
-              if (kDebugMode) {
-                print('Info button pressed');
-              }
-            },
+            onPressed: () {},
           ),
         ],
       ),
@@ -128,13 +107,11 @@ class  CharityScreenState extends State<CharityScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Background image with onTap gesture
             SizedBox(
               height: 300,
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  // Action when image is tapped
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Background image tapped')),
                   );
@@ -172,7 +149,6 @@ class  CharityScreenState extends State<CharityScreen> {
             ),
 
             const SizedBox(height: 6),
-            // Buttons
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -186,7 +162,7 @@ class  CharityScreenState extends State<CharityScreen> {
                           context,
                           'Skill School',
                           Icons.school,
-                          '₹ $Total',
+                          '₹ $total',
                           Colors.red
                             //  () => showCustomBottomSheet(context, buildSkillSchoolContent()),
                         ),
@@ -197,7 +173,7 @@ class  CharityScreenState extends State<CharityScreen> {
                           context,
                           'Food',
                           Icons.fastfood,
-                          '₹ $Total',
+                          '₹ $total',
                           Colors.red
                             //  () => showCustomBottomSheet(context, buildFoodContent()),
                         ),
@@ -213,7 +189,7 @@ class  CharityScreenState extends State<CharityScreen> {
                           context,
                           'Tree Plantation',
                           Icons.park,
-                          '₹ $Total',
+                          '₹ $total',
                           Colors.red
                            //   () => showCustomBottomSheet(context, buildTreePlantationContent()),
                         ),
@@ -229,7 +205,7 @@ class  CharityScreenState extends State<CharityScreen> {
                           context,
                           'Indian Games',
                           Icons.sports_kabaddi,
-                          '₹ $Total',
+                          '₹ $total',
                           Colors.red
                             //  () => showCustomBottomSheet(context, buildIndianGamesContent()),
                         ),
@@ -240,7 +216,7 @@ class  CharityScreenState extends State<CharityScreen> {
                           context,
                           'Child Care',
                           Icons.child_care,
-                          '₹ $Total',
+                          '₹ $total',
                           Colors.red
                              // () => showCustomBottomSheet(context, buildChildCareContent()),
                         ),
@@ -276,35 +252,35 @@ class  CharityScreenState extends State<CharityScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 28, color: Colors.white),
-          const SizedBox(height: 8), // Space between icon and title
+          const SizedBox(height: 8),
           Text(
             title,
-            style: GoogleFonts.lato( // Applying Google Font to the title
+            style: GoogleFonts.lato(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          const SizedBox(height: 8), // Space between title and amount
+          const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
             decoration: BoxDecoration(
-              color: Colors.white, // Background color for counter
-              borderRadius: BorderRadius.circular(20), // Rounded corners
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
               boxShadow: const [
                 BoxShadow(
                   color: Colors.black26,
-                  blurRadius: 6, // Spread of the shadow
-                  offset: Offset(2, 2), // Position of the shadow
+                  blurRadius: 6,
+                  offset: Offset(2, 2),
                 ),
               ],
             ),
             child: Text(
               amount,
-              style: GoogleFonts.lato( // Applying Google Font to the amount
+              style: GoogleFonts.lato(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: Colors.black, // Text color for contrast
+                color: Colors.black,
               ),
             ),
           ),
@@ -320,7 +296,7 @@ class  CharityScreenState extends State<CharityScreen> {
       context: context,
       isScrollControlled: true,
       builder: (context) => SizedBox(
-        height: MediaQuery.of(context).size.height * 0.8, // 80% of screen height
+        height: MediaQuery.of(context).size.height * 0.8,
         child: content,
       ),
     );
@@ -328,13 +304,12 @@ class  CharityScreenState extends State<CharityScreen> {
 
   Widget buildSkillSchoolContent() {
     return Container(
-      color: Colors.red.shade50, // Light red background for the whole sheet
+      color: Colors.red.shade50,
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Section
             Center(
               child: Text(
                 'Skill School Foundation',
@@ -347,7 +322,6 @@ class  CharityScreenState extends State<CharityScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Content Sections
             buildStyledSection(
               title: 'Who We Are',
               content:
@@ -426,7 +400,6 @@ class  CharityScreenState extends State<CharityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Section Title
             Text(
               title,
               style: GoogleFonts.roboto(
@@ -436,8 +409,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ),
             ),
             const SizedBox(height: 8),
-
-            // Section Content
             Text(
               content,
               style: GoogleFonts.roboto(
@@ -454,13 +425,12 @@ class  CharityScreenState extends State<CharityScreen> {
 
   Widget buildFoodContent() {
     return Container(
-      color: Colors.red.shade50, // Light red background
+      color: Colors.red.shade50,
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with Icon
             Row(
               children: [
                 Icon(Icons.fastfood, color: Colors.red.shade800, size: 36),
@@ -476,8 +446,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Foundation Description
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -498,24 +466,18 @@ class  CharityScreenState extends State<CharityScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Vision Section
             buildStyledSection1(
               icon: Icons.visibility,
               title: 'Our Vision',
               content: 'No child in India shall be deprived of education because of hunger.',
             ),
             const SizedBox(height: 16),
-
-            // Mission Section
             buildStyledSection1(
               icon: Icons.flag,
               title: 'Our Mission',
               content: 'To feed 3 million children every day by 2025.',
             ),
             const SizedBox(height: 16),
-
-            // Impact Statistics
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -580,7 +542,6 @@ class  CharityScreenState extends State<CharityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title with Icon
             Row(
               children: [
                 Icon(icon, color: Colors.red.shade800, size: 28),
@@ -596,8 +557,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ],
             ),
             const SizedBox(height: 10),
-
-            // Content
             Text(
               content,
               style: GoogleFonts.roboto(
@@ -616,13 +575,12 @@ class  CharityScreenState extends State<CharityScreen> {
 
   Widget buildTreePlantationContent() {
     return Container(
-      color: Colors.red.shade50, // Light red background
+      color: Colors.red.shade50,
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with Icon
             Row(
               children: [
                 Icon(Icons.park, color: Colors.red.shade800, size: 36),
@@ -638,8 +596,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // About Section
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -676,8 +632,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Mission Section
             buildStyledSection2(
               icon: Icons.visibility,
               title: 'Our Mission',
@@ -685,7 +639,6 @@ class  CharityScreenState extends State<CharityScreen> {
             ),
             const SizedBox(height: 16),
 
-            // // Quick Links
             // Card(
             //   elevation: 4,
             //   shape: RoundedRectangleBorder(
@@ -724,15 +677,10 @@ class  CharityScreenState extends State<CharityScreen> {
             //         ),
             //       ],
             //     ),
-            //   ),
-            // ),
+            //   ),),
             // const SizedBox(height: 16),
-            //
-            // // Team Section
             // buildTeamSection(),
             // const SizedBox(height: 16),
-            //
-            // // Contact Us Section
             // buildContactUsSection(),
           ],
         ),
@@ -755,7 +703,6 @@ class  CharityScreenState extends State<CharityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title with Icon
             Row(
               children: [
                 Icon(icon, color: Colors.red.shade800, size: 28),
@@ -771,8 +718,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ],
             ),
             const SizedBox(height: 10),
-
-            // Content
             Text(
               content,
               style: GoogleFonts.roboto(fontSize: 16, color: Colors.black87),
@@ -892,13 +837,12 @@ class  CharityScreenState extends State<CharityScreen> {
 
   Widget buildChildCareContent() {
     return Container(
-      color: Colors.red.shade50, // Light red background
+      color: Colors.red.shade50,
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with Icon
             Row(
               children: [
                 Icon(Icons.child_care, color: Colors.red.shade800, size: 36),
@@ -914,8 +858,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Description Section
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -931,8 +873,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Mission Section
             buildStyledSection3(
               icon: Icons.flag,
               title: 'Our Mission',
@@ -940,8 +880,6 @@ class  CharityScreenState extends State<CharityScreen> {
               'To ensure that every child has access to basic education and healthcare, creating a sustainable future for the next generation.',
             ),
             const SizedBox(height: 16),
-
-            // Get Involved Section
             buildStyledSection3(
               icon: Icons.volunteer_activism,
               title: 'Get Involved',
@@ -949,10 +887,6 @@ class  CharityScreenState extends State<CharityScreen> {
               'Join us in our mission! Volunteer, donate, or partner with us to make a difference in the lives of children in need.',
             ),
             const SizedBox(height: 16),
-
-
-
-            // Miracle Foundation Header with Icon
             Row(
               children: [
                 Icon(Icons.family_restroom, color: Colors.red.shade800, size: 36),
@@ -968,8 +902,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Description Section
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -985,8 +917,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Vision Section
             buildStyledSection3(
               icon: Icons.visibility,
               title: 'Our Vision',
@@ -994,8 +924,6 @@ class  CharityScreenState extends State<CharityScreen> {
               'To create a world where every child has a loving family, quality education, and the chance to thrive.',
             ),
             const SizedBox(height: 16),
-
-            // Get Involved Section
             buildStyledSection3(
               icon: Icons.volunteer_activism,
               title: 'Get Involved',
@@ -1026,7 +954,6 @@ class  CharityScreenState extends State<CharityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title with Icon
             Row(
               children: [
                 Icon(icon, color: Colors.red.shade800, size: 28),
@@ -1043,7 +970,6 @@ class  CharityScreenState extends State<CharityScreen> {
             ),
             const SizedBox(height: 10),
 
-            // Content
             Text(
               content,
               style: GoogleFonts.roboto(fontSize: 16, color: Colors.black87),
@@ -1100,13 +1026,12 @@ class  CharityScreenState extends State<CharityScreen> {
 
   Widget buildIndianGamesContent() {
     return Container(
-      color: Colors.red.shade50, // Light red background
+      color: Colors.red.shade50,
       padding: const EdgeInsets.all(16.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Section
             Row(
               children: [
                 Icon(Icons.sports, color: Colors.red.shade800, size: 36),
@@ -1122,8 +1047,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Introductory Text
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(
@@ -1139,8 +1062,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Game Sections
             buildGameSection(
               title: 'Kabaddi',
               content: 'Kabaddi is one of the oldest sports in the world. The entire match lasts 40 minutes, divided into two 20-minute halves. '
@@ -1166,8 +1087,6 @@ class  CharityScreenState extends State<CharityScreen> {
               icon: Icons.sports_handball,
             ),
             const SizedBox(height: 20),
-
-            // Slovak Catholic Charity
             Row(
               children: [
                 Icon(Icons.volunteer_activism, color: Colors.red.shade800, size: 36),
@@ -1183,8 +1102,6 @@ class  CharityScreenState extends State<CharityScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            // Description Section
             Card(
               elevation: 4,
               shape: RoundedRectangleBorder(

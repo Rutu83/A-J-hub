@@ -1,10 +1,6 @@
-
-
-// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
-
 import 'dart:convert';
 import 'package:allinone_app/main.dart';
-import 'package:flutter/foundation.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -36,9 +32,6 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
   }
 
 
-
-
-  // Show Snack Bar Message
   void _showSnackBar(BuildContext context, String message, Color color) {
     final snackBar = SnackBar(
       content: Row(
@@ -58,12 +51,12 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
         ],
       ),
       backgroundColor: color,
-      behavior: SnackBarBehavior.floating, // Floating above the layout
+      behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12), // Rounded corners
+        borderRadius: BorderRadius.circular(12),
       ),
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), // Margin for floating effect
-      duration: const Duration(seconds: 4), // Auto-dismiss duration
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      duration: const Duration(seconds: 4),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -73,15 +66,15 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
   Future<void> _changePassword() async {
     if (!_formKey.currentState!.validate()) {
       _showSnackBar(context, 'Please fix the errors in the form', Colors.red);
-      return; // Validate the form and exit if invalid
+      return;
     }
 
     setState(() {
       _isLoading = true;
     });
 
-    _authToken = appStore.token; // Fetch the stored token
-    const String apiUrl = 'https://ajhub.co.in/api/change-password';
+    _authToken = appStore.token;
+    const String apiUrl = '${BASE_URL}change-password';
 
     final Map<String, dynamic> payload = {
       'current_password': _currentPasswordController.text,
@@ -94,26 +87,21 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
         Uri.parse(apiUrl),
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer $_authToken", // Fix the token format with Bearer
+          "Authorization": "Bearer $_authToken",
         },
         body: json.encode(payload),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         _showSnackBar(context, 'Password changed successfully', Colors.green);
-        Navigator.pop(context); // Navigate back after successful password change
+        Navigator.pop(context);
       } else {
-        // Show error from server response
         String errorMessage = 'Password change failed';
         if (response.statusCode == 400) {
           final responseBody = json.decode(response.body);
           errorMessage = responseBody['message'] ?? errorMessage;
         }
         _showSnackBar(context, errorMessage, Colors.red);
-        if (kDebugMode) {
-          print('Error: ${response.body}');
-          print('Status Code: ${response.statusCode}');
-        }
       }
     } catch (error) {
       _showSnackBar(context, 'Error: $error', Colors.red);
@@ -137,10 +125,10 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 8.0), // Spacing between label and text field
+        const SizedBox(height: 8.0),
         TextFormField(
           controller: controller,
-          obscureText: isConfirm ? !_isConfirmPasswordVisible : !_isPasswordVisible, // Toggle visibility
+          obscureText: isConfirm ? !_isConfirmPasswordVisible : !_isPasswordVisible,
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             hintText: 'Enter $labelText',
@@ -149,7 +137,7 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
               color: Colors.grey.shade500,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12), // Rounded border
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Colors.grey.shade400, width: 1.5),
             ),
             enabledBorder: OutlineInputBorder(
@@ -158,31 +146,31 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black, width: 2.0), // Black border on focus
+              borderSide: const BorderSide(color: Colors.black, width: 2.0),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red.shade300, width: 1.5), // Red border for errors
+              borderSide: BorderSide(color: Colors.red.shade300, width: 1.5),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.red.shade300, width: 2.0), // Red border on focus during error
+              borderSide: BorderSide(color: Colors.red.shade300, width: 2.0),
             ),
             filled: true,
-            fillColor: Colors.grey.shade50, // Light background color
+            fillColor: Colors.grey.shade50,
             suffixIcon: IconButton(
               icon: Icon(
                 isConfirm
                     ? (_isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off)
                     : (_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
-                color: Colors.grey.shade600, // Icon color
+                color: Colors.grey.shade600,
               ),
               onPressed: () {
                 setState(() {
                   if (isConfirm) {
-                    _isConfirmPasswordVisible = !_isConfirmPasswordVisible; // Toggle for confirm password
+                    _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
                   } else {
-                    _isPasswordVisible = !_isPasswordVisible; // Toggle for password
+                    _isPasswordVisible = !_isPasswordVisible;
                   }
                 });
               },
@@ -216,7 +204,7 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.white, // Set text color to white
+            color: Colors.white,
           ),
         ),
         backgroundColor: Colors.red,
@@ -235,7 +223,6 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
               children: [
                 const SizedBox(height: 26.0),
 
-                // Image Section
                 Container(
                   height: 250,
                   width: 250,
@@ -258,17 +245,13 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
                 ),
 
                 const SizedBox(height: 30.0),
-
-                // Password Fields
                 _buildPasswordTextField('Current Password', _currentPasswordController),
                 const SizedBox(height: 25.0),
                 _buildPasswordTextField('New Password', _newPasswordController),
                 const SizedBox(height: 25.0),
                 _buildPasswordTextField('Confirm Password', _confirmPasswordController, isConfirm: true),
-
                 const SizedBox(height: 40.0),
 
-                // Reset Password Button
                 InkWell(
                   onTap: _isLoading ? null : _changePassword,
                   child: Container(

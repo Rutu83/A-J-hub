@@ -7,7 +7,7 @@ class BusinessModal {
   factory BusinessModal.fromJson(Map<String, dynamic> json) {
     return BusinessModal(
       status: json['status'],
-      business: json['business'] != null ? Business.fromJson(json['business']) : null, // Handle potential null
+      business: json['business'] != null ? Business.fromJson(json['business']) : null,
     );
   }
 
@@ -56,7 +56,7 @@ class Business {
           ?.map((item) => LevelDownline.fromJson(item))
           .toList() ??
           [],
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()), // Default to now if null
+      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
     );
   }
 

@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names, use_build_context_synchronously, deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -15,17 +13,17 @@ class ContactUs extends StatelessWidget {
       appBar: AppBar(
 
         backgroundColor: Colors.red,
-        titleSpacing: 7.w,  // Adjust title spacing using ScreenUtil if needed
-        centerTitle: true,   // Centers the title text
+        titleSpacing: 7.w,
+        centerTitle: true,
         iconTheme: const IconThemeData(
-          color: Colors.white, // Set the color of the back button icon
+          color: Colors.white,
         ),
         title: Text(
           'Contact Us',
           style: TextStyle(
-            fontSize: 20.0.sp,  // Adjust font size with ScreenUtil
+            fontSize: 20.0.sp,
             fontWeight: FontWeight.w400,
-            color: Colors.white,  // Set text color to red
+            color: Colors.white,
           ),
         ),
       ),

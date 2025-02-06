@@ -85,8 +85,6 @@ class CategorySelectedState extends State<CategorySelected> {
 
       if (activeBusinessData != null) {
         final activeBusiness = json.decode(activeBusinessData);
-        if (kDebugMode) {print(activeBusiness);}
-
 
         setState(() {
           businessName = activeBusiness['business_name'] ?? 'Not Provided';
@@ -100,19 +98,18 @@ class CategorySelectedState extends State<CategorySelected> {
         await _loadFrames();
       } else {
         setState(() {
-          businessName =  'Aj hub Mobile App';
-          ownerName =  'Aj hub Mobile App';
-          mobileNumber =  '96625 45518';
-          emailAddress =  'ankimjoshi58@gmail.com';
-          address =  'Palanpur , Banaskantha district in Gujarat,385001';
-          website =  'https://ajhub.co.in';
+            businessName =  'Aj hub Mobile App';
+            ownerName =  'Aj hub Mobile App';
+            mobileNumber =  '96625 45518';
+            emailAddress =  'ankimjoshi58@gmail.com';
+            address =  'Palanpur , Banaskantha district in Gujarat,385001';
+            website =  'https://ajhub.co.in';
         });
+        _showNoBusinessDialog();
+
         await _loadFrames();
       }
     } catch (error) {
-      if (kDebugMode) {
-        print("Error loading active business data: $error");
-      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error loading data: $error'),
@@ -170,9 +167,6 @@ class CategorySelectedState extends State<CategorySelected> {
         ),
       ];
     } catch (error) {
-      if (kDebugMode) {
-        print("Error loading frames: $error");
-      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error loading frames: $error'),
@@ -341,9 +335,6 @@ class CategorySelectedState extends State<CategorySelected> {
 
       }
     } catch (error) {
-      if (kDebugMode) {
-        print("Error downloading image: $error");
-      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -407,10 +398,7 @@ class CategorySelectedState extends State<CategorySelected> {
         await file.writeAsBytes(pngBytes);
 
         await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
-
-        // Skip download count increment since we are removing the limit
         // await _incrementDownloadCount(filePath);
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             behavior: SnackBarBehavior.floating,
@@ -435,9 +423,6 @@ class CategorySelectedState extends State<CategorySelected> {
         );
       }
     } catch (error) {
-      if (kDebugMode) {
-        print("Error downloading image: $error");
-      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -501,24 +486,11 @@ class CategorySelectedState extends State<CategorySelected> {
   Future<void> fetchUserData() async {
     try {
       Map<String, dynamic> userDetail = await getUserDetail();
-      if (kDebugMode) {
-        print('...........................................................');
-        print(userDetail);
-      }
 
-      // Check if the status is 'active' or 'inactive'
-       status = userDetail['status'] ?? ''; // Get status from the response
-
-      // Print "yes" if status is active, otherwise print nothing
-      if (status == 'active') {
-        if (kDebugMode) {
-          print("yes");
-        }
-      }
-
+       status = userDetail['status'] ?? '';
     } catch (e) {
       if (kDebugMode) {
-        print("Error fetching user data: $e");
+        print(e);
       }
     }
   }
@@ -570,13 +542,13 @@ class CategorySelectedState extends State<CategorySelected> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 0, // Remove shadow for a cleaner design
+        elevation: 0,
         title: Text(
           'Select Frame',
           style: TextStyle(
             color: Colors.black,
             fontSize: 18.sp,
-            fontWeight: FontWeight.bold, // Emphasize title
+            fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
@@ -584,13 +556,13 @@ class CategorySelectedState extends State<CategorySelected> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          // Edit Button with Background
+
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0), // Add spacing
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.grey[200], // Light background color
-                shape: BoxShape.circle,  // Circular background
+                color: Colors.grey[200],
+                shape: BoxShape.circle,
               ),
               child: IconButton(
                 icon: const Icon(
@@ -611,7 +583,6 @@ class CategorySelectedState extends State<CategorySelected> {
             ),
           ),
 
-          // Download Button with Background
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Container(
@@ -631,7 +602,6 @@ class CategorySelectedState extends State<CategorySelected> {
             ),
           ),
 
-          // Share Button with Background
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Container(
@@ -698,7 +668,6 @@ class CategorySelectedState extends State<CategorySelected> {
                   ),
                 ),
                 SizedBox(height: 10.h),
-                // Frame Indicators
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
@@ -715,7 +684,6 @@ class CategorySelectedState extends State<CategorySelected> {
                   ),
                 ),
                 SizedBox(height: 20.h),
-                // Bottom Image Selection
                 GridView.builder(
                   padding: const EdgeInsets.all(10),
                   shrinkWrap: true,

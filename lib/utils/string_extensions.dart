@@ -11,7 +11,6 @@ extension strEtx on String {
       height: size ?? 24,
       width: size ?? 24,
       fit: fit ?? BoxFit.cover,
-      // color: color ?? (appStore.isDarkMode ? Colors.white : appTextSecondaryColor),
       color: color,
       errorBuilder: (context, error, stackTrace) {
         return Image.asset(ic_no_photo, height: size ?? 24, width: size ?? 24);

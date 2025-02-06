@@ -1,10 +1,9 @@
-// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/category_selection_screen.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,7 +20,7 @@ class BusinessForm extends StatefulWidget {
 }
 
 class _BusinessFormState extends State<BusinessForm> {
-  File? _image;  // Variable to store the image
+  File? _image;
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _ownerNameController = TextEditingController();
@@ -32,10 +31,10 @@ class _BusinessFormState extends State<BusinessForm> {
   String? selectedState;
   List<dynamic> states = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String? _selectedCategoryImage; // For storing the category image URL
-  String? _selectedCategoryName;  // For storing the category name
-  String? _selectedCategoryId;    // For storing the category ID
-  bool _isLoading = false;  // To manage loading state
+  String? _selectedCategoryImage;
+  String? _selectedCategoryName;
+  String? _selectedCategoryId;
+  bool _isLoading = false;
 
   Future<void> fetchStates() async {
     try {
@@ -45,24 +44,16 @@ class _BusinessFormState extends State<BusinessForm> {
           states = json.decode(response.body);
           selectedState = null;
         });
-      } else {
-        if (kDebugMode) {
-          print(response.statusCode);
-        }
-        if (kDebugMode) {
-          print(response.body);
-        }
-      }
+      } else {}
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
+    if (kDebugMode) {
+      print(e);
+    }
     }
   }
 
 
 
-  // Method to pick image from gallery
   Future<void> _pickImageFromGallery() async {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
@@ -73,12 +64,10 @@ class _BusinessFormState extends State<BusinessForm> {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error picking image from gallery: $e');
-      }
-    }
+      print(e);
+    }}
   }
 
-  // Method to pick image from camera
   Future<void> _pickImageFromCamera() async {
     try {
       final pickedFile = await _picker.pickImage(source: ImageSource.camera);
@@ -88,13 +77,10 @@ class _BusinessFormState extends State<BusinessForm> {
         });
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error picking image from camera: $e');
-      }
+      if (kDebugMode) {}
     }
   }
 
-  // Show bottom sheet with camera and gallery options
   void _showImageSourceActionSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -107,16 +93,16 @@ class _BusinessFormState extends State<BusinessForm> {
                 leading: const Icon(Icons.photo_library),
                 title: const Text('Gallery'),
                 onTap: () {
-                  Navigator.pop(context);  // Close the bottom sheet
-                  _pickImageFromGallery();  // Open gallery
+                  Navigator.pop(context);
+                  _pickImageFromGallery();
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('Camera'),
                 onTap: () {
-                  Navigator.pop(context);  // Close the bottom sheet
-                  _pickImageFromCamera();  // Open camera
+                  Navigator.pop(context);
+                  _pickImageFromCamera();
                 },
               ),
             ],
@@ -129,10 +115,10 @@ class _BusinessFormState extends State<BusinessForm> {
   Future<void> _submitBusinessProfile() async {
     if (_formKey.currentState?.validate() == true) {
       setState(() {
-        _isLoading = true; // Start loading indicator
+        _isLoading = true;
       });
 
-      // Validate required fields
+
       if (_selectedCategoryId == null || _selectedCategoryId!.isEmpty) {
         _showSnackbar('Please select a category.', Colors.red);
         setState(() {
@@ -149,7 +135,6 @@ class _BusinessFormState extends State<BusinessForm> {
         return;
       }
 
-      // Validate website URL format
       if (_websiteController.text.isNotEmpty &&
           !RegExp(r"^(https?://)?([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?$")
               .hasMatch(_websiteController.text)) {
@@ -161,10 +146,9 @@ class _BusinessFormState extends State<BusinessForm> {
       }
 
       try {
-        // Check if the logo file size is within the allowed limit (2048 KB = 2 MB)
         if (_image != null) {
-          int fileSize = await _image!.length(); // Get the file size in bytes
-          if (fileSize > 2048 * 1024) { // If the file is larger than 2 MB
+          int fileSize = await _image!.length();
+          if (fileSize > 2048 * 1024) {
             _showSnackbar('The logo image must not exceed 2 MB.', Colors.red);
             setState(() {
               _isLoading = false;
@@ -172,7 +156,6 @@ class _BusinessFormState extends State<BusinessForm> {
             return;
           }
         } else {
-          // If the logo is not provided, show an error
           _showSnackbar('Please provide a logo for your business.', Colors.red);
           setState(() {
             _isLoading = false;
@@ -180,65 +163,50 @@ class _BusinessFormState extends State<BusinessForm> {
           return;
         }
 
-        // Create a multipart request
         var request = http.MultipartRequest(
           'POST',
-          Uri.parse('https://ajhub.co.in/api/businessprofile'),
+          Uri.parse('${BASE_URL}businessprofile'),
         );
-
-        // Add headers including the token
         request.headers.addAll({
           'Content-Type': 'multipart/form-data',
-          'Authorization': 'Bearer ${appStore.token}', // Add your token here
+          'Authorization': 'Bearer ${appStore.token}',
         });
 
-        // Add fields
         request.fields['business_name'] = _businessNameController.text;
         request.fields['owner_name'] = _ownerNameController.text.isNotEmpty
             ? _ownerNameController.text
-            : 'Owner Name'; // Optional
+            : 'Owner Name';
         request.fields['mobile_number'] = _mobileNumberController.text;
         request.fields['email'] = _emailController.text.isNotEmpty
             ? _emailController.text
-            : ''; // Optional
-        request.fields['website'] = _websiteController.text; // Optional
+            : '';
+        request.fields['website'] = _websiteController.text;
         request.fields['address'] = _addressController.text;
-        request.fields['category_id'] = _selectedCategoryId ?? ''; // Use an empty string if null
+        request.fields['category_id'] = _selectedCategoryId ?? '';
         request.fields['state_id'] = selectedState ?? '';
 
-        // Add logo as a file
         if (_image != null) {
           var logoFile = await http.MultipartFile.fromPath(
             'logo',
-            _image!.path, // The file path of the image
-            contentType: MediaType('image', 'jpeg'), // Adjust content type if necessary (e.g., png, jpg)
+            _image!.path,
+            contentType: MediaType('image', 'jpeg'),
           );
           request.files.add(logoFile);
         }
-
-        // Debugging the fields and files
-        debugPrint("Request Fields: ${request.fields}");
-        debugPrint("Request Files: ${request.files.length}");
-
-        // Send request
         var response = await request.send();
 
-        // Handle response
         if (response.statusCode == 200 || response.statusCode == 201) {
-          // Successfully submitted
-          debugPrint('Business profile submitted successfully!');
+
           _showSnackbar('Business profile submitted successfully!', Colors.green);
           setState(() {
             _isLoading = false;
           });
           Navigator.pop(context);
         } else {
-          // Handle server errors based on the status code
+
           final errorMessage = await response.stream.bytesToString();
 
           String errorMsg = 'An unexpected error occurred. Please try again.';
-
-          // Set different error messages based on status code
           switch (response.statusCode) {
             case 400:
               errorMsg = 'The request could not be understood or was missing required parameters.';
@@ -276,21 +244,16 @@ class _BusinessFormState extends State<BusinessForm> {
               break;
           }
 
-          // Display the error message using the snackbar
+
           _showSnackbar(errorMsg, Colors.red);
-          debugPrint('Failed: ${response.statusCode}');
-          debugPrint('Response Body: $errorMessage');
+
 
           setState(() {
             _isLoading = false;
           });
         }
       } catch (e, stackTrace) {
-        // Catch any exceptions that happen during the process
-        debugPrint('Error: $e');
-        debugPrintStack(stackTrace: stackTrace);
 
-        // Show a generic error message
         _showSnackbar('An unexpected error occurred. Please try again.', Colors.red);
         setState(() {
           _isLoading = false;
@@ -300,29 +263,26 @@ class _BusinessFormState extends State<BusinessForm> {
   }
 
   void _showSnackbar(String message, Color color) {
-    // Dismiss any existing SnackBars first
-    ScaffoldMessenger.of(context).clearSnackBars();
 
-    // Show the new SnackBar with custom floating behavior
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        behavior: SnackBarBehavior.floating,  // Makes the Snackbar float above the content
-        margin: const EdgeInsets.all(5),      // Adds margin around the Snackbar
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(5),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),  // Rounded corners for a sleek look
+          borderRadius: BorderRadius.circular(10),
         ),
-        backgroundColor: color,  // Set the background color (green for success, red for error)
+        backgroundColor: color,
         content: Row(
           children: [
-            // Icon displayed in the Snackbar
             const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 10),  // Spacer between the icon and the message
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
-                message,  // The dynamic message you want to display
+                message,
                 style: GoogleFonts.poppins(
-                  fontSize: 14.sp,  // Adjust font size as needed
-                  color: Colors.black,  // Text color inside the Snackbar
+                  fontSize: 14.sp,
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -333,23 +293,12 @@ class _BusinessFormState extends State<BusinessForm> {
   }
 
 
-
-
-
-
-
-
-
-
-
-  // Navigate to the category selection screen
   void _navigateToCategorySelection() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => CategorySelectionScreen(
           onCategorySelected: (String categoryId, String categoryName) {
-            // This can be used for immediate updates, if needed
           },
         ),
       ),
@@ -562,11 +511,11 @@ class _BusinessFormState extends State<BusinessForm> {
                   if (value != null && value.isNotEmpty) {
                     final emailRegex = RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
                     if (!emailRegex.hasMatch(value)) {
-                      return 'Please enter a valid email ID';  // Return error message if invalid
+                      return 'Please enter a valid email ID';
                     }
-                    return null;  // Return null if email is valid
+                    return null;
                   }
-                  return 'Please enter your email ID';  // Return a message if the field is empty
+                  return 'Please enter your email ID';
                 },
               ),
 
@@ -587,7 +536,7 @@ class _BusinessFormState extends State<BusinessForm> {
                 controller: _addressController,
                 hintText: 'Enter address',
                 icon: Icons.location_on,
-                maxLines: 3,  // Max 3 lines
+                maxLines: 3,
                 minLines: 1,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -595,7 +544,6 @@ class _BusinessFormState extends State<BusinessForm> {
                   }
                   return null;
                 },
-                // Start with 1 line
               ),
 
               SizedBox(height: 16.h),
@@ -628,12 +576,11 @@ class _BusinessFormState extends State<BusinessForm> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Clear Button
           Expanded(
             child: SizedBox(
-              height: 50.h, // Ensure both buttons have the same height
+              height: 50.h,
               child: OutlinedButton(
-                onPressed: !_isLoading ? _clearForm : null, // Disable when loading
+                onPressed: !_isLoading ? _clearForm : null,
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.red),
                 ),
@@ -647,24 +594,22 @@ class _BusinessFormState extends State<BusinessForm> {
               ),
             ),
           ),
-          SizedBox(width: 16.w), // Space between buttons
-
-          // Submit Button
+          SizedBox(width: 16.w),
           Expanded(
             child: SizedBox(
-              height: 50.h, // Ensure both buttons have the same height
+              height: 50.h,
               child: ElevatedButton(
-                onPressed: !_isLoading ? _submitBusinessProfile : null, // Disable when loading
+                onPressed: !_isLoading ? _submitBusinessProfile : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, // Button background color
+                  backgroundColor: Colors.red,
                 ),
                 child: _isLoading
                     ? SizedBox(
                   width: 24.w,
                   height: 24.h,
                   child: const CircularProgressIndicator(
-                    color: Colors.red, // Circular progress indicator color
-                    strokeWidth: 2.5, // Adjust stroke width
+                    color: Colors.red,
+                    strokeWidth: 2.5,
                   ),
                 )
                     : Text(
@@ -689,7 +634,7 @@ class _BusinessFormState extends State<BusinessForm> {
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
     int maxLines = 1,
-    int minLines = 1, // Add minLines for the initial line count
+    int minLines = 1,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
@@ -716,8 +661,8 @@ class _BusinessFormState extends State<BusinessForm> {
         ),
       ),
       keyboardType: keyboardType,
-      minLines: minLines,  // Show one line initially
-      maxLines: maxLines,  // Expand up to 3 lines when needed
+      minLines: minLines,
+      maxLines: maxLines,
       validator: validator,
     );
   }
@@ -726,7 +671,7 @@ class _BusinessFormState extends State<BusinessForm> {
     setState(() {
       _image = null;
       selectedState = null;
-      _formKey.currentState?.reset();  // Reset form fields
+      _formKey.currentState?.reset();
     });
   }
 

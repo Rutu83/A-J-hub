@@ -2,7 +2,6 @@
 
 import 'package:allinone_app/model/business_mode.dart';
 import 'package:allinone_app/network/rest_apis.dart';
-import 'package:allinone_app/screens/team_member_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -105,9 +104,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return _buildSkeletonLoader();
           } else if (snapshot.hasError) {
-            if (kDebugMode) {
-              print(snapshot.error);
-            }
+
             return Center(
               child:Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -383,48 +380,48 @@ class _BusinessScreenState extends State<BusinessScreen> {
 
 
 
-  Widget _buildButton(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        if (businessData != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TeamMemberList(userData: businessData!.business?.levelDownline),
-            ),
-          );
-        }
-      },
-      child: Container(
-        alignment: Alignment.center,
-        width: double.infinity,
-        height: 55.0,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Colors.red,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              CupertinoIcons.person_2_fill,  // Cupertino icon for team members
-              color: Colors.white,
-              size: 24.0,  // Adjust icon size as needed
-            ),
-            const SizedBox(width: 8.0),  // Space between icon and text
-            Text(
-              "Team Member List",
-              style: GoogleFonts.roboto(  // Apply Google Font (Roboto)
-                color: Colors.white,
-                fontWeight: FontWeight.w900,
-                fontSize: 18.0,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildButton(BuildContext context) {
+  //   return InkWell(
+  //     onTap: () {
+  //       if (businessData != null) {
+  //         Navigator.push(
+  //           context,
+  //           MaterialPageRoute(
+  //             builder: (context) => TeamMemberList(userData: businessData!.business?.levelDownline),
+  //           ),
+  //         );
+  //       }
+  //     },
+  //     child: Container(
+  //       alignment: Alignment.center,
+  //       width: double.infinity,
+  //       height: 55.0,
+  //       decoration: BoxDecoration(
+  //         borderRadius: BorderRadius.circular(8),
+  //         color: Colors.red,
+  //       ),
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.center,
+  //         children: [
+  //           const Icon(
+  //             CupertinoIcons.person_2_fill,  // Cupertino icon for team members
+  //             color: Colors.white,
+  //             size: 24.0,  // Adjust icon size as needed
+  //           ),
+  //           const SizedBox(width: 8.0),  // Space between icon and text
+  //           Text(
+  //             "Team Member List",
+  //             style: GoogleFonts.roboto(  // Apply Google Font (Roboto)
+  //               color: Colors.white,
+  //               fontWeight: FontWeight.w900,
+  //               fontSize: 18.0,
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
 
 
@@ -512,7 +509,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
               ),
               if (title == "Refer User")
             Text(
-                '$income',
+                income,
                 style: GoogleFonts.poppins(
                   color: Colors.red.shade600,
                   fontWeight: FontWeight.bold,

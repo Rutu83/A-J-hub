@@ -25,7 +25,6 @@ class  TransactionHistoryState extends State<TransactionHistory> {
 
   Future<void> fetchBusinessData() async {
     try {
-      // Directly fetch the parsed transaction data
       final List<TransactionResponse> response = await getTransactionData(transactionmodal: []);
 
       if (kDebugMode) {
@@ -50,7 +49,6 @@ class  TransactionHistoryState extends State<TransactionHistory> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter transactions based on search query and selected filter
     List<Transaction> filteredTransactions = transactions.where((tx) {
       final matchesFilter =
           selectedFilter == 'All' || tx.transactionStatus == selectedFilter;
@@ -59,25 +57,18 @@ class  TransactionHistoryState extends State<TransactionHistory> {
       return matchesFilter && matchesSearchQuery;
     }).toList();
 
-    // Calculate total balance based on filtered transactions
     double totalBalance = filteredTransactions.fold(
       0.0,
           (sum, tx) {
         if (tx.transactionStatus != 'Credit' && tx.transactionStatus != 'Debit') {
-          if (kDebugMode) {
-            print('Skipping transaction with invalid status: ${tx.transactionStatus}');
-          }
           return sum;
         }
 
         try {
           final double amount = double.parse(tx.amount);
           double updatedSum = tx.transactionStatus == 'Credit' ? sum + amount : sum - amount;
-          return updatedSum < 0 ? 0 : updatedSum; // Ensure balance doesn't go below 0
+          return updatedSum < 0 ? 0 : updatedSum;
         } catch (e) {
-          if (kDebugMode) {
-            print('Error parsing amount for transaction: ${tx.amount}');
-          }
           return sum;
         }
       },
@@ -101,7 +92,6 @@ class  TransactionHistoryState extends State<TransactionHistory> {
         ),
         centerTitle: true,
         actions: [
-          // Refresh Icon
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.black),
             onPressed: () {
@@ -111,7 +101,6 @@ class  TransactionHistoryState extends State<TransactionHistory> {
               fetchBusinessData();
             },
           ),
-          // Filter Icon
           IconButton(
             icon: const Icon(Icons.filter_list, color: Colors.black),
             onPressed: () {
@@ -126,7 +115,6 @@ class  TransactionHistoryState extends State<TransactionHistory> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Search Bar
             Row(
               children: [
                 Expanded(
@@ -175,7 +163,6 @@ class  TransactionHistoryState extends State<TransactionHistory> {
             ),
             const SizedBox(height: 10),
 
-            // Filter Chips
             Row(
               children: [
                 FilterChip(
@@ -239,7 +226,6 @@ class  TransactionHistoryState extends State<TransactionHistory> {
 
             const SizedBox(height: 10),
 
-            // Total Balance
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Row(
@@ -267,7 +253,6 @@ class  TransactionHistoryState extends State<TransactionHistory> {
 
             const SizedBox(height: 10),
 
-            // Transaction List
             Expanded(
               child: ListView.builder(
                 itemCount: filteredTransactions.length,
@@ -303,11 +288,7 @@ class  TransactionHistoryState extends State<TransactionHistory> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Show remark first
 
-
-
-                        // Show timestamp next
                         Text(
                           transaction.createdAt.toString(),
                           style: GoogleFonts.poppins(
@@ -315,9 +296,9 @@ class  TransactionHistoryState extends State<TransactionHistory> {
                             color: Colors.black54,
                           ),
                         ),
-                        const SizedBox(height: 4), // Add spacing after the remark
+                        const SizedBox(height: 4),
                         Text(
-                          transaction.paymentPurpose?.toString() ?? 'No purpose provided', // Null-safe access and default value
+                          transaction.paymentPurpose?.toString() ?? 'No purpose provided',
                           style: GoogleFonts.poppins(
                             fontSize: 12,
                             color: Colors.blueGrey,
@@ -346,10 +327,6 @@ class  TransactionHistoryState extends State<TransactionHistory> {
   }
 
 
-
-
-
-// Filter Dialog
   void _showFilterDialog() {
     showDialog(
       context: context,

@@ -9,7 +9,7 @@ class LoginResponse {
   LoginResponse({this.success, this.message, this.token, this.userData});
 
   LoginResponse.fromJson(Map<String, dynamic> json) {
-    success = json['status'] == "success";  // Assuming success is based on the status field
+    success = json['status'] == "success";
     message = json['message'];
     token = json['token'];
     userData = json['user'] != null ? UserData.fromJson(json['user']) : null;

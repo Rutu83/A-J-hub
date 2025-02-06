@@ -56,7 +56,7 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.white, // Set text color to white
+            color: Colors.white,
           ),
         ),
         backgroundColor: Colors.red,
@@ -92,7 +92,7 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
         children: [
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8), // Reduced horizontal padding
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               child: ListView.builder(
                 itemCount: products.length,
                 itemBuilder: (context, index) {
@@ -109,14 +109,14 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
 
                     },
                     child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 10), // Reduced vertical margin
+                      margin: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         border: Border.all(
                           color: borderColor,
                           width: 1,
                         ),
-                        borderRadius: BorderRadius.circular(12), // Reduced corner radius
+                        borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
                             color: borderColor.withOpacity(0.1),
@@ -127,11 +127,10 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                         ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(4.0), // Reduced padding
+                        padding: const EdgeInsets.all(4.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Product Image
                             Container(
                               decoration: BoxDecoration(
                                 border: Border.all(
@@ -144,14 +143,14 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                                 borderRadius: BorderRadius.circular(12),
                                 child: Image.network(
                                   product['thumb_image']!,
-                                  height: 100.h, // Reduced image height
+                                  height: 100.h,
                                   width: double.infinity,
                                   fit: BoxFit.cover,
                                   loadingBuilder: (context, child, loadingProgress) {
                                     if (loadingProgress == null) {
-                                      return child; // Image is fully loaded
+                                      return child;
                                     }
-                                    // Show shimmer effect while loading
+
                                     return Shimmer.fromColors(
                                       baseColor: Colors.grey.shade300,
                                       highlightColor: Colors.grey.shade100,
@@ -163,7 +162,6 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                                     );
                                   },
                                   errorBuilder: (context, error, stackTrace) {
-                                    // Placeholder when image fails to load
                                     return Container(
                                       color: Colors.grey.shade200,
                                       height: 100.h,
@@ -171,7 +169,7 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                                       child: const Center(
                                         child: Icon(
                                           Icons.broken_image,
-                                          size: 40, // Reduced icon size
+                                          size: 40,
                                           color: Colors.white,
                                         ),
                                       ),
@@ -180,9 +178,9 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                                 ),
                               ),
                             ),
-                            // Product Title
+
                             Container(
-                              padding: const EdgeInsets.only(left: 6.0, right: 6.0), // Reduced padding
+                              padding: const EdgeInsets.only(left: 6.0, right: 6.0),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
@@ -190,7 +188,7 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                                     child: Text(
                                       product['title']!,
                                       style: GoogleFonts.poppins(
-                                        fontSize: 14.sp, // Reduced font size
+                                        fontSize: 14.sp,
                                         fontWeight: FontWeight.bold,
                                         color: borderColor,
                                       ),
@@ -204,22 +202,22 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                                     icon: Icon(
                                       Icons.arrow_right,
                                       color: borderColor,
-                                      size: 20.sp, // Reduced icon size
+                                      size: 20.sp,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            // Product Description
+
                             Container(
-                              padding: const EdgeInsets.all(6.0), // Reduced padding
+                              padding: const EdgeInsets.all(6.0),
                               child: Text(
                                 product['short_description']!,
                                 style: GoogleFonts.poppins(
-                                  fontSize: 10.sp, // Reduced font size
+                                  fontSize: 10.sp,
                                   color: Colors.black54,
                                 ),
-                                maxLines: 3, // Reduced max lines
+                                maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),

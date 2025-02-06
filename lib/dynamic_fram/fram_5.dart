@@ -21,7 +21,7 @@ class Fram5 extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final containerWidth = screenWidth * 0.97;
-    final containerHeight = containerWidth * 1.05; // Slightly taller frame
+    final containerHeight = containerWidth * 1.05;
 
     return FutureBuilder(
       future: _simulateFrameLoading(),
@@ -42,7 +42,7 @@ class Fram5 extends StatelessWidget {
             height: containerHeight,
             child: Stack(
               children: [
-                // Background Frame Image
+
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
@@ -58,11 +58,9 @@ class Fram5 extends StatelessWidget {
                   ),
                 ),
 
-                // Email Address (Bottom Left, near the email icon)
                 Positioned(
                   bottom: (containerHeight * 0.01 + containerHeight * 0.00) / 2,
 
-                //  bottom: containerHeight * 0.01,
                   left: containerWidth * 0.06,
                   child: _buildText(
                     text: emailAddress,
@@ -71,7 +69,6 @@ class Fram5 extends StatelessWidget {
                   ),
                 ),
 
-                // Phone Number (Bottom Right near phone icon)
                 Positioned(
                   bottom: (containerHeight * 0.01 + containerHeight * 0.00) / 2,
 
@@ -112,7 +109,6 @@ class Fram5 extends StatelessWidget {
     );
   }
 
-  // Helper Widget to Build Text
   Widget _buildText({
     required String text,
     required double fontSize,
@@ -127,7 +123,6 @@ class Fram5 extends StatelessWidget {
     );
   }
 
-  // Simulate Frame Loading Delay
   Future<void> _simulateFrameLoading() async {
     await Future.delayed(const Duration(seconds: 1));
   }

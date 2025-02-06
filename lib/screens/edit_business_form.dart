@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/category_selection_screen.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -225,7 +226,7 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
     });
 
     final String token = appStore.token;
-    final String apiUrl = 'https://ajhub.co.in/api/update/businessprofile/${widget.business['id']}';
+    final String apiUrl = '${BASE_URL}update/businessprofile/${widget.business['id']}';
 
     try {
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl));

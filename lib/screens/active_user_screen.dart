@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/utils/configs.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -50,11 +49,7 @@ class ActiveUserPageState extends State<ActiveUserPage> {
               'username': item.username,
             };
           }).toList();
-
-
           filteredUsers = List.from(users);
-
-
         }
             }
 
@@ -63,9 +58,6 @@ class ActiveUserPageState extends State<ActiveUserPage> {
       });
     } catch (e) {
 
-      if (kDebugMode) {
-        print('Error fetching business data: $e');
-      }
 
       setState(() {
         _isLoading = false;
@@ -88,16 +80,13 @@ class ActiveUserPageState extends State<ActiveUserPage> {
 
   Future<void> submitActiveUserRequest() async {
     if (!_formKey.currentState!.validate()) {
-      if (kDebugMode) {
-        print('Form validation failed.');
-      }
       return;
     }
 
     const String apiUrl = '${BASE_URL}active/user';
 
     setState(() {
-      _isSubmitting = true; // Show loading indicator
+      _isSubmitting = true;
     });
 
     try {
@@ -116,18 +105,8 @@ class ActiveUserPageState extends State<ActiveUserPage> {
         body: json.encode(payload),
       );
 
-      if (kDebugMode) {
-        print('API Response Status Code: ${response.statusCode}');
-      }
-      if (kDebugMode) {
-        print('API Response Body: ${response.body}');
-      }
-
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        if (kDebugMode) {
-          print('API Success: $responseData');
-        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(responseData['message'] ?? 'User activated successfully!')),
         );
@@ -143,17 +122,11 @@ class ActiveUserPageState extends State<ActiveUserPage> {
           errorMessage = errorData['error'];
         }
 
-        if (kDebugMode) {
-          print('API Error: $errorMessage');
-        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage)),
         );
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Network error occurred: $e');
-      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Network error: $e')),
       );

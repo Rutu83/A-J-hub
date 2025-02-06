@@ -7,7 +7,6 @@ class SubcategoryResponse {
     required this.subcategories,
   });
 
-  // Factory method to create SubcategoryResponse from JSON
   factory SubcategoryResponse.fromJson(Map<String, dynamic> json) {
     var subcategoryList = json['subcategory'] as List;
     List<Subcategory> subcategories = subcategoryList
@@ -24,23 +23,21 @@ class SubcategoryResponse {
 class Subcategory {
   final String name;
   final String plays;
-  final List<String> images; // Change from String to List<String>
+  final List<String> images;
 
   Subcategory({
     required this.name,
     required this.plays,
-    required this.images, // Update the constructor
+    required this.images,
   });
 
-  // Factory method to create Subcategory from JSON
   factory Subcategory.fromJson(Map<String, dynamic> json) {
-    // Ensure images are parsed as a List<String>
     var imagesList = json['images'] as List;
 
     return Subcategory(
       name: json['name'],
       plays: json['plays'],
-      images: List<String>.from(imagesList), // Convert to List<String>
+      images: List<String>.from(imagesList),
     );
   }
 }

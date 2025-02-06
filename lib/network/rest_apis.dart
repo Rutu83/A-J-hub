@@ -14,7 +14,6 @@ import 'package:allinone_app/model/transaction_model.dart';
 import 'package:allinone_app/model/user_data_modal.dart';
 import 'package:allinone_app/network/network_utils.dart';
 import 'package:allinone_app/utils/configs.dart';
-import 'package:flutter/foundation.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:http/http.dart' as http;
 
@@ -24,8 +23,6 @@ Future<void> clearPreferences() async {
 
   await appStore.setToken('');
   await appStore.setLoggedIn(false);
-
-
 
   // if (isAndroid) await OneSignal.shared.clearOneSignalNotifications();
 }
@@ -42,10 +39,6 @@ Future<LoginResponse> loginUser(Map request) async {
     LoginResponse res = LoginResponse.fromJson(await (handleResponse(
         await buildHttpResponse('login',
             request: request, method: HttpMethodType.POST))));
-
-    if (kDebugMode) {
-      print('{{{{{{{{{${res.userData}}}}}}}}}}}}}');
-    }
 
     return res;
   } catch (e) {
@@ -69,7 +62,6 @@ Future<void> saveUserDataMobile(LoginResponse loginResponse, UserData data) asyn
 
 
   appStore.setLoading(false);
-  ///Set app configurations
   if (appStore.isLoggedIn) {
     //getAppConfigurations();
   }
@@ -125,14 +117,9 @@ Future<void> updateProfile({
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      if (kDebugMode) {
-        print(response.body);
-        print('Status Code: ${response.statusCode}');
-      }
+
       onSuccess();
     } else {
-      // Show error from server response
-
 
       String errorMessage = 'DATA change failed';
       if (response.statusCode == 400) {
@@ -140,20 +127,10 @@ Future<void> updateProfile({
         errorMessage = responseBody['message'] ?? errorMessage;
       }
       onFail();
-      if (kDebugMode) {
-        print(errorMessage);
-      }
-      //   _showSnackBar(context, errorMessage, Colors.red);
-      if (kDebugMode) {
-        print('Error: ${response.body}');
-        print('Status Code: ${response.statusCode}');
-      }
+
     }
   } catch (error) {
     onFail();
-    if (kDebugMode) {
-      print('Error: $error');
-    }
 
   } finally {
 
@@ -172,8 +149,6 @@ Future<List<BusinessModal>> getBusinessData({required List<BusinessModal>? busin
     res = BusinessModal.fromJson(await handleResponse(await buildHttpResponse('business-data', method: HttpMethodType.GET)));
     businessmodal!.clear();
     businessmodal.add(res);
-    // lastPageCallback?.call(res.data.validate().length != PER_PAGE_ITEM);
-    //
     cachedDashbord = cachedDashbord;
 
     appStore.setLoading(false);
@@ -195,14 +170,14 @@ Future<CategoriesResponse> getCategories() async {
     final responseJson = await handleResponse(await buildHttpResponse('categories', method: HttpMethodType.GET));
     final res = CategoriesResponse.fromJson(responseJson);
 
-    // If you want to cache the result
-    cachedHome = cachedHome ?? []; // Initialize if null
+
+    cachedHome = cachedHome ?? [];
     cachedHome?.clear();
     cachedHome?.add(res);
 
     appStore.setLoading(false);
 
-    return res; // Return a single CategoriesResponse
+    return res;
   } catch (e) {
     appStore.setLoading(false);
     rethrow;
@@ -217,14 +192,13 @@ Future<SubcategoryResponse> getSubCategories() async {
     final responseJson = await handleResponse(await buildHttpResponse('subcategories', method: HttpMethodType.GET));
     final res = SubcategoryResponse.fromJson(responseJson);
 
-    // If you want to cache the result
-    cachedsubcategory = cachedsubcategory ?? []; // Initialize if null
+    cachedsubcategory = cachedsubcategory ?? [];
     cachedsubcategory?.clear();
     cachedsubcategory?.add(res);
 
     appStore.setLoading(false);
 
-    return res; // Return a single CategoriesResponse
+    return res;
   } catch (e) {
     appStore.setLoading(false);
     rethrow;
@@ -237,22 +211,18 @@ Future<CategoriesWithSubcategoriesResponse> getCategoriesWithSubcategories() asy
   try {
     final responseJson = await handleResponse(await buildHttpResponse('categories-with-subcategories', method: HttpMethodType.GET));
 
-    // Expecting responseJson to be a List<dynamic>
     final categoriesResponse = CategoriesWithSubcategoriesResponse.fromJson(responseJson);
 
-    // Cache the result if needed
-    cachedcategorywithsubcategory = cachedcategorywithsubcategory ?? []; // Initialize if null
+    cachedcategorywithsubcategory = cachedcategorywithsubcategory ?? [];
     cachedcategorywithsubcategory?.clear();
     cachedcategorywithsubcategory?.add(categoriesResponse);
 
     appStore.setLoading(false);
 
-
-    //log('data: $categoriesResponse');
-    return categoriesResponse; // Return the categories response
+    return categoriesResponse;
   } catch (e) {
     appStore.setLoading(false);
-    rethrow; // Propagate the exception
+    rethrow;
   }
 }
 
@@ -265,10 +235,7 @@ Future<DaillyuseResponse> getDailyUseWithSubcategory() async {
     final responseJson = await handleResponse(
         await buildHttpResponse('getdailyusewithsubcategory', method: HttpMethodType.GET));
 
-    // Parse as a List instead of a Map
     final res = DaillyuseResponse.fromJson(responseJson as List<dynamic>);
-
-    // Cache the result
     cacheddaillyusecategory = cacheddaillyusecategory ?? [];
     cacheddaillyusecategory?.clear();
     cacheddaillyusecategory?.add(res);
@@ -292,8 +259,6 @@ Future<List<TeamModel>> getTeamData({required List<TeamModel>? teammodal}) async
     res = TeamModel.fromJson(await handleResponse(await buildHttpResponse('users-without-transactions', method: HttpMethodType.GET)));
     teammodal!.clear();
     teammodal.add(res);
-    // lastPageCallback?.call(res.data.validate().length != PER_PAGE_ITEM);
-    //
     cachedTeam = cachedTeam;
 
     appStore.setLoading(false);
@@ -301,28 +266,21 @@ Future<List<TeamModel>> getTeamData({required List<TeamModel>? teammodal}) async
     return teammodal;
   } catch (e) {
     appStore.setLoading(false);
-
     rethrow;
   }
 }
-
-
 
 
 // get Team-data
 Future<List<TransactionResponse>> getTransactionData({required List<TransactionResponse>? transactionmodal}) async {
   try {
     TransactionResponse res;
-
     res = TransactionResponse.fromJson(await handleResponse(await buildHttpResponse('user-wallet-transactions', method: HttpMethodType.GET)));
     transactionmodal!.clear();
     transactionmodal.add(res);
     // lastPageCallback?.call(res.data.validate().length != PER_PAGE_ITEM);
-    //
     cachedTransaction = cachedTransaction;
-
     appStore.setLoading(false);
-
     return transactionmodal;
   } catch (e) {
     appStore.setLoading(false);
@@ -334,34 +292,22 @@ Future<List<TransactionResponse>> getTransactionData({required List<TransactionR
 
 
 Future<void> fetchData(Function(List<Map<String, dynamic>>) updateProducts, Function(String) updateData) async {
-  const String url = "https://ajhub.co.in/api/inquiries/active";
+  const String url = "${BASE_URL}inquiries/active";
   String token = appStore.token;
-
   try {
     final response = await http.get(
       Uri.parse(url),
       headers: {"Authorization": "Bearer $token"},
     );
-
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-      if (kDebugMode) {
-        print("Data fetched successfully: $jsonData");
-      }
+
       updateProducts(List<Map<String, dynamic>>.from(jsonData));
     } else {
-      if (kDebugMode) {
-        print("Failed to fetch data. Status code: ${response.statusCode}");
-      }
-      if (kDebugMode) {
-        print("Response: ${response.body}");
-      }
+
       updateData("Failed to fetch data. Status code: ${response.statusCode}");
     }
   } catch (e) {
-    if (kDebugMode) {
-      print("An error occurred: $e");
-    }
     updateData("An error occurred: $e");
   }
 }

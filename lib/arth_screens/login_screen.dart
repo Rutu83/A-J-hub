@@ -1,14 +1,10 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:convert';
-
 import 'package:allinone_app/arth_screens/auth_admin_service.dart';
 import 'package:allinone_app/arth_screens/signup_screen.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
 import 'package:allinone_app/screens/forgot_screen.dart';
 import 'package:allinone_app/splash_screen.dart';
 import 'package:allinone_app/utils/constant.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,7 +25,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
   bool isRemember = true;
   bool _isLoading = false;
   late AnimationController _animationController;
-  bool _isPasswordVisible = false; // New state variable for password visibility
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
@@ -87,11 +83,7 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
         await setValue(IS_REMEMBERED, isRemember);
       }
     }).catchError((e) {
-      if (kDebugMode) {
-        print('.............................$e');
-      }
-
-      setState(() {
+     setState(() {
         _isLoading = false;
       });
 
@@ -116,17 +108,15 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
 
     String errorMessage = 'An unexpected error occurred.';
     try {
-      // Parse the JSON error message
+
       final errorResponse = json.decode(error);
       if (errorResponse['message'] != null) {
         errorMessage = errorResponse['message'];
       }
     } catch (e) {
-      // If parsing fails, use the raw error
       errorMessage = error;
     }
 
-    // Show the error message as a toast
     Fluttertoast.showToast(
       msg: errorMessage,
       toastLength: Toast.LENGTH_SHORT,
@@ -237,42 +227,117 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator()
-                    : const Text('Login', style: TextStyle(color: Colors.white)),
+                    :  Text('Login',
+                  style: GoogleFonts.roboto(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),),
               ),
               const SizedBox(height: 16),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
-                  );
-                },
-                child: const Text("Forgot Password?"),
-              ),
+              Align(
+                alignment: Alignment.center,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 2.0, vertical: 0.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E88E5),
+                    borderRadius: BorderRadius.circular(30.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 8,
+                        offset: const Offset(4, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                      );
+                    },
+                    child: Text(
+                      "Forgot Password?",
+                      style: GoogleFonts.roboto(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+
 
             ],
           ),
         ),
       ),
       bottomNavigationBar: SizedBox(
-        height: 80.h, // Adjust height if necessary
+        height: 90.h,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center, // Center the content
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            InkWell(
-              onTap: () {
-                Navigator.push(context, (MaterialPageRoute(builder: (context) => const SignUpScreen())));
-              },
-              child: Text(
-                "Don't Have An Account? Create One",
-                style: GoogleFonts.aclonica(
-                  fontSize: 12.0,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFFFF0000),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                    );
+                  },
+                  child: Text(
+                    "New to Our App?",
+                    style: GoogleFonts.roboto(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w500,
+                      color: const Color(0xFFFF0000),
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 16.0),
+
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 18.0),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF0000),
+                      borderRadius: BorderRadius.circular(30.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 6,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      "Join Now",
+                      style: GoogleFonts.lato(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8), // Added spacing
+
+
+            const SizedBox(height: 8),
             Text(
               'Version 1.0.0',
               style: GoogleFonts.aclonica(
@@ -281,15 +346,15 @@ class LoginScreenState extends State<LoginScreen> with SingleTickerProviderState
                 color: Colors.black,
               ),
             ),
-            const SizedBox(height: 8), // Added spacing
+            const SizedBox(height: 8),
             Text(
               'Powered by - All in One',
               style: GoogleFonts.aclonica(
-                fontSize: 10.0, // Increased size for better visibility
+                fontSize: 10.0,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
-              textAlign: TextAlign.center, // Center the text
+              textAlign: TextAlign.center,
             ),
           ],
         ),

@@ -3,7 +3,6 @@ class DaillyuseResponse {
 
   DaillyuseResponse({required this.subcategories});
 
-  // Factory method to create DaillyuseResponse from JSON
   factory DaillyuseResponse.fromJson(List<dynamic> jsonList) {
     List<DaillyCategory> subcategories = jsonList
         .map((i) => DaillyCategory.fromJson(i as Map<String, dynamic>))
@@ -28,7 +27,6 @@ class DaillyCategory {
     required this.images,
   });
 
-  // Factory method to create DaillyCategory from JSON
   factory DaillyCategory.fromJson(Map<String, dynamic> json) {
     var imagesList = json['images'] as List;
     return DaillyCategory(

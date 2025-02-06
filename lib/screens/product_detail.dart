@@ -21,22 +21,21 @@ class ProductDetailPage extends StatefulWidget {
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-  // List of images for the slider
+
   List<String> images = [];
   final TextEditingController _enquiryController = TextEditingController();
 
-  int _currentIndex = 0; // Current index for the slider indicator
-  int userId = 0; // Use Uid as UserId (since it's a string in the response)
-  String firstName = ''; // Default value for firstName
-  String email = ''; // Default value for email
-  String phone = ''; // Store phone as a String
+  int _currentIndex = 0;
+  int userId = 0;
+  String firstName = '';
+  String email = '';
+  String phone = '';
 
   @override
   void initState() {
     super.initState();
 
     fetchUserData();
-    // Generate the list of images dynamically from product data
     images = [
       widget.product['thumb_image'],
       widget.product['product_image_1'],
@@ -50,16 +49,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   void fetchUserData() async {
     try {
       Map<String, dynamic> userDetail = await getUserDetail();
-      if (kDebugMode) {
-        print('...........................................................');
-        print(userDetail);
-      }
+
 
       setState(() {
-        userId = userDetail['userId'] ?? ''; // Assign Uid as UserId
-        firstName = userDetail['username'] ?? ''; // Default to empty string if null
-        email = userDetail['email'] ?? ''; // Default to empty string if null
-        phone = userDetail['phone_number'] ?? ''; // Handle phone as String
+        userId = userDetail['userId'] ?? '';
+        firstName = userDetail['username'] ?? '';
+        email = userDetail['email'] ?? '';
+        phone = userDetail['phone_number'] ?? '';
       });
 
     } catch (e) {
@@ -81,7 +77,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     ValueNotifier<bool> isButtonEnabled = ValueNotifier(false);
 
     showModalBottomSheet(
-      isScrollControlled: true, // Allow the bottom sheet to resize dynamically
+      isScrollControlled: true,
       backgroundColor: Colors.white,
       context: context,
       shape: const RoundedRectangleBorder(
@@ -90,7 +86,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom, // Adjust for the keyboard
+            bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: SingleChildScrollView(
             child: Padding(
@@ -112,7 +108,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     controller: _enquiryController,
                     maxLines: 3,
                     onChanged: (value) {
-                      // Enable button if input is not empty
+
                       isButtonEnabled.value = value.trim().isNotEmpty;
                     },
                     decoration: InputDecoration(
@@ -137,7 +133,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               Navigator.pop(context);
                               _submitEnquiry(enquiry, widget.product['id']);
                             }
-                                : null, // Disable button when not enabled
+                                : null,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: isEnabled ? Colors.red : Colors.grey,
                               shape: RoundedRectangleBorder(
@@ -171,12 +167,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
   void _submitEnquiry(String enquiry, int productId) async {
 
-    debugPrint("Product ID: $productId");
-    debugPrint("Enquiry: $enquiry");
-    debugPrint("UserId: $userId");
-    debugPrint("First Name: $firstName");
-    debugPrint("Email: $email");
-    debugPrint("Phone: $phone");
 
     const String apiUrl = "${BASE_URL}submit-inquery";
     String token = appStore.token;
@@ -226,11 +216,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = json.decode(response.body);
         final successMessage = responseData['message'] ?? 'Enquiry submitted successfully!';
-        debugPrint("Enquiry submitted successfully: $responseData");
+       Navigator.pop(context);
 
-        Navigator.pop(context);
-
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             behavior: SnackBarBehavior.floating,
@@ -257,9 +244,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
       } else {
         Navigator.pop(context);
-        // Handle failed submission
-        debugPrint("Failed to submit enquiry: ${response.statusCode}, ${response.body}");
-        final responseData = json.decode(response.body);
+       final responseData = json.decode(response.body);
         final errorMessage = responseData['message'] ?? 'Failed to submit enquiry. Please try again.';
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -270,7 +255,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               borderRadius: BorderRadius.circular(10),
             ),
             backgroundColor: Colors.redAccent,
-            duration: const Duration(milliseconds: 5), // Set a shorter duration
+            duration: const Duration(milliseconds: 5),
             content: Row(
               children: [
                 const Icon(Icons.error, color: Colors.white),
@@ -288,11 +273,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
       }
     } catch (e) {
-      // Dismiss the processing dialog
       Navigator.of(context, rootNavigator: true).pop();
-
-      // Handle any exceptions
-      debugPrint("Error submitting enquiry: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
@@ -317,8 +298,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ),
       );
     }
-
-    // Clear the enquiry text field
     _enquiryController.clear();
   }
 
@@ -345,7 +324,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Centered Description
               Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -364,11 +342,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         TextSpan(
                           text: '${widget.product['title']}',
                           style: const TextStyle(
-                            color: Colors.red, // Red color for product name
-                            fontWeight: FontWeight.bold, // Optional bold styling
-                            decoration: TextDecoration.underline, // Adds a bottom line
-                            decorationColor: Colors.red, // Matches the underline color with text color
-                            decorationThickness: 1.0, // Thickness of the underline
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.red,
+                            decorationThickness: 1.0,
                           ),
                         ),
                         const TextSpan(
@@ -380,9 +358,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ),
               ),
               const SizedBox(height: 5),
-
-              // Image Slider
-
               Padding(
                 padding: const EdgeInsets.only(left: 10, right: 10),
                 child: Column(
@@ -390,7 +365,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     images.isNotEmpty
                         ? CarouselSlider(
                       options: CarouselOptions(
-                        height: 400, // Fixed height of 450
+                        height: 400,
                         enlargeCenterPage: true,
                         autoPlay: false,
                         onPageChanged: (index, reason) {
@@ -398,7 +373,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             _currentIndex = index;
                           });
                         },
-                        viewportFraction: 1.0, // Set this to 1 to make the image take full width
+                        viewportFraction: 1.0,
                       ),
                       items: images.map((imagePath) {
                         return Builder(
@@ -406,22 +381,22 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             return Container(
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: Colors.grey.shade200, // Border color
-                                  width: 1.0, // Border width
+                                  color: Colors.grey.shade200,
+                                  width: 1.0,
                                 ),
-                                borderRadius: BorderRadius.circular(20), // Border radius for rounded corners
+                                borderRadius: BorderRadius.circular(20),
 
                               ),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20), // Apply rounded corners to the image
+                                borderRadius: BorderRadius.circular(20),
                                 child: Image.network(
                                   imagePath,
-                                  fit: BoxFit.cover, // Ensure the image fully covers the space
-                                  width: double.infinity, // Full width
-                                  height: 400, // Fixed height of 450
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: 400,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
-                                      color: Colors.grey.shade300, // Background color for placeholder
+                                      color: Colors.grey.shade300,
                                       child: const Center(
                                         child: Icon(
                                           Icons.broken_image,
@@ -439,7 +414,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       }).toList(),
                     )
                         : Container(
-                      height: 400, // Fixed height of 450
+                      height: 400,
                       color: Colors.grey.shade300,
                       child: const Center(
                         child: Text(
@@ -449,7 +424,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    // Dots Indicator
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: images.asMap().entries.map((entry) {
@@ -458,10 +433,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             _currentIndex = entry.key;
                           }),
                           child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200), // Animation duration
-                            curve: Curves.easeInOut, // Animation curve
-                            width: _currentIndex == entry.key ? 12.0 : 8.0, // Enlarged width for active indicator
-                            height: 9, // Constant height
+                            duration: const Duration(milliseconds: 200),
+                            curve: Curves.easeInOut,
+                            width: _currentIndex == entry.key ? 12.0 : 8.0,
+                            height: 9,
                             margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
@@ -494,37 +469,34 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   child: Column(
 
                     children: [
-                      // Icon for Description
+
                       const Icon(
-                        Icons.description, // Description icon
-                        color: Colors.grey, // Icon color
-                        size: 24, // Icon size
+                        Icons.description,
+                        color: Colors.grey,
+                        size: 24,
                       ),
-                      // const SizedBox(height: 8), // Space between icon and text
-                      // // Product Description
-
-
+                      // const SizedBox(height: 8),
 
                       //
                       // Center(
                       //   child: Html(
-                      //     data: widget.product['description'], // Render HTML content directly
+                      //     data: widget.product['description'],
                       //     style: {
                       //       "p": Style(
-                      //         fontSize: FontSize(14.sp), // Adjust font size dynamically
-                      //         fontFamily: GoogleFonts.poppins().fontFamily, // Use Poppins font
-                      //         color: Colors.black87, // Text color
-                      //         fontWeight: FontWeight.w500, // Medium weight
-                      //         textAlign: TextAlign.center, // Center-align the text
-                      //         margin: Margins.only(top: 8,bottom: 0), // Add a margin of 8px at the top
+                      //         fontSize: FontSize(14.sp),
+                      //         fontFamily: GoogleFonts.poppins().fontFamily,
+                      //         color: Colors.black87,
+                      //         fontWeight: FontWeight.w500,
+                      //         textAlign: TextAlign.center,
+                      //         margin: Margins.only(top: 8,bottom: 0),
                       //       ),
                       //       "strong": Style(
-                      //         fontSize: FontSize(16.sp), // Slightly larger font for bold text
-                      //         fontWeight: FontWeight.bold, // Bold style
-                      //         color: Colors.black, // Strong emphasis
+                      //         fontSize: FontSize(16.sp),
+                      //         fontWeight: FontWeight.bold,
+                      //         color: Colors.black,
                       //       ),
                       //       "br": Style(
-                      //         whiteSpace: WhiteSpace.pre, // Handle <br> as a normal line break
+                      //         whiteSpace: WhiteSpace.pre,
                       //       ),
                       //     },
                       //   ),
@@ -534,23 +506,23 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
                   Center(
                     child: Html(
-                      data: cleanHtml(widget.product['description']), // Preprocess HTML content
+                      data: cleanHtml(widget.product['description']),
                       style: {
                         "p": Style(
-                          fontSize: FontSize(14.sp), // Adjust font size dynamically
-                          fontFamily: GoogleFonts.poppins().fontFamily, // Use Poppins font
-                          color: Colors.black87, // Text color
-                          fontWeight: FontWeight.w500, // Medium weight
-                          textAlign: TextAlign.center, // Center-align the text
-                          margin: Margins.only(top: 8,bottom: 0), // Top margin only
+                          fontSize: FontSize(14.sp),
+                          fontFamily: GoogleFonts.poppins().fontFamily,
+                          color: Colors.black87,
+                          fontWeight: FontWeight.w500,
+                          textAlign: TextAlign.center,
+                          margin: Margins.only(top: 8,bottom: 0),
                         ),
                         "strong": Style(
-                          fontSize: FontSize(16.sp), // Slightly larger font for bold text
-                          fontWeight: FontWeight.bold, // Bold style
-                          color: Colors.black, // Strong emphasis
+                          fontSize: FontSize(16.sp),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                         "br": Style(
-                          whiteSpace: WhiteSpace.normal, // Handle <br> as a single line break
+                          whiteSpace: WhiteSpace.normal,
                         ),
                       },
                     ),
@@ -569,16 +541,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
         decoration: BoxDecoration(
-          color: Colors.white70, // Background color set to light white
+          color: Colors.white70,
           borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(40), // Rounded top corners
+            top: Radius.circular(40),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1), // Shadow color with opacity
-              spreadRadius: 2, // Spread radius
-              blurRadius: 10, // Blur radius for smoother shadow
-              offset: const Offset(0, -3), // Shadow offset (above)
+              color: Colors.black.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 10,
+              offset: const Offset(0, -3),
             ),
           ],
         ),
@@ -590,32 +562,32 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             //   mainAxisSize: MainAxisSize.min,
             //   crossAxisAlignment: CrossAxisAlignment.center,
             //   children: [
-            //     // Price Label
+            //
             //     Text(
             //       'Price',
             //       style: GoogleFonts.poppins(
             //         fontSize: 16.sp,
             //         fontWeight: FontWeight.bold,
-            //         color: Colors.black, // Text color
+            //         color: Colors.black,
             //       ),
             //     ),
-            //     const SizedBox(height: 8), // Spacing between "Price" and actual price
-            //     // Price with Rupee Icon
+            //     const SizedBox(height: 8),
+
             //     Row(
             //       mainAxisSize: MainAxisSize.min,
             //       crossAxisAlignment: CrossAxisAlignment.center,
             //       children: [
             //         const Icon(
             //           Icons.currency_rupee,
-            //           color: Colors.black, // Icon color
-            //           size: 18, // Icon size
+            //           color: Colors.black,
+            //           size: 18,
             //         ),
             //         Text(
-            //           '499.00', // Replace with the dynamic price value
+            //           '499.00',
             //           style: GoogleFonts.poppins(
             //             fontSize: 16.sp,
             //             fontWeight: FontWeight.bold,
-            //             color: Colors.black, // Text color
+            //             color: Colors.black,
             //           ),
             //         ),
             //       ],
@@ -628,15 +600,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ElevatedButton.icon(
               onPressed: _showEnquiryModal,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red, // Button color set to grey
+                backgroundColor: Colors.red,
                 padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 20.w),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // Button border radius
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                elevation: 5, // Add shadow effect
-                shadowColor: Colors.black, // Shadow color
+                elevation: 5,
+                shadowColor: Colors.black,
               ),
-              icon: const Icon(Icons.safety_check_rounded, color: Colors.white), // Add cart icon
+              icon: const Icon(Icons.safety_check_rounded, color: Colors.white),
               label: Row(
                 children: [
                   Text(
@@ -647,25 +619,25 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(width: 12), // Space between text and arrow icon
+                  const SizedBox(width: 12),
                   Container(
-                    padding: const EdgeInsets.all(8.0), // Padding around the icon
+                    padding: const EdgeInsets.all(8.0),
                     decoration: BoxDecoration(
-                      color: Colors.white54, // Background color
-                      shape: BoxShape.circle, // Circular background
+                      color: Colors.white54,
+                      shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2), // Shadow color
-                          blurRadius: 4, // Blur radius
-                          offset: const Offset(2, 2), // Shadow offset
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 4,
+                          offset: const Offset(2, 2),
                         ),
                       ],
                     ),
                     child: const Icon(
                       Icons.arrow_forward,
-                      color: Colors.white, // Icon color
-                      size: 20, // Icon size
-                      weight: 55, // Icon stroke weight (if supported in your Flutter version)
+                      color: Colors.white,
+                      size: 20,
+                      weight: 55,
                     ),
                   )
                 ],
@@ -682,7 +654,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
 
   String cleanHtml(String html) {
-    // Remove excessive <br> tags and trim spaces
     return html.replaceAll(RegExp(r'(<br\s*/?>\s*)+'), '<br>').trim();
   }
 }

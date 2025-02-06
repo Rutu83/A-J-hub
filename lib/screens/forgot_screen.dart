@@ -18,12 +18,9 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   bool isLoading = false;
 
 
-
-
-
   Future<void> sendResetLink() async {
     if (!_formKey.currentState!.validate()) {
-      return; // Do not proceed if validation fails
+      return;
     }
 
     final String email = emailController.text.trim();
@@ -43,10 +40,8 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (response.statusCode == 200) {
         setState(() {
           emailController.clear();
-          // phoneController.clear(); // Uncomment if you use phone
+          // phoneController.clear();
         });
-
-        // Parse the success message from the response
         final Map<String, dynamic> messageResponse = jsonDecode(response.body);
         String successMessage = messageResponse['message'] ?? "Password reset link sent to your email.";
 
@@ -66,11 +61,10 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           },
         );
       } else {
-        // Parse the error message from the response
         final Map<String, dynamic> errorResponse = jsonDecode(response.body);
         String errorMessage = errorResponse['error'] ?? "An unknown error occurred.";
 
-        showErrorDialog(errorMessage); // Show the specific error message
+        showErrorDialog(errorMessage);
       }
     } catch (e) {
       showErrorDialog("An error occurred: $e");
@@ -80,10 +74,6 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       });
     }
   }
-
-
-
-
 
   void showErrorDialog(String message) {
     showDialog(
@@ -113,7 +103,7 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           style: GoogleFonts.poppins(color: Colors.white,fontSize: 20),
         ),
         iconTheme: const IconThemeData(
-          color: Colors.white, // Set the color of the icons
+          color: Colors.white,
         ),
       ),
 
@@ -124,10 +114,9 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image at the top
               Center(
                 child: Image.asset(
-                  'assets/images/forgot_password.jpg', // Replace with your image path
+                  'assets/images/forgot_password.jpg',
                   height: 150,
                 ),
               ),
@@ -148,20 +137,16 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Form
               Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Required Fields Title
                     Text(
                       "Required Fields",
                       style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 10),
-
-                    // Email field
                     TextFormField(
                       controller: emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -206,8 +191,6 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     //   },
                     // ),
                     const SizedBox(height: 20),
-
-                    // Submit button
                     isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : SizedBox(
@@ -232,8 +215,6 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // Additional instructions or footer
               Text(
                 "If you have any issues, please contact our support team at support@example.com.",
                 style: GoogleFonts.poppins(fontSize: 14),
@@ -244,12 +225,10 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 style: GoogleFonts.poppins(fontSize: 14, fontStyle: FontStyle.italic),
               ),
               const SizedBox(height: 30),
-
-              // Back to Login button
               Center(
                 child: TextButton(
                   onPressed: () {
-                    Navigator.pop(context); // Navigate back to the login screen
+                    Navigator.pop(context);
                   },
                   child: Text(
                     "Back to Login",

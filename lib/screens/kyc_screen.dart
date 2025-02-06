@@ -169,7 +169,6 @@ class KycScreenState extends State<KycScreen> {
         _isLoading = true;
       });
 
-      // Prepare the multipart request
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl))
         ..headers['Authorization'] = 'Bearer $bearerToken'
         ..headers['Accept'] = 'application/json'
@@ -182,7 +181,6 @@ class KycScreenState extends State<KycScreen> {
         ..fields['ifsc_code'] = _ifscCodeController.text
         ..fields['bank_name'] = _bankNameController.text;
 
-      // Attach the new image if selected
       if (_pickedBankProofImage != null) {
         request.files.add(
           await http.MultipartFile.fromPath(
@@ -191,8 +189,6 @@ class KycScreenState extends State<KycScreen> {
           ),
         );
       }
-
-      // Send the request
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
 
@@ -262,7 +258,7 @@ class KycScreenState extends State<KycScreen> {
         backgroundColor: Colors.red.shade400,
         centerTitle: true,
         iconTheme: const IconThemeData(
-          color: Colors.white,  // Set the icon color to white
+          color: Colors.white,
         ),
       ),
       body: SingleChildScrollView(
@@ -290,7 +286,7 @@ class KycScreenState extends State<KycScreen> {
                 children: [
                   _pickedBankProofImage != null
                       ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0), // Set the border radius here
+                    borderRadius: BorderRadius.circular(12.0),
                     child: Image.file(
                       _pickedBankProofImage!,
                       height: 200.h,
@@ -331,7 +327,7 @@ class KycScreenState extends State<KycScreen> {
                     child: ElevatedButton(
                       onPressed: _pickBankProofImage,
                       style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(Colors.white), // White background
+                        backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
                         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.0),
@@ -395,28 +391,27 @@ class KycScreenState extends State<KycScreen> {
     );
   }
 
-  // Helper method to build text fields
   Widget _buildTextField(TextEditingController controller, String label) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(
-          color: Colors.black,  // Title color (black)
-          fontSize: 16.0,        // Title font size
+          color: Colors.black,
+          fontSize: 16.0,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),  // Rounded corners
+          borderRadius: BorderRadius.circular(12.0),
           borderSide: const BorderSide(
-            color: Colors.black,  // Black border color
-            width: 1.5,            // Border width
+            color: Colors.black,
+            width: 1.5,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
           borderSide: const BorderSide(
-            color: Colors.black,  // Black border color when focused
-            width: 2.0,            // Thicker border when focused
+            color: Colors.black,
+            width: 2.0,
           ),
         ),
         enabledBorder: OutlineInputBorder(

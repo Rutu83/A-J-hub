@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names, depend_on_referenced_packages
-
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +18,7 @@ class _EditProfileState extends State<EditProfile> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController(); // Added this for Date of Birth
+  final TextEditingController _dobController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _stateController = TextEditingController();
@@ -91,7 +89,7 @@ class _EditProfileState extends State<EditProfile> {
         _stateController.text = userDetail['state'] ?? '';
         _cityController.text = userDetail['district'] ?? '';
         selectedCountryCode = userDetail['country_code'] ?? '';
-        _isLoading = false; // Set loading to false after data is fetched
+        _isLoading = false;
       });
 
     } catch (e) {
@@ -100,7 +98,7 @@ class _EditProfileState extends State<EditProfile> {
         print("Error fetching user data: $e");
       }
       setState(() {
-        _isLoading = false; // Ensure loading state is false even on error
+        _isLoading = false;
       });
     }
   }
@@ -117,7 +115,7 @@ class _EditProfileState extends State<EditProfile> {
 
     if (_isLoading) {
       return Scaffold(
-        body: _buildSkeletonLoader(), // Show skeleton loader while loading
+        body: _buildSkeletonLoader(),
       );
     }
 
@@ -125,17 +123,17 @@ class _EditProfileState extends State<EditProfile> {
    appBar: AppBar(
      surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
-        elevation: 2, // Slight shadow for depth
+        elevation: 2,
         centerTitle: true,
         iconTheme: const IconThemeData(
-          color: Colors.black, // Icon color to match the theme
+          color: Colors.black,
         ),
         title: Text(
           'Edit Profile',
           style: GoogleFonts.poppins(
-            fontSize: 18.sp, // Adjust font size for readability
-            fontWeight: FontWeight.w600, // Medium-bold weight for emphasis
-            color: Colors.black, // Neutral black color for better visibility
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
           ),
         ),
       ),
@@ -158,7 +156,7 @@ class _EditProfileState extends State<EditProfile> {
                       true,
                       _firstNameController,
                       enabled: true,
-                      prefixIcon: Icons.person, // Icon for "First Name"
+                      prefixIcon: Icons.person,
                     ),
                     _buildTextField(
                       'Email',
@@ -166,7 +164,7 @@ class _EditProfileState extends State<EditProfile> {
                       true,
                       _emailController,
                       enabled: false,
-                      prefixIcon: Icons.email, // Icon for "Email"
+                      prefixIcon: Icons.email,
                     ),
                     _buildTextField(
                       'Mobile Number',
@@ -174,24 +172,23 @@ class _EditProfileState extends State<EditProfile> {
                       true,
                       _phoneController,
                       enabled: false,
-                      prefixIcon: Icons.phone, // Icon for "Mobile Number"
+                      prefixIcon: Icons.phone,
                     ),
 
                   ],
                 ),
-                // _buildPhoneNumberField(), // Will disable phone number field within this widget
+                // _buildPhoneNumberField(),
                 SizedBox(height: 6.h),
-                _buildDropdownField('Gender', selectedGender, _selectGender, true), // Gender editable
+                _buildDropdownField('Gender', selectedGender, _selectGender, true),
                 SizedBox(height: 8.h),
-                _buildDateOfBirthField(), // Date of Birth editable
-                // SizedBox(height: 6.h),
+                _buildDateOfBirthField(),
                 _buildTextField(
                   'Country',
                   'Enter Country',
                   true,
                   _countryController,
                   enabled: false,
-                  prefixIcon: Icons.public, // Icon for "Country"
+                  prefixIcon: Icons.public,
                 ),
                 _buildTextField(
                   'State',
@@ -199,7 +196,7 @@ class _EditProfileState extends State<EditProfile> {
                   true,
                   _stateController,
                   enabled: false,
-                  prefixIcon: Icons.map, // Icon for "State"
+                  prefixIcon: Icons.map,
                 ),
                 _buildTextField(
                   'City',
@@ -207,15 +204,12 @@ class _EditProfileState extends State<EditProfile> {
                   true,
                   _cityController,
                   enabled: false,
-                  prefixIcon: Icons.location_city, // Icon for "City"
+                  prefixIcon: Icons.location_city,
                 ),
                 SizedBox(height: 16.h),
 
                 ElevatedButton(
                   onPressed: () {
-                    // Save action
-
-
                     setState(() {
                       _isLoading = true;
                     });
@@ -240,10 +234,10 @@ class _EditProfileState extends State<EditProfile> {
                   child:  Text(
                   'Update',
                   style: GoogleFonts.roboto(
-                    fontSize: 16.sp, // Responsive font size
-                    fontWeight: FontWeight.w500, // Medium weight
-                    color: Colors.white, // Text color
-                    letterSpacing: 1.0, // Slight spacing for clarity
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                    letterSpacing: 1.0,
                   ),
                 ),
 
@@ -260,25 +254,25 @@ class _EditProfileState extends State<EditProfile> {
   Widget _buildLogo() {
     return Container(
       margin: const EdgeInsets.all(6),
-      padding: EdgeInsets.all(16.r), // Add padding around the logo
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: Colors.white, // Background color for the logo container
-        shape: BoxShape.circle, // Circular container for the logo
+        color: Colors.white,
+        shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3), // Subtle shadow for depth
+            color: Colors.grey.withOpacity(0.3),
             blurRadius: 10,
-            offset: const Offset(0, 5), // Shadow offset for a lifted effect
+            offset: const Offset(0, 5),
           ),
         ],
         border: Border.all(
-          color: Colors.grey.shade50, // Optional border color for aesthetics
+          color: Colors.grey.shade50,
           width: 2.0,
         ),
       ),
       child: Image.asset(
         'assets/images/app_logo2.png',
-        height: 70.h, // Reduced height for better alignment
+        height: 70.h,
         width: 70.h,
       ),
     );
@@ -306,7 +300,7 @@ class _EditProfileState extends State<EditProfile> {
           'Select Date of Birth',
           true,
           _dobController,
-          prefixIcon: Icons.calendar_today, // Calendar icon
+          prefixIcon: Icons.calendar_today,
         ),
       ),
     );
@@ -335,14 +329,14 @@ class _EditProfileState extends State<EditProfile> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          label, // Display the label above the text field
+          label,
           style: GoogleFonts.poppins(
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
             color: Colors.grey.shade800,
           ),
         ),
-        SizedBox(height: 6.h), // Add spacing between label and text field
+        SizedBox(height: 6.h),
         Container(
           height: isMultiline ? null : 48.h,
           alignment: Alignment.center,
@@ -359,12 +353,12 @@ class _EditProfileState extends State<EditProfile> {
                   fontWeight: FontWeight.w400,
                 ),
               ),
-              fillColor: Colors.grey.shade100, // Light background color for the text field
+              fillColor: Colors.grey.shade100,
               filled: true,
               prefixIcon: prefixIcon != null
                   ? Icon(
                 prefixIcon,
-                color: Colors.red.shade400, // Icon color
+                color: Colors.red.shade400,
               )
                   : null,
               contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
@@ -393,7 +387,7 @@ class _EditProfileState extends State<EditProfile> {
       String value,
       void Function() onTap,
       bool isRequired,
-      {IconData? prefixIcon} // Add optional icon parameter
+      {IconData? prefixIcon}
       ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,7 +400,7 @@ class _EditProfileState extends State<EditProfile> {
             color: Colors.grey.shade800,
           ),
         ),
-        SizedBox(height: 6.h), // Spacing between title and dropdown
+        SizedBox(height: 6.h),
         GestureDetector(
           onTap: onTap,
           child: Container(
@@ -419,7 +413,7 @@ class _EditProfileState extends State<EditProfile> {
               borderRadius: BorderRadius.circular(10.r),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05), // Subtle shadow
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -430,10 +424,10 @@ class _EditProfileState extends State<EditProfile> {
                 if (prefixIcon != null)
                   Icon(
                     prefixIcon,
-                    color: Colors.red.shade400, // Prefix icon color
+                    color: Colors.red.shade400,
                     size: 20.sp,
                   ),
-                SizedBox(width: 8.w), // Spacing between icon and text
+                SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
                     value.isNotEmpty ? value : 'Select $label',
@@ -441,9 +435,9 @@ class _EditProfileState extends State<EditProfile> {
                       fontSize: 14.sp,
                       color: value.isNotEmpty
                           ? Colors.black
-                          : Colors.grey.shade500, // Grey for placeholder
+                          : Colors.grey.shade500,
                     ),
-                    overflow: TextOverflow.ellipsis, // Prevent overflow for long text
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const Icon(
@@ -500,15 +494,9 @@ class _EditProfileState extends State<EditProfile> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Logo Skeleton with shimmer
           _buildShimmerBox(width: 100.w, height: 100.h, borderRadius: 12.r),
-
           SizedBox(height: 20.h),
-
-          // Form Field Skeletons with shimmer
           ...List.generate(2, (index) => _buildShimmerField()),
-
-          // Additional placeholder for button or other elements
           SizedBox(height: 20.h),
           _buildShimmerBox(width: 150.w, height: 48.h, borderRadius: 12.r),
         ],
@@ -516,7 +504,6 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-// Reusable Skeleton Box with Shimmer Effect
   Widget _buildShimmerBox({
     required double width,
     required double height,
@@ -542,7 +529,6 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-// Reusable Skeleton Field with Padding and Shimmer Effect
   Widget _buildShimmerField() {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 16.w),

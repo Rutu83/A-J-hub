@@ -24,10 +24,10 @@ class Fram1 extends StatelessWidget {
     final containerHeight = containerWidth;
 
     return FutureBuilder(
-      future: _simulateFrameLoading(), // Simulate loading
+      future: _simulateFrameLoading(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show shimmer loader during loading
+
           return Shimmer.fromColors(
             baseColor: Colors.grey.shade300,
             highlightColor: Colors.grey.shade100,
@@ -38,13 +38,11 @@ class Fram1 extends StatelessWidget {
             ),
           );
         } else {
-          // Show the frame and text when loaded
           return SizedBox(
             width: containerWidth,
             height: containerHeight,
             child: Stack(
               children: [
-                // Background Frame Image
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
@@ -59,8 +57,6 @@ class Fram1 extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                // Email Address (Bottom Left)
                 Positioned(
                   bottom: containerHeight * 0.06,
                   left: containerWidth * 0.06,
@@ -70,11 +66,8 @@ class Fram1 extends StatelessWidget {
                     color: Colors.black,
                   ),
                 ),
-
-                // Phone Number (Bottom Center)
                 Positioned(
                   bottom: (containerHeight * 0.11 + containerHeight * 0.12) / 2,
-                //  bottom: containerHeight * 0.11,
                   right: containerWidth * 0.38,
                   child: _buildText(
                     text: phoneNumber,
@@ -82,8 +75,6 @@ class Fram1 extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-
-                // Website (Bottom Right)
                 Positioned(
                   bottom: containerHeight * 0.06,
                   right: containerWidth * 0.13,
@@ -94,7 +85,6 @@ class Fram1 extends StatelessWidget {
                   ),
                 ),
 
-                // Address (Bottom Left Below Icons)
                 Positioned(
                   bottom: containerHeight * 0.0033,
                   left: containerWidth * 0.06,
@@ -112,7 +102,6 @@ class Fram1 extends StatelessWidget {
     );
   }
 
-  // Helper Widget to Build Text
   Widget _buildText({
     required String text,
     required double fontSize,
@@ -128,8 +117,7 @@ class Fram1 extends StatelessWidget {
     );
   }
 
-  // Simulate Frame Loading Delay
   Future<void> _simulateFrameLoading() async {
-    await Future.delayed(const Duration(seconds: 1)); // Simulate loading time
+    await Future.delayed(const Duration(seconds: 1));
   }
 }

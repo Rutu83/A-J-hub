@@ -5,7 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class CategoryTopics extends StatelessWidget {
   final String title;
-  final List<Map<String, String>>? images; // Make images nullable
+  final List<Map<String, String>>? images;
 
   const CategoryTopics({super.key, required this.title, required this.images});
 
@@ -13,7 +13,6 @@ class CategoryTopics extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    // Check if images data is null or empty
     if (images == null || images!.isEmpty) {
       return Scaffold(
         appBar: AppBar(
@@ -52,11 +51,10 @@ class CategoryTopics extends StatelessWidget {
           itemCount: images!.length,
           itemBuilder: (context, index) {
             final imageData = images![index];
-            final imageUrl = imageData['image'] ?? ''; // Use imageData
+            final imageUrl = imageData['image'] ?? '';
 
             return InkWell(
               onTap: () {
-                // Pass all image URLs when navigating
                 List<String> allImageUrls =
                 images!.map((imgData) => imgData['image'] ?? '').toList();
 

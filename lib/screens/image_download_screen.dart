@@ -36,7 +36,6 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
       setState(() {
         isLoading = false;
       });
-      // Handle case where directory doesn't exist
     }
   }
 
@@ -51,7 +50,7 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.red,
-        iconTheme: const IconThemeData(color: Colors.white), // Change icon color to white
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
 
       body: isLoading
@@ -70,7 +69,6 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              // Handle image tap
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -142,7 +140,6 @@ class _FullScreenImageViewState extends State<FullScreenImageView> {
   @override
   void initState() {
     super.initState();
-    // Delay showing the share options for a brief moment
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {

@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
 import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
@@ -47,7 +45,7 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
     var sharePref = await SharedPreferences.getInstance();
     var isLoggedIn = sharePref.getBool(keyLogin);
 
-    await Future.delayed(const Duration(seconds: 2)); // Delay for 2 seconds
+    await Future.delayed(const Duration(seconds: 2));
 
     if (isLoggedIn != null) {
 

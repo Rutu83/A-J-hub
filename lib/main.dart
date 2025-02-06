@@ -35,10 +35,7 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await initialize();
-
-  // set observer
-
-  localeLanguageList = languageList();
+localeLanguageList = languageList();
 
   await appStore.setLoggedIn(getBoolAsync(IS_LOGGED_IN), isInitializing: true);
   await appStore.setLoggedIn(getBoolAsync(IS_LOGGED_IN));
@@ -56,7 +53,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(375, 812), // Set the design s4ze for ScreenUtil
+      designSize: const Size(375, 812),
       builder: (context, child) {
         return MaterialApp(
           title: 'ALL IN ONE',
@@ -64,11 +61,11 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             useMaterial3: true,
             primarySwatch: Colors.blue,
-            scaffoldBackgroundColor: Colors.white, // Sets the default background color for scaffolds
-            cardColor: Colors.white, // Sets the default background color for cards
-            dialogBackgroundColor: Colors.white, // Sets the default background color for dialogs
+            scaffoldBackgroundColor: Colors.white,
+            cardColor: Colors.white,
+            dialogBackgroundColor: Colors.white,
             popupMenuTheme: const PopupMenuThemeData(
-              color: Colors.white, // Sets the default background color for dropdown popups
+              color: Colors.white,
             ),
             textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
           ),

@@ -3,6 +3,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:allinone_app/utils/constant.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:nb_utils/nb_utils.dart';
 
@@ -51,8 +52,9 @@ abstract class _AppStore with Store {
       isLoggedIn = val;
       if (!isInitializing) await setValue(IS_LOGGED_IN, val);
     } catch (e) {
-      // Handle error
-    //  print("Error setting logged-in status: $e");
+      if (kDebugMode) {
+        print("Error setting logged-in status: $e");
+      }
     }
   }
 
@@ -62,8 +64,9 @@ abstract class _AppStore with Store {
       number = val;
       if (!isInitializing) await setValue(NUMBER, val);
     } catch (e) {
-      // Handle error
-     // print("Error setting number: $e");
+      if (kDebugMode) {
+        print("Error setting number: $e");
+      }
     }
   }
 
@@ -73,8 +76,9 @@ abstract class _AppStore with Store {
       Name = val;
       if (!isInitializing) await setValue(NAME, val);
     } catch (e) {
-      // Handle error
-      //print("Error setting first name: $e");
+      if (kDebugMode) {
+        print("Error setting first name: $e");
+      }
     }
   }
 
@@ -85,8 +89,9 @@ abstract class _AppStore with Store {
       Status = val;
       if (!isInitializing) await setValue(STATUS, val);
     } catch (e) {
-      // Handle error
-      //print("Error setting first name: $e");
+      if (kDebugMode) {
+        print("Error setting first name: $e");
+      }
     }
   }
 
@@ -96,8 +101,9 @@ abstract class _AppStore with Store {
       Email = val;
       if (!isInitializing) await setValue(EMAIL, val);
     } catch (e) {
-      // Handle error
-      //print("Error setting first name: $e");
+      if (kDebugMode) {
+        print("Error setting first name: $e");
+      }
     }
   }
 
@@ -108,8 +114,9 @@ abstract class _AppStore with Store {
       token = val;
       if (!isInitializing) await setValue(TOKEN, val);
     } catch (e) {
-      // Handle error
-      //print("Error setting token: $e");
+      if (kDebugMode) {
+        print("Error setting token: $e");
+      }
     }
   }
 

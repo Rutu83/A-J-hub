@@ -23,7 +23,7 @@ class _OportunityScreenState extends State<OportunityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Get the screen width and height using MediaQuery
+
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
@@ -47,23 +47,23 @@ class _OportunityScreenState extends State<OportunityScreen> {
         children: [
           CarouselSlider(
             options: CarouselOptions(
-              height: screenHeight * 0.75, // Increased height to cover 85% of the screen
+              height: screenHeight * 0.75,
               autoPlay: true,
               enlargeCenterPage: true,
               enableInfiniteScroll: true,
-              viewportFraction: 0.95, // Almost full-width, slightly narrower for better visibility
+              viewportFraction: 0.95,
             ),
             items: images.map((imagePath) {
               return Builder(
                 builder: (BuildContext context) {
                   return Container(
-                    width: screenWidth * 0.95, // 95% of the screen width
+                    width: screenWidth * 0.95,
                     margin: EdgeInsets.symmetric(horizontal: 5.w),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15.0),
                       image: DecorationImage(
                         image: AssetImage(imagePath),
-                        fit: BoxFit.contain, // Adjusts image to cover the container fully
+                        fit: BoxFit.contain,
                       ),
                     ),
                   );

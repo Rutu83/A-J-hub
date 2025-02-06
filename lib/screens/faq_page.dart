@@ -62,7 +62,7 @@ class FAQPageState extends State<FAQPage> {
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w600,
-            color: Colors.white, // Set text color to white
+            color: Colors.white,
           ),
         ),
         backgroundColor: Colors.red,
@@ -72,7 +72,6 @@ class FAQPageState extends State<FAQPage> {
 
       body: Column(
         children: [
-          // FAQ List
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -148,7 +147,6 @@ class FAQPageState extends State<FAQPage> {
             ),
           ),
 
-          // WhatsApp Button
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             child: ElevatedButton.icon(

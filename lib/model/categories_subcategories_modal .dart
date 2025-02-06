@@ -1,5 +1,3 @@
-// ignore_for_file: file_names
-
 class CategoriesWithSubcategoriesResponse {
   final List<CategoryWithSubcategory> categories;
 
@@ -19,7 +17,7 @@ class CategoriesWithSubcategoriesResponse {
 }
 
 class CategoryWithSubcategory {
-  final String name; // category_name
+  final String name;
   final List<Subcategory> subcategories;
 
   CategoryWithSubcategory({
@@ -40,8 +38,8 @@ class CategoryWithSubcategory {
 }
 
 class Subcategory {
-  final String name; // subcategory_name
-  final List<String> images; // list of image URLs
+  final String name;
+  final List<String> images;
 
   Subcategory({
     required this.name,
@@ -49,10 +47,10 @@ class Subcategory {
   });
 
   factory Subcategory.fromJson(Map<String, dynamic> json) {
-    // Clean and parse the images
+
     var imageList = json['images'] as List;
     List<String> images = imageList
-        .map((image) => image.toString().trim()) // Clean the URLs
+        .map((image) => image.toString().trim())
         .toList();
 
     return Subcategory(

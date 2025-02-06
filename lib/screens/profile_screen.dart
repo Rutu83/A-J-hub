@@ -1,5 +1,4 @@
 // ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names, use_build_context_synchronously
-
 import 'package:allinone_app/arth_screens/login_screen.dart';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/model/business_mode.dart';
@@ -69,7 +68,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final data = await getBusinessData(businessmodal: []);
       if (data.isNotEmpty) {
-        businessData = data.first; // Store the first item
+        businessData = data.first;
       }
       return data;
     } catch (e) {
@@ -96,21 +95,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         status = userDetail['statgfus'].toString();
         totalDownline = userDetail['total_downline_count'] ?? '0';
         directDownline = userDetail['direct_team_count'] ?? '0';
-
-        // Check if total_income is a String and convert it to int
         String incomeString = userDetail['total_income'] ?? '0';
-        // Assuming totalIncome is already calculated as an integer:
          totalIncome = (double.tryParse(incomeString) ?? 0.0).toInt();
-
-
-    int  GreenWallet1 = (totalIncome * 0.10).toInt();
-
+         int  GreenWallet1 = (totalIncome * 0.10).toInt();
         GreenWallet =totalIncome - GreenWallet1;
-
-
         TDSIncome = (totalIncome * 0.10).toInt();
-
-     //   TDSIncome = GreenWallet - TDSIncome1;
+        //   TDSIncome = GreenWallet - TDSIncome1;
 
         _isLoading = false;
       });
@@ -131,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        elevation: 4, // Adds subtle shadow to separate AppBar from content
+        elevation: 4,
         surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
         titleSpacing: 7.w,
@@ -145,12 +135,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         iconTheme: IconThemeData(
-          color: Colors.red, // Ensures icons match the theme color
-          size: 20.sp, // Adjusted icon size for consistency
+          color: Colors.red,
+          size: 20.sp,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(15.r), // Adds rounded corners to the bottom
+            bottom: Radius.circular(15.r),
           ),
         ),
       ),
@@ -167,13 +157,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                  Container(
                  padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
                  decoration: BoxDecoration(
-                   //color: Colors.grey.shade50, // Subtle background color
-                   borderRadius: BorderRadius.circular(12.r), // Rounded corners
+                   //color: Colors.grey.shade50,
+                   borderRadius: BorderRadius.circular(12.r),
                    // boxShadow: [
                    //   BoxShadow(
-                   //     color: Colors.grey.withOpacity(0.3), // Light shadow
+                   //     color: Colors.grey.withOpacity(0.3),
                    //     blurRadius: 8,
-                   //     offset: const Offset(0, 4), // Shadow position
+                   //     offset: const Offset(0, 4),
                    //   ),
                    // ],
                  ),
@@ -181,14 +171,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                    crossAxisAlignment: CrossAxisAlignment.center,
                    children: [
                      Container(
-                       width: 80.w, // Responsive width
-                       height: 80.w, // Responsive height
+                       width: 80.w,
+                       height: 80.w,
                        decoration: BoxDecoration(
                          color: Colors.white,
                          shape: BoxShape.circle,
                          border: Border.all(
-                           color: Colors.red, // Border color
-                           width: 2.0, // Thicker border for prominence
+                           color: Colors.red,
+                           width: 2.0,
                          ),
                          boxShadow: [
                            BoxShadow(
@@ -199,21 +189,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                          ],
                        ),
                        child: CircleAvatar(
-                         radius: 28.w, // Dynamic radius based on width
+                         radius: 28.w,
                          backgroundImage: const AssetImage('assets/images/app_logo.png'),
                          backgroundColor: Colors.red.shade50,
                        ),
                      ),
-                     SizedBox(width: 15.w), // Adjusted spacing for clarity on smaller screens
+                     SizedBox(width: 15.w),
                      Expanded(
                        child: Column(
-                         crossAxisAlignment: CrossAxisAlignment.start, // Aligns text to the start
+                         crossAxisAlignment: CrossAxisAlignment.start,
                          children: [
                            Row(
-                             mainAxisAlignment: MainAxisAlignment.spaceAround, // Distributes evenly across the row
+                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                              children: [
                                _buildInfoColumn('₹ ${totalIncome ?? 0}', "Gross Income", Colors.black),
-                            //   _buildInfoColumn(totalDownline, "Total Team", Colors.black),
+                               //   _buildInfoColumn(totalDownline, "Total Team", Colors.black),
                                _buildInfoColumn(directDownline, "Total Refer", Colors.black),
                              ],
                            ),
@@ -230,12 +220,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                        children: [
                          _buildWalletBox(
-                           "₹ ${GreenWallet ?? 0}", // Show 0 if GreenWallet is null
+                           "₹ ${GreenWallet ?? 0}",
                            "Net Income",
                            Colors.green,
                          ),
                          _buildWalletBox(
-                           "₹ ${TDSIncome ?? 0}", // Show 0 if TDSIncome is null
+                           "₹ ${TDSIncome ?? 0}",
                            "TDS (Tax)",
                            Colors.red,
                          ),
@@ -318,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildWalletBox(String amount, String label, Color color) {
     return Container(
-      width: 150.w, // Set a fixed width for uniformity
+      width: 150.w,
       padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 15.w),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -369,26 +359,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       children: [
 
-        _buildMenuOption(CupertinoIcons.person_alt_circle, "My Profile"), // Person icon for profile
-        _buildMenuOption(Icons.business, "My Business"), // Business icon
-        _buildMenuOption(Icons.groups, "Join Our Community"), // Groups for community
-    //    _buildMenuOption(CupertinoIcons.person_2_alt, "Team List"), // Group icon for team
-        _buildMenuOption(Icons.verified_user, "Activation"), // Verified icon for activation
-        _buildMenuOption(Icons.card_membership, "Activate Your Membership"), // Membership card icon
-        _buildMenuOption(CupertinoIcons.bag, "Our Product & Services"), // Shopping bag for products
-        _buildMenuOption(CupertinoIcons.arrow_right_arrow_left_circle, "Transaction History"), // Receipt icon for transactions
-        _buildMenuOption(CupertinoIcons.arrow_down_to_line, "Downloaded Images"), // Download icon
-        _buildMenuOption(CupertinoIcons.smiley, "Feedback"), // Feedback icon
-        _buildMenuOption(Icons.question_answer, "FAQs"), // FAQ icon
+        _buildMenuOption(CupertinoIcons.person_alt_circle, "My Profile"),
+        _buildMenuOption(Icons.business, "My Business"),
+        _buildMenuOption(Icons.groups, "Join Our Community"),
+        //    _buildMenuOption(CupertinoIcons.person_2_alt, "Team List"),
+        _buildMenuOption(Icons.verified_user, "Activation"),
+        _buildMenuOption(Icons.card_membership, "Activate Your Membership"),
+        _buildMenuOption(CupertinoIcons.bag, "Our Product & Services"),
+        _buildMenuOption(CupertinoIcons.arrow_right_arrow_left_circle, "Transaction History"),
+        _buildMenuOption(CupertinoIcons.arrow_down_to_line, "Downloaded Images"),
+        _buildMenuOption(CupertinoIcons.smiley, "Feedback"),
+        _buildMenuOption(Icons.question_answer, "FAQs"),
         _buildMenuOption(CupertinoIcons.doc_plaintext, "Terms of Use", 'https://www.ajhub.co.in/term-condition'), // Article icon for terms
-        _buildMenuOption(Icons.account_balance_wallet, "KYC Details"), // Wallet for KYC
-        _buildMenuOption(Icons.privacy_tip, "Privacy Policy", 'https://www.ajhub.co.in/policy'), // Privacy icon
-        _buildMenuOption(CupertinoIcons.question_circle, "Help & Support"), // Support icon
+        _buildMenuOption(Icons.account_balance_wallet, "KYC Details"),
+        _buildMenuOption(Icons.privacy_tip, "Privacy Policy", 'https://www.ajhub.co.in/policy'),
+        _buildMenuOption(CupertinoIcons.question_circle, "Help & Support"),
         _buildMenuOption(CupertinoIcons.lock_shield, "Refund & Policy", 'https://www.ajhub.co.in/refund-policy'), // Policy icon
-        _buildMenuOption(Icons.share, "Refer & Earn"), // Share icon for referrals
-        _buildMenuOption(CupertinoIcons.lock_rotation, "Change Password"), // Lock icon for password change
-        _buildMenuOption(Icons.logout, "Logout"), // Logout icon
-        _buildMenuOption(Icons.delete_forever, "Delete Account"), // Delete icon for account
+        _buildMenuOption(Icons.share, "Refer & Earn"),
+        _buildMenuOption(CupertinoIcons.lock_rotation, "Change Password"),
+        _buildMenuOption(Icons.logout, "Logout"),
+        _buildMenuOption(Icons.delete_forever, "Delete Account"),
       ],
     );
   }
@@ -397,22 +387,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 
   void openWhatsApp(BuildContext context) async {
-    const phone = "919925850305"; // Correct format with country code
+    const phone = "919925850305";
     final message = Uri.encodeComponent('');
     final whatsappUrl = "https://wa.me/$phone?text=$message";
 
     try {
-      // Check if the URL can be launched
       if (await canLaunch(whatsappUrl)) {
         await launch(whatsappUrl, forceSafariVC: false, forceWebView: false);
       } else {
-        // If WhatsApp is not installed or URL cannot be launched
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Could not open WhatsApp. Please ensure the app is installed.")),
         );
       }
     } catch (e) {
-      // Catch any errors and display them
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("An error occurred: $e")),
       );
@@ -420,7 +407,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildMenuOption(IconData icon, String label, [String? url]) {
-    // Check if the "Refer & Earn" or "My Business" button should be disabled
     bool isButtonDisabled =  label == "My Business" && status != "active";
 
     return Container(
@@ -428,18 +414,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: InkWell(
         onTap: isButtonDisabled
             ? () {
-          // Show a Toast message when the button is disabled
           showDialog(
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text("Membership Required"),
-                content: Text(
+                title: const Text("Membership Required"),
+                content: const Text(
                  "You can add your business details after activating your membership package.",
                 ),
                 actions: <Widget>[
                   TextButton(
-                    child: Text("OK"),
+                    child: const Text("OK"),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -449,7 +434,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             },
           );
 
-        }  // Disable the tap if the status is not active
+        }
             : () async {
           if (label == "Join Our Community") {
             openWhatsApp(context);
@@ -566,14 +551,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 15.w),
           decoration: BoxDecoration(
-            color: isButtonDisabled ? Colors.grey.shade200 : Colors.white, // Lighter grey for disabled state
+            color: isButtonDisabled ? Colors.grey.shade200 : Colors.white,
             border: Border.all(
-              color: isButtonDisabled ? Colors.grey.shade400 : Colors.grey.shade300, // Subtle border for disabled state
+              color: isButtonDisabled ? Colors.grey.shade400 : Colors.grey.shade300,
               width: 1.0,
             ),
             borderRadius: BorderRadius.circular(12.r),
             boxShadow: isButtonDisabled
-                ? []  // Remove shadow when disabled to make it appear flat
+                ? []
                 : [
               BoxShadow(
                 color: Colors.black.withOpacity(0.04),
@@ -588,10 +573,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 padding: EdgeInsets.all(6.w),
                 decoration: BoxDecoration(
-                  color: isButtonDisabled ? Colors.grey.shade100 : Colors.red.shade50, // Lighter background for disabled icon
+                  color: isButtonDisabled ? Colors.grey.shade100 : Colors.red.shade50,
                   shape: BoxShape.circle,
                   boxShadow: isButtonDisabled
-                      ? []  // Remove shadow for disabled state
+                      ? []
                       : [
                     BoxShadow(
                       color: Colors.red.withOpacity(0.08),
@@ -602,7 +587,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Icon(
                   icon,
-                  color: isButtonDisabled ? Colors.grey.shade600 : Colors.red.shade700, // Disabled icon color
+                  color: isButtonDisabled ? Colors.grey.shade600 : Colors.red.shade700,
                   size: 22.sp,
                 ),
               ),
@@ -613,13 +598,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
-                    color: isButtonDisabled ? Colors.grey.shade600 : Colors.black87, // Disabled text color
+                    color: isButtonDisabled ? Colors.grey.shade600 : Colors.black87,
                   ),
                 ),
               ),
               Icon(
                 Icons.arrow_forward_ios_outlined,
-                color: isButtonDisabled ? Colors.grey.shade600 : Colors.grey.shade500, // Disabled arrow color
+                color: isButtonDisabled ? Colors.grey.shade600 : Colors.grey.shade500,
                 size: 16.sp,
               ),
             ],
@@ -640,30 +625,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
-                // Perform log out actions
                 var pref = await SharedPreferences.getInstance();
-
-                // Clear all session-related data from SharedPreferences
-                await pref.remove(SplashScreenState.keyLogin);  // User login data
-                await pref.remove(TOKEN);                      // User token
-                await pref.remove(NAME);                       // User name
-                await pref.remove(EMAIL);                      // User email
-                await pref.remove('active_business');          // Active business data
-
-
-
-                // Clear any other session variables if needed, for example:
+                await pref.remove(SplashScreenState.keyLogin);
+                await pref.remove(TOKEN);
+                await pref.remove(NAME);
+                await pref.remove(EMAIL);
+                await pref.remove('active_business');
                 await appStore.setToken('', isInitializing: true);
                 await appStore.setName('', isInitializing: true);
                 await appStore.setEmail('', isInitializing: true);
 
-                // Navigate to the LoginScreen
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -687,7 +664,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: const Text('Cancel'),
             ),
@@ -719,24 +696,14 @@ class WebViewScreen extends StatelessWidget {
       ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(
         NavigationDelegate(
-          onProgress: (int progress) {
-            // Update loading bar or progress indicator
-          },
-          onPageStarted: (String url) {
-            // Show loader when page starts loading
-          },
-          onPageFinished: (String url) {
-            // Hide loader when page finishes loading
-          },
-          onHttpError: (HttpResponseError error) {
-            // Handle HTTP errors
-          },
-          onWebResourceError: (WebResourceError error) {
-            // Handle resource errors
-          },
+          onProgress: (int progress) {},
+          onPageStarted: (String url) {},
+          onPageFinished: (String url) {},
+          onHttpError: (HttpResponseError error) {},
+          onWebResourceError: (WebResourceError error) {},
           onNavigationRequest: (NavigationRequest request) {
             if (request.url.startsWith('https://www.youtube.com/')) {
-              return NavigationDecision.prevent; // Prevent navigation to YouTube URLs
+              return NavigationDecision.prevent;
             }
             return NavigationDecision.navigate;
           },

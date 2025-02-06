@@ -27,7 +27,7 @@ class User {
   int parentId;
   int sponcerId;
   int stateId;
-  int? zoneId; // Nullable field
+  int? zoneId;
   int districtId;
   int countryId;
   String uid;
@@ -35,9 +35,9 @@ class User {
   String gender;
   String phoneNumber;
   String referralCode;
-  String? subscriptionStartDate; // Nullable field
-  String? subscriptionEndDate; // Nullable field
-  String? kycStatus; // Nullable field
+  String? subscriptionStartDate;
+  String? subscriptionEndDate;
+  String? kycStatus;
   String createdAt;
   String updatedAt;
 
@@ -67,27 +67,27 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      userId: json['userId'] ?? 0, // Default to 0 if null
-      username: json['username'] ?? '', // Default to empty string if null
-      email: json['email'] ?? '', // Default to empty string if null
-      activationId: json['activation_id'], // Nullable
-      roleId: json['role_id'] ?? 0, // Default to 0 if null
-      parentId: json['parentId'] ?? 0, // Default to 0 if null
-      sponcerId: json['sponcer_id'] ?? 0, // Default to 0 if null
-      stateId: json['state_id'] ?? 0, // Default to 0 if null
-      zoneId: json['zone_id'], // Nullable
-      districtId: json['district_id'] ?? 0, // Default to 0 if null
-      countryId: json['country_id'] ?? 0, // Default to 0 if null
-      uid: json['Uid'] ?? '', // Default to empty string if null
-      dob: json['dob'] ?? '', // Default to empty string if null
-      gender: json['gender'] ?? '', // Default to empty string if null
-      phoneNumber: json['phone_number'] ?? '', // Default to empty string if null
-      referralCode: json['referral_code'] ?? '', // Default to empty string if null
-      subscriptionStartDate: json['subscription_start_date'], // Nullable
-      subscriptionEndDate: json['subscription_end_date'], // Nullable
-      kycStatus: json['kyc_status'], // Nullable
-      createdAt: json['created_at'] ?? '', // Default to empty string if null
-      updatedAt: json['updated_at'] ?? '', // Default to empty string if null
+      userId: json['userId'] ?? 0,
+      username: json['username'] ?? '',
+      email: json['email'] ?? '',
+      activationId: json['activation_id'],
+      roleId: json['role_id'] ?? 0,
+      parentId: json['parentId'] ?? 0,
+      sponcerId: json['sponcer_id'] ?? 0,
+      stateId: json['state_id'] ?? 0,
+      zoneId: json['zone_id'],
+      districtId: json['district_id'] ?? 0,
+      countryId: json['country_id'] ?? 0,
+      uid: json['Uid'] ?? '',
+      dob: json['dob'] ?? '',
+      gender: json['gender'] ?? '',
+      phoneNumber: json['phone_number'] ?? '',
+      referralCode: json['referral_code'] ?? '',
+      subscriptionStartDate: json['subscription_start_date'],
+      subscriptionEndDate: json['subscription_end_date'],
+      kycStatus: json['kyc_status'],
+      createdAt: json['created_at'] ?? '',
+      updatedAt: json['updated_at'] ?? '',
     );
   }
 

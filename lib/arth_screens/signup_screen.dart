@@ -1,7 +1,6 @@
-// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously, avoid_print
-
 import 'dart:convert';
 import 'package:allinone_app/arth_screens/login_screen.dart';
+import 'package:allinone_app/utils/configs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,8 +17,8 @@ class SignUpScreen extends StatefulWidget {
 
 class SignUpScreenState extends State<SignUpScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool _isPasswordVisible = false;  // Flag to toggle password visibility
-  bool _isConfirmPasswordVisible = false;  // Flag to toggle confirm password visibility
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -36,7 +35,7 @@ class SignUpScreenState extends State<SignUpScreen> {
   bool isLocationError = false;
   bool _isPhoneNumberValid = true;
   bool _isPasswordValid = true;
-  bool _isEmailValid = true;  // Email validation flag
+  bool _isEmailValid = true;
   String selectedGender = 'Select Gender';
   String? selectedCountry;
   String? selectedState;
@@ -62,7 +61,6 @@ class SignUpScreenState extends State<SignUpScreen> {
     fetchDropdownData();
     fetchCountries();
 
-    // Initialize filtered lists to the complete list
     filteredStates = states;
     filteredCities = cities;
 
@@ -125,9 +123,9 @@ class SignUpScreenState extends State<SignUpScreen> {
                           title: Text(country['name']),
                           onTap: () {
                             setState(() {
-                              selectedCountry = country['id'].toString(); // Use ID for registration payload
+                              selectedCountry = country['id'].toString();
                             });
-                            fetchStates(selectedCountry!); // Fetch states based on country ID
+                            fetchStates(selectedCountry!);
                             Navigator.pop(context);
                           },
                         );
@@ -162,7 +160,7 @@ class SignUpScreenState extends State<SignUpScreen> {
       onItemSelected: (selectedStateItem) {
         setState(() {
           selectedState = selectedStateItem['name'];
-          fetchCities(selectedStateItem['id'].toString()); // Fetch cities for the selected state
+          fetchCities(selectedStateItem['id'].toString());
         });
       },
     );
@@ -278,22 +276,20 @@ class SignUpScreenState extends State<SignUpScreen> {
   //   );
   // }
 
-  // Real-time email validation
+
   void _validateEmail() {
     setState(() {
       _isEmailValid = _isValidEmail(_emailController.text);
     });
   }
 
-  // Email validation regex
+
   bool _isValidEmail(String email) {
     final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
     return emailRegExp.hasMatch(email);
   }
 
 
-
-  // Check passwords and validate password length
   void _checkPasswords() {
     setState(() {
       _passwordsMatch = _passwordController.text == _confirmPasswordController.text;
@@ -303,7 +299,7 @@ class SignUpScreenState extends State<SignUpScreen> {
 
   @override
   void dispose() {
-    // Dispose controllers when no longer needed to free up resources
+
     _passwordController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
@@ -311,16 +307,15 @@ class SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  // Phone number validation logic
+
   void _validatePhoneNumber() {
     setState(() {
-      // Check if phone number is not empty and matches basic validation (adjust regex based on your needs)
-      _isPhoneNumberValid = _phoneController.text.isNotEmpty && _isValidPhoneNumber(_phoneController.text);
+       _isPhoneNumberValid = _phoneController.text.isNotEmpty && _isValidPhoneNumber(_phoneController.text);
     });
   }
 
   bool _isValidPhoneNumber(String phoneNumber) {
-    final phoneRegExp = RegExp(r'^\+?\d{10,15}$'); // Simple phone number validation (adjust as needed)
+    final phoneRegExp = RegExp(r'^\+?\d{10,15}$');
     return phoneRegExp.hasMatch(phoneNumber);
   }
   void fetchCountries() async {
@@ -328,7 +323,7 @@ class SignUpScreenState extends State<SignUpScreen> {
       _isLoadingCountries = true;
     });
     try {
-      final response = await http.get(Uri.parse('https://ajhub.co.in/api/get-country'));
+      final response = await http.get(Uri.parse('${BASE_URL}get-country'));
       if (response.statusCode == 200) {
         setState(() {
           countries = json.decode(response.body);
@@ -351,10 +346,9 @@ class SignUpScreenState extends State<SignUpScreen> {
       final response = await http.get(Uri.parse('https://ajhub.co.in/get-states-regby-country/$countryId'));
       if (response.statusCode == 200) {
 
-        print(response.body);
         setState(() {
-          states = json.decode(response.body);  // Update the original states list
-          filteredStates = states;  // Also update the filtered states list to match the new data
+          states = json.decode(response.body);
+          filteredStates = states;
           _isLoadingStates = false;
         });
       }
@@ -374,8 +368,8 @@ class SignUpScreenState extends State<SignUpScreen> {
       final response = await http.get(Uri.parse('https://ajhub.co.in/get-districts-regby-state/$stateId'));
       if (response.statusCode == 200) {
         setState(() {
-          cities = json.decode(response.body);  // Update the original cities list
-          filteredCities = cities;  // Also update the filtered cities list to match the new data
+          cities = json.decode(response.body);
+          filteredCities = cities;
           _isLoadingCities = false;
         });
       }
@@ -402,14 +396,13 @@ class SignUpScreenState extends State<SignUpScreen> {
   }
 
   Future<void> _registerUser() async {
-    print(selectedCountry);
 
     if (selectedCountry == null || selectedState == null || selectedCity == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select Country, State, and District')),
       );
       setState(() {
-        isLocationError = true; // Trigger validation errors
+        isLocationError = true;
       });
       return;
     }
@@ -431,7 +424,7 @@ class SignUpScreenState extends State<SignUpScreen> {
         _isLoading = true;
       });
 
-      const String apiUrl = 'https://ajhub.co.in/api/register';
+      const String apiUrl = '${BASE_URL}register';
       final Map<String, dynamic> payload = {
         "username": _firstNameController.text,
         "email": _emailController.text,
@@ -464,7 +457,6 @@ class SignUpScreenState extends State<SignUpScreen> {
         } else {
           final responseData = json.decode(response.body);
 
-          // Extract and display error messages
           if (responseData['status'] == 'error' && responseData['errors'] != null) {
             final errors = responseData['errors'] as Map<String, dynamic>;
             final errorMessages = errors.values
@@ -568,17 +560,13 @@ class SignUpScreenState extends State<SignUpScreen> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        // Set error flags if these fields are not selected
                         isLocationError = selectedCountry == null || selectedState == null || selectedCity == null;
                         _isGenderError = selectedGender == 'Select Gender';
                       });
-
-                      // Check if all form fields are valid before processing registration
                       if (_formKey.currentState!.validate() && !_isGenderError && !isLocationError) {
                         _registerUser();
                       } else {
-                        // Display error if country, state, or city is not selected
-                        if (isLocationError) {
+                         if (isLocationError) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Please select Country, State, and District')),
                           );
@@ -692,8 +680,7 @@ class SignUpScreenState extends State<SignUpScreen> {
                   width: 8,
                 ),
 
-            // Phone Number Input Field
-            Expanded(
+             Expanded(
               child: Container(
                 alignment: Alignment.center,
                 child: TextFormField(
@@ -746,7 +733,7 @@ class SignUpScreenState extends State<SignUpScreen> {
   Widget _buildPasswordField() {
     return TextFormField(
       controller: _passwordController,
-      obscureText: !_isPasswordVisible,  // Toggle visibility
+      obscureText: !_isPasswordVisible,
       decoration: InputDecoration(
         labelText: 'Password',
         hintText: 'Enter your password',
@@ -771,7 +758,7 @@ class SignUpScreenState extends State<SignUpScreen> {
           ),
           onPressed: () {
             setState(() {
-              _isPasswordVisible = !_isPasswordVisible;  // Toggle visibility
+              _isPasswordVisible = !_isPasswordVisible;
             });
           },
         ),
@@ -791,7 +778,7 @@ class SignUpScreenState extends State<SignUpScreen> {
   Widget _buildConfirmPasswordField() {
     return TextFormField(
       controller: _confirmPasswordController,
-      obscureText: !_isConfirmPasswordVisible,  // Toggle visibility
+      obscureText: !_isConfirmPasswordVisible,
       decoration: InputDecoration(
         labelText: 'Confirm Password',
         hintText: 'Re-enter your password',
@@ -816,7 +803,7 @@ class SignUpScreenState extends State<SignUpScreen> {
           ),
           onPressed: () {
             setState(() {
-              _isConfirmPasswordVisible = !_isConfirmPasswordVisible;  // Toggle visibility
+              _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
             });
           },
         ),
@@ -842,7 +829,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
       enabled: enabled,
       validator: (value) {
         if (isRequired && (value == null || value.isEmpty)) {
-          return '$label can\'t be empty'; // Error message for empty fields
+          return '$label can\'t be empty';
         }
         return null;
       },
@@ -854,7 +841,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
           color: Colors.black
         ),
         errorStyle:  TextStyle(
-          color: Colors.red.shade900, // Error message text color
+          color: Colors.red.shade900,
           fontSize: 12,
         ),
         border: OutlineInputBorder(
@@ -1050,7 +1037,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(color: Colors.red.shade900 ), // Red border on error
+              borderSide: BorderSide(color: Colors.red.shade900 ),
             ),
           ),
         );
@@ -1076,7 +1063,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         ),
       ),
       builder: (BuildContext context) {
-        List<dynamic> filteredItems = List.from(items); // Copy the original list
+        List<dynamic> filteredItems = List.from(items);
 
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -1084,7 +1071,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
               heightFactor: 0.9,
               child: Padding(
                 padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom, // Adjust for keyboard height
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
                 ),
                 child: Column(
                   children: [
