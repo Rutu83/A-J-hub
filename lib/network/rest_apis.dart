@@ -20,7 +20,6 @@ import 'package:http/http.dart' as http;
 
 
 Future<void> clearPreferences() async {
-
   await appStore.setToken('');
   await appStore.setLoggedIn(false);
 
@@ -33,7 +32,6 @@ Future<void> clearPreferences() async {
 // login
 Future<LoginResponse> loginUser(Map request) async {
   appStore.setLoading(true);
-
   try {
     log("Request New : $request");
     LoginResponse res = LoginResponse.fromJson(await (handleResponse(
@@ -88,15 +86,7 @@ Future<Map<String, dynamic>> getUserDetail() async {
 
 
 // update profile
-Future<void> updateProfile({
-  required String name,
-  required String gender,
-  required String dob,
-  required Function() onSuccess,
-  required Function() onFail,
-}) async {
-
-
+Future<void> updateProfile({required String name, required String gender, required String dob, required Function() onSuccess, required Function() onFail,}) async {
   final String authToken = appStore.token;
   const String apiUrl = '${BASE_URL}profile/update';
 
@@ -115,25 +105,19 @@ Future<void> updateProfile({
       },
       body: json.encode(payload),
     );
-
     if (response.statusCode == 200 || response.statusCode == 201) {
-
       onSuccess();
     } else {
-
       String errorMessage = 'DATA change failed';
       if (response.statusCode == 400) {
         final responseBody = json.decode(response.body);
         errorMessage = responseBody['message'] ?? errorMessage;
       }
       onFail();
-
     }
   } catch (error) {
     onFail();
-
   } finally {
-
   }
 }
 
@@ -156,7 +140,6 @@ Future<List<BusinessModal>> getBusinessData({required List<BusinessModal>? busin
     return businessmodal;
   } catch (e) {
     appStore.setLoading(false);
-
     rethrow;
   }
 }
@@ -169,8 +152,6 @@ Future<CategoriesResponse> getCategories() async {
   try {
     final responseJson = await handleResponse(await buildHttpResponse('categories', method: HttpMethodType.GET));
     final res = CategoriesResponse.fromJson(responseJson);
-
-
     cachedHome = cachedHome ?? [];
     cachedHome?.clear();
     cachedHome?.add(res);

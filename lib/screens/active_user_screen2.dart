@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:allinone_app/main.dart';
 import 'package:allinone_app/screens/dashbord_screen.dart';
 import 'package:allinone_app/utils/configs.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -26,15 +27,13 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
   final ImagePicker _picker = ImagePicker();
 
   final String apiUrl = "${BASE_URL}payment/approve";
-  final String token = appStore.token; // Replace with your actual token
-
-  // Method to pick a file using ImagePicker
+  final String token = appStore.token;
   Future<void> _chooseFile() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
-        _selectedImage = pickedFile; // Assign the pickedFile directly
+        _selectedImage = pickedFile;
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -43,7 +42,6 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
     }
   }
 
-
   Future<void> _submitPayment() async {
     if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -51,11 +49,9 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
       );
       return;
     }
-
     setState(() {
       _isSubmitting = true;
     });
-
     try {
       final request = http.MultipartRequest("POST", Uri.parse(apiUrl));
       request.headers['Authorization'] = 'Bearer $token';
@@ -64,43 +60,70 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
         'payment_screenshot',
         _selectedImage!.path,
       ));
-
       final response = await request.send();
+      if (kDebugMode) {
+        print("Response status code: ${response.statusCode}");
+      }
 
       if (response.statusCode == 200) {
         final responseBody = await response.stream.bytesToString();
         final decodedResponse = json.decode(responseBody);
+        if (kDebugMode) {
+          print("Response body: $decodedResponse");
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(decodedResponse['message'] ?? "Payment submitted successfully.")),
         );
 
-        // Navigate to the dashboard screen after success
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const DashboardScreen()), // Replace with your dashboard widget
+          MaterialPageRoute(builder: (context) => const DashboardScreen()),
         );
       } else {
         final responseBody = await response.stream.bytesToString();
         final decodedErrorResponse = json.decode(responseBody);
         final errorMessage = decodedErrorResponse['message'] ?? "An error occurred.";
-
-        // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage)),
         );
+
+        // Print the error response
+        if (kDebugMode) {
+          print("Error response: $decodedErrorResponse");
+        }
+      }
+    } on SocketException catch (e) {
+      // Handle no internet connection error
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No internet connection. Please try again later.")),
+      );
+      if (kDebugMode) {
+        print("SocketException: $e");
+      }
+    } on FormatException catch (e) {
+      // Handle JSON format errors
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Invalid response format.")),
+      );
+      if (kDebugMode) {
+        print("FormatException: $e");
       }
     } catch (e) {
-      // Show general error message
+      // Handle general errors
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("An error occurred: $e")),
+        SnackBar(content: Text("An unexpected error occurred: $e")),
       );
+      if (kDebugMode) {
+        print("Exception: $e");
+      }
     } finally {
       setState(() {
-        _isSubmitting = false; // Reset the button state
+        _isSubmitting = false;
       });
     }
   }
+
 
 
 
@@ -159,8 +182,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Image.asset(
-                  'assets/images/qr_code.png', // Path to your QR code image
-                  fit: BoxFit.cover, // Ensures the image covers the container without distortion
+                  'assets/images/qr_code.png',
+                  fit: BoxFit.cover,
                 ),
               ),
             ),

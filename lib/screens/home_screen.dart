@@ -18,6 +18,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:allinone_app/screens/category_selected.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
 import '../network/rest_apis.dart';
@@ -61,7 +62,7 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> fetchAllData() async {
     try {
       await Future.wait([
-     //   fetchBusinessData(),
+        fetchBusinessData(),
         _fetchBannerData(),
        fetchCategoriesData(),
         fetchSubcategoryData(),
@@ -79,55 +80,55 @@ class HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  // Future<void> fetchBusinessData() async {
-  //   const apiUrl = '${BASE_URL}getbusinessprofile';
-  //   String token = appStore.token;
-  //
-  //   try {
-  //     final response = await http.get(
-  //       Uri.parse(apiUrl),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': 'Bearer $token',
-  //       },
-  //     );
-  //     if (response.statusCode == 200) {
-  //       final data = json.decode(response.body)['data'];
-  //
-  //       setState(() {
-  //         businessData = data ?? [];
-  //         isLoading = false;
-  //
-  //         if (businessData.isNotEmpty) {
-  //           final activeBusiness = businessData.firstWhere(
-  //                 (business) => business['status'] == 'active',
-  //             orElse: () => businessData.first,
-  //           );
-  //
-  //           selectedBusiness = activeBusiness['id'];
-  //           SharedPreferences.getInstance().then((prefs) {
-  //             prefs.setString('active_business', json.encode(activeBusiness));
-  //           });
-  //         } else {
-  //           clearPreferences();
-  //           selectedBusiness = null;
-  //         }
-  //       });
-  //     } else if (response.statusCode == 404) {
-  //       setState(() {
-  //         businessData = [];
-  //         isLoading = false;
-  //       });
-  //       await clearPreferences();
-  //       selectedBusiness = null;
-  //     } else {}
-  //   } catch (e) {
-  //     setState(() {
-  //       isLoading = false;
-  //       businessData = [];
-  //     });
-  //   }
-  // }
+  Future<void> fetchBusinessData() async {
+    const apiUrl = '${BASE_URL}getbusinessprofile';
+    String token = appStore.token;
+
+    try {
+      final response = await http.get(
+        Uri.parse(apiUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body)['data'];
+
+        setState(() {
+          businessData = data ?? [];
+          isLoading = false;
+
+          if (businessData.isNotEmpty) {
+            final activeBusiness = businessData.firstWhere(
+                  (business) => business['status'] == 'active',
+              orElse: () => businessData.first,
+            );
+
+            selectedBusiness = activeBusiness['id'];
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.setString('active_business', json.encode(activeBusiness));
+            });
+          } else {
+            clearPreferences();
+            selectedBusiness = null;
+          }
+        });
+      } else if (response.statusCode == 404) {
+        setState(() {
+          businessData = [];
+          isLoading = false;
+        });
+        await clearPreferences();
+        selectedBusiness = null;
+      } else {}
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        businessData = [];
+      });
+    }
+  }
 
   Future<void> _fetchBannerData() async {
     const apiUrl = '${BASE_URL}getbanners';

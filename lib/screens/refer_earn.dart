@@ -41,21 +41,34 @@ class _ReferEarnState extends State<ReferEarn> {
         _isLoading = true;
       });
 
+      if (kDebugMode) {
+        print("Fetching user data...");
+      }
+
       Map<String, dynamic> userDetail = await getUserDetail();
+      if (kDebugMode) {
+        print("Fetched user details: $userDetail");
+      }
+
+      referralCode = userDetail['referral_code'] ?? 'Unavailable';
+      if (kDebugMode) {
+        print("Referral Code: $referralCode");
+      }
 
       setState(() {
-        referralCode = userDetail['referral_code'] ?? 'Unavailable';
         _isLoading = false;
       });
     } catch (e) {
       if (kDebugMode) {
         print("Error fetching user data: $e");
       }
+
       setState(() {
         _isLoading = false;
       });
     }
   }
+
 
   bool isMembershipActive = false;
 
@@ -140,7 +153,7 @@ Start Promoting today and maximize your income! 💰
           children: [
             _buildImage(file),
             _buildCopyField(),
-            const SizedBox(height: 30),
+            const SizedBox(height: 5),
             _buildButtonRow(),
           ],
         ),
@@ -150,14 +163,14 @@ Start Promoting today and maximize your income! 💰
 
   Widget _buildImage(String assetPath) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       child: _isLoading
           ? Shimmer.fromColors(
         baseColor: Colors.grey.shade300,
         highlightColor: Colors.grey.shade100,
         child: Container(
           width: double.infinity,
-          height: 200.h,
+          height: 150.h,
           color: Colors.white,
         ),
       )
@@ -225,7 +238,7 @@ Start Promoting today and maximize your income! 💰
 
   Widget _buildButtonRow() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
       child: Row(
         children: [
           Expanded(

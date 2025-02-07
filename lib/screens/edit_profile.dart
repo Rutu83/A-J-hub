@@ -14,7 +14,7 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
-  var UserId;
+  var userId;
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -79,7 +79,7 @@ class _EditProfileState extends State<EditProfile> {
 
 
       setState(() {
-        UserId = userDetail['_id'];
+        userId = userDetail['_id'];
         _firstNameController.text = userDetail['username'] ?? '';
         _emailController.text = userDetail['email'] ?? '';
         _phoneController.text = userDetail['phone_number'] ?? '';

@@ -252,7 +252,7 @@ class _BusinessFormState extends State<BusinessForm> {
             _isLoading = false;
           });
         }
-      } catch (e, stackTrace) {
+      } catch (e) {
 
         _showSnackbar('An unexpected error occurred. Please try again.', Colors.red);
         setState(() {

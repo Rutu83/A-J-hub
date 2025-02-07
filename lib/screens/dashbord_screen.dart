@@ -38,7 +38,7 @@ class DashboardScreenState extends State<DashboardScreen> {
       Map<String, dynamic> userDetail = await getUserDetail();
       if (kDebugMode) {
         print('...........................................................');
-        print(userDetail);
+        print("$userDetail?????????????????/");
       }
 
       // Check if the status is 'active' or 'inactive'

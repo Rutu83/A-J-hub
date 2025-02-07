@@ -100,12 +100,12 @@ class CategorySelectedState extends State<CategorySelected> {
         setState(() {
             businessName =  'Aj hub Mobile App';
             ownerName =  'Aj hub Mobile App';
-            mobileNumber =  '96625 45518';
-            emailAddress =  'ankimjoshi58@gmail.com';
-            address =  'Palanpur , Banaskantha district in Gujarat,385001';
+            mobileNumber =  '78630 45542';
+            emailAddress =  'support@ajhub.co.in';
+            address =  'Palanpur , Gujarat - 385001';
             website =  'https://ajhub.co.in';
         });
-        _showNoBusinessDialog();
+     //   _showNoBusinessDialog();
 
         await _loadFrames();
       }
