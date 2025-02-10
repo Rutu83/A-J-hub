@@ -20,7 +20,7 @@ class _ReferEarnState extends State<ReferEarn> {
   bool _isLoading = true;
   String referralCode = "Loading...";
   String file = ' ';
-
+  bool isMembershipActive = false;
 
 
   @override
@@ -55,9 +55,16 @@ class _ReferEarnState extends State<ReferEarn> {
         print("Referral Code: $referralCode");
       }
 
+      // Check if the referral code is valid or not and set isMembershipActive accordingly
       setState(() {
+        if (referralCode.isEmpty || referralCode == 'Unavailable') {
+          isMembershipActive = false;  // Set to false if referral code is invalid
+        } else {
+          isMembershipActive = true;   // Set to true if referral code is valid
+        }
         _isLoading = false;
       });
+
     } catch (e) {
       if (kDebugMode) {
         print("Error fetching user data: $e");
@@ -70,7 +77,7 @@ class _ReferEarnState extends State<ReferEarn> {
   }
 
 
-  bool isMembershipActive = false;
+
 
   Future<void> _shareOnWhatsApp(String referralCode) async {
     final String message = '''

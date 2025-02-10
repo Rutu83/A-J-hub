@@ -9,7 +9,6 @@ import 'package:allinone_app/dynamic_fram/fram_4.dart';
 import 'package:allinone_app/dynamic_fram/fram_5.dart';
 import 'package:allinone_app/network/rest_apis.dart';
 import 'package:allinone_app/screens/active_user_screen2.dart';
-import 'package:allinone_app/screens/business_list.dart';
 import 'package:allinone_app/screens/category_edit_business_form.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
@@ -181,44 +180,44 @@ class CategorySelectedState extends State<CategorySelected> {
     }
   }
 
-  void _showNoBusinessDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('No Active Business'),
-          content: const Text(
-            'No active business data found. Please add or select a business.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
-              },
-              child: const Text(
-                'Back',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const BusinessList()),
-                );
-              },
-              child: const Text(
-                'Go to Business List',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // void _showNoBusinessDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         title: const Text('No Active Business'),
+  //         content: const Text(
+  //           'No active business data found. Please add or select a business.',
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.pop(context);
+  //               Navigator.pop(context);
+  //             },
+  //             child: const Text(
+  //               'Back',
+  //               style: TextStyle(color: Colors.grey),
+  //             ),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.pop(context);
+  //               Navigator.pushReplacement(
+  //                 context,
+  //                 MaterialPageRoute(builder: (context) => const BusinessList()),
+  //               );
+  //             },
+  //             child: const Text(
+  //               'Go to Business List',
+  //               style: TextStyle(color: Colors.red),
+  //             ),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   static const maxDownloads = 5;
 
@@ -453,7 +452,6 @@ class CategorySelectedState extends State<CategorySelected> {
     }
   }
 
-
   void _showUpgradePopup() {
     showDialog(
       context: context,
@@ -641,6 +639,13 @@ class CategorySelectedState extends State<CategorySelected> {
                             child: CachedNetworkImage(
                               imageUrl: widget.imagePaths[selectedIndex],
                               fit: BoxFit.cover,
+                              placeholder: (context, url) => const Center(child: CircularProgressIndicator()), // Show loading indicator while the image is being loaded
+                              errorWidget: (context, url, error) => const Center(
+                                child: Text(
+                                  'Failed to load image', // Show error message when image fails to load
+                                  style: TextStyle(color: Colors.red, fontSize: 16),
+                                ),
+                              ),
                             ),
                           ),
                         ),

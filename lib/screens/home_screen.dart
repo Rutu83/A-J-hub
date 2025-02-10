@@ -839,14 +839,14 @@ class HomeScreenState extends State<HomeScreen> {
     List<Widget> sections = [];
 
     for (var subcategory in subcategoryData!.subcategories) {
-      List<Widget> items = subcategory.images.map((imageUrl) {
+      // Limit to 6 or 7 items (whichever is smaller)
+      var limitedImages = subcategory.images.take(7).toList(); // Use 6 if you want 6 items instead
+
+      List<Widget> items = limitedImages.map((imageUrl) {
         return _buildCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: false);
       }).toList();
 
-      subcategory.images.map((imageUrl) {
-        return {'image': imageUrl};
-      }).toList();
-
+      // Creating a section with limited items
       sections.add(_buildHorizontalCardSection(
         sectionTitle: subcategory.name,
         items: items,
@@ -855,6 +855,7 @@ class HomeScreenState extends State<HomeScreen> {
 
     return Column(children: sections);
   }
+
 
   Widget _buildSkeletonLoading() {
     return Shimmer.fromColors(

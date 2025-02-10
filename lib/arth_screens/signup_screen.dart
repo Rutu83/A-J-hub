@@ -455,6 +455,7 @@ class SignUpScreenState extends State<SignUpScreen> {
             MaterialPageRoute(builder: (context) => const LoginScreen()),
           );
         } else {
+
           final responseData = json.decode(response.body);
 
           if (responseData['status'] == 'error' && responseData['errors'] != null) {
@@ -473,6 +474,7 @@ class SignUpScreenState extends State<SignUpScreen> {
           }
         }
       } catch (e) {
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Network error. Please check your connection.')),
         );

@@ -90,9 +90,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       Map<String, dynamic> userDetail = await getUserDetail();
 
 
+
       setState(() {
         userId = userDetail['_id'];
-        status = userDetail['statgfus'].toString();
+        status = userDetail['status'].toString();
         totalDownline = userDetail['total_downline_count'] ?? '0';
         directDownline = userDetail['direct_team_count'] ?? '0';
         String incomeString = userDetail['total_income'] ?? '0';
@@ -384,10 +385,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
 
+  void openWhatsAppGroup(BuildContext context) async {
+    const groupLink = "https://chat.whatsapp.com/K50pflHRu6EB1IXSpKOrbl"; // Your WhatsApp group link
 
+    try {
+      if (await canLaunch(groupLink)) {
+        await launch(groupLink, forceSafariVC: false, forceWebView: false);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Could not open WhatsApp group. Please ensure the app is installed.")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("An error occurred: $e")),
+      );
+    }
+  }
 
   void openWhatsApp(BuildContext context) async {
-    const phone = "919925850305";
+    const phone = "917863045542";
     final message = Uri.encodeComponent('');
     final whatsappUrl = "https://wa.me/$phone?text=$message";
 
@@ -437,7 +454,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
             : () async {
           if (label == "Join Our Community") {
-            openWhatsApp(context);
+            openWhatsAppGroup(context);
           } else if (label == "FAQs") {
             Navigator.push(
               context,
