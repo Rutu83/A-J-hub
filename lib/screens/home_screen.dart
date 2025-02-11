@@ -11,10 +11,12 @@ import 'package:allinone_app/screens/refer_earn.dart';
 import 'package:allinone_app/utils/configs.dart';
 import 'package:allinone_app/utils/shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:allinone_app/screens/category_selected.dart';
@@ -32,19 +34,16 @@ class HomeScreen extends StatefulWidget {
 
 class HomeScreenState extends State<HomeScreen> {
 
-
   List<dynamic> businessData = [];
   int? selectedBusiness;
   List<String> _imageUrls = [];
   int _currentIndex = 0;
-
   bool isLoading = true;
   bool hasError = false;
   String errorMessage = '';
   SubcategoryResponse? subcategoryData;
   DaillyuseResponse? daillyuseData;
   CategoriesWithSubcategoriesResponse? categoriesData;
-
 
 
   @override
@@ -59,6 +58,14 @@ class HomeScreenState extends State<HomeScreen> {
 
   }
 
+  @override
+  void dispose() {
+
+    super.dispose();
+  }
+
+
+
   Future<void> fetchAllData() async {
     try {
       await Future.wait([
@@ -71,13 +78,6 @@ class HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       debugPrint('Error fetching data: $e');
     }
-  }
-
-
-  @override
-  void dispose() {
-
-    super.dispose();
   }
 
   Future<void> fetchBusinessData() async {
@@ -304,7 +304,7 @@ class HomeScreenState extends State<HomeScreen> {
                         );
                       }),
                       _buildButton(context, Icons.group, 'Community', buttonWidth, () {
-                        openWhatsApp(context);
+                        openWhatsAppGroup(context);
                       }),
                       _buildButton(context, Icons.check_circle, 'Activation', buttonWidth, () {
                         Navigator.push(
@@ -363,17 +363,15 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void openWhatsApp(BuildContext context) async {
-    const phone = "919925850305";
-    final message = Uri.encodeComponent('');
-    final whatsappUrl = "https://wa.me/$phone?text=$message";
+  void openWhatsAppGroup(BuildContext context) async {
+    const groupLink = "https://chat.whatsapp.com/K50pflHRu6EB1IXSpKOrbl"; // Your WhatsApp group link
 
     try {
-      if (await canLaunch(whatsappUrl)) {
-        await launch(whatsappUrl, forceSafariVC: false, forceWebView: false);
+      if (await canLaunch(groupLink)) {
+        await launch(groupLink, forceSafariVC: false, forceWebView: false);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Could not open WhatsApp. Please ensure the app is installed.")),
+          const SnackBar(content: Text("Could not open WhatsApp group. Please ensure the app is installed.")),
         );
       }
     } catch (e) {
@@ -738,7 +736,7 @@ class HomeScreenState extends State<HomeScreen> {
       items.add(_buildCardFestival(subcategory.name, imageUrl, subcategory.images, showTitle: false));
     }
 
-    return _buildHorizontalCardSection(sectionTitle: sectionTitle, items: items);
+    return _buildHorizontalCardSection(sectionTitle: sectionTitle, items: items, imageUrls: []);
   }
 
   Widget _buildCardFestival(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
@@ -839,7 +837,7 @@ class HomeScreenState extends State<HomeScreen> {
     List<Widget> sections = [];
 
     for (var subcategory in subcategoryData!.subcategories) {
-      // Limit to 6 or 7 items (whichever is smaller)
+      // Limit to 7 items (you can adjust this to 6 if needed)
       var limitedImages = subcategory.images.take(7).toList(); // Use 6 if you want 6 items instead
 
       List<Widget> items = limitedImages.map((imageUrl) {
@@ -850,12 +848,12 @@ class HomeScreenState extends State<HomeScreen> {
       sections.add(_buildHorizontalCardSection(
         sectionTitle: subcategory.name,
         items: items,
+        imageUrls: limitedImages, // Pass imageUrls as well
       ));
     }
 
     return Column(children: sections);
   }
-
 
   Widget _buildSkeletonLoading() {
     return Shimmer.fromColors(
@@ -916,7 +914,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items}) {
+  Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items, required List<String> imageUrls,}) {
     return Container(
       color: Colors.white,
       child: Padding(
@@ -944,6 +942,46 @@ class HomeScreenState extends State<HomeScreen> {
                   sectionTitle,
                   style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
                 ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () {
+                    // Check if the items list is empty
+                    if (items.isEmpty) {
+                      _showErrorMessage(context); // Show error message if the list is empty
+                      return;
+                    }
+
+                    // Extract image URLs from the items (if necessary) and navigate to CategorySelected
+                    // In this case, we're using imageUrls, which can be passed to CategorySelected
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CategorySelected(
+                          imagePaths: imageUrls, // Pass the full list of imageUrls
+                          title: sectionTitle,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Text(
+                        'View All',
+                        style: GoogleFonts.lato(
+                          fontSize: 12.sp,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(width: 4), // Adds a small space between the text and icon
+                      Icon(
+                        CupertinoIcons.arrow_right_square_fill,
+                        color: Colors.grey,
+                        size: 16.sp,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             SizedBox(height: 5.h),
@@ -958,8 +996,7 @@ class HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
+    );}
 
   Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
     return InkWell(
