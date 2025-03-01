@@ -1,15 +1,15 @@
 import 'dart:convert';
-import 'package:allinone_app/main.dart';
-import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
-import 'package:allinone_app/model/daillyuse_modal.dart';
-import 'package:allinone_app/model/subcategory_model.dart';
-import 'package:allinone_app/screens/active_user_screen.dart';
-import 'package:allinone_app/screens/business_list.dart';
-import 'package:allinone_app/screens/category_topics.dart';
-import 'package:allinone_app/screens/charity_screen.dart';
-import 'package:allinone_app/screens/refer_earn.dart';
-import 'package:allinone_app/utils/configs.dart';
-import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:ajhub_app/main.dart';
+import 'package:ajhub_app/model/categories_subcategories_modal%20.dart';
+import 'package:ajhub_app/model/daillyuse_modal.dart';
+import 'package:ajhub_app/model/subcategory_model.dart';
+import 'package:ajhub_app/screens/active_user_screen.dart';
+import 'package:ajhub_app/screens/business_list.dart';
+import 'package:ajhub_app/screens/category_topics.dart';
+import 'package:ajhub_app/screens/charity_screen.dart';
+import 'package:ajhub_app/screens/refer_earn.dart';
+import 'package:ajhub_app/utils/configs.dart';
+import 'package:ajhub_app/utils/shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -19,7 +19,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:allinone_app/screens/category_selected.dart';
+import 'package:ajhub_app/screens/category_selected.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
@@ -171,7 +171,6 @@ class HomeScreenState extends State<HomeScreen> {
       });
     }
   }
-
 
   Future<void> fetchSubcategoryData() async {
     try {

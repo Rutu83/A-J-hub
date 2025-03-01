@@ -1,4 +1,4 @@
-import 'package:allinone_app/model/user_data_modal.dart';
+import 'package:ajhub_app/model/user_data_modal.dart';
 
 class LoginResponse {
   bool? success;

@@ -1,13 +1,13 @@
-import 'package:allinone_app/network/rest_apis.dart';
-import 'package:allinone_app/screens/active_user_screen2.dart';
-import 'package:allinone_app/screens/product_and_service.dart';
-import 'package:allinone_app/screens/refer_earn.dart';
+import 'package:ajhub_app/network/rest_apis.dart';
+import 'package:ajhub_app/screens/active_user_screen2.dart';
+import 'package:ajhub_app/screens/product_and_service.dart';
+import 'package:ajhub_app/screens/refer_earn.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:allinone_app/screens/business_screen.dart';
-import 'package:allinone_app/screens/home_screen.dart';
-import 'package:allinone_app/screens/profile_screen.dart';
+import 'package:ajhub_app/screens/business_screen.dart';
+import 'package:ajhub_app/screens/home_screen.dart';
+import 'package:ajhub_app/screens/profile_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

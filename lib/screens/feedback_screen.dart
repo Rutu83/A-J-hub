@@ -1,9 +1,9 @@
 import 'dart:convert';
-import 'package:allinone_app/screens/dashbord_screen.dart';
-import 'package:allinone_app/utils/configs.dart';
+import 'package:ajhub_app/screens/dashbord_screen.dart';
+import 'package:ajhub_app/utils/configs.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
-import 'package:allinone_app/main.dart';
+import 'package:ajhub_app/main.dart';
 import 'package:flutter/material.dart';
 
 class FeedbackScreen extends StatefulWidget {

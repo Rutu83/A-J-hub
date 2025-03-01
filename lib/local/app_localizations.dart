@@ -1,8 +1,8 @@
 
-import 'package:allinone_app/local/language_en.dart';
-import 'package:allinone_app/local/language_guj.dart';
-import 'package:allinone_app/local/language_hi.dart';
-import 'package:allinone_app/local/languages.dart';
+import 'package:ajhub_app/local/language_en.dart';
+import 'package:ajhub_app/local/language_guj.dart';
+import 'package:ajhub_app/local/language_hi.dart';
+import 'package:ajhub_app/local/languages.dart';
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
 

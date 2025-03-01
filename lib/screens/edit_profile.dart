@@ -1,4 +1,4 @@
-import 'package:allinone_app/network/rest_apis.dart';
+import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

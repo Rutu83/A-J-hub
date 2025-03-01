@@ -1,7 +1,7 @@
 
-import 'package:allinone_app/main.dart';
-import 'package:allinone_app/utils/colors.dart';
-import 'package:allinone_app/utils/constant.dart';
+import 'package:ajhub_app/main.dart';
+import 'package:ajhub_app/utils/colors.dart';
+import 'package:ajhub_app/utils/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:html/parser.dart';

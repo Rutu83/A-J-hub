@@ -1,5 +1,5 @@
-import 'package:allinone_app/main.dart';
-import 'package:allinone_app/model/business_mode.dart';
+import 'package:ajhub_app/main.dart';
+import 'package:ajhub_app/model/business_mode.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';

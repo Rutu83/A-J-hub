@@ -1,10 +1,10 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:allinone_app/main.dart';
-import 'package:allinone_app/network/rest_apis.dart';
-import 'package:allinone_app/screens/category_selection_screen.dart';
-import 'package:allinone_app/utils/configs.dart';
+import 'package:ajhub_app/main.dart';
+import 'package:ajhub_app/network/rest_apis.dart';
+import 'package:ajhub_app/screens/category_selection_screen.dart';
+import 'package:ajhub_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

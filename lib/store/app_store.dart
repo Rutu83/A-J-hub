@@ -2,7 +2,7 @@
 
 // ignore_for_file: non_constant_identifier_names
 
-import 'package:allinone_app/utils/constant.dart';
+import 'package:ajhub_app/utils/constant.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:nb_utils/nb_utils.dart';

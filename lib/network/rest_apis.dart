@@ -2,18 +2,18 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'package:allinone_app/main.dart';
-import 'package:allinone_app/model/business_mode.dart';
-import 'package:allinone_app/model/categories_mode.dart';
-import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
-import 'package:allinone_app/model/daillyuse_modal.dart';
-import 'package:allinone_app/model/login_modal.dart';
-import 'package:allinone_app/model/subcategory_model.dart';
-import 'package:allinone_app/model/team_model.dart';
-import 'package:allinone_app/model/transaction_model.dart';
-import 'package:allinone_app/model/user_data_modal.dart';
-import 'package:allinone_app/network/network_utils.dart';
-import 'package:allinone_app/utils/configs.dart';
+import 'package:ajhub_app/main.dart';
+import 'package:ajhub_app/model/business_mode.dart';
+import 'package:ajhub_app/model/categories_mode.dart';
+import 'package:ajhub_app/model/categories_subcategories_modal%20.dart';
+import 'package:ajhub_app/model/daillyuse_modal.dart';
+import 'package:ajhub_app/model/login_modal.dart';
+import 'package:ajhub_app/model/subcategory_model.dart';
+import 'package:ajhub_app/model/team_model.dart';
+import 'package:ajhub_app/model/transaction_model.dart';
+import 'package:ajhub_app/model/user_data_modal.dart';
+import 'package:ajhub_app/network/network_utils.dart';
+import 'package:ajhub_app/utils/configs.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:http/http.dart' as http;
 
@@ -22,10 +22,8 @@ import 'package:http/http.dart' as http;
 Future<void> clearPreferences() async {
   await appStore.setToken('');
   await appStore.setLoggedIn(false);
-
   // if (isAndroid) await OneSignal.shared.clearOneSignalNotifications();
 }
-
 
 
 
@@ -57,8 +55,6 @@ Future<void> saveUserDataMobile(LoginResponse loginResponse, UserData data) asyn
   await appStore.setName(data.username.validate());
   await appStore.setEmail(data.email.validate());
   await appStore.setStatus(data.status.validate());
-
-
   appStore.setLoading(false);
   if (appStore.isLoggedIn) {
     //getAppConfigurations();

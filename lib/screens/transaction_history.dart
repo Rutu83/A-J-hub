@@ -1,5 +1,5 @@
-import 'package:allinone_app/model/transaction_model.dart';
-import 'package:allinone_app/network/rest_apis.dart';
+import 'package:ajhub_app/model/transaction_model.dart';
+import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';

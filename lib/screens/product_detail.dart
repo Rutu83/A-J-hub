@@ -1,6 +1,6 @@
-import 'package:allinone_app/main.dart';
-import 'package:allinone_app/network/rest_apis.dart';
-import 'package:allinone_app/utils/configs.dart';
+import 'package:ajhub_app/main.dart';
+import 'package:ajhub_app/network/rest_apis.dart';
+import 'package:ajhub_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:carousel_slider/carousel_slider.dart';

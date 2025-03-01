@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:allinone_app/arth_screens/login_screen.dart';
-import 'package:allinone_app/splash_screen.dart';
-import 'package:allinone_app/utils/common.dart';
-import 'package:allinone_app/utils/constant.dart';
+import 'package:ajhub_app/arth_screens/login_screen.dart';
+import 'package:ajhub_app/splash_screen.dart';
+import 'package:ajhub_app/utils/common.dart';
+import 'package:ajhub_app/utils/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:allinone_app/main.dart';
-import 'package:allinone_app/utils/configs.dart';
+import 'package:ajhub_app/main.dart';
+import 'package:ajhub_app/utils/configs.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 Map<String, String> buildHeaderTokens({

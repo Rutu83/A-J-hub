@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:allinone_app/arth_screens/login_screen.dart';
-import 'package:allinone_app/utils/configs.dart';
+import 'package:ajhub_app/arth_screens/login_screen.dart';
+import 'package:ajhub_app/utils/configs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';

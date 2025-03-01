@@ -1,6 +1,6 @@
-import 'package:allinone_app/network/rest_apis.dart';
-import 'package:allinone_app/screens/active_user_screen.dart';
-import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:ajhub_app/network/rest_apis.dart';
+import 'package:ajhub_app/screens/active_user_screen.dart';
+import 'package:ajhub_app/utils/shimmer/shimmer.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

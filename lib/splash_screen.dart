@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:allinone_app/arth_screens/login_screen.dart';
-import 'package:allinone_app/screens/dashbord_screen.dart';
+import 'package:ajhub_app/arth_screens/login_screen.dart';
+import 'package:ajhub_app/screens/dashbord_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';

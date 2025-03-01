@@ -1,4 +1,4 @@
-import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:ajhub_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:nb_utils/nb_utils.dart';
 

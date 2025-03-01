@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:allinone_app/arth_screens/auth_admin_service.dart';
-import 'package:allinone_app/arth_screens/signup_screen.dart';
-import 'package:allinone_app/screens/dashbord_screen.dart';
-import 'package:allinone_app/screens/forgot_screen.dart';
-import 'package:allinone_app/splash_screen.dart';
-import 'package:allinone_app/utils/constant.dart';
+import 'package:ajhub_app/arth_screens/auth_admin_service.dart';
+import 'package:ajhub_app/arth_screens/signup_screen.dart';
+import 'package:ajhub_app/screens/dashbord_screen.dart';
+import 'package:ajhub_app/screens/forgot_screen.dart';
+import 'package:ajhub_app/splash_screen.dart';
+import 'package:ajhub_app/utils/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';

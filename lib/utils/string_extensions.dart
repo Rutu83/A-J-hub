@@ -1,5 +1,5 @@
 
-import 'package:allinone_app/utils/image.dart';
+import 'package:ajhub_app/utils/image.dart';
 import 'package:flutter/material.dart';
 
 

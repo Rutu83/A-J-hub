@@ -1,9 +1,9 @@
-import 'package:allinone_app/model/categories_subcategories_modal%20.dart';
-import 'package:allinone_app/model/subcategory_model.dart';
-import 'package:allinone_app/network/rest_apis.dart';
-import 'package:allinone_app/screens/category_selected.dart';
-import 'package:allinone_app/screens/category_topics.dart';
-import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:ajhub_app/model/categories_subcategories_modal%20.dart';
+import 'package:ajhub_app/model/subcategory_model.dart';
+import 'package:ajhub_app/network/rest_apis.dart';
+import 'package:ajhub_app/screens/category_selected.dart';
+import 'package:ajhub_app/screens/category_topics.dart';
+import 'package:ajhub_app/utils/shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

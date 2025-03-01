@@ -1,13 +1,13 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'package:allinone_app/model/business_mode.dart';
-import 'package:allinone_app/network/rest_apis.dart';
+import 'package:ajhub_app/model/business_mode.dart';
+import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:ajhub_app/utils/shimmer/shimmer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 

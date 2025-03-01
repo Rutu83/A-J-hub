@@ -1,4 +1,4 @@
-import 'package:allinone_app/local/languages.dart';
+import 'package:ajhub_app/local/languages.dart';
 
 class LanguageHindi extends BaseLanguage {
 

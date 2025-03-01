@@ -1,6 +1,6 @@
-import 'package:allinone_app/network/rest_apis.dart';
-import 'package:allinone_app/screens/product_detail.dart';
-import 'package:allinone_app/utils/shimmer/shimmer.dart';
+import 'package:ajhub_app/network/rest_apis.dart';
+import 'package:ajhub_app/screens/product_detail.dart';
+import 'package:ajhub_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';

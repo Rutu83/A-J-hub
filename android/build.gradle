@@ -1,13 +1,19 @@
 buildscript {
     repositories {
-        google() // Google Maven repository
-        mavenCentral() // Central Maven repository for dependencies
+        google()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.1' // Latest Android Gradle Plugin
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20" // Compatible Kotlin version
+        classpath 'com.android.tools.build:gradle:8.1.4'  // Update AGP to 8.1.1
     }
 }
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
 
 allprojects {
     repositories {

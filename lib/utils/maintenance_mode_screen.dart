@@ -1,6 +1,6 @@
 
 
-import 'package:allinone_app/main.dart';
+import 'package:ajhub_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:nb_utils/nb_utils.dart';
