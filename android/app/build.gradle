@@ -15,23 +15,23 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 if (flutterVersionCode == null) {
-    flutterVersionCode = "1"
+    flutterVersionCode = "3"
 }
 
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
 if (flutterVersionName == null) {
-    flutterVersionName = "1.0.0"
+    flutterVersionName = "1.0.2"
 }
 
 android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId "com.allinonemarketing.allinone_app"
+        applicationId "com.ajhubdesignapp.ajhub_app"
         minSdk = 23
-        targetSdk = 33 // Updated to match compileSdk
-        versionCode = 1
-        versionName "1.0.0"
+        targetSdk = 34 // Updated to match compileSdk
+        versionCode = 3
+        versionName "1.0.2"
     }
 
     compileOptions {

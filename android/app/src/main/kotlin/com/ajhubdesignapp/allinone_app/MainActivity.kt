@@ -1,4 +1,4 @@
-package com.allinonemarketing.allinone_app // Ensure this matches your actual package name
+package com.ajhubdesignapp.ajhub_app // Ensure this matches your actual package name
 
 import android.content.Intent
 import android.media.MediaScannerConnection // Add this import
@@ -10,7 +10,7 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.File
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.allinonemarketing.allinone_app/gallery"
+    private val CHANNEL = "com.ajhubdesignapp.ajhub_app/gallery"
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
