@@ -43,7 +43,7 @@ class SplashScreenState extends State<SplashScreen> with SingleTickerProviderSta
 
   void varToGo() async {
     var sharePref = await SharedPreferences.getInstance();
-    var isLoggedIn = sharePref.getBool(keyLogin);
+    var isLoggedIn = sharePref.getBool(SplashScreenState.keyLogin);
 
     await Future.delayed(const Duration(seconds: 2));
 

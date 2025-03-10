@@ -52,12 +52,7 @@ class HomeScreenState extends State<HomeScreen> {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
-
-
-
-
     fetchAllData();
-
   }
 
   @override
@@ -112,7 +107,6 @@ class HomeScreenState extends State<HomeScreen> {
               prefs.setString('active_business', json.encode(activeBusiness));
             });
           } else {
-            clearPreferences();
             selectedBusiness = null;
           }
         });
@@ -121,7 +115,6 @@ class HomeScreenState extends State<HomeScreen> {
           businessData = [];
           isLoading = false;
         });
-        await clearPreferences();
         selectedBusiness = null;
       } else {}
     } catch (e) {

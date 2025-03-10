@@ -92,85 +92,79 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
         children: [
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: ListView.builder(
                 itemCount: products.length,
                 itemBuilder: (context, index) {
                   final product = products[index];
                   final borderColor = borderColors[index % borderColors.length];
                   return InkWell(
-                    onTap: (){
+                    onTap: () {
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ProductDetailPage(product: product),
                         ),
                       );
-
                     },
                     child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 10),
+                      margin: const EdgeInsets.symmetric(vertical: 12),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        border: Border.all(
-                          color: borderColor,
-                          width: 1,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: borderColor.withOpacity(0.1),
-                            spreadRadius: 1,
-                            blurRadius: 2,
-                            offset: const Offset(0, 1),
+                            color: borderColor.withOpacity(0.15),
+                            spreadRadius: 2,
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(4.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
                               decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: Colors.grey.shade100,
+                                  color: Colors.grey.shade200,
                                   width: 1,
                                 ),
-                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(16),
                                 child: Image.network(
                                   product['thumb_image']!,
-                                  height: 100.h,
+                                  height: 180,
                                   width: double.infinity,
                                   fit: BoxFit.cover,
                                   loadingBuilder: (context, child, loadingProgress) {
                                     if (loadingProgress == null) {
                                       return child;
                                     }
-
-                                    return Shimmer.fromColors(
-                                      baseColor: Colors.grey.shade300,
-                                      highlightColor: Colors.grey.shade100,
-                                      child: Container(
-                                        height: 100.h,
-                                        width: double.infinity,
-                                        color: Colors.grey.shade300,
+                                    return Center(
+                                      child: CircularProgressIndicator(
+                                        value: loadingProgress.expectedTotalBytes != null
+                                            ? loadingProgress.cumulativeBytesLoaded /
+                                            (loadingProgress.expectedTotalBytes ?? 1)
+                                            : null,
                                       ),
                                     );
                                   },
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
                                       color: Colors.grey.shade200,
-                                      height: 100.h,
+                                      height: 180,
                                       width: double.infinity,
                                       child: const Center(
                                         child: Icon(
                                           Icons.broken_image,
                                           size: 40,
-                                          color: Colors.white,
+                                          color: Colors.grey,
                                         ),
                                       ),
                                     );
@@ -178,54 +172,65 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 8),
 
-                            Container(
-                              padding: const EdgeInsets.only(left: 6.0, right: 6.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      product['title']!,
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14.sp,
-                                        fontWeight: FontWeight.bold,
-                                        color: borderColor,
+
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                  child:Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+
+                                      Text(
+                                        product['title']!,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: borderColor,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        product['short_description']!,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.black54,
+                                        ),
+                                        maxLines: 3,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
-                                  IconButton(
-                                    onPressed: () {
-
-                                    },
-                                    icon: Icon(
-                                      Icons.arrow_right,
-                                      color: borderColor,
-                                      size: 20.sp,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            Container(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Text(
-                                product['short_description']!,
-                                style: GoogleFonts.poppins(
-                                  fontSize: 10.sp,
-                                  color: Colors.black54,
                                 ),
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+
+                                IconButton(
+                                  onPressed: () {
+
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ProductDetailPage(product: product),
+                                      ),
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: borderColor,
+                                    size: 20,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ),
-                  ) ;
+                  );
                 },
               ),
             ),
@@ -283,6 +288,5 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
     );
   }
 }
-
 
 

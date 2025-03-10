@@ -93,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 
       setState(() {
-        userId = userDetail['_id'];
+        userId = userDetail['userId'].toString();
         status = userDetail['status'].toString();
         totalDownline = userDetail['total_downline_count'] ?? '0';
         directDownline = userDetail['direct_team_count'] ?? '0';

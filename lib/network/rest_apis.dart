@@ -18,12 +18,12 @@ import 'package:nb_utils/nb_utils.dart';
 import 'package:http/http.dart' as http;
 
 
-
-Future<void> clearPreferences() async {
-  await appStore.setToken('');
-  await appStore.setLoggedIn(false);
-  // if (isAndroid) await OneSignal.shared.clearOneSignalNotifications();
-}
+//
+// Future<void> clearPreferences() async {
+//   await appStore.setToken('');
+//   await appStore.setLoggedIn(false);
+//   // if (isAndroid) await OneSignal.shared.clearOneSignalNotifications();
+// }
 
 
 

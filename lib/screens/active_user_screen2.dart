@@ -43,6 +43,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
   }
 
   Future<void> _submitPayment() async {
+
+
     if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please upload a payment screenshot!")),

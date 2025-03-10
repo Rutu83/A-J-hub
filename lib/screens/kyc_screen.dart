@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/utils/configs.dart';
+import 'package:ajhub_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -67,17 +69,36 @@ class KycScreenState extends State<KycScreen> {
           _accountNumberController.text = _kycData?['account_number']?.toString() ?? '';
           _ifscCodeController.text = _kycData?['ifsc_code'] ?? '';
           _bankNameController.text = _kycData?['bank_name'] ?? '';
+
           if (_kycData?['bank_proof'] != null) {
             _bankProofImageUrl = _kycData?['bank_proof'] as String?;
             if (_bankProofImageUrl != null && !_bankProofImageUrl!.startsWith("http")) {
               _bankProofImageUrl = "http://ajhub.co.in/storage/app/public/${_bankProofImageUrl!}";
-
-              if (kDebugMode) {
-                print(_bankProofImageUrl);
-              }
             }
           }
         });
+      } else if (response.statusCode == 422) {
+        // Handle validation errors (status code 422 for unprocessable entity)
+        final responseData = json.decode(response.body);
+        final errors = responseData['errors'];
+
+        // Check if the response contains errors for specific fields
+        String errorMessage = '';
+        if (errors != null) {
+          if (errors['aadhaar_card'] != null) {
+            errorMessage += 'Aadhaar Card: ${errors['aadhaar_card'].join(', ')}\n';
+          }
+          if (errors['pan_card'] != null) {
+            errorMessage += 'Pan Card: ${errors['pan_card'].join(', ')}\n';
+          }
+        }
+
+        // Show the error message
+        if (errorMessage.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Validation errors')));
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to retrieve KYC data')));
       }
@@ -114,7 +135,7 @@ class KycScreenState extends State<KycScreen> {
       return;
     }
 
-
+    // Check if bank proof image needs to be fetched
     if (_pickedBankProofImage == null && _bankProofImageUrl != null) {
       try {
         final response = await http.get(Uri.parse(_bankProofImageUrl!));
@@ -134,7 +155,7 @@ class KycScreenState extends State<KycScreen> {
       }
     }
 
-
+    // Check if there are any changes to be made
     final bool isDataModified =
         _aadhaarCardController.text != (_kycData?['aadhaar_card'] ?? '') ||
             _panCardController.text != (_kycData?['pan_card'] ?? '') ||
@@ -151,7 +172,7 @@ class KycScreenState extends State<KycScreen> {
       return;
     }
 
-
+    // Check if required fields are empty
     if (_aadhaarCardController.text.isEmpty ||
         _panCardController.text.isEmpty ||
         _accountHolderNameController.text.isEmpty ||
@@ -181,6 +202,7 @@ class KycScreenState extends State<KycScreen> {
         ..fields['ifsc_code'] = _ifscCodeController.text
         ..fields['bank_name'] = _bankNameController.text;
 
+      // Add bank proof image if available
       if (_pickedBankProofImage != null) {
         request.files.add(
           await http.MultipartFile.fromPath(
@@ -189,6 +211,7 @@ class KycScreenState extends State<KycScreen> {
           ),
         );
       }
+
       final response = await request.send();
       final responseBody = await response.stream.bytesToString();
 
@@ -212,6 +235,37 @@ class KycScreenState extends State<KycScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed: $errorMessage')),
           );
+        }
+      } else if (response.statusCode == 422) {
+        // Handle validation errors (status code 422 for unprocessable entity)
+        final responseData = json.decode(responseBody);
+        final errors = responseData['errors'];
+
+        // Build error message from errors
+        String errorMessage = '';
+        if (errors != null) {
+          if (errors['aadhaar_card'] != null) {
+            errorMessage += 'Aadhaar Card: ${errors['aadhaar_card'].join(', ')}\n';
+          }
+          if (errors['pan_card'] != null) {
+            errorMessage += 'Pan Card: ${errors['pan_card'].join(', ')}\n';
+          }
+          if (errors['account_number'] != null) {
+            errorMessage += 'Account Number: ${errors['account_number'].join(', ')}\n';
+          }
+          if (errors['ifsc_code'] != null) {
+            errorMessage += 'IFSC Code: ${errors['ifsc_code'].join(', ')}\n';
+          }
+          if (errors['bank_name'] != null) {
+            errorMessage += 'Bank Name: ${errors['bank_name'].join(', ')}\n';
+          }
+        }
+
+        // Show the validation error messages
+        if (errorMessage.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Validation errors')));
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -253,13 +307,18 @@ class KycScreenState extends State<KycScreen> {
       appBar: AppBar(
         title: Text(
           'KYC Verification',
-          style: TextStyle(color: Colors.white, fontSize: 20.sp),
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         backgroundColor: Colors.red.shade400,
         centerTitle: true,
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
+        elevation: 4,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.h),
@@ -375,51 +434,94 @@ class KycScreenState extends State<KycScreen> {
               child: ElevatedButton(
                 onPressed: _updateKycData,
                 style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all<Color>(Colors.red.shade400),
-                  padding: WidgetStateProperty.all<EdgeInsets>(const EdgeInsets.symmetric(vertical: 16, horizontal: 32)),
-                  minimumSize: WidgetStateProperty.all<Size>(const Size(500, 30)),
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red.shade400),
+                  padding: MaterialStateProperty.all<EdgeInsets>(
+                    const EdgeInsets.symmetric(vertical: 18, horizontal: 40),
+                  ),
+                  minimumSize: MaterialStateProperty.all<Size>(const Size(400, 60)),
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),  // More pronounced rounded corners
+                    ),
+                  ),
+                  elevation: MaterialStateProperty.all(5), // Adding elevation for shadow effect
                 ),
-                child: Text(
-                  _isLoading ? 'Updating KYC Data...' : 'Update KYC Data',
-                  style: TextStyle(color: Colors.white, fontSize: 18.sp),
+                child: _isLoading
+                    ? Shimmer.fromColors(
+                  baseColor: Colors.grey.shade500,
+                  highlightColor: Colors.white,
+                  child: Text(
+                    'Updating KYC Data...',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                )
+                    : Text(
+                  'Update KYC Data',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
+
     );
+
   }
 
-  Widget _buildTextField(TextEditingController controller, String label) {
-    return TextFormField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: const TextStyle(
+  Widget _buildTextField(TextEditingController controller, String label, {TextInputType inputType = TextInputType.text}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: inputType,  // Adjust input type (keyboard) based on the field
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.poppins(  // Using Poppins font for label
+            color: Colors.black,
+            fontSize: 16.0,
+            fontWeight: FontWeight.bold,  // Make the label bold
+          ),
+          hintStyle: GoogleFonts.poppins(  // Using Poppins font for hint text
+            color: Colors.black.withOpacity(0.6),
+            fontSize: 16.0,
+          ),
+          filled: true,  // Fill the background with color
+          fillColor: Colors.grey.shade100,  // Light grey background
+          contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 18.0),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),  // Rounded corners
+            borderSide: const BorderSide(
+              color: Colors.black,
+              width: 1.5,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),  // Rounded corners when focused
+            borderSide: const BorderSide(
+              color: Colors.red,  // Blue color for focused state
+              width: 2.0,
+            ),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),  // Rounded corners when enabled
+            borderSide: BorderSide(
+              color: Colors.black.withOpacity(0.6),  // Slightly faded color when not focused
+              width: 1.5,
+            ),
+          ),
+        ),
+        style: GoogleFonts.poppins(  // Using Poppins font for the input text
           color: Colors.black,
           fontSize: 16.0,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(
-            color: Colors.black,
-            width: 1.5,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: const BorderSide(
-            color: Colors.black,
-            width: 2.0,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(
-            color: Colors.black.withOpacity(0.6),
-            width: 1.5,
-          ),
         ),
       ),
     );

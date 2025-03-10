@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:ajhub_app/main.dart';
-import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:ajhub_app/screens/category_selection_screen.dart';
 import 'package:ajhub_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
@@ -217,7 +216,7 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
 
           } else {
 
-            clearPreferences();
+         //   clearPreferences();
             selectedBusiness = null;
 
           }
@@ -229,7 +228,7 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
         });
 
 
-        await clearPreferences();
+       // await clearPreferences();
         selectedBusiness = null;
 
       } else {

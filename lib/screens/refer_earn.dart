@@ -50,18 +50,28 @@ class _ReferEarnState extends State<ReferEarn> {
         print("Fetched user details: $userDetail");
       }
 
-      referralCode = userDetail['referral_code'] ?? 'Unavailable';
+      // Set status and referral code based on user data
+      String status = userDetail['status'] ?? '';  // Default to empty string if status is null
+      referralCode = userDetail['referral_code'] ?? 'Unavailable';  // Set referral code
+
+      // Check if the status is active
+      if (status == 'active') {
+        // Only show referral code if status is active
+        setState(() {
+          isMembershipActive = true;   // Set to true if status is active
+        });
+      } else {
+        // If status is inactive, set membership to inactive
+        setState(() {
+          isMembershipActive = false;  // Set to false if status is inactive
+        });
+      }
+
       if (kDebugMode) {
         print("Referral Code: $referralCode");
       }
 
-      // Check if the referral code is valid or not and set isMembershipActive accordingly
       setState(() {
-        if (referralCode.isEmpty || referralCode == 'Unavailable') {
-          isMembershipActive = false;  // Set to false if referral code is invalid
-        } else {
-          isMembershipActive = true;   // Set to true if referral code is valid
-        }
         _isLoading = false;
       });
 
@@ -75,6 +85,7 @@ class _ReferEarnState extends State<ReferEarn> {
       });
     }
   }
+
 
 
 

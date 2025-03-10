@@ -43,6 +43,7 @@ localeLanguageList = languageList();
     await appStore.setToken(getStringAsync(TOKEN), isInitializing: true);
     await appStore.setName(getStringAsync(NAME), isInitializing: true);
     await appStore.setEmail(getStringAsync(EMAIL), isInitializing: true);
+    await appStore.setStatus(getStringAsync(STATUS), isInitializing: true);
   }
 
   runApp(const MyApp());
@@ -52,6 +53,8 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
+
+
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       builder: (context, child) {

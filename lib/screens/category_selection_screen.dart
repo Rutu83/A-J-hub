@@ -27,7 +27,6 @@ class  CategorySelectionScreenState extends State<CategorySelectionScreen> {
   Future<void> fetchCategories() async {
     const String url = '${BASE_URL}business-categories';
     String token = appStore.token;
-    print(token.length);
     try {
       final response = await http.get(
         Uri.parse(url),
