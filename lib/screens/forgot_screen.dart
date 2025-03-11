@@ -46,7 +46,7 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         String successMessage = messageResponse['message'] ?? "Password reset link sent to your email.";
 
         showDialog(
-          context: context,
+              context: context,
           builder: (context) {
             return AlertDialog(
               title: Text("Success", style: GoogleFonts.poppins()),

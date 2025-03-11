@@ -5,23 +5,22 @@ import 'package:ajhub_app/screens/dashbord_screen.dart';
 import 'package:ajhub_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-
-
-
 
 class ActivateMembershipPage extends StatefulWidget {
   const ActivateMembershipPage({super.key});
 
   @override
-   ActivateMembershipPageState createState() =>  ActivateMembershipPageState();
+  ActivateMembershipPageState createState() =>  ActivateMembershipPageState();
 }
 
 class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
 
-
+  String accountNumber = '4111500508010101';
+  String ifscCode = 'TMBL0000411';
   XFile? _selectedImage;
   bool _isSubmitting = false;
   final ImagePicker _picker = ImagePicker();
@@ -268,7 +267,7 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                           const Icon(Icons.credit_card, color: Colors.grey, size: 24),
                           const SizedBox(width: 10),
                           Text(
-                            'Account No: 4111500508010101',
+                            'Account No: $accountNumber',
                             style: GoogleFonts.poppins(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
@@ -281,7 +280,16 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                         tooltip: 'Copy Account Number',
                         icon: const Icon(Icons.copy, color: Colors.red, size: 20),
                         onPressed: () {
-                          // Copy to clipboard functionality
+                          Clipboard.setData(ClipboardData(text: accountNumber)).then((_) {
+                            // Show a small SnackBar or toast-like message
+                            // ScaffoldMessenger.of(context).showSnackBar(
+                            //   SnackBar(
+                            //     content: Text('Account Number Copied!'),
+                            //     duration: Duration(seconds: 2),  // Short duration
+                            //     behavior: SnackBarBehavior.floating,  // Floating style
+                            //   ),
+                            // );
+                          });
                         },
                       ),
                     ],
@@ -295,7 +303,7 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                           const Icon(Icons.info_outline, color: Colors.grey, size: 24),
                           const SizedBox(width: 10),
                           Text(
-                            'IFSC Code: TMBL0000411',
+                            'IFSC Code: $ifscCode',
                             style: GoogleFonts.poppins(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
@@ -308,7 +316,13 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                         tooltip: 'Copy IFSC Code',
                         icon: const Icon(Icons.copy, color: Colors.red, size: 20),
                         onPressed: () {
-                          // Copy to clipboard functionality
+                          // Copy the IFSC code to the clipboard
+                          Clipboard.setData(ClipboardData(text: ifscCode)).then((_) {
+                            // Show a snackbar or any other indicator for feedback
+                            // ScaffoldMessenger.of(context).showSnackBar(
+                            //   SnackBar(content: Text('IFSC Code Copied!')),
+                            // );
+                          });
                         },
                       ),
                     ],

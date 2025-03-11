@@ -308,24 +308,24 @@ class KycScreenState extends State<KycScreen> {
         title: Text(
           'KYC Verification',
           style: GoogleFonts.poppins(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
+            color: Colors.white,  // Title color is white for contrast
+            fontSize: 20,  // Set font size to 20
+            fontWeight: FontWeight.w600,  // Semi-bold font weight for a clean, professional look
           ),
         ),
-        backgroundColor: Colors.red.shade400,
-        centerTitle: true,
+        backgroundColor: Colors.red,  // Red background for a vibrant, classic look
+        centerTitle: true,  // Center the title in the AppBar
         iconTheme: const IconThemeData(
-          color: Colors.white,
+          color: Colors.white,  // Icons in the AppBar will be white to match the title
         ),
-        elevation: 4,
+        elevation: 4,  // Slight shadow under the AppBar to give it depth
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.h),
         child: Column(
           children: [
 
-              SizedBox(height: 16.h),
+              SizedBox(height: 12.h),
               _buildTextField(_aadhaarCardController, 'Aadhaar Card'),
               SizedBox(height: 16.h),
               _buildTextField(_panCardController, 'PAN Card'),

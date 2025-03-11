@@ -19,7 +19,6 @@ class ReferEarn extends StatefulWidget {
 class _ReferEarnState extends State<ReferEarn> {
   bool _isLoading = true;
   String referralCode = "Loading...";
-  String file = ' ';
   bool isMembershipActive = false;
 
 
@@ -31,7 +30,7 @@ class _ReferEarnState extends State<ReferEarn> {
       statusBarIconBrightness: Brightness.light,
       statusBarBrightness: Brightness.dark,
     ));
-    file = 'assets/images/refer_earn.png';
+
     fetchUserData();
   }
 
@@ -147,17 +146,20 @@ Start Promoting today and maximize your income! 💰
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         title: Text(
           'Refer & Earn',
           style: GoogleFonts.poppins(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
+            fontSize: 22, // Adjusted font size
+            fontWeight: FontWeight.w700, // Bold weight for a more prominent title
+            color: Colors.red, // Title text color
+            letterSpacing: 1.2, // Optional: Adds spacing between letters
+            fontStyle: FontStyle.normal, // Optional: Use 'italic' for italicized text
           ),
         ),
-        backgroundColor: Colors.red,
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Colors.white, // White background for the AppBar
+        centerTitle: true, // Center the title
+        iconTheme: const IconThemeData(color: Colors.red), // Set icon color to red
       ),
       body: _isLoading
           ? const Center(
@@ -169,9 +171,8 @@ Start Promoting today and maximize your income! 💰
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildImage(file),
+            _buildImage('assets/images/refer_earn.png'),
             _buildCopyField(),
-            const SizedBox(height: 5),
             _buildButtonRow(),
           ],
         ),
@@ -201,21 +202,28 @@ Start Promoting today and maximize your income! 💰
       ),
     );
   }
-
   Widget _buildCopyField() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
       child: DottedBorder(
         borderType: BorderType.RRect,
-        radius: const Radius.circular(12),
-        dashPattern: const [8, 4],
-        color: Colors.red,
-        strokeWidth: 2,
+        radius: const Radius.circular(10),
+        dashPattern: const [6, 3],
+        color: Colors.red,  // Classic red dotted border
+        strokeWidth: 1.5,  // Slightly thinner border for a more delicate look
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            color: Colors.red.shade50,
+            color: Colors.white,  // White background for contrast and a clean look
+            borderRadius: BorderRadius.circular(12),  // Smooth rounded corners
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                blurRadius: 6,
+                spreadRadius: 1,
+                offset: Offset(0, 4),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -223,9 +231,10 @@ Start Promoting today and maximize your income! 💰
                 child: Text(
                   'Your Referral Code: $referralCode',
                   style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.red.shade900,
+                    fontSize: 16.sp,  // Responsive font size
+                    fontWeight: FontWeight.w600,  // Bold but not too heavy
+                    color: Colors.black,  // Black text for elegance and readability
+                    fontFamily: 'Poppins',  // A modern, elegant font (optional)
                   ),
                 ),
               ),
@@ -238,13 +247,13 @@ Start Promoting today and maximize your income! 💰
                           'Referral code copied to clipboard!',
                           style: TextStyle(fontSize: 14.sp),
                         ),
-                        backgroundColor: Colors.green.shade700,
+                        backgroundColor: Colors.green.shade700,  // Green feedback message
                         duration: const Duration(seconds: 2),
                       ),
                     );
                   });
                 },
-                icon: const Icon(Icons.copy, color: Colors.red),
+                icon: const Icon(Icons.copy, color: Colors.red),  // Classic red copy icon
                 tooltip: 'Copy Referral Code',
               ),
             ],
@@ -253,12 +262,12 @@ Start Promoting today and maximize your income! 💰
       ),
     );
   }
-
   Widget _buildButtonRow() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       child: Row(
         children: [
+          // Refer Now Button
           Expanded(
             child: ElevatedButton(
               onPressed: () {
@@ -279,7 +288,7 @@ Start Promoting today and maximize your income! 💰
               ),
               child: Text(
                 'Refer Now',
-                style: TextStyle(
+                style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 18.sp,
                   fontWeight: FontWeight.bold,
@@ -288,30 +297,34 @@ Start Promoting today and maximize your income! 💰
             ),
           ),
           const SizedBox(width: 8),
+          // WhatsApp Button
           ElevatedButton(
             onPressed: () {
               if (!isMembershipActive) {
                 _showReferralDialog();
-              }else{
+              } else {
                 _shareOnWhatsApp(referralCode);
               }
-
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               padding: const EdgeInsets.all(12.0),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: Colors.grey.withOpacity(0.4),  // Applying opacity to grey border
+                  width: 1.5,  // Width of the border
+                ),
               ),
               elevation: 3,
               shadowColor: Colors.grey.withOpacity(0.2),
             ),
             child: Image.asset(
-              'assets/images/whatsapp2.png',
+              'assets/icons/whatsapp.png', // Add your WhatsApp icon here
               width: 36,
               height: 36,
             ),
-          ),
+          )
         ],
       ),
     );
