@@ -1,4 +1,7 @@
 // ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names, use_build_context_synchronously
+import 'dart:async';
+import 'dart:io';
+
 import 'package:ajhub_app/arth_screens/login_screen.dart';
 import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/model/business_mode.dart';
@@ -26,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -53,6 +57,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<List<BusinessModal>>? futureBusiness;
   BusinessModal? businessData;
 
+  bool hasError = false;
+  String errorMessage = "";
 
   @override
   void initState() {
@@ -82,29 +88,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   }
 
+
+
   void fetchUserData() async {
     try {
       setState(() {
         _isLoading = true;
+        hasError = false;
+        errorMessage = "";
       });
 
       Map<String, dynamic> userDetail = await getUserDetail();
 
-
-
       setState(() {
-        userId = userDetail['userId'].toString();
-        status = userDetail['status'].toString();
-        totalDownline = userDetail['total_downline_count'] ?? '0';
-        directDownline = userDetail['direct_team_count'] ?? '0';
-        String incomeString = userDetail['total_income'] ?? '0';
-         totalIncome = (double.tryParse(incomeString) ?? 0.0).toInt();
-         int  GreenWallet1 = (totalIncome * 0.10).toInt();
-        GreenWallet =totalIncome - GreenWallet1;
+        userId = userDetail['userId']?.toString() ?? "N/A";
+        status = userDetail['status']?.toString() ?? "Unknown";
+        totalDownline = userDetail['total_downline_count']?.toString() ?? '0';
+        directDownline = userDetail['direct_team_count']?.toString() ?? '0';
+        String incomeString = userDetail['total_income']?.toString() ?? '0';
+        totalIncome = (double.tryParse(incomeString) ?? 0.0).toInt();
+
+        int greenWallet1 = (totalIncome * 0.10).toInt();
+        GreenWallet = totalIncome - greenWallet1;
         TDSIncome = (totalIncome * 0.10).toInt();
-        //   TDSIncome = GreenWallet - TDSIncome1;
 
         _isLoading = false;
+      });
+    } on SocketException {
+      setState(() {
+        _isLoading = false;
+        hasError = true;
+        errorMessage = "No internet connection. Please check your network.";
+      });
+    } on TimeoutException {
+      setState(() {
+        _isLoading = false;
+        hasError = true;
+        errorMessage = "Network timeout. Please try again.";
+      });
+    } on HttpException {
+      setState(() {
+        _isLoading = false;
+        hasError = true;
+        errorMessage = "Couldn't connect to the server. Try again later.";
       });
     } catch (e) {
       if (kDebugMode) {
@@ -112,6 +138,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
       setState(() {
         _isLoading = false;
+        hasError = true;
+        errorMessage = "An unexpected error occurred: $e";
       });
     }
   }
@@ -120,6 +148,95 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (hasError) {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20), // Add padding to the sides
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Network Error Animation with border
+                AnimatedOpacity(
+                  opacity: hasError ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: SizedBox(
+                    width: 300, // Adjust the width for better responsiveness
+                    height: 300, // Adjust the height for better responsiveness
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(
+                    //     color: Colors.red, // Border color
+                    //     width: 3, // Border width
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(12), // Rounded corners
+                    // ),
+                    child: Lottie.asset(
+                      'assets/animation/no_internet_2_lottie.json',
+                      width: 350,
+                      height: 350,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 30), // Increase spacing
+
+                // Title Text
+                const Text(
+                  'Oops! Something went wrong.',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87, // Slightly darkened text for better contrast
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Subtitle Text
+                const Text(
+                  'Please check your connection and try again.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center, // Center align the text
+                ),
+
+                const SizedBox(height: 30), // Increased space between text and button
+
+                // Retry Button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      hasError = false;
+                      _isLoading = true;
+                    });
+                    fetchUserData();
+                  },
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  label: const Text("Retry", style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    textStyle: const TextStyle(
+                      fontSize: 18, // Slightly larger font size for better readability
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

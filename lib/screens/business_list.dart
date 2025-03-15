@@ -133,7 +133,7 @@ class BusinessListState extends State<BusinessList> {
                 Navigator.pop(context);
                 _deleteBusinessProfile(businessId);
               },
-              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+              child:  const Text('Delete', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -496,13 +496,9 @@ class BusinessCard extends StatelessWidget {
   Widget _buildBusinessNameRow(String businessName) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Available width for the business name, excluding the space for the icon and padding
-        final availableWidth = constraints.maxWidth - 40; // Adjust based on padding and other UI elements
-
-        // Calculate the maximum number of characters that can fit in the available space
+        final availableWidth = constraints.maxWidth - 40;
         int maxChars = _calculateMaxCharsToFit(businessName, availableWidth);
 
-        // If the name is longer than the max allowed characters, truncate it and add '...'
         String displayedName = businessName.length > maxChars
             ? '${businessName.substring(0, maxChars)}...'
             : businessName;
@@ -539,21 +535,19 @@ class BusinessCard extends StatelessWidget {
   }
 
   double _calculateFontSize(String text, double availableWidth) {
-    // Calculate font size dynamically based on available width and text length
-    double fontSize = availableWidth / (text.length * 0.6); // 0.6 is a multiplier to approximate character width
-    return fontSize.clamp(10.0, 15.0); // Ensure font size is within a reasonable range
+    double fontSize = availableWidth / (text.length * 0.6);
+    return fontSize.clamp(10.0, 15.0);
   }
 
   int _calculateMaxCharsToFit(String businessName, double availableWidth) {
-    // Estimate the width of each character based on font size
-    double fontSize = _calculateFontSize(businessName, availableWidth); // Dynamically calculate font size
-    double charWidth = fontSize * 0.6; // Approximate width of a character (can vary depending on font)
 
-    // Calculate how many characters can fit within the available width
+    double fontSize = _calculateFontSize(businessName, availableWidth);
+    double charWidth = fontSize * 0.6;
+
+
     int maxChars = (availableWidth / charWidth).floor();
 
-    // Limit max characters to avoid very long text even if the space is big
-    return maxChars > 25 ? 25 : maxChars; // Set a reasonable max limit for characters
+      return maxChars > 25 ? 25 : maxChars;
   }
 
 
@@ -574,7 +568,7 @@ class BusinessCard extends StatelessWidget {
     );
   }
 
-  // Method to show full business name in a dialog
+
   void _showFullBusinessName(BuildContext context, String businessName) {
     showDialog(
       context: context,

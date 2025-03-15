@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:ajhub_app/utils/configs.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
@@ -30,44 +31,43 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
 
     try {
+
+      if (kDebugMode) {
+        print('${BASE_URL}forgot-password');
+      }
+      if (kDebugMode) {
+        print(email);
+      }
+
       final response = await http.post(
-        Uri.parse('${BASE_URL}forget-password'),
-        body: {
-          'email': email,
-        },
+        Uri.parse('${BASE_URL}forgot-password'),
+        body: {'email': email},
       );
+
+      if (kDebugMode) {
+        print("Response Status Code: ${response.statusCode}");
+      }
+      if (kDebugMode) {
+        print("Response Body: ${response.body}");
+      }
 
       if (response.statusCode == 200) {
         setState(() {
           emailController.clear();
-          // phoneController.clear();
         });
+
         final Map<String, dynamic> messageResponse = jsonDecode(response.body);
-        String successMessage = messageResponse['message'] ?? "Password reset link sent to your email.";
+        String successMessage = messageResponse['message'] ?? "Password reset link sent successfully.";
 
-        showDialog(
-              context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: Text("Success", style: GoogleFonts.poppins()),
-              content: Text(successMessage, style: GoogleFonts.poppins()),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("OK", style: GoogleFonts.poppins()),
-                ),
-              ],
-            );
-          },
-        );
+        showSnackBar(successMessage, Colors.green);
       } else {
-        final Map<String, dynamic> errorResponse = jsonDecode(response.body);
-        String errorMessage = errorResponse['error'] ?? "An unknown error occurred.";
-
-        showErrorDialog(errorMessage);
+        handleErrorResponse(response);
       }
     } catch (e) {
-      showErrorDialog("An error occurred: $e");
+      if (kDebugMode) {
+        print("Error: $e");
+      }
+      showSnackBar("A network error occurred: $e", Colors.red);
     } finally {
       setState(() {
         isLoading = false;
@@ -75,24 +75,41 @@ class  ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     }
   }
 
-  void showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Error", style: GoogleFonts.poppins()),
-          content: Text(message, style: GoogleFonts.poppins()),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("OK", style: GoogleFonts.poppins()),
-            ),
-          ],
-        );
-      },
-    );
+// ✅ Function to handle API errors
+  void handleErrorResponse(http.Response response) {
+    try {
+      final Map<String, dynamic> errorResponse = jsonDecode(response.body);
+      String errorMessage = errorResponse['error'] ?? "An unknown error occurred.";
+
+      if (response.statusCode == 404) {
+        errorMessage = "Endpoint not found! Check the API URL.";
+      } else if (response.statusCode == 500) {
+        errorMessage = "Server error! Please try again later.";
+      } else if (response.statusCode == 400) {
+        errorMessage = "Invalid request. Please check the input.";
+      }
+
+      showSnackBar(errorMessage, Colors.red);
+    } catch (e) {
+      showSnackBar("Unexpected error occurred. Please try again.", Colors.red);
+    }
   }
 
+// ✅ Function to show Snackbar
+  void showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
+        ),
+        backgroundColor: color,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

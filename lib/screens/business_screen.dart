@@ -1,5 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
+import 'dart:async';
+import 'dart:io';
 import 'package:ajhub_app/model/business_mode.dart';
 import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +21,10 @@ class BusinessScreen extends StatefulWidget {
 }
 class _BusinessScreenState extends State<BusinessScreen> {
   Future<List<BusinessModal>>? futureBusiness;
+  String referralCode = "Loading...";
+  bool isMembershipActive = false;
+  bool hasError = false;
+  String errorMessage = '';
   BusinessModal? businessData;
   List<bool> isExpanded = List.generate(rewards.length, (_) => false);
   @override
@@ -32,17 +38,55 @@ class _BusinessScreenState extends State<BusinessScreen> {
 
   Future<List<BusinessModal>> fetchBusinessData() async {
     try {
+      setState(() {
+        hasError = false;
+        errorMessage = "";
+      });
+
       final data = await getBusinessData(businessmodal: []);
+
       if (data.isNotEmpty) {
-        businessData = data.first; // Store the first item
+        setState(() {
+          businessData = data.first; // Store the first item
+        });
+
         if (kDebugMode) {
-
+          print("Business data fetched successfully.");
         }
-
       }
+
+      setState(() {
+      });
+
       return data;
+    } on SocketException catch (_) {
+      setState(() {
+        hasError = true;
+        errorMessage = "No internet connection. Please check your network.";
+      });
+      return []; // Return an empty list on failure
+    } on HttpException catch (_) {
+      setState(() {
+        hasError = true;
+        errorMessage = "Couldn't connect to the server. Try again later.";
+      });
+      return [];
+    } on TimeoutException catch (_) {
+      setState(() {
+        hasError = true;
+        errorMessage = "Network timeout. Please try again.";
+      });
+      return [];
     } catch (e) {
-      throw Exception('Failed to load business data: $e');
+      setState(() {
+        hasError = true;
+        errorMessage = "An unexpected error occurred: $e";
+      });
+
+      if (kDebugMode) {
+        print("Error fetching business data: $e");
+      }
+      return [];
     }
   }
 
@@ -77,6 +121,93 @@ class _BusinessScreenState extends State<BusinessScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (hasError) {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20), // Add padding to the sides
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Network Error Animation with border
+                AnimatedOpacity(
+                  opacity: hasError ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: SizedBox(
+                    width: 300, // Adjust the width for better responsiveness
+                    height: 300, // Adjust the height for better responsiveness
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(
+                    //     color: Colors.red, // Border color
+                    //     width: 3, // Border width
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(12), // Rounded corners
+                    // ),
+                    child: Lottie.asset(
+                      'assets/animation/no_internet_2_lottie.json',
+                      width: 350,
+                      height: 350,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 30), // Increase spacing
+
+                // Title Text
+                const Text(
+                  'Oops! Something went wrong.',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87, // Slightly darkened text for better contrast
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Subtitle Text
+                const Text(
+                  'Please check your connection and try again.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center, // Center align the text
+                ),
+
+                const SizedBox(height: 30), // Increased space between text and button
+
+                // Retry Button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      hasError = false;
+                    });
+                    futureBusiness = fetchBusinessData();
+                  },
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  label: const Text("Retry", style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    textStyle: const TextStyle(
+                      fontSize: 18, // Slightly larger font size for better readability
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,

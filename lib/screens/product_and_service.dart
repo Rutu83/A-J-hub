@@ -4,6 +4,7 @@ import 'package:ajhub_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:lottie/lottie.dart';
 
 class OurProductAndService extends StatefulWidget {
   const OurProductAndService({super.key});
@@ -13,7 +14,7 @@ class OurProductAndService extends StatefulWidget {
 }
 
 class _OurProductAndServiceState extends State<OurProductAndService> {
-  List<Map<String, dynamic>> products = [];
+
 
   final List<Color> borderColors = [
     Colors.red,
@@ -28,17 +29,23 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
 
 
 
+  List<dynamic> products = [];
+  bool hasError = false;
+  String errorMessage = "";
+
   @override
   void initState() {
     super.initState();
     fetchData(
           (newProducts) {
         setState(() {
+          hasError = false;
           products = newProducts;
         });
       },
           (errorMessage) {
         setState(() {
+          hasError = true;
           data = errorMessage;
         });
       },
@@ -49,6 +56,105 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (hasError) {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20), // Add padding to the sides
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Network Error Animation with border
+                AnimatedOpacity(
+                  opacity: hasError ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: SizedBox(
+                    width: 300, // Adjust the width for better responsiveness
+                    height: 300, // Adjust the height for better responsiveness
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(
+                    //     color: Colors.red, // Border color
+                    //     width: 3, // Border width
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(12), // Rounded corners
+                    // ),
+                    child: Lottie.asset(
+                      'assets/animation/no_internet_2_lottie.json',
+                      width: 350,
+                      height: 350,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 30), // Increase spacing
+
+                // Title Text
+                const Text(
+                  'Oops! Something went wrong.',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87, // Slightly darkened text for better contrast
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Subtitle Text
+                const Text(
+                  'Please check your connection and try again.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center, // Center align the text
+                ),
+
+                const SizedBox(height: 30), // Increased space between text and button
+
+                // Retry Button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      hasError = false;
+                    });
+                    fetchData(
+                          (newProducts) {
+                        setState(() {
+                          hasError = false;
+                          products = newProducts;
+                        });
+                      },
+                          (errorMessage) {
+                        setState(() {
+                          hasError = true;
+                          data = errorMessage;
+                        });
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  label: const Text("Retry", style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    textStyle: const TextStyle(
+                      fontSize: 18, // Slightly larger font size for better readability
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: Text(

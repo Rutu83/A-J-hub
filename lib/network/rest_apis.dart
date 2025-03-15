@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/model/business_mode.dart';
 import 'package:ajhub_app/model/categories_mode.dart';
@@ -268,23 +269,34 @@ Future<List<TransactionResponse>> getTransactionData({required List<TransactionR
 
 
 
-Future<void> fetchData(Function(List<Map<String, dynamic>>) updateProducts, Function(String) updateData) async {
+
+Future<void> fetchData(
+    Function(List<Map<String, dynamic>>) updateProducts,
+    Function(String) updateData) async {
+
   const String url = "${BASE_URL}inquiries/active";
   String token = appStore.token;
+
   try {
     final response = await http.get(
       Uri.parse(url),
       headers: {"Authorization": "Bearer $token"},
-    );
+    ).timeout(const Duration(seconds: 10)); // Added timeout condition
+
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-
       updateProducts(List<Map<String, dynamic>>.from(jsonData));
     } else {
-
       updateData("Failed to fetch data. Status code: ${response.statusCode}");
     }
+  } on SocketException {
+    updateData("No internet connection. Please check your network.");
+  } on HttpException {
+    updateData("Couldn't connect to the server. Try again later.");
+  } on TimeoutException {
+    updateData("Network timeout. Please try again.");
   } catch (e) {
-    updateData("An error occurred: $e");
+    updateData("An unexpected error occurred: $e");
   }
 }
+

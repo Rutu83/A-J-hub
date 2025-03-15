@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:ajhub_app/screens/active_user_screen2.dart';
 import 'package:ajhub_app/screens/product_and_service.dart';
@@ -8,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ajhub_app/screens/business_screen.dart';
 import 'package:ajhub_app/screens/home_screen.dart';
 import 'package:ajhub_app/screens/profile_screen.dart';
+import 'package:lottie/lottie.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -19,7 +23,10 @@ class DashboardScreen extends StatefulWidget {
 class DashboardScreenState extends State<DashboardScreen> {
   final PageController _pageController = PageController();
   int _selectedIndex = 0;
-
+  String referralCode = "Loading...";
+  bool isMembershipActive = false;
+  bool hasError = false;
+  String errorMessage = '';
 
 
 
@@ -30,35 +37,63 @@ class DashboardScreenState extends State<DashboardScreen> {
 
     fetchUserData();
 
-   }
+  }
 
 
   void fetchUserData() async {
     try {
+      setState(() {
+        hasError = false;
+        errorMessage = "";
+      });
+
       Map<String, dynamic> userDetail = await getUserDetail();
+
       if (kDebugMode) {
         print('...........................................................');
         print("$userDetail?????????????????/");
       }
 
-      // Check if the status is 'active' or 'inactive'
-      String status = userDetail['status'] ?? ''; // Get status from the response
+      // Extract status from user details
+      String status = userDetail['status'] ?? '';
+
       if (status == 'inactive') {
-        // If status is 'inactive', show the activation dialog
+        // If user status is 'inactive', show activation dialog
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _showActivationDialog();
         });
       } else {
-        // If status is 'active', print the status
         if (kDebugMode) {
           print('////////////////////////////////$status');
         }
       }
 
-      // Store user details as variables
+      // You can store other user details here if needed...
 
+      setState(() {
+      });
 
+    } on SocketException catch (_) {
+      setState(() {
+        hasError = true;
+        errorMessage = "No internet connection. Please check your network.";
+      });
+    } on HttpException catch (_) {
+      setState(() {
+        hasError = true;
+        errorMessage = "Couldn't connect to the server. Try again later.";
+      });
+    } on TimeoutException catch (_) {
+      setState(() {
+        hasError = true;
+        errorMessage = "Network timeout. Please try again.";
+      });
     } catch (e) {
+      setState(() {
+        hasError = true;
+        errorMessage = "An unexpected error occurred: $e";
+      });
+
       if (kDebugMode) {
         print("Error fetching user data: $e");
       }
@@ -67,6 +102,94 @@ class DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (hasError) {
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20), // Add padding to the sides
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Network Error Animation with border
+                AnimatedOpacity(
+                  opacity: hasError ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 300),
+                  child: SizedBox(
+                    width: 300, // Adjust the width for better responsiveness
+                    height: 300, // Adjust the height for better responsiveness
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(
+                    //     color: Colors.red, // Border color
+                    //     width: 3, // Border width
+                    //   ),
+                    //   borderRadius: BorderRadius.circular(12), // Rounded corners
+                    // ),
+                    child: Lottie.asset(
+                      'assets/animation/no_internet_2_lottie.json',
+                      width: 350,
+                      height: 350,
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 30), // Increase spacing
+
+                // Title Text
+                const Text(
+                  'Oops! Something went wrong.',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87, // Slightly darkened text for better contrast
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                // Subtitle Text
+                const Text(
+                  'Please check your connection and try again.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center, // Center align the text
+                ),
+
+                const SizedBox(height: 30), // Increased space between text and button
+
+                // Retry Button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      hasError = false;
+                    });
+                    fetchUserData();
+                  },
+                  icon: const Icon(Icons.refresh, color: Colors.white),
+                  label: const Text("Retry", style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    textStyle: const TextStyle(
+                      fontSize: 18, // Slightly larger font size for better readability
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+
     return SafeArea(
       child: Scaffold(
         body: PageView(
@@ -79,7 +202,7 @@ class DashboardScreenState extends State<DashboardScreen> {
           children:  const [
             HomeScreen(),
             ReferEarn(),
-           // CustomerScreen(),
+            // CustomerScreen(),
             OurProductAndService(),
             ProfileScreen(),
           ],
@@ -99,7 +222,7 @@ class DashboardScreenState extends State<DashboardScreen> {
                 // BusinessScreen(),
                 GestureDetector(
                   onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>const BusinessScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const BusinessScreen()));
                   },
                   child: Container(
                     height: 70.h,
