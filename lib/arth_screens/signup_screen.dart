@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:ajhub_app/arth_screens/login_screen.dart';
 import 'package:ajhub_app/utils/configs.dart';
+import 'package:ajhub_app/utils/shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -318,6 +319,7 @@ class SignUpScreenState extends State<SignUpScreen> {
     final phoneRegExp = RegExp(r'^\+?\d{10,15}$');
     return phoneRegExp.hasMatch(phoneNumber);
   }
+
   void fetchCountries() async {
     setState(() {
       _isLoadingCountries = true;
@@ -505,11 +507,7 @@ class SignUpScreenState extends State<SignUpScreen> {
               child: Column(
                 children: [
                   SizedBox(height: 20.h),
-                  Image.asset(
-                    'assets/images/app_logo2.png',
-                    height: 120.h,
-                    width: 120.h,
-                  ),
+                  _buildAppLogo(),
                   SizedBox(height: 10.h),
                   _buildTextField('First Name', 'Enter First Name', true, _firstNameController),
                   SizedBox(height: 10.h),
@@ -523,13 +521,11 @@ class SignUpScreenState extends State<SignUpScreen> {
                   SizedBox(height: 10.h),
                   _buildTextField('Age', 'Enter Your Age', true, _ageController),
                   SizedBox(height: 10.h),
-                  if (_isLoadingCountries) const CircularProgressIndicator(),
                   _buildCountryField(),
                   SizedBox(height: 10.h),
-                  if (_isLoadingStates) const CircularProgressIndicator(),
                   _buildStateField(),
                   SizedBox(height: 10.h),
-                  if (_isLoadingCities) const CircularProgressIndicator(),
+
                   _buildCityField(),
                   SizedBox(height: 10.h),
                   _buildPasswordField(),
@@ -590,6 +586,18 @@ class SignUpScreenState extends State<SignUpScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAppLogo() {
+    return Padding(
+      padding: EdgeInsets.all(16.0), // Add padding around the image
+      child: Image.asset(
+        'assets/images/app_logo2.png',
+        height: 120.h,
+        width: 120.h,
+        fit: BoxFit.cover, // Ensure the image fills the space without distortion
       ),
     );
   }
@@ -822,8 +830,7 @@ class SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller,
-      {bool isMultiline = false, bool enabled = true, TextInputType keyboardType = TextInputType.text}) {
+Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller, {bool isMultiline = false, bool enabled = true, TextInputType keyboardType = TextInputType.text}) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
@@ -921,7 +928,9 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-            color: isLocationError && selectedCountry == null ? Colors.red.shade900 : Colors.grey.shade400,
+            color: isLocationError && selectedCountry == null
+                ? Colors.red.shade900
+                : Colors.grey.shade400,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(10.r),
@@ -929,7 +938,26 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            // If loading countries, show shimmer for both the container and text
+            _isLoadingCountries
+                ? Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Container(
+                width: 150.w, // Adjust width as needed
+                height: 12.h,
+                color: Colors.white,
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                child: Text(
+                  'Loading...',
+                  style: GoogleFonts.roboto(
+                    textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
+                  ),
+                ),
+              ),
+            )
+                : Text(
               selectedCountry != null
                   ? countries.firstWhere((c) => c['id'].toString() == selectedCountry)['name']
                   : 'Select Country',
@@ -944,7 +972,6 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
     );
   }
 
-
   Widget _buildStateField() {
     return GestureDetector(
       onTap: () => _showStateSelectionSheet(),
@@ -955,7 +982,9 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-            color: isLocationError && selectedState == null ? Colors.red.shade900  : Colors.grey.shade400,
+            color: isLocationError && selectedState == null
+                ? Colors.red.shade900
+                : Colors.grey.shade400,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(10.r),
@@ -963,13 +992,31 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              selectedState != null ? selectedState! : 'Select State',
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12.sp,
+            // If loading states, show shimmer for both the container and text
+            _isLoadingStates
+                ? Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Container(
+                width: 150.w, // Adjust width as needed
+                height: 12.h,
+                color: Colors.white,
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                child: Text(
+                  'Loading...', // You can modify this text if needed
+                  style: GoogleFonts.roboto(
+                    textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
+                  ),
                 ),
+              ),
+            )
+                : Text(
+              selectedState != null
+                  ? selectedState!
+                  : 'Select State',
+              style: GoogleFonts.roboto(
+                textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
               ),
             ),
             const Icon(Icons.arrow_drop_down, color: Colors.black),
@@ -989,7 +1036,9 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-            color: isLocationError && selectedCity == null ? Colors.red.shade900  : Colors.grey.shade400,
+            color: isLocationError && selectedCity == null
+                ? Colors.red.shade900
+                : Colors.grey.shade400,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(10.r),
@@ -997,13 +1046,31 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              selectedCity != null ? selectedCity! : 'Select District',
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 12.sp,
+            // If loading cities, show shimmer effect for both the container and text
+            _isLoadingCities
+                ? Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Container(
+                width: 150.w, // Adjust width as needed
+                height: 12.h,
+                color: Colors.white,
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                child: Text(
+                  'Loading...', // You can modify this text if needed
+                  style: GoogleFonts.roboto(
+                    textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
+                  ),
                 ),
+              ),
+            )
+                : Text(
+              selectedCity != null
+                  ? selectedCity!
+                  : 'Select City',
+              style: GoogleFonts.roboto(
+                textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
               ),
             ),
             const Icon(Icons.arrow_drop_down, color: Colors.black),
@@ -1047,14 +1114,7 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
     );
   }
 
-
-
-  void _showSearchableModal({
-    required String title,
-    required TextEditingController searchController,
-    required List<dynamic> items,
-    required Function(Map<String, dynamic>) onItemSelected,
-  }) {
+  void _showSearchableModal({required String title, required TextEditingController searchController, required List<dynamic> items, required Function(Map<String, dynamic>) onItemSelected,}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1134,14 +1194,6 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
       },
     );
   }
-
-
-
-
-
-
-
-
 
   Widget _buildDropdownField(String label, String value, void Function() onTap, bool isRequired) {
     return GestureDetector(
