@@ -132,7 +132,6 @@ class _ReferEarnState extends State<ReferEarn> {
     // --- UPDATED SHARE MESSAGE ---
     final String shareText =
         'Join AJHub today and unlock exciting benefits! 🚀\n\n'
-        '*Get Free Validity & Points*\n\n'
         'Greetings! 🎉 I\'ve been enjoying the "Aj Hub: Festival & Business Poster Maker App" and thought you\'d love it too.\n\n'
         'Use my referral code when you sign up: *$referral_code* 🔑\n\n'
         'Click the link to get started:\n'
@@ -360,7 +359,7 @@ class _ReferEarnState extends State<ReferEarn> {
                 ),
               ),
               SizedBox(height: 12.h),
-              
+
               // --- STEP 1 ---
               _buildTierCard(
                 tierColor: const Color(0xFF6C5CE7), // Purple
@@ -375,7 +374,7 @@ class _ReferEarnState extends State<ReferEarn> {
                 tierColor: const Color(0xFF0984E3), // Blue
                 title: "Step 2",
                 description: "Get +7 Days Validity (Total 14)",
-                requiredRefers: 2, 
+                requiredRefers: 2,
                 completedRefers: directTeamCount,
               ),
 

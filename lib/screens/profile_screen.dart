@@ -19,6 +19,7 @@ import 'package:ajhub_app/screens/referral_user.dart';
 import 'package:ajhub_app/screens/payment/airpay_payment_screen.dart';
 import 'package:ajhub_app/screens/payment/premium_plans_screen.dart';
 import 'package:ajhub_app/screens/yourdocument_locker.dart';
+import 'package:ajhub_app/screens/workwithus.dart';
 import 'package:ajhub_app/splash_screen.dart';
 import 'package:ajhub_app/utils/constant.dart';
 import 'package:ajhub_app/utils/shimmer/shimmer.dart';
@@ -395,11 +396,11 @@ class _ProfileScreenState extends State<ProfileScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatReferrals(
-                  directTeamCount.toString(), 'Total\nReferrals'),
-              _buildStatColumn(referPoints.toString(), 'Referral\nPoints'),
-              _buildStatColumn('₹${businessData?.business?.directIncome ?? 0}',
-                  'Referral\nIncome'),
+              // _buildStatReferrals(
+              //     directTeamCount.toString(), 'Total\nReferrals'),
+              // _buildStatColumn(referPoints.toString(), 'Referral\nPoints'),
+              // _buildStatColumn('₹${businessData?.business?.directIncome ?? 0}',
+              //     'Referral\nIncome'),
             ],
           ),
         ],
@@ -451,7 +452,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         _buildMenuOption(CupertinoIcons.list_bullet, "Plan A Day"),
         _buildMenuOption(
             CupertinoIcons.arrow_down_to_line, "Downloaded Images"),
-        _buildMenuOption(Icons.share, "Refer & Earn"),
+        // _buildMenuOption(Icons.share, "Refer & Earn"),
         SizedBox(height: 15.h),
         _buildSectionTitle("Support & Community"),
         _buildMenuOption(CupertinoIcons.question_circle, "Help & Support"),
@@ -459,6 +460,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         _buildMenuOption(CupertinoIcons.smiley, "Feedback"),
         _buildMenuOption(Icons.groups, "Join Our Community"),
         _buildMenuOption(CupertinoIcons.bag, "Biz Boost"),
+        _buildMenuOption(Icons.handshake, "Work with Us"),
         _buildMenuOption(Icons.credit_card, "Test Payment (Airpay)"),
         _buildMenuOption(CupertinoIcons.doc_plaintext, "Terms of Use",
             'https://www.ajhub.co.in/term-condition'),
@@ -595,6 +597,13 @@ class _ProfileScreenState extends State<ProfileScreen>
               context,
               MaterialPageRoute(
                 builder: (context) => const OurProductAndService(),
+              ),
+            );
+          } else if (label == "Work with Us") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const WorkWithUS(),
               ),
             );
           } else if (label == "Test Payment (Airpay)") {

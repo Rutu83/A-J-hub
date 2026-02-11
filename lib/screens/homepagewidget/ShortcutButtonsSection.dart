@@ -14,18 +14,18 @@ class ShortcutButtonsSection extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildButton(
-            context,
-            Icons.share,
-            'Refer',
-            383, // Set your desired button width
-            () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ReferEarn()),
-              );
-            },
-          ),
+          // _buildButton(
+          //   context,
+          //   Icons.share,
+          //   'Refer',
+          //   383, // Set your desired button width
+          //   () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => ReferEarn()),
+          //     );
+          //   },
+          // ),
           // _buildButton(context, Icons.favorite, 'Charity', buttonWidth, () {
           //   Navigator.push(
           //     context,

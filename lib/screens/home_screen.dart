@@ -227,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen>
         });
         // --- ADDED: Show popup after the screen is built and loading is done ---
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showInitialPopup(context);
+          // _showInitialPopup(context);
         });
       }
     });
@@ -373,16 +373,17 @@ class _HomeScreenState extends State<HomeScreen>
             SliverToBoxAdapter(child: SubcategorySection()),
 
             // --- WALLET SECTION (POINTS & INCOME) ---
-            SliverToBoxAdapter(child: _buildWalletCards()),
+            // SliverToBoxAdapter(child: _buildWalletCards()),
 
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
               sliver: SliverToBoxAdapter(
-                child: _nextStep == null
-                    ? (_hideCongrats
-                        ? const SizedBox.shrink()
-                        : _buildMaxStepWidget())
-                    : _buildProgressWidget(),
+                child: SizedBox.shrink(),
+                // child: _nextStep == null
+                //     ? (_hideCongrats
+                //         ? const SizedBox.shrink()
+                //         : _buildMaxStepWidget())
+                //     : _buildProgressWidget(),
               ),
             ),
             SliverToBoxAdapter(child: ZoomSection()),
@@ -391,7 +392,7 @@ class _HomeScreenState extends State<HomeScreen>
             // 1. Agriculture - Below daily use blog
             SliverToBoxAdapter(child: const AgricultureSection()),
 
-            _buildBannerSliverRefer("assets/images/img_3.jpg"),
+            // _buildBannerSliverRefer("assets/images/img_3.jpg"),
             SliverToBoxAdapter(child: SubcategorySection()),
 
             // 4. Celebrate The Movement - Above Locker Banner
