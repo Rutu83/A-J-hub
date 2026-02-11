@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,9 +26,15 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
   }
 
   Future<void> _loadDownloadedImages() async {
+    // --- NEW: Request permission before accessing storage ---
+
     final directory = Directory('/storage/emulated/0/Pictures/AJHUB');
     if (await directory.exists()) {
+      // Sort files by modification date, newest first
       List<FileSystemEntity> files = directory.listSync();
+      files.sort(
+          (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+
       setState(() {
         downloadedImages = files.whereType<File>().toList();
         isLoading = false;
@@ -39,60 +46,136 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
     }
   }
 
+  // --- NEW: Function to handle image deletion ---
+  Future<void> _deleteImage(File imageFile) async {
+    // Show a confirmation dialog
+    final bool? confirmDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Image'),
+          content: const Text(
+              'Are you sure you want to permanently delete this image?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false); // User canceled
+              },
+            ),
+            TextButton(
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop(true); // User confirmed
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    // If user confirmed, proceed with deletion
+    if (confirmDelete == true) {
+      try {
+        if (await imageFile.exists()) {
+          await imageFile.delete();
+          // Update the UI by removing the file from the list
+          setState(() {
+            downloadedImages.remove(imageFile);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Image deleted successfully.'),
+                backgroundColor: Colors.green),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Error deleting image: $e'),
+              backgroundColor: Colors.red),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ScreenUtil.init(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Downloaded Images',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Downloaded Images',
+            style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.red,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.red))
           : downloadedImages.isEmpty
-          ? _buildNoDataAvailable()
-
-          : GridView.builder(
-        padding: EdgeInsets.all(8.r),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 8.w,
-          mainAxisSpacing: 8.h,
-        ),
-        itemCount: downloadedImages.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => FullScreenImageView(imageFile: downloadedImages[index]),
+              ? _buildNoDataAvailable()
+              : GridView.builder(
+                  padding: EdgeInsets.all(8.r),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 8.w,
+                    mainAxisSpacing: 8.h,
+                  ),
+                  itemCount: downloadedImages.length,
+                  itemBuilder: (context, index) {
+                    final imageFile = downloadedImages[index];
+                    // --- MODIFIED: Wrap with Stack to add delete button ---
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        // The image itself
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    FullScreenImageView(imageFile: imageFile),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.r),
+                            child: Image.file(
+                              imageFile,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Center(child: Icon(Icons.error));
+                              },
+                            ),
+                          ),
+                        ),
+                        // The delete button overlay
+                        Positioned(
+                          top: 4,
+                          right: 4,
+                          child: GestureDetector(
+                            onTap: () => _deleteImage(imageFile),
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.6),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-              );
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.r),
-              child: Image.file(
-                downloadedImages[index],
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(child: Icon(Icons.error));
-                },
-              ),
-            ),
-          );
-        },
-      ),
     );
   }
-
-
 
   Widget _buildNoDataAvailable() {
     return Center(
@@ -119,14 +202,6 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
   }
 }
 
-
-
-
-
-
-
-
-
 class FullScreenImageView extends StatefulWidget {
   final File imageFile;
 
@@ -152,41 +227,39 @@ class _FullScreenImageViewState extends State<FullScreenImageView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.red,
-        title: Text(
-          'Image View',
-          style: GoogleFonts.lato(color: Colors.white),
+        appBar: AppBar(
+          backgroundColor: Colors.red,
+          title: Text(
+            'Image View',
+            style: GoogleFonts.lato(color: Colors.white),
+          ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.share, color: Colors.white),
+              onPressed: () {
+                shareToGeneral();
+              },
+            ),
+          ],
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share, color: Colors.white),
-            onPressed: () {
-              shareToGeneral();
-            },
-          ),
-        ],
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: Column(
-        children: [
-          const SizedBox(
-            height: 100,
-          ),
-          Image.file(
-            widget.imageFile,
-            fit: BoxFit.contain,
-          ),
-        ],
-      )
-    );
+        body: Column(
+          children: [
+            const SizedBox(
+              height: 100,
+            ),
+            Image.file(
+              widget.imageFile,
+              fit: BoxFit.contain,
+            ),
+          ],
+        ));
   }
-
-
 
   void shareToWhatsApp() async {
     final String imagePath = widget.imageFile.path;
-    final Uri uri = Uri.parse('whatsapp://send?text=Sharing this image&image=$imagePath');
+    final Uri uri =
+        Uri.parse('whatsapp://send?text=Sharing this image&image=$imagePath');
 
     if (await canLaunch(uri.toString())) {
       await launch(uri.toString());
@@ -220,20 +293,3 @@ class _FullScreenImageViewState extends State<FullScreenImageView> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

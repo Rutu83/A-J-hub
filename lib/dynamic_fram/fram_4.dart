@@ -42,7 +42,6 @@ class Fram4 extends StatelessWidget {
             height: containerHeight,
             child: Stack(
               children: [
-
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
@@ -57,7 +56,6 @@ class Fram4 extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 Positioned(
                   top: (containerHeight * 0.01 + containerHeight * 0.02) / 2,
                   left: containerWidth * 0.08,
@@ -67,7 +65,6 @@ class Fram4 extends StatelessWidget {
                     color: Colors.black,
                   ),
                 ),
-
                 Positioned(
                   top: (containerHeight * 0.08 + containerHeight * 0.07) / 2,
                   left: containerWidth * 0.08,
@@ -77,10 +74,8 @@ class Fram4 extends StatelessWidget {
                     color: Colors.black,
                   ),
                 ),
-
                 Positioned(
                   bottom: (containerHeight * 0.05 + containerHeight * 0.06) / 2,
-
                   left: containerWidth * 0.08,
                   child: _buildText(
                     text: emailAddress,
@@ -88,17 +83,15 @@ class Fram4 extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-
                 Positioned(
                   bottom: containerHeight * 0.06,
                   right: containerWidth * 0.06,
                   child: _buildText(
-                    text: website,
+                    text: businessName,
                     fontSize: containerWidth * 0.030,
                     color: Colors.white,
                   ),
                 ),
-
                 Positioned(
                   bottom: containerHeight * 0.00,
                   left: containerWidth * 0.08,
@@ -115,6 +108,7 @@ class Fram4 extends StatelessWidget {
       },
     );
   }
+
   Widget _buildText({
     required String text,
     required double fontSize,

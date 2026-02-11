@@ -3,6 +3,7 @@ import 'package:ajhub_app/utils/configs.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:convert';
 
 class CategorySelectionScreen extends StatefulWidget {
@@ -97,20 +98,27 @@ class  CategorySelectionScreenState extends State<CategorySelectionScreen> {
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: imageUrl.isNotEmpty
-                      ? Image.network(
-                    imageUrl,
-                    width: 40,
-                    height: 40,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Image.asset(
-                        'assets/images/placeholder.jpg',
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                      );
-                    },
-                  )
+                      ? CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            width: 40,
+                            height: 40,
+                            color: Colors.grey[200],
+                            child: const Center(
+                                child: CircularProgressIndicator(strokeWidth: 2)),
+                          ),
+                          errorWidget: (context, url, error) {
+                            return Image.asset(
+                              'assets/images/placeholder.jpg',
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            );
+                          },
+                        )
                       : Image.asset(
                     'assets/images/placeholder.jpg',
                     width: 40,

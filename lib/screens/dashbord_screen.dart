@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ajhub_app/model/business_mode.dart';
 import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:ajhub_app/screens/active_user_screen2.dart';
+import 'package:ajhub_app/screens/payment/premium_plans_screen.dart';
+import 'package:ajhub_app/screens/business_list.dart';
+import 'package:ajhub_app/screens/categories_with_image.dart';
+import 'package:ajhub_app/screens/home_screen.dart';
+import 'package:ajhub_app/screens/palnner/add_plan_screen.dart';
 import 'package:ajhub_app/screens/product_and_service.dart';
-import 'package:ajhub_app/screens/refer_earn.dart';
+import 'package:ajhub_app/screens/profile_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ajhub_app/screens/business_screen.dart';
-import 'package:ajhub_app/screens/home_screen.dart';
-import 'package:ajhub_app/screens/profile_screen.dart';
-import 'package:lottie/lottie.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -27,113 +29,152 @@ class DashboardScreenState extends State<DashboardScreen> {
   bool isMembershipActive = false;
   bool hasError = false;
   String errorMessage = '';
-
-
-
+  String status = '';
+  var userId;
+  var username;
+  var email;
+  Map<String, dynamic> userData = {};
+  Future<Map<String, dynamic>>? futureUserDetail;
+  UniqueKey keyForStatus = UniqueKey();
+  bool _isLoading = true;
+  Future<List<BusinessModal>>? futureBusiness;
+  BusinessModal? businessData;
+  int directTeamCount = 0;
+  int directIncome = 0;
+  DateTime? userCreatedAt; // NEW
+  String? userStatus; // NEW
 
   @override
   void initState() {
-    super.initState();
-
     fetchUserData();
-
+    fetchBusinessData(); // <--- ADD THIS CALL
+    super.initState();
   }
 
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   void fetchUserData() async {
     try {
       setState(() {
+        _isLoading = true;
         hasError = false;
         errorMessage = "";
       });
 
       Map<String, dynamic> userDetail = await getUserDetail();
 
-      if (kDebugMode) {
-        print('...........................................................');
-        print("$userDetail?????????????????/");
-      }
-
-      // Extract status from user details
-      String status = userDetail['status'] ?? '';
-
-      if (status == 'inactive') {
-        // If user status is 'inactive', show activation dialog
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showActivationDialog();
-        });
-      } else {
-        if (kDebugMode) {
-          print('////////////////////////////////$status');
+      setState(() {
+        directTeamCount = userDetail['direct_team_count'] ?? 0;
+        
+        // --- EXTRACTION FOR TRIAL LOGIC ---
+        userStatus = userDetail['status'];
+        if (userDetail['created_at'] != null) {
+          userCreatedAt = DateTime.parse(userDetail['created_at']);
         }
-      }
 
-      // You can store other user details here if needed...
-
-      setState(() {
+        print("direct count $directTeamCount, CreatedAt: $userCreatedAt, Status: $userStatus");
+        
+        _isLoading = false;
+        
+        // Check Trial Expiry immediately after user data is loaded
+        _checkTrialStatus();
       });
-
-    } on SocketException catch (_) {
+    } on SocketException {
       setState(() {
+        _isLoading = false;
         hasError = true;
         errorMessage = "No internet connection. Please check your network.";
       });
-    } on HttpException catch (_) {
+    } on TimeoutException {
       setState(() {
-        hasError = true;
-        errorMessage = "Couldn't connect to the server. Try again later.";
-      });
-    } on TimeoutException catch (_) {
-      setState(() {
+        _isLoading = false;
         hasError = true;
         errorMessage = "Network timeout. Please try again.";
       });
-    } catch (e) {
+    } on HttpException {
       setState(() {
+        _isLoading = false;
+        hasError = true;
+        errorMessage = "Couldn't connect to the server. Try again later.";
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error fetching user data: $e");
+      }
+      setState(() {
+        _isLoading = false;
         hasError = true;
         errorMessage = "An unexpected error occurred: $e";
       });
+    }
+  }
 
+  void fetchBusinessData() async {
+    try {
+      final data = await getBusinessData(businessmodal: []);
+      if (mounted) {
+        setState(() {
+          if (data.isNotEmpty) {
+            businessData = data.first;
+            // Assuming businessData!.business!.directIncome is where the paid income is stored
+            directIncome = businessData?.business?.directIncome ?? 0;
+            print("direct income $directIncome");
+
+            // --- CHECK TRIAL EXPIRY (Moved to fetchUserData) ---
+            // _checkTrialStatus(); 
+          }
+        });
+      }
+    } catch (e) {
       if (kDebugMode) {
-        print("Error fetching user data: $e");
+        print("Error fetching business data: $e");
       }
     }
   }
 
+  void _checkTrialStatus() {
+    if (userCreatedAt == null) return;
+
+    final DateTime now = DateTime.now();
+    final int differenceInDays = now.difference(userCreatedAt!).inDays;
+
+    print("Trial Check: Days since creation: $differenceInDays, Status: $userStatus");
+
+    // If trial expired ( > 7 days) and user is NOT active/paid
+    if (differenceInDays >= 7 && userStatus != 'active') {
+      
+      print("Trial Expired! Triggering Payment Screen.");
+
+      // Show Paywall
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        // Double check mounted
+        if (mounted) {
+           Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PremiumPlansScreen()),
+            );
+        }
+      });
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
-
     if (hasError) {
       return Scaffold(
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20), // Add padding to the sides
+            padding: const EdgeInsets.symmetric(
+                horizontal: 20), // Add padding to the sides
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Network Error Animation with border
-                AnimatedOpacity(
-                  opacity: hasError ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: SizedBox(
-                    width: 300, // Adjust the width for better responsiveness
-                    height: 300, // Adjust the height for better responsiveness
-                    // decoration: BoxDecoration(
-                    //   border: Border.all(
-                    //     color: Colors.red, // Border color
-                    //     width: 3, // Border width
-                    //   ),
-                    //   borderRadius: BorderRadius.circular(12), // Rounded corners
-                    // ),
-                    child: Lottie.asset(
-                      'assets/animation/no_internet_2_lottie.json',
-                      width: 350,
-                      height: 350,
-                    ),
-                  ),
-                ),
-
                 const SizedBox(height: 30), // Increase spacing
 
                 // Title Text
@@ -142,7 +183,8 @@ class DashboardScreenState extends State<DashboardScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87, // Slightly darkened text for better contrast
+                    color: Colors
+                        .black87, // Slightly darkened text for better contrast
                   ),
                 ),
 
@@ -158,7 +200,8 @@ class DashboardScreenState extends State<DashboardScreen> {
                   textAlign: TextAlign.center, // Center align the text
                 ),
 
-                const SizedBox(height: 30), // Increased space between text and button
+                const SizedBox(
+                    height: 30), // Increased space between text and button
 
                 // Retry Button
                 ElevatedButton.icon(
@@ -169,15 +212,18 @@ class DashboardScreenState extends State<DashboardScreen> {
                     fetchUserData();
                   },
                   icon: const Icon(Icons.refresh, color: Colors.white),
-                  label: const Text("Retry", style: TextStyle(color: Colors.white)),
+                  label: const Text("Retry",
+                      style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red, // Button color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 14),
                     textStyle: const TextStyle(
-                      fontSize: 18, // Slightly larger font size for better readability
+                      fontSize:
+                          18, // Slightly larger font size for better readability
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -189,64 +235,95 @@ class DashboardScreenState extends State<DashboardScreen> {
       );
     }
 
-
     return SafeArea(
       child: Scaffold(
         body: PageView(
+          clipBehavior: Clip.hardEdge,
           controller: _pageController,
           onPageChanged: (index) {
             setState(() {
               _selectedIndex = index;
             });
           },
-          children:  const [
-            HomeScreen(),
-            ReferEarn(),
-            // CustomerScreen(),
+          children: [
+            HomeScreen(
+                userReferralCount: directTeamCount,
+                referralIncome: directIncome), // <--- Pass Income
+            SubcategoriesScreen(),
             OurProductAndService(),
             ProfileScreen(),
           ],
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddPlanScreen()),
+            );
+          },
+          backgroundColor: Color(0xFFD32F2F), // Use your theme's red color
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+        ),
         bottomNavigationBar: SafeArea(
           child: Container(
-            padding: EdgeInsets.only(bottom: 8.h),
-            color: Colors.white,
+            height: 72.h,
+            padding: EdgeInsets.symmetric(horizontal: 11.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              // boxShadow: [
+              //   BoxShadow(
+              //     color: Colors.black12,
+              //     blurRadius: 4,
+              //     offset: Offset(0, -2),
+              //   ),
+              // ],
+            ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                // Home
                 _buildMenuItem(Icons.home, "Home", 0),
-                SizedBox(width: 20.w),
-                _buildMenuItem(Icons.card_giftcard, "Refer and Earn", 1),
-
-                SizedBox(width: 20.w),
-                // BusinessScreen(),
+                // Refer & Earn
+                _buildMenuItem(Icons.category, "Categories", 1),
+                // Center Logo
                 GestureDetector(
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const BusinessScreen()));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const BusinessList()),
+                    );
                   },
                   child: Container(
-                    height: 70.h,
-                    width: 70.h,
+                    height: 60.h,
+                    width: 60.h,
+                    margin: EdgeInsets.only(bottom: 18.h), // Slight elevation
                     decoration: BoxDecoration(
                       color: Colors.red,
-                      borderRadius: BorderRadius.circular(35.h),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6,
+                          offset: Offset(0, 4),
+                        )
+                      ],
                     ),
                     child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/aj_logo_white.png',
-                        height: 70.h,
-                        width: 70.h,
-                        fit: BoxFit.cover,
+                      child: Icon(
+                        Icons.business_center_outlined,
+                        size: 30.sp,
+                        color: Colors.white,
                       ),
                     ),
                   ),
                 ),
-                SizedBox(width: 20.w),
-                _buildMenuItem(Icons.business, "Branding", 2),
-
-                SizedBox(width: 20.w),
-                _buildMenuItem(Icons.account_circle, "Account", 3),  // Account tab
-
+                // Services
+                _buildMenuItem(Icons.widgets, "Biz Boost", 2),
+                // Account
+                _buildMenuItem(Icons.account_circle, "Account", 3),
               ],
             ),
           ),
@@ -258,7 +335,8 @@ class DashboardScreenState extends State<DashboardScreen> {
   void _showActivationDialog() {
     showDialog(
       context: context,
-      barrierDismissible: true, // Allow dismissing the dialog by tapping outside
+      barrierDismissible:
+          true, // Allow dismissing the dialog by tapping outside
       builder: (context) {
         return Dialog(
           backgroundColor: Colors.transparent, // Make background transparent
@@ -269,17 +347,22 @@ class DashboardScreenState extends State<DashboardScreen> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const ActivateMembershipPage()), // Navigate to the ActivateMembershipPage
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            const PremiumPlansScreen()), // Navigate to PremiumPlansScreen
                   ).then((_) {
                     Navigator.pop(context); // Pop dialog when navigating back
                   });
                 },
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24.0), // Increased border radius
+                  borderRadius:
+                      BorderRadius.circular(24.0), // Increased border radius
                   child: Image.asset(
                     'assets/images/offers/or.jpg', // Your image asset path
-                    width: MediaQuery.of(context).size.width * 0.8, // Adjust width based on screen width
-                    height: MediaQuery.of(context).size.height * 0.5, // Increased height
+                    width: MediaQuery.of(context).size.width *
+                        0.8, // Adjust width based on screen width
+                    height: MediaQuery.of(context).size.height *
+                        0.5, // Increased height
                     fit: BoxFit.cover, // Adjust the fit to cover the area
                   ),
                 ),
@@ -295,8 +378,10 @@ class DashboardScreenState extends State<DashboardScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(6), // Padding around the icon
                     decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.5), // Background color for the close icon
-                      borderRadius: BorderRadius.circular(20), // Rounded background for the icon
+                      color: Colors.grey.withOpacity(
+                          0.5), // Background color for the close icon
+                      borderRadius: BorderRadius.circular(
+                          20), // Rounded background for the icon
                     ),
                     child: const Icon(
                       Icons.close,
@@ -313,47 +398,45 @@ class DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-
-
-
-
-
-
   Widget _buildMenuItem(IconData icon, String label, int index) {
     return GestureDetector(
       onTap: () {
         setState(() {
           _selectedIndex = index;
         });
-        _pageController.jumpToPage(index);
+        _pageController.animateToPage(
+          index,
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.fastLinearToSlowEaseIn,
+        );
       },
       child: SizedBox(
-        height: 50.h, // Adjusted size to ensure proper display
+        width: 60.w, // Fixed width to align all menu items
+        height: 60.h,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              size: 28.sp, // Adjust size with ScreenUtil
+              size: 27.sp,
               color: _selectedIndex == index ? Colors.red : Colors.grey,
             ),
-            SizedBox(height: 4.h), // Adjust with ScreenUtil
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10.sp, // Adjust font size with ScreenUtil
-                color: _selectedIndex == index ? Colors.red : Colors.black,
+            SizedBox(height: 6.h),
+            SizedBox(
+              width: 55.w, // Fixed width for label to align under icon
+              child: Text(
+                label,
+                textAlign: TextAlign.center, // Center the text under icon
+                overflow: TextOverflow.ellipsis, // Handle long labels
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  color: _selectedIndex == index ? Colors.red : Colors.black,
+                ),
               ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 }

@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:ajhub_app/arth_screens/login_screen.dart';
+import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/splash_screen.dart';
 import 'package:ajhub_app/utils/common.dart';
+import 'package:ajhub_app/utils/configs.dart';
 import 'package:ajhub_app/utils/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:ajhub_app/main.dart';
-import 'package:ajhub_app/utils/configs.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 Map<String, String> buildHeaderTokens({
@@ -31,14 +32,14 @@ Map<String, String> buildHeaderTokens({
       extraKeys.containsKey('isStripePayment') &&
       extraKeys['isStripePayment']) {
     header.putIfAbsent(HttpHeaders.contentTypeHeader,
-            () => 'application/x-www-form-urlencoded');
+        () => 'application/x-www-form-urlencoded');
     header.putIfAbsent(HttpHeaders.authorizationHeader,
-            () => '${extraKeys!['stripeKeyPayment']}');
+        () => '${extraKeys!['stripeKeyPayment']}');
   } else if (appStore.isLoggedIn &&
       extraKeys.containsKey('isFlutterWave') &&
       extraKeys['isFlutterWave']) {
     header.putIfAbsent(HttpHeaders.authorizationHeader,
-            () => "Bearer ${extraKeys!['flutterWaveSecretKey']}");
+        () => "Bearer ${extraKeys!['flutterWaveSecretKey']}");
   } else if (appStore.isLoggedIn &&
       extraKeys.containsKey('isSadadPayment') &&
       extraKeys['isSadadPayment']) {
@@ -51,7 +52,7 @@ Map<String, String> buildHeaderTokens({
     header.putIfAbsent(
         HttpHeaders.contentTypeHeader, () => 'application/json; charset=utf-8');
     header.putIfAbsent(
-        HttpHeaders.authorizationHeader, () =>'Bearer ${appStore.token}');
+        HttpHeaders.authorizationHeader, () => 'Bearer ${appStore.token}');
     header.putIfAbsent(
         HttpHeaders.acceptHeader, () => 'application/json; charset=utf-8');
   }
@@ -72,7 +73,7 @@ Uri buildBaseUrl(String endPoint) {
 Future<String> refreshToken() async {
   final refreshToken = appStore.token;
   final response = await http.post(
-    Uri.parse('https://yourapi.com/auth/refresh'),
+    Uri.parse('${BASE_URL}auth/refresh'),
     headers: {
       'Content-Type': 'application/json',
     },
@@ -88,14 +89,12 @@ Future<String> refreshToken() async {
   }
 }
 
-
-
 Future<http.Response> buildHttpResponse(
-    String endPoint, {
-      HttpMethodType method = HttpMethodType.GET,
-      Map? request,
-      Map? extraKeys,
-    }) async {
+  String endPoint, {
+  HttpMethodType method = HttpMethodType.GET,
+  Map? request,
+  Map? extraKeys,
+}) async {
   if (await isNetworkAvailable()) {
     var headers = buildHeaderTokens(extraKeys: extraKeys);
     Uri url = buildBaseUrl(endPoint);
@@ -105,11 +104,12 @@ Future<http.Response> buildHttpResponse(
     if (method == HttpMethodType.POST) {
       log('Request: ${jsonEncode(request)}');
       response =
-      await http.post(url, body: jsonEncode(request), headers: headers);
+          await http.post(url, body: jsonEncode(request), headers: headers);
     } else if (method == HttpMethodType.DELETE) {
       response = await http.delete(url, headers: headers);
     } else if (method == HttpMethodType.PUT) {
-      response = await http.put(url, body: jsonEncode(request), headers: headers);
+      response =
+          await http.put(url, body: jsonEncode(request), headers: headers);
     } else {
       response = await http.get(url, headers: headers);
     }
@@ -124,8 +124,8 @@ Future<http.Response> buildHttpResponse(
 
 Future handleResponse(http.Response response,
     {HttpResponseType httpResponseType = HttpResponseType.JSON,
-      bool? avoidTokenError,
-      bool? isSadadPayment}) async {
+    bool? avoidTokenError,
+    bool? isSadadPayment}) async {
   if (!await isNetworkAvailable()) {
     throw errorInternetNotAvailable;
   }
@@ -137,23 +137,17 @@ Future handleResponse(http.Response response,
   } else if (response.statusCode == 400) {
     throw language.badRequest;
   } else if (response.statusCode == 403) {
-
     throw language.forbidden;
   } else if (response.statusCode == 404) {
-
     throw language.pageNotFound;
   } else if (response.statusCode == 429) {
-
     throw language.tooManyRequests;
   } else if (response.statusCode == 500) {
     redirectToLogin();
     throw language.internalServerError;
-
   } else if (response.statusCode == 502) {
-
     throw language.badGateway;
   } else if (response.statusCode == 503) {
-
     throw language.serviceUnavailable;
   } else if (response.statusCode == 504) {
     throw language.gatewayTimeout;
@@ -181,7 +175,8 @@ Future handleResponse(http.Response response,
     }
   }
 }
-void redirectToLogin() async{
+
+void redirectToLogin() async {
   var pref = await SharedPreferences.getInstance();
   // var pref = await SharedPreferences.getInstance();
 
@@ -200,25 +195,25 @@ void redirectToLogin() async{
   );
 }
 
-
 Future<http.Response> makeAuthenticatedRequest(
-    String endPoint, {
-      HttpMethodType method = HttpMethodType.GET,
-      Map? request,
-      Map? extraKeys,
-    }) async {
+  String endPoint, {
+  HttpMethodType method = HttpMethodType.GET,
+  Map? request,
+  Map? extraKeys,
+}) async {
   try {
-    return await buildHttpResponse(endPoint, method: method, request: request, extraKeys: extraKeys);
+    return await buildHttpResponse(endPoint,
+        method: method, request: request, extraKeys: extraKeys);
   } on Exception catch (e) {
     if (e.toString().contains('jwt expired')) {
       await refreshToken();
-      return await buildHttpResponse(endPoint, method: method, request: request, extraKeys: extraKeys);
+      return await buildHttpResponse(endPoint,
+          method: method, request: request, extraKeys: extraKeys);
     } else {
       rethrow;
     }
   }
 }
-
 
 Future<http.MultipartRequest> getMultiPartRequest(String endPoint,
     {String? baseUrl}) async {

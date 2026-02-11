@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HelpSupport extends StatefulWidget {
   const HelpSupport({super.key});
@@ -101,13 +102,17 @@ class _HelpSupportState extends State<HelpSupport> {
           imageUrl,
           fit: BoxFit.fill,
         )
-            : Image.network(
-          imageUrl,
-          fit: BoxFit.fill,
-          errorBuilder: (context, error, stackTrace) {
-            return const Icon(Icons.error);
-          },
-        ),
+            : CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.fill,
+                placeholder: (context, url) => Container(
+                  color: Colors.grey[200],
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (context, url, error) {
+                  return const Icon(Icons.error);
+                },
+              ),
       ),
     );
 

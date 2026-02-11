@@ -1,13 +1,24 @@
 import 'dart:convert';
-import 'package:ajhub_app/arth_screens/login_screen.dart';
+
+// <<< --- IMPORTS ADDED FOR AUTO-LOGIN --- >>>
+import 'package:ajhub_app/arth_screens/auth_admin_service.dart';
+import 'package:ajhub_app/model/login_modal.dart';
+import 'package:ajhub_app/screens/dashbord_screen.dart';
+import 'package:ajhub_app/splash_screen.dart';
+// ---
+
 import 'package:ajhub_app/utils/configs.dart';
+import 'package:ajhub_app/utils/notification_service.dart';
+import 'package:ajhub_app/utils/referral_service.dart';
 import 'package:ajhub_app/utils/shimmer/shimmer.dart';
+import 'package:country_picker/country_picker.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:country_picker/country_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:nb_utils/nb_utils.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -17,19 +28,21 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class SignUpScreenState extends State<SignUpScreen> {
+  // --- CONTROLLERS AND KEYS ---
   final _formKey = GlobalKey<FormState>();
-  bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _searchStateController = TextEditingController();
   final TextEditingController _searchCityController = TextEditingController();
+  final TextEditingController _referralCodeController = TextEditingController();
 
+  // --- STATE VARIABLES ---
+  bool _isPasswordVisible = false;
+  bool _isConfirmPasswordVisible = false;
   List<dynamic> filteredCountries = [];
   List<dynamic> filteredStates = [];
   List<dynamic> filteredCities = [];
@@ -37,31 +50,32 @@ class SignUpScreenState extends State<SignUpScreen> {
   bool _isPhoneNumberValid = true;
   bool _isPasswordValid = true;
   bool _isEmailValid = true;
-  String selectedGender = 'Select Gender';
   String? selectedCountry;
-  String? selectedState;
-  String? selectedCity;
+  String? selectedState; // For displaying the name in the UI
+  String? selectedCity; // For displaying the name in the UI
+  String? selectedStateId; // To store the state ID for the API
+  String? selectedCityId; // To store the district ID for the API
   bool _passwordsMatch = true;
   List<dynamic> countries = [];
   List<dynamic> states = [];
   List<dynamic> cities = [];
   String selectedCountryCode = '+91';
-  String selectedDropdown1 = 'Select Sponsor';
-  String selectedDropdown2 = 'Select Your Parent';
   bool _isLoading = false;
-  List<String> sponsors = [];
-  List<String> parents = [];
   bool _isLoadingCountries = false;
   bool _isLoadingStates = false;
   bool _isLoadingCities = false;
-  bool _isGenderError = false;
+
+  // --- REFERRAL LOGIC VARIABLES ---
+  bool _isVerifyingReferral = false;
+  String? _verifiedReferrerId;
+  String? _verifiedReferrerUsername;
+
+  String? _fcmToken;
 
   @override
   void initState() {
     super.initState();
-    fetchDropdownData();
     fetchCountries();
-
     filteredStates = states;
     filteredCities = cities;
 
@@ -69,377 +83,88 @@ class SignUpScreenState extends State<SignUpScreen> {
     _confirmPasswordController.addListener(_checkPasswords);
     _phoneController.addListener(_validatePhoneNumber);
     _emailController.addListener(_validateEmail);
-  }
 
-
-
-  void _showCountrySelectionSheet() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30.0),
-          topRight: Radius.circular(30.0),
-        ),
-      ),
-      builder: (BuildContext context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          builder: (context, scrollController) {
-            return Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30.0),
-                  topRight: Radius.circular(30.0),
-                ),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Container(
-                    height: 6,
-                    width: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      'Select Country',
-                      style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(
-                    child: ListView.separated(
-                      controller: scrollController,
-                      itemCount: countries.length,
-                      itemBuilder: (context, index) {
-                        final country = countries[index];
-                        return ListTile(
-                          title: Text(country['name']),
-                          onTap: () {
-                            setState(() {
-                              selectedCountry = country['id'].toString();
-                            });
-                            fetchStates(selectedCountry!);
-                            Navigator.pop(context);
-                          },
-                        );
-                      },
-                      separatorBuilder: (context, index) {
-                        return const Divider(thickness: 1, color: Colors.grey);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-
-  void _showStateSelectionSheet() {
-    if (selectedCountry == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a country first')),
-      );
-      return;
-    }
-
-    _showSearchableModal(
-      title: 'State',
-      searchController: _searchStateController,
-      items: states,
-      onItemSelected: (selectedStateItem) {
-        setState(() {
-          selectedState = selectedStateItem['name'];
-          fetchCities(selectedStateItem['id'].toString());
-        });
-      },
-    );
-  }
-
-
-
-
-
-  void _showCitySelectionSheet() {
-    if (selectedState == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a state first')),
-      );
-      return;
-    }
-
-    _showSearchableModal(
-      title: 'District',
-      searchController: _searchCityController,
-      items: cities,
-      onItemSelected: (selectedCityItem) {
-        setState(() {
-          selectedCity = selectedCityItem['name'];
-        });
-      },
-    );
-  }
-
-
-
-
-  // Widget _buildSearchableModalSheet(String title, TextEditingController searchController, List<dynamic> filteredItems, Function(dynamic) onSelect) {
-  //   return DraggableScrollableSheet(
-  //     expand: false,
-  //     builder: (context, scrollController) {
-  //       return Container(
-  //         decoration: const BoxDecoration(
-  //           color: Colors.white,
-  //           borderRadius: BorderRadius.only(
-  //             topLeft: Radius.circular(30.0),
-  //             topRight: Radius.circular(30.0),
-  //           ),
-  //         ),
-  //         child: Column(
-  //           children: [
-  //             const SizedBox(height: 20),
-  //             Container(
-  //               height: 6,
-  //               width: 50,
-  //               decoration: BoxDecoration(
-  //                 color: Colors.grey,
-  //                 borderRadius: BorderRadius.circular(12),
-  //               ),
-  //             ),
-  //             const SizedBox(height: 10),
-  //             Padding(
-  //               padding: const EdgeInsets.all(16.0),
-  //               child: Text(
-  //                 title,
-  //                 style: TextStyle(
-  //                   fontSize: 18.sp,
-  //                   fontWeight: FontWeight.bold,
-  //                 ),
-  //               ),
-  //             ),
-  //             Padding(
-  //               padding: const EdgeInsets.all(8.0),
-  //               child: TextField(
-  //                 controller: searchController,
-  //                 decoration: InputDecoration(
-  //                   hintText: 'Search $title',
-  //                   prefixIcon: const Icon(Icons.search),
-  //                   border: OutlineInputBorder(
-  //                     borderRadius: BorderRadius.circular(10),
-  //                   ),
-  //                 ),
-  //                 onChanged: (value) {
-  //                   // Update the filtered list based on the search input
-  //                   setState(() {
-  //                     filteredItems = filteredItems
-  //                         .where((item) => item['name']
-  //                         .toLowerCase()
-  //                         .contains(value.toLowerCase()))
-  //                         .toList();
-  //                   });
-  //                 },
-  //               ),
-  //             ),
-  //             Expanded(
-  //               child: ListView.separated(
-  //                 controller: scrollController,
-  //                 itemCount: filteredItems.length,
-  //                 itemBuilder: (context, index) {
-  //                   final item = filteredItems[index];
-  //                   return ListTile(
-  //                     title: Text(item['name']),
-  //                     onTap: () => onSelect(item),
-  //                   );
-  //                 },
-  //                 separatorBuilder: (context, index) {
-  //                   return const Divider(
-  //                     thickness: 1,
-  //                     color: Colors.grey,
-  //                   );
-  //                 },
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
-
-  void _validateEmail() {
-    setState(() {
-      _isEmailValid = _isValidEmail(_emailController.text);
+    _referralCodeController.addListener(() {
+      final code = _referralCodeController.text;
+      if (code.length >= 4 && !_isVerifyingReferral) {
+        _fetchUserByReferralCode(code);
+      }
     });
-  }
 
-
-  bool _isValidEmail(String email) {
-    final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
-    return emailRegExp.hasMatch(email);
-  }
-
-
-  void _checkPasswords() {
-    setState(() {
-      _passwordsMatch = _passwordController.text == _confirmPasswordController.text;
-      _isPasswordValid = _passwordController.text.length >= 6;
-    });
+    _initializeReferralCode();
+    _initializeFCM();
   }
 
   @override
   void dispose() {
-
+    _referralCodeController.dispose();
     _passwordController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
-
+    _firstNameController.dispose();
+    _confirmPasswordController.dispose();
+    _searchStateController.dispose();
+    _searchCityController.dispose();
     super.dispose();
   }
 
+  // --- LOGIC METHODS ---
 
-  void _validatePhoneNumber() {
-    setState(() {
-       _isPhoneNumberValid = _phoneController.text.isNotEmpty && _isValidPhoneNumber(_phoneController.text);
-    });
-  }
+  // <<< NEW HELPER FUNCTION FOR REDIRECTION >>>
+  Future<void> _onRegistrationSuccessRedirect() async {
+    await setValue(SplashScreenState.keyLogin, true);
 
-  bool _isValidPhoneNumber(String phoneNumber) {
-    final phoneRegExp = RegExp(r'^\+?\d{10,15}$');
-    return phoneRegExp.hasMatch(phoneNumber);
-  }
-
-  void fetchCountries() async {
-    setState(() {
-      _isLoadingCountries = true;
-    });
-    try {
-      final response = await http.get(Uri.parse('${BASE_URL}get-country'));
-      if (response.statusCode == 200) {
-        setState(() {
-          countries = json.decode(response.body);
-          filteredCountries = countries;
-          _isLoadingCountries = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoadingCountries = false;
-      });
+    if (mounted) {
+      const DashboardScreen().launch(context,
+          isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
     }
   }
 
-  void fetchStates(String countryId) async {
-    setState(() {
-      _isLoadingStates = true;
-    });
-    try {
-      final response = await http.get(Uri.parse('https://ajhub.co.in/get-states-regby-country/$countryId'));
-      if (response.statusCode == 200) {
-
-        setState(() {
-          states = json.decode(response.body);
-          filteredStates = states;
-          _isLoadingStates = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoadingStates = false;
-      });
-    }
-  }
-
-
-  void fetchCities(String stateId) async {
-    setState(() {
-      _isLoadingCities = true;
-    });
-    try {
-      final response = await http.get(Uri.parse('https://ajhub.co.in/get-districts-regby-state/$stateId'));
-      if (response.statusCode == 200) {
-        setState(() {
-          cities = json.decode(response.body);
-          filteredCities = cities;
-          _isLoadingCities = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoadingCities = false;
-      });
-    }
-  }
-
-
-  Future<void> fetchDropdownData() async {
-    final response = await http.get(Uri.parse('https://ajhub.co.in/search-user'));
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        sponsors = data.map<String>((user) => user['username'].toString()).toList();
-        parents = data.map<String>((user) => user['username'].toString()).toList();
-      });
-    } else {
-      throw Exception('Failed to load data');
-    }
+  Future<void> _initializeFCM() async {
+    final FirebaseMessaging fcm = FirebaseMessaging.instance;
+    await fcm.requestPermission();
+    final String? token = await fcm.getToken();
+    if (mounted) setState(() => _fcmToken = token);
+    print("Firebase Messaging Token: $_fcmToken");
   }
 
   Future<void> _registerUser() async {
-
-    if (selectedCountry == null || selectedState == null || selectedCity == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select Country, State, and District')),
-      );
-      setState(() {
-        isLocationError = true;
-      });
+    if (selectedCountry == null ||
+        selectedStateId == null ||
+        selectedCityId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Please select Country, State, and District')));
+      setState(() => isLocationError = true);
       return;
     }
 
-    // if (selectedDropdown1 == 'Select Sponsor' || selectedDropdown2 == 'Select Your Parent') {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //       const SnackBar(content: Text('Please select both Sponsor and Parent')));
-    //   return;
-    // }
+    if (_fcmToken == null || _fcmToken!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text(
+            'Could not initialize notifications. Please check your connection and restart the app.'),
+        backgroundColor: Colors.red,
+      ));
+      await _initializeFCM();
+      if (_fcmToken == null) return;
+    }
 
     if (_formKey.currentState!.validate()) {
-      if (_passwordController.text != _confirmPasswordController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Passwords do not match')));
-        return;
-      }
-
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
       const String apiUrl = '${BASE_URL}register';
       final Map<String, dynamic> payload = {
-        "username": _firstNameController.text,
-        "email": _emailController.text,
-        "phone_number": _phoneController.text,
+        "username": _firstNameController.text.trim(),
+        "email": _emailController.text.trim(),
+        "phone_number": _phoneController.text.trim(),
         "password": _passwordController.text.trim(),
         "password_confirmation": _confirmPasswordController.text.trim(),
-        "gender": selectedGender,
-        "dob": _dobController.text,
         "country_id": selectedCountry,
-        "state": selectedState,
-        "district": selectedCity,
-        "sponsor": selectedDropdown1,
-        "parent": selectedDropdown2,
+        // <<< PAYLOAD FIX: Use 'state_id' and 'district_id' as per the API >>>
+        "state_id": selectedStateId,
+        "district_id": selectedCityId,
+        "parentId": _verifiedReferrerId,
+        "sponcer_id": _verifiedReferrerId,
+        "fcm_token": _fcmToken,
       };
 
       try {
@@ -449,189 +174,477 @@ class SignUpScreenState extends State<SignUpScreen> {
           body: json.encode(payload),
         );
 
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Registration Successful')));
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const LoginScreen()),
-          );
-        } else {
+        if (!mounted) return;
 
+        // <<< --- MAJOR UPDATE: AUTO-LOGIN LOGIC --- >>>
+        if (response.statusCode == 201) {
           final responseData = json.decode(response.body);
 
-          if (responseData['status'] == 'error' && responseData['errors'] != null) {
-            final errors = responseData['errors'] as Map<String, dynamic>;
-            final errorMessages = errors.values
+          // 1. Parse the API response using your existing LoginResponse model.
+          final loginResponse = LoginResponse.fromJson(responseData);
+
+          // 2. Save session data using the function from your login screen.
+          await saveDataToregisterPreferenceMobile(
+            context,
+            loginResponse: loginResponse,
+            parentUserData: loginResponse.userData!,
+            onRedirectionClick: () async {
+              // 3. (Optional) Show a local welcome notification.
+              await NotificationService().showWelcomeNotification(
+                  username: loginResponse.userData!.username!);
+
+              // 4. Redirect to the dashboard.
+              _onRegistrationSuccessRedirect();
+            },
+          );
+        } else {
+          // Handle errors from the API
+          final responseData = json.decode(response.body);
+          final errors = responseData['errors'] as Map<String, dynamic>?;
+          String errorMessage =
+              'An unexpected error occurred. Please try again.';
+
+          if (errors != null) {
+            errorMessage = errors.values
                 .expand((errorList) => errorList as List)
                 .join('\n');
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(errorMessages)),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('An unexpected error occurred. Please try again.')),
-            );
+          } else if (responseData['message'] != null) {
+            errorMessage = responseData['message'];
           }
+
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(errorMessage), backgroundColor: Colors.red));
         }
       } catch (e) {
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Network error. Please check your connection.')),
-        );
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Network error. Please check your connection.')));
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
-
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
+  // --- ALL OTHER METHODS BELOW THIS LINE ARE UNCHANGED ---
 
+  Future<void> _initializeReferralCode() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+
+    String? installReferrerCode =
+        await ReferralService.getInstallReferrerCode();
+    if (installReferrerCode != null && installReferrerCode.isNotEmpty) {
+      _referralCodeController.text = installReferrerCode;
+      await _fetchUserByReferralCode(installReferrerCode);
+      return;
+    }
+
+    if (_referralCodeController.text.isEmpty) {
+      await _checkClipboardForReferralCode();
+    }
+  }
+
+  Future<void> _checkClipboardForReferralCode() async {
+    try {
+      ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+      if (data != null && data.text != null) {
+        String clipboardText = data.text!.trim();
+        RegExp referralPattern = RegExp(r'^[a-zA-Z0-9_]{3,20}$');
+
+        if (referralPattern.hasMatch(clipboardText)) {
+          if (!mounted) return;
+          _referralCodeController.text = clipboardText;
+          await _fetchUserByReferralCode(clipboardText);
+        }
+      }
+    } catch (e) {
+      print("Could not read from clipboard: $e");
+    }
+  }
+
+  void _showReferralSnackbar(String name, String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Referrer "$name" $message'),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _fetchUserByReferralCode(String code) async {
+    if (code.trim().isEmpty) {
+      setState(() {
+        _verifiedReferrerId = null;
+        _verifiedReferrerUsername = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isVerifyingReferral = true;
+      _verifiedReferrerId = null;
+    });
+
+    try {
+      final uri = Uri.parse('${BASE_URL}search-user?query=$code');
+      final response = await http.get(uri);
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        if (data.isNotEmpty && data[0]['referral_code'] == code) {
+          final user = data[0];
+          setState(() {
+            _verifiedReferrerId = user['userId'].toString();
+            _verifiedReferrerUsername = user['username'].toString();
+          });
+          _showReferralSnackbar(
+              _verifiedReferrerUsername!, "applied successfully!");
+        } else {
+          setState(() => _verifiedReferrerId = null);
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Invalid or incorrect referral code.'),
+            backgroundColor: Colors.orange,
+          ));
+        }
+      } else {
+        setState(() => _verifiedReferrerId = null);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Error verifying referral code. Please try again.'),
+          backgroundColor: Colors.red,
+        ));
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _verifiedReferrerId = null);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Network error. Could not verify code.'),
+        backgroundColor: Colors.red,
+      ));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isVerifyingReferral = false;
+        });
+      }
+    }
+  }
+
+  void fetchCountries() async {
+    setState(() {
+      _isLoadingCountries = true;
+    });
+    try {
+      final response = await http.get(Uri.parse('${BASE_URL}get-country'));
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            countries = json.decode(response.body);
+            filteredCountries = countries;
+            _isLoadingCountries = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingCountries = false;
+        });
+      }
+    }
+  }
+
+  void fetchStates(String countryId) async {
+    setState(() {
+      _isLoadingStates = true;
+      selectedState = null;
+      selectedCity = null;
+      selectedStateId = null;
+      selectedCityId = null;
+    });
+    try {
+      final response = await http.get(
+          Uri.parse('https://ajhub.co.in/get-states-regby-country/$countryId'));
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            states = json.decode(response.body);
+            filteredStates = states;
+            _isLoadingStates = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingStates = false;
+        });
+      }
+    }
+  }
+
+  void fetchCities(String stateId) async {
+    setState(() {
+      _isLoadingCities = true;
+      selectedCity = null;
+      selectedCityId = null;
+    });
+    try {
+      final response = await http.get(
+          Uri.parse('https://ajhub.co.in/get-districts-regby-state/$stateId'));
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            cities = json.decode(response.body);
+            filteredCities = cities;
+            _isLoadingCities = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingCities = false;
+        });
+      }
+    }
+  }
+
+  void _validateEmail() {
+    setState(() {
+      _isEmailValid = _isValidEmail(_emailController.text);
+    });
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegExp = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+    return emailRegExp.hasMatch(email);
+  }
+
+  void _checkPasswords() {
+    setState(() {
+      _passwordsMatch =
+          _passwordController.text == _confirmPasswordController.text;
+      _isPasswordValid = _passwordController.text.length >= 6;
+    });
+  }
+
+  void _validatePhoneNumber() {
+    setState(() {
+      _isPhoneNumberValid = _phoneController.text.isNotEmpty &&
+          _isValidPhoneNumber(_phoneController.text);
+    });
+  }
+
+  bool _isValidPhoneNumber(String phoneNumber) {
+    final phoneRegExp = RegExp(r'^\+?\d{10,15}$');
+    return phoneRegExp.hasMatch(phoneNumber);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Colors.red))
           : Container(
-        color: Colors.white,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(16.w),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  SizedBox(height: 20.h),
-                  _buildAppLogo(),
-                  SizedBox(height: 10.h),
-                  _buildTextField('First Name', 'Enter First Name', true, _firstNameController),
-                  SizedBox(height: 10.h),
-                  _buildEmailField(),
-                  SizedBox(height: 10.h),
-                  _buildPhoneNumberField(),
-                  SizedBox(height: 10.h),
-                  _buildDropdownField('Gender', selectedGender, _selectGender, true),
-                  SizedBox(height: 10.h),
-                  _buildDateOfBirthField(),
-                  SizedBox(height: 10.h),
-                  _buildTextField('Age', 'Enter Your Age', true, _ageController),
-                  SizedBox(height: 10.h),
-                  _buildCountryField(),
-                  SizedBox(height: 10.h),
-                  _buildStateField(),
-                  SizedBox(height: 10.h),
-
-                  _buildCityField(),
-                  SizedBox(height: 10.h),
-                  _buildPasswordField(),
-                  SizedBox(height: 10.h),
-                  _buildConfirmPasswordField(),
-                  if (!_passwordsMatch)
-                    Container(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Passwords do not match',
-                        style: TextStyle(color: Colors.red.shade900, fontSize: 12.sp),
-                      ),
+              color: Colors.white,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.all(16.w),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        SizedBox(height: 20.h),
+                        _buildAppLogo(),
+                        SizedBox(height: 10.h),
+                        _buildTextField('First Name', 'Enter First Name', true,
+                            _firstNameController),
+                        SizedBox(height: 10.h),
+                        _buildEmailField(),
+                        SizedBox(height: 10.h),
+                        _buildPhoneNumberField(),
+                        SizedBox(height: 10.h),
+                        _buildCountryField(),
+                        SizedBox(height: 10.h),
+                        _buildStateField(),
+                        SizedBox(height: 10.h),
+                        _buildCityField(),
+                        SizedBox(height: 10.h),
+                        _buildPasswordField(),
+                        SizedBox(height: 10.h),
+                        _buildConfirmPasswordField(),
+                        if (!_passwordsMatch)
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            child: Text('Passwords do not match',
+                                style: TextStyle(
+                                    color: Colors.red.shade900,
+                                    fontSize: 12.sp)),
+                          ),
+                        SizedBox(height: 10.h),
+                        TextFormField(
+                          controller: _referralCodeController,
+                          decoration: InputDecoration(
+                            labelText: 'Referral Code (Optional)',
+                            hintText: 'Enter referral code',
+                            prefixIcon:
+                                Icon(Icons.group_add, color: Colors.grey[600]),
+                            suffixIcon: _isVerifyingReferral
+                                ? const Padding(
+                                    padding: EdgeInsets.all(12.0),
+                                    child: SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2.0),
+                                    ),
+                                  )
+                                : _verifiedReferrerId != null
+                                    ? const Icon(Icons.check_circle,
+                                        color: Colors.green)
+                                    : null,
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12.w, vertical: 10.h),
+                            labelStyle: const TextStyle(color: Colors.black),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                        SizedBox(height: 24.h),
+                        ElevatedButton(
+                          onPressed: _registerUser,
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(double.infinity, 50),
+                            backgroundColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: const Text('Sign Up',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Already have an account? "),
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: const Text("Sign In",
+                                  style: TextStyle(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
+                                      decoration: TextDecoration.underline)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                     ),
-
-
-                  SizedBox(height: 10.h),
-                  _buildAutoCompleteField('Select Sponsor', sponsors, (String selection) {
-                    setState(() {
-                      selectedDropdown1 = selection;
-                    });
-                  }),
-                  SizedBox(height: 10.h),
-                  _buildAutoCompleteField('Select Your Parent', parents, (String selection) {
-                    setState(() {
-                      selectedDropdown2 = selection;
-                    });
-                  }),
-
-                  SizedBox(height: 24.h),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        isLocationError = selectedCountry == null || selectedState == null || selectedCity == null;
-                        _isGenderError = selectedGender == 'Select Gender';
-                      });
-                      if (_formKey.currentState!.validate() && !_isGenderError && !isLocationError) {
-                        _registerUser();
-                      } else {
-                         if (isLocationError) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please select Country, State, and District')),
-                          );
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                      backgroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
-                  )
-
-                ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
+
+  // --- BUILD WIDGETS ---
 
   Widget _buildAppLogo() {
     return Padding(
-      padding: EdgeInsets.all(16.0), // Add padding around the image
-      child: Image.asset(
-        'assets/images/app_logo2.png',
-        height: 120.h,
-        width: 120.h,
-        fit: BoxFit.cover, // Ensure the image fills the space without distortion
-      ),
+      padding: const EdgeInsets.all(16.0),
+      child: Image.asset('assets/images/app_logo2.png',
+          height: 120.h, width: 120.h, fit: BoxFit.cover),
     );
   }
 
-  Widget _buildDateOfBirthField() {
-    return GestureDetector(
-      onTap: () async {
-        DateTime? pickedDate = await showDatePicker(
-          context: context,
-          initialDate: DateTime.now(),
-          firstDate: DateTime(1900),
-          lastDate: DateTime.now(),
-        );
-        if (pickedDate != null) {
-          setState(() {
-            _dobController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
-            _ageController.text = _calculateAge(pickedDate).toString();
-          });
+  Widget _buildTextField(String label, String hint, bool isRequired,
+      TextEditingController controller,
+      {bool isMultiline = false,
+      bool enabled = true,
+      TextInputType keyboardType = TextInputType.text}) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      maxLines: isMultiline ? null : 1,
+      enabled: enabled,
+      validator: (value) {
+        if (isRequired && (value == null || value.isEmpty)) {
+          return '$label can\'t be empty';
         }
+        return null;
       },
-      child: AbsorbPointer(
-        child: _buildTextField('Date of Birth', 'Select Date of Birth', true, _dobController),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+        labelStyle: const TextStyle(color: Colors.black),
+        errorStyle: TextStyle(color: Colors.red.shade900, fontSize: 12),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.grey)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.grey)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.black)),
+        errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.red.shade900)),
+        focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.red.shade900)),
       ),
     );
   }
 
-  int _calculateAge(DateTime birthDate) {
-    DateTime currentDate = DateTime.now();
-    int age = currentDate.year - birthDate.year;
-    if (currentDate.month < birthDate.month ||
-        (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
-      age--;
-    }
-    return age;
+  Widget _buildEmailField() {
+    return TextFormField(
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      decoration: InputDecoration(
+        labelText: 'Email',
+        hintText: 'Enter Your Email',
+        fillColor: Colors.white,
+        labelStyle: const TextStyle(color: Colors.black),
+        filled: true,
+        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(color: Colors.grey.shade400)),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(
+                color: _isEmailValid
+                    ? Colors.grey.shade400
+                    : Colors.red.shade900)),
+        focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(
+                color: _isEmailValid ? Colors.black : Colors.red.shade900)),
+        errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.r),
+            borderSide: BorderSide(color: Colors.red.shade900)),
+        errorText: _isEmailValid ? null : 'Please enter a valid email address',
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter your email';
+        }
+        if (!_isValidEmail(value)) {
+          return 'Please enter a valid email address';
+        }
+        return null;
+      },
+    );
   }
 
   Widget _buildPhoneNumberField() {
@@ -652,86 +665,68 @@ class SignUpScreenState extends State<SignUpScreen> {
                   },
                 );
               },
-              child: Column(
-                children: [
-
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: _isPhoneNumberValid ? Colors.grey.shade400 : Colors.red.shade900),
-                      borderRadius: BorderRadius.circular(10.r),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          selectedCountryCode,
-                          style: GoogleFonts.roboto(
-                            textStyle: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12.sp,
-                            ),
-                          ),
-                        ),
-                        const Icon(Icons.arrow_drop_down, color: Colors.black),
-                      ],
-                    ),
-                  ),
-                  if (!_isPhoneNumberValid)
-                    const SizedBox(
-                      height: 29,
-                      width: 10,
-                    ),
-                ],
-              ),
-
-            ),
-                const SizedBox(
-                  width: 8,
-                ),
-
-             Expanded(
               child: Container(
-                alignment: Alignment.center,
-                child: TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    hintText: 'Phone Number',
-                    hintStyle: GoogleFonts.roboto(
-                      textStyle: const TextStyle(
-                        color: Colors.grey,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                    fillColor: Colors.white,
-                    filled: true,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: Colors.grey.shade400),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: _isPhoneNumberValid ? Colors.grey.shade400 : Colors.red),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: _isPhoneNumberValid ? Colors.black : Colors.red),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.r),
-                      borderSide: BorderSide(color: Colors.red.shade900),
-                    ),
-                    errorText: _isPhoneNumberValid ? null : 'Please enter a valid phone number',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your phone number';
-                    }
-                    return null;
-                  },
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 15.h),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(
+                      color: _isPhoneNumberValid
+                          ? Colors.grey.shade400
+                          : Colors.red.shade900),
+                  borderRadius: BorderRadius.circular(10.r),
                 ),
+                child: Row(
+                  children: [
+                    Text(selectedCountryCode,
+                        style: GoogleFonts.roboto(
+                            textStyle: TextStyle(
+                                color: Colors.black, fontSize: 12.sp))),
+                    const Icon(Icons.arrow_drop_down, color: Colors.black),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextFormField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  hintText: 'Phone Number',
+                  hintStyle: GoogleFonts.roboto(
+                      textStyle: const TextStyle(
+                          color: Colors.grey, fontWeight: FontWeight.w400)),
+                  fillColor: Colors.white,
+                  filled: true,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.r),
+                      borderSide: BorderSide(color: Colors.grey.shade400)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.r),
+                      borderSide: BorderSide(
+                          color: _isPhoneNumberValid
+                              ? Colors.grey.shade400
+                              : Colors.red)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.r),
+                      borderSide: BorderSide(
+                          color:
+                              _isPhoneNumberValid ? Colors.black : Colors.red)),
+                  errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.r),
+                      borderSide: BorderSide(color: Colors.red.shade900)),
+                  errorText: _isPhoneNumberValid
+                      ? null
+                      : 'Please enter a valid phone number',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your phone number';
+                  }
+                  return null;
+                },
               ),
             ),
           ],
@@ -748,38 +743,33 @@ class SignUpScreenState extends State<SignUpScreen> {
         labelText: 'Password',
         hintText: 'Enter your password',
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-        labelStyle: TextStyle(color: _passwordsMatch ? Colors.black : Colors.red.shade900),
-        errorText: !_isPasswordValid ? 'Password must be at least 6 characters long' : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        labelStyle: TextStyle(
+            color: _passwordsMatch ? Colors.black : Colors.red.shade900),
+        errorText: !_isPasswordValid
+            ? 'Password must be at least 6 characters long'
+            : null,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: _isPasswordValid ? Colors.grey : Colors.red.shade900),
-        ),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+                color: _isPasswordValid ? Colors.grey : Colors.red.shade900)),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: _isPasswordValid ? Colors.black : Colors.red.shade900),
-        ),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+                color: _isPasswordValid ? Colors.black : Colors.red.shade900)),
         suffixIcon: IconButton(
           icon: Icon(
-            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-            color: Colors.grey,
-          ),
-          onPressed: () {
-            setState(() {
-              _isPasswordVisible = !_isPasswordVisible;
-            });
-          },
+              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+              color: Colors.grey),
+          onPressed: () => setState(() {
+            _isPasswordVisible = !_isPasswordVisible;
+          }),
         ),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your password';
-        }
-        if (value.length < 8) {
-          return 'Password must be at least 8 characters long';
-        }
+        if (value == null || value.isEmpty) return 'Please enter your password';
+        if (value.length < 6)
+          return 'Password must be at least 6 characters long';
         return null;
       },
     );
@@ -793,126 +783,35 @@ class SignUpScreenState extends State<SignUpScreen> {
         labelText: 'Confirm Password',
         hintText: 'Re-enter your password',
         contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-        labelStyle: TextStyle(color: _passwordsMatch ? Colors.black : Colors.red.shade900),
+        labelStyle: TextStyle(
+            color: _passwordsMatch ? Colors.black : Colors.red.shade900),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: _passwordsMatch ? Colors.grey : Colors.red.shade900),
-        ),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+                color: _passwordsMatch ? Colors.grey : Colors.red.shade900)),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: _passwordsMatch ? Colors.grey : Colors.red.shade900),
-        ),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+                color: _passwordsMatch ? Colors.grey : Colors.red.shade900)),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: _passwordsMatch ? Colors.black : Colors.red.shade900),
-        ),
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(
+                color: _passwordsMatch ? Colors.black : Colors.red.shade900)),
         suffixIcon: IconButton(
           icon: Icon(
-            _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
-            color: Colors.grey,
-          ),
-          onPressed: () {
-            setState(() {
-              _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-            });
-          },
+              _isConfirmPasswordVisible
+                  ? Icons.visibility
+                  : Icons.visibility_off,
+              color: Colors.grey),
+          onPressed: () => setState(() {
+            _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
+          }),
         ),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) {
+        if (value == null || value.isEmpty)
           return 'Please confirm your password';
-        }
-        if (value != _passwordController.text) {
-          return 'Passwords do not match';
-        }
-        return null;
-      },
-    );
-  }
-
-Widget _buildTextField(String label, String hint, bool isRequired, TextEditingController controller, {bool isMultiline = false, bool enabled = true, TextInputType keyboardType = TextInputType.text}) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      maxLines: isMultiline ? null : 1,
-      enabled: enabled,
-      validator: (value) {
-        if (isRequired && (value == null || value.isEmpty)) {
-          return '$label can\'t be empty';
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-        labelStyle: const TextStyle(
-          color: Colors.black
-        ),
-        errorStyle:  TextStyle(
-          color: Colors.red.shade900,
-          fontSize: 12,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Colors.black),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide:  BorderSide(color: Colors.red.shade900),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide:  BorderSide(color: Colors.red.shade900),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmailField() {
-    return TextFormField(
-      controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
-      decoration: InputDecoration(
-        labelText: 'Email',
-        hintText: 'Enter Your Email',
-        fillColor: Colors.white,
-        labelStyle: const TextStyle(color: Colors.black),
-        filled: true,
-        contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: Colors.grey.shade400),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: _isEmailValid ? Colors.grey.shade400 : Colors.red.shade900),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: _isEmailValid ? Colors.black : Colors.red.shade900),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.r),
-          borderSide: BorderSide(color: Colors.red.shade900),
-        ),
-        errorText: _isEmailValid ? null : 'Please enter a valid email address',
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your email';
-        }
-        if (!_isValidEmail(value)) {
-          return 'Please enter a valid email address';
-        }
+        if (value != _passwordController.text) return 'Passwords do not match';
         return null;
       },
     );
@@ -928,43 +827,30 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-            color: isLocationError && selectedCountry == null
-                ? Colors.red.shade900
-                : Colors.grey.shade400,
-            width: 1.5,
-          ),
+              color: isLocationError && selectedCountry == null
+                  ? Colors.red.shade900
+                  : Colors.grey.shade400,
+              width: 1.5),
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // If loading countries, show shimmer for both the container and text
             _isLoadingCountries
                 ? Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
-              child: Container(
-                width: 150.w, // Adjust width as needed
-                height: 12.h,
-                color: Colors.white,
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(horizontal: 8.w),
-                child: Text(
-                  'Loading...',
-                  style: GoogleFonts.roboto(
-                    textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
-                  ),
-                ),
-              ),
-            )
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                    child: Container(
+                        width: 150.w, height: 12.h, color: Colors.white),
+                  )
                 : Text(
-              selectedCountry != null
-                  ? countries.firstWhere((c) => c['id'].toString() == selectedCountry)['name']
-                  : 'Select Country',
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
-              ),
-            ),
+                    selectedCountry != null
+                        ? countries.firstWhere((c) =>
+                            c['id'].toString() == selectedCountry)['name']
+                        : 'Select Country',
+                    style: GoogleFonts.roboto(
+                        textStyle:
+                            TextStyle(color: Colors.black, fontSize: 12.sp))),
             const Icon(Icons.arrow_drop_down, color: Colors.black),
           ],
         ),
@@ -982,43 +868,26 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-            color: isLocationError && selectedState == null
-                ? Colors.red.shade900
-                : Colors.grey.shade400,
-            width: 1.5,
-          ),
+              color: isLocationError && selectedState == null
+                  ? Colors.red.shade900
+                  : Colors.grey.shade400,
+              width: 1.5),
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // If loading states, show shimmer for both the container and text
             _isLoadingStates
                 ? Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
-              child: Container(
-                width: 150.w, // Adjust width as needed
-                height: 12.h,
-                color: Colors.white,
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(horizontal: 8.w),
-                child: Text(
-                  'Loading...', // You can modify this text if needed
-                  style: GoogleFonts.roboto(
-                    textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
-                  ),
-                ),
-              ),
-            )
-                : Text(
-              selectedState != null
-                  ? selectedState!
-                  : 'Select State',
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
-              ),
-            ),
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                    child: Container(
+                        width: 150.w, height: 12.h, color: Colors.white),
+                  )
+                : Text(selectedState != null ? selectedState! : 'Select State',
+                    style: GoogleFonts.roboto(
+                        textStyle:
+                            TextStyle(color: Colors.black, fontSize: 12.sp))),
             const Icon(Icons.arrow_drop_down, color: Colors.black),
           ],
         ),
@@ -1036,43 +905,26 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(
-            color: isLocationError && selectedCity == null
-                ? Colors.red.shade900
-                : Colors.grey.shade400,
-            width: 1.5,
-          ),
+              color: isLocationError && selectedCity == null
+                  ? Colors.red.shade900
+                  : Colors.grey.shade400,
+              width: 1.5),
           borderRadius: BorderRadius.circular(10.r),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // If loading cities, show shimmer effect for both the container and text
             _isLoadingCities
                 ? Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
-              child: Container(
-                width: 150.w, // Adjust width as needed
-                height: 12.h,
-                color: Colors.white,
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(horizontal: 8.w),
-                child: Text(
-                  'Loading...', // You can modify this text if needed
-                  style: GoogleFonts.roboto(
-                    textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
-                  ),
-                ),
-              ),
-            )
-                : Text(
-              selectedCity != null
-                  ? selectedCity!
-                  : 'Select City',
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(color: Colors.black, fontSize: 12.sp),
-              ),
-            ),
+                    baseColor: Colors.grey.shade300,
+                    highlightColor: Colors.grey.shade100,
+                    child: Container(
+                        width: 150.w, height: 12.h, color: Colors.white),
+                  )
+                : Text(selectedCity != null ? selectedCity! : 'Select District',
+                    style: GoogleFonts.roboto(
+                        textStyle:
+                            TextStyle(color: Colors.black, fontSize: 12.sp))),
             const Icon(Icons.arrow_drop_down, color: Colors.black),
           ],
         ),
@@ -1080,72 +932,137 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
     );
   }
 
-  Widget _buildAutoCompleteField(String label, List<String> items, Function(String) onSelected) {
-    return Autocomplete<String>(
-      optionsBuilder: (TextEditingValue textEditingValue) {
-        if (textEditingValue.text.isEmpty) {
-          return const Iterable<String>.empty();
-        }
-        return items.where((item) {
-          return item.toLowerCase().contains(textEditingValue.text.toLowerCase());
-        });
-      },
-      onSelected: (String selection) {
-        onSelected(selection);
-      },
-      fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-        return TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          decoration: InputDecoration(
-            hintText: label,
-            prefixIcon: const Icon(Icons.search),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(color: Colors.grey.shade400),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
-              borderSide: BorderSide(color: Colors.red.shade900 ),
-            ),
-          ),
+  void _showCountrySelectionSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0))),
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30.0),
+                      topRight: Radius.circular(30.0))),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Container(
+                      height: 6,
+                      width: 50,
+                      decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(12))),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text('Select Country',
+                        style: TextStyle(
+                            fontSize: 18.sp, fontWeight: FontWeight.bold)),
+                  ),
+                  Expanded(
+                    child: ListView.separated(
+                      controller: scrollController,
+                      itemCount: countries.length,
+                      itemBuilder: (context, index) {
+                        final country = countries[index];
+                        return ListTile(
+                          title: Text(country['name']),
+                          onTap: () {
+                            setState(() {
+                              selectedCountry = country['id'].toString();
+                            });
+                            fetchStates(selectedCountry!);
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                      separatorBuilder: (context, index) =>
+                          const Divider(thickness: 1, color: Colors.grey),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
   }
 
-  void _showSearchableModal({required String title, required TextEditingController searchController, required List<dynamic> items, required Function(Map<String, dynamic>) onItemSelected,}) {
+  void _showStateSelectionSheet() {
+    if (selectedCountry == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a country first')));
+      return;
+    }
+    _showSearchableModal(
+      title: 'State',
+      searchController: _searchStateController,
+      items: states,
+      onItemSelected: (selectedStateItem) {
+        setState(() {
+          selectedState = selectedStateItem['name'];
+          selectedStateId = selectedStateItem['id'].toString();
+          selectedCity = null;
+          selectedCityId = null;
+        });
+        fetchCities(selectedStateId!);
+      },
+    );
+  }
+
+  void _showCitySelectionSheet() {
+    if (selectedStateId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a state first')));
+      return;
+    }
+    _showSearchableModal(
+      title: 'District',
+      searchController: _searchCityController,
+      items: cities,
+      onItemSelected: (selectedCityItem) {
+        setState(() {
+          selectedCity = selectedCityItem['name'];
+          selectedCityId = selectedCityItem['id'].toString();
+        });
+      },
+    );
+  }
+
+  void _showSearchableModal(
+      {required String title,
+      required TextEditingController searchController,
+      required List<dynamic> items,
+      required Function(Map<String, dynamic>) onItemSelected}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30.0),
-          topRight: Radius.circular(30.0),
-        ),
-      ),
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0))),
       builder: (BuildContext context) {
         List<dynamic> filteredItems = List.from(items);
-
         return StatefulBuilder(
           builder: (context, setModalState) {
             return FractionallySizedBox(
               heightFactor: 0.9,
               child: Padding(
                 padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
                 child: Column(
                   children: [
                     Padding(
                       padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.sp,
-                        ),
-                      ),
+                      child: Text(title,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18.sp)),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -1155,17 +1072,16 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
                           hintText: 'Search $title',
                           prefixIcon: const Icon(Icons.search),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         onChanged: (query) {
                           setModalState(() {
-                            filteredItems = items.where((item) {
-                              return item['name']
-                                  .toString()
-                                  .toLowerCase()
-                                  .contains(query.toLowerCase());
-                            }).toList();
+                            filteredItems = items
+                                .where((item) => item['name']
+                                    .toString()
+                                    .toLowerCase()
+                                    .contains(query.toLowerCase()))
+                                .toList();
                           });
                         },
                       ),
@@ -1194,88 +1110,4 @@ Widget _buildTextField(String label, String hint, bool isRequired, TextEditingCo
       },
     );
   }
-
-  Widget _buildDropdownField(String label, String value, void Function() onTap, bool isRequired) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(
-            color: _isGenderError ? Colors.red.shade900  : Colors.grey.shade400,
-            width: 1.5,
-          ),
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              value,
-              style: GoogleFonts.roboto(
-                textStyle: TextStyle(
-                  color:  Colors.black,
-                  fontSize: 14.sp,
-                ),
-              ),
-            ),
-            const Icon(Icons.arrow_drop_down, color: Colors.black),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _selectGender() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                title: const Text('Male'),
-                onTap: () {
-                  setState(() {
-                    selectedGender = 'Male';
-                    _isGenderError = false;
-                  });
-                  Navigator.of(context).pop();
-                },
-              ),
-              ListTile(
-                title: const Text('Female'),
-                onTap: () {
-                  setState(() {
-                    selectedGender = 'Female';
-                    _isGenderError = false;
-                  });
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  String? validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Please enter your email';
-    }
-    String pattern = r'^[^@]+@[^@]+\.[^@]+';
-    RegExp regex = RegExp(pattern);
-    if (!regex.hasMatch(value)) {
-      return 'Please enter a valid email';
-    }
-    return null;
-  }
 }
-
-
-

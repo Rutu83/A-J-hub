@@ -1,6 +1,7 @@
 import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:ajhub_app/screens/product_detail.dart';
 import 'package:ajhub_app/utils/shimmer/shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,9 +14,8 @@ class OurProductAndService extends StatefulWidget {
   State<OurProductAndService> createState() => _OurProductAndServiceState();
 }
 
-class _OurProductAndServiceState extends State<OurProductAndService> {
-
-
+class _OurProductAndServiceState extends State<OurProductAndService>
+    with AutomaticKeepAliveClientMixin {
   final List<Color> borderColors = [
     Colors.red,
     Colors.blue,
@@ -26,9 +26,6 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
 
   String data = "Fetching data...";
 
-
-
-
   List<dynamic> products = [];
   bool hasError = false;
   String errorMessage = "";
@@ -37,13 +34,13 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
   void initState() {
     super.initState();
     fetchData(
-          (newProducts) {
+      (newProducts) {
         setState(() {
           hasError = false;
           products = newProducts;
         });
       },
-          (errorMessage) {
+      (errorMessage) {
         setState(() {
           hasError = true;
           data = errorMessage;
@@ -52,16 +49,18 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
     );
   }
 
-
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-
+    super.build(context); // Ensure KeepAlive logic runs
     if (hasError) {
       return Scaffold(
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20), // Add padding to the sides
+            padding: const EdgeInsets.symmetric(
+                horizontal: 20), // Add padding to the sides
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -96,7 +95,8 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87, // Slightly darkened text for better contrast
+                    color: Colors
+                        .black87, // Slightly darkened text for better contrast
                   ),
                 ),
 
@@ -112,7 +112,8 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                   textAlign: TextAlign.center, // Center align the text
                 ),
 
-                const SizedBox(height: 30), // Increased space between text and button
+                const SizedBox(
+                    height: 30), // Increased space between text and button
 
                 // Retry Button
                 ElevatedButton.icon(
@@ -121,13 +122,13 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                       hasError = false;
                     });
                     fetchData(
-                          (newProducts) {
+                      (newProducts) {
                         setState(() {
                           hasError = false;
                           products = newProducts;
                         });
                       },
-                          (errorMessage) {
+                      (errorMessage) {
                         setState(() {
                           hasError = true;
                           data = errorMessage;
@@ -136,15 +137,18 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
                     );
                   },
                   icon: const Icon(Icons.refresh, color: Colors.white),
-                  label: const Text("Retry", style: TextStyle(color: Colors.white)),
+                  label: const Text("Retry",
+                      style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red, // Button color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 14),
                     textStyle: const TextStyle(
-                      fontSize: 18, // Slightly larger font size for better readability
+                      fontSize:
+                          18, // Slightly larger font size for better readability
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -158,7 +162,7 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Our Products & Services',
+          'Biz Boost',
           style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -170,180 +174,173 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: Colors.white,
-      body:products.isEmpty
+      body: products.isEmpty
           ? Center(
-        child: data == "Fetching data..."
-            ? buildSkeletonLoader()
-            : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.info_outline,
-              size: 60.sp,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'No Data Found',
-              style: GoogleFonts.poppins(
-                fontSize: 16.sp,
-                color: Colors.grey,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      )
-          :Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: ListView.builder(
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product = products[index];
-                  final borderColor = borderColors[index % borderColors.length];
-                  return InkWell(
-                    onTap: () {
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProductDetailPage(product: product),
+              child: data == "Fetching data..."
+                  ? buildSkeletonLoader()
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 60.sp,
+                          color: Colors.grey,
                         ),
-                      );
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: borderColor.withOpacity(0.15),
-                            spreadRadius: 2,
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                        const SizedBox(height: 10),
+                        Text(
+                          'No Data Found',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16.sp,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: Colors.grey.shade200,
-                                  width: 1,
-                                ),
+                        ),
+                      ],
+                    ),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: ListView.builder(
+                      itemCount: products.length,
+                      itemBuilder: (context, index) {
+                        final product = products[index];
+                        final borderColor =
+                            borderColors[index % borderColors.length];
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    ProductDetailPage(product: product),
                               ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.network(
-                                  product['thumb_image']!,
-                                  height: 180,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) {
-                                      return child;
-                                    }
-                                    return Center(
-                                      child: CircularProgressIndicator(
-                                        value: loadingProgress.expectedTotalBytes != null
-                                            ? loadingProgress.cumulativeBytesLoaded /
-                                            (loadingProgress.expectedTotalBytes ?? 1)
-                                            : null,
-                                      ),
-                                    );
-                                  },
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Container(
-                                      color: Colors.grey.shade200,
-                                      height: 180,
-                                      width: double.infinity,
-                                      child: const Center(
-                                        child: Icon(
-                                          Icons.broken_image,
-                                          size: 40,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-
-
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                                  child:Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-
-                                      Text(
-                                        product['title']!,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: borderColor,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        product['short_description']!,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          color: Colors.black54,
-                                        ),
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                IconButton(
-                                  onPressed: () {
-
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ProductDetailPage(product: product),
-                                      ),
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: borderColor,
-                                    size: 20,
-                                  ),
+                            );
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  spreadRadius: 1,
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 8),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: CachedNetworkImage(
+                                        imageUrl: product['thumb_image']!,
+                                        height: 190,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            Container(
+                                          height: 190,
+                                          width: double.infinity,
+                                          color: Colors.grey[200],
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            Container(
+                                          height: 190,
+                                          width: double.infinity,
+                                          color: Colors.grey[200],
+                                          child: const Center(
+                                            child: Icon(
+                                              Icons.broken_image,
+                                              size: 40,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              product['title']!,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.black87,
+                                                letterSpacing: 0.5,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                            const SizedBox(height: 6),
+                                            Text(
+                                              product['short_description']!,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 13,
+                                                color: Colors.black54,
+                                                height: 1.4,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: borderColor.withOpacity(0.1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.arrow_forward_rounded,
+                                          color: borderColor,
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
-
     );
   }
 
@@ -394,5 +391,3 @@ class _OurProductAndServiceState extends State<OurProductAndService> {
     );
   }
 }
-
-

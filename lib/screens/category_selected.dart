@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
+import 'dart:ui' as ui;
+
 import 'package:ajhub_app/dynamic_fram/fram_1.dart';
 import 'package:ajhub_app/dynamic_fram/fram_2.dart';
 import 'package:ajhub_app/dynamic_fram/fram_3.dart';
@@ -9,24 +10,28 @@ import 'package:ajhub_app/dynamic_fram/fram_4.dart';
 import 'package:ajhub_app/dynamic_fram/fram_5.dart';
 import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:ajhub_app/screens/active_user_screen2.dart';
+import 'package:ajhub_app/screens/payment/premium_plans_screen.dart';
 import 'package:ajhub_app/screens/category_edit_business_form.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gallery_saver_plus/gallery_saver.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:gallery_saver_plus/gallery_saver.dart';
-import 'dart:ui' as ui;
+
+import 'business_form.dart';
+import 'package:shimmer/shimmer.dart'; // Import Shimmer package
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
   final String title;
 
-  const CategorySelected({super.key, required this.imagePaths, required this.title});
+  const CategorySelected(
+      {super.key, required this.imagePaths, required this.title});
 
   @override
   CategorySelectedState createState() => CategorySelectedState();
@@ -39,25 +44,59 @@ class CategorySelectedState extends State<CategorySelected> {
   String businessName = ' ';
   String emailAddress = ' ';
   String ownerName = ' ';
-  String  status = ' ';
+  String status = ' ';
   String mobileNumber = ' ';
   String address = ' ';
   String website = ' ';
   List<Widget> frameWidgets = [];
   bool isLoading = true;
-  bool allFramesLoaded = false;
-  bool isFramesLoading = true;
   bool isProcessing = false;
   String progressMessage = "";
   final GlobalKey _repaintKey = GlobalKey();
 
+  String? businessLogoUrl;
+  Offset logoPosition = const Offset(15, 15);
+  double logoScale = 0.6;
+  double _baseScale = 0.6;
+  bool showLogo = false;
+
+  List<String> _validImagePaths = [];
+
   @override
   void initState() {
     super.initState();
-    fetchUserData();
-    printActiveBusinessData();
-    _loadFrames();
-    _initializeData();
+    _validateAndSetImagePaths();
+
+    if (_validImagePaths.isNotEmpty) {
+      // Don't block the UI. Fetch data in background.
+      fetchUserData();
+      printActiveBusinessData();
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  bool _isUrlSupported(String? url) {
+    if (url == null || url.isEmpty) return false;
+    final lowercasedUrl = url.toLowerCase();
+    if (lowercasedUrl.endsWith('.avif') ||
+        lowercasedUrl.endsWith('.heic') ||
+        lowercasedUrl.endsWith('.heif')) {
+      if (kDebugMode) {
+        print('Unsupported image format skipped: $url');
+      }
+      return false;
+    }
+    final uri = Uri.tryParse(url);
+    return uri != null && uri.hasAbsolutePath && uri.scheme.startsWith('http');
+  }
+
+  void _validateAndSetImagePaths() {
+    setState(() {
+      _validImagePaths = widget.imagePaths.where(_isUrlSupported).toList();
+    });
   }
 
   @override
@@ -66,14 +105,59 @@ class CategorySelectedState extends State<CategorySelected> {
     super.dispose();
   }
 
-  Future<void> _initializeData() async {
-    await _loadFrames();
-    setState(() {
-      isLoading = false;
+  // --- NEW CODE ADDED: This function shows the popup ---
+  void _showAddBusinessPopup() {
+    // Ensures the dialog is shown after the current build cycle is complete.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return; // Check if the widget is still in the tree
+
+      showDialog(
+        context: context,
+        barrierDismissible: false, // User must interact with the dialog
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+            title: Text('Add Your Business',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+            content: Text(
+                'To create posters with your own details, please add your business information first.',
+                style: GoogleFonts.poppins()),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Maybe Later'),
+                onPressed: () {
+                  Navigator.of(dialogContext).pop(); // Just close the dialog
+                },
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                onPressed: () {
+                  Navigator.of(dialogContext).pop(); // Close the dialog first
+                  // Navigate to the form to add/edit business details
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const BusinessForm()),
+                  );
+                },
+                child: const Text('Add Details'),
+              ),
+            ],
+          );
+        },
+      );
     });
   }
 
   Future<void> printActiveBusinessData() async {
+    // We don't set isLoading = true here because we want the grid to show immediately.
+    // We only track it for the Frame Preview section.
     setState(() {
       isLoading = true;
     });
@@ -84,7 +168,6 @@ class CategorySelectedState extends State<CategorySelected> {
 
       if (activeBusinessData != null) {
         final activeBusiness = json.decode(activeBusinessData);
-
         setState(() {
           businessName = activeBusiness['business_name'] ?? 'Not Provided';
           ownerName = activeBusiness['owner_name'] ?? 'Not Provided';
@@ -92,22 +175,32 @@ class CategorySelectedState extends State<CategorySelected> {
           emailAddress = activeBusiness['email'] ?? 'Not Provided';
           address = activeBusiness['address'] ?? 'Not Provided';
           website = activeBusiness['website'] ?? 'Not Provided';
+          String? potentialLogoUrl = activeBusiness['logo'];
+          if (_isUrlSupported(potentialLogoUrl)) {
+            businessLogoUrl = potentialLogoUrl;
+            showLogo = true;
+          } else {
+            businessLogoUrl = null;
+            showLogo = false;
+          }
         });
-
-        await _loadFrames();
       } else {
-        setState(() {
-            businessName =  'Aj hub Mobile App';
-            ownerName =  'Aj hub Mobile App';
-            mobileNumber =  '78630 45542';
-            emailAddress =  'support@ajhub.co.in';
-            address =  'Palanpur , Gujarat - 385001';
-            website =  'https://ajhub.co.in';
-        });
-     //   _showNoBusinessDialog();
+        // --- NEW CODE ADDED: This line calls the new popup function ---
+        _showAddBusinessPopup();
 
-        await _loadFrames();
+        // (Your existing code remains untouched)
+        setState(() {
+          businessName = 'Aj hub Mobile App';
+          ownerName = 'Aj hub Mobile App';
+          mobileNumber = '78630 45542';
+          emailAddress = 'support@ajhub.co.in';
+          address = 'Palanpur , Gujarat - 385001';
+          website = 'https://ajhub.co.in';
+          businessLogoUrl = null;
+          showLogo = false;
+        });
       }
+      await _loadFrames();
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -123,156 +216,86 @@ class CategorySelectedState extends State<CategorySelected> {
   }
 
   Future<void> _loadFrames() async {
-    setState(() {
-      isFramesLoading = true;
-    });
-
-    try {
     frameWidgets = [
-        Fram1(
+      Fram1(
           businessName: businessName,
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
-          website: website,
-        ),
-        Fram2(
+          website: website),
+      Fram2(
           businessName: businessName,
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
-          website: website,
-        ),
-        Fram3(
+          website: website),
+      Fram3(
           businessName: businessName,
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
-          website: website,
-        ),
-        Fram4(
+          website: website),
+      Fram4(
           businessName: businessName,
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
-          website: website,
-        ),
-        Fram5(
+          website: website),
+      Fram5(
           businessName: businessName,
           phoneNumber: mobileNumber,
           emailAddress: emailAddress,
           address: address,
-          website: website,
-        ),
-      ];
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error loading frames: $error'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
-      setState(() {
-        isFramesLoading = false;
-        allFramesLoaded = true;
-      });
+          website: website),
+    ];
+    if (mounted) {
+      setState(() {});
     }
   }
 
-  // void _showNoBusinessDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         title: const Text('No Active Business'),
-  //         content: const Text(
-  //           'No active business data found. Please add or select a business.',
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.pop(context);
-  //               Navigator.pop(context);
-  //             },
-  //             child: const Text(
-  //               'Back',
-  //               style: TextStyle(color: Colors.grey),
-  //             ),
-  //           ),
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.pop(context);
-  //               Navigator.pushReplacement(
-  //                 context,
-  //                 MaterialPageRoute(builder: (context) => const BusinessList()),
-  //               );
-  //             },
-  //             child: const Text(
-  //               'Go to Business List',
-  //               style: TextStyle(color: Colors.red),
-  //             ),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
+  // (The rest of your file remains exactly the same...)
   static const maxDownloads = 5;
 
   Future<void> _incrementDownloadCount(String filePath) async {
     final prefs = await SharedPreferences.getInstance();
-
-    Map<String, dynamic> downloadedPaths = json.decode(
-      prefs.getString('downloaded_paths') ?? '{}',
-    );
-    Map<String, List<String>> downloadedPathsSafe = downloadedPaths.map(
-          (key, value) => MapEntry(key, List<String>.from(value ?? [])),
-    );
-
+    Map<String, dynamic> downloadedPaths =
+        json.decode(prefs.getString('downloaded_paths') ?? '{}');
+    Map<String, List<String>> downloadedPathsSafe = downloadedPaths
+        .map((key, value) => MapEntry(key, List<String>.from(value ?? [])));
     Map<String, int> categoryDownloadCount = Map<String, int>.from(
-      json.decode(prefs.getString('category_download_count') ?? '{}'),
-    );
-
-    categoryDownloadCount[widget.title] = categoryDownloadCount[widget.title] ?? 0;
+        json.decode(prefs.getString('category_download_count') ?? '{}'));
+    categoryDownloadCount[widget.title] =
+        categoryDownloadCount[widget.title] ?? 0;
     downloadedPathsSafe[widget.title] = downloadedPathsSafe[widget.title] ?? [];
-
     if (categoryDownloadCount[widget.title]! < maxDownloads) {
-      categoryDownloadCount[widget.title] = categoryDownloadCount[widget.title]! + 1;
+      categoryDownloadCount[widget.title] =
+          categoryDownloadCount[widget.title]! + 1;
       downloadedPathsSafe[widget.title]!.add(filePath);
-
-      await prefs.setString('category_download_count', json.encode(categoryDownloadCount));
-      await prefs.setString('downloaded_paths', json.encode(downloadedPathsSafe));
-
-      if (categoryDownloadCount[widget.title] == maxDownloads) {
-
-      }
+      await prefs.setString(
+          'category_download_count', json.encode(categoryDownloadCount));
+      await prefs.setString(
+          'downloaded_paths', json.encode(downloadedPathsSafe));
+      if (categoryDownloadCount[widget.title] == maxDownloads) {}
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Maximum downloads for "${widget.title}" reached!')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Maximum downloads for "${widget.title}" reached!')));
     }
   }
 
   Future<int> _getDownloadCount() async {
     final prefs = await SharedPreferences.getInstance();
-    Map<String, int> categoryDownloadCount =
-    Map<String, int>.from(json.decode(prefs.getString('category_download_count') ?? '{}'));
+    Map<String, int> categoryDownloadCount = Map<String, int>.from(
+        json.decode(prefs.getString('category_download_count') ?? '{}'));
     _showDownloads();
     return categoryDownloadCount[widget.title] ?? 0;
   }
 
   Future<void> _showDownloads() async {
     final prefs = await SharedPreferences.getInstance();
-
-    Map<String, dynamic> downloadedPaths = json.decode(
-      prefs.getString('downloaded_paths') ?? '{}',
-    );
-    Map<String, List<String>> downloadedPathsSafe = downloadedPaths.map(
-          (key, value) => MapEntry(key, List<String>.from(value ?? [])),
-    );
-
+    Map<String, dynamic> downloadedPaths =
+        json.decode(prefs.getString('downloaded_paths') ?? '{}');
+    Map<String, List<String>> downloadedPathsSafe = downloadedPaths
+        .map((key, value) => MapEntry(key, List<String>.from(value ?? [])));
     List<String> pathsForTitle = downloadedPathsSafe[widget.title] ?? [];
   }
 
@@ -281,33 +304,27 @@ class CategorySelectedState extends State<CategorySelected> {
       isProcessing = true;
       progressMessage = "Downloading image...";
     });
-
     try {
       final downloadCount = await _getDownloadCount();
       if (downloadCount >= maxDownloads) {
         _showUpgradePopup();
         return;
       }
-
-      final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary = _repaintKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary == null) throw Exception('Unable to capture frame.');
-
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData?.buffer.asUint8List();
-
       if (pngBytes != null) {
         final directory = Directory('/storage/emulated/0/Pictures/AJHUB');
         if (!directory.existsSync()) directory.createSync(recursive: true);
-
         final filePath =
             '${directory.path}/frame_${DateTime.now().millisecondsSinceEpoch}.png';
         final file = File(filePath);
         await file.writeAsBytes(pngBytes);
-
         await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
         await _incrementDownloadCount(filePath);
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             behavior: SnackBarBehavior.floating,
@@ -323,18 +340,16 @@ class CategorySelectedState extends State<CategorySelected> {
                 Expanded(
                   child: Text(
                     'Image downloaded successfully!',
-                    style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
+                    style: GoogleFonts.poppins(
+                        fontSize: 14.sp, color: Colors.black),
                   ),
                 ),
               ],
             ),
           ),
         );
-
-
       }
     } catch (error) {
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
@@ -350,15 +365,14 @@ class CategorySelectedState extends State<CategorySelected> {
               Expanded(
                 child: Text(
                   'Error downloading image: $error',
-                  style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
+                  style:
+                      GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
                 ),
               ),
             ],
           ),
         ),
       );
-
-
     } finally {
       setState(() {
         isProcessing = false;
@@ -372,32 +386,21 @@ class CategorySelectedState extends State<CategorySelected> {
       isProcessing = true;
       progressMessage = "Downloading image...";
     });
-
     try {
-      // Skip download count check to remove limit
-      // final downloadCount = await _getDownloadCount();
-      // if (downloadCount >= maxDownloads) {
-      //   _showUpgradePopup();
-      //   return;
-      // }
-
-      final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary = _repaintKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary == null) throw Exception('Unable to capture frame.');
-
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData?.buffer.asUint8List();
-
       if (pngBytes != null) {
         final directory = Directory('/storage/emulated/0/Pictures/AJHUB');
         if (!directory.existsSync()) directory.createSync(recursive: true);
-
-        final filePath = '${directory.path}/frame_${DateTime.now().millisecondsSinceEpoch}.png';
+        final filePath =
+            '${directory.path}/frame_${DateTime.now().millisecondsSinceEpoch}.png';
         final file = File(filePath);
         await file.writeAsBytes(pngBytes);
-
         await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
-        // await _incrementDownloadCount(filePath);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             behavior: SnackBarBehavior.floating,
@@ -413,7 +416,8 @@ class CategorySelectedState extends State<CategorySelected> {
                 Expanded(
                   child: Text(
                     'Image downloaded successfully!',
-                    style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
+                    style: GoogleFonts.poppins(
+                        fontSize: 14.sp, color: Colors.black),
                   ),
                 ),
               ],
@@ -422,7 +426,6 @@ class CategorySelectedState extends State<CategorySelected> {
         );
       }
     } catch (error) {
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
@@ -438,7 +441,8 @@ class CategorySelectedState extends State<CategorySelected> {
               Expanded(
                 child: Text(
                   'Failed to download image. Please try again later.',
-                  style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
+                  style:
+                      GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
                 ),
               ),
             ],
@@ -471,7 +475,8 @@ class CategorySelectedState extends State<CategorySelected> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ActivateMembershipPage()),
+                MaterialPageRoute(
+                    builder: (context) => const PremiumPlansScreen()),
               );
             },
             child: const Text('Upgrade Now'),
@@ -484,8 +489,7 @@ class CategorySelectedState extends State<CategorySelected> {
   Future<void> fetchUserData() async {
     try {
       Map<String, dynamic> userDetail = await getUserDetail();
-
-       status = userDetail['status'] ?? '';
+      status = userDetail['status'] ?? '';
     } catch (e) {
       if (kDebugMode) {
         print(e);
@@ -498,22 +502,18 @@ class CategorySelectedState extends State<CategorySelected> {
       isProcessing = true;
       progressMessage = "Preparing image for sharing...";
     });
-
     try {
-      final boundary =
-      _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary = _repaintKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary == null) throw Exception('Unable to capture frame.');
-
       final image = await boundary.toImage(pixelRatio: 3.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData?.buffer.asUint8List();
-
       final directory = await getTemporaryDirectory();
       final filePath =
           '${directory.path}/shared_frame_${DateTime.now().millisecondsSinceEpoch}.png';
       final file = File(filePath);
       await file.writeAsBytes(pngBytes!);
-
       await Share.shareXFiles(
         [XFile(filePath)],
         text: 'AJ HUb Mobile App!',
@@ -533,17 +533,254 @@ class CategorySelectedState extends State<CategorySelected> {
     }
   }
 
+  // --- NEW: Shimmer Widget for Frame Preview ---
+  Widget _buildFrameShimmer(double containerWidth) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        height: containerWidth,
+        width: containerWidth,
+        margin: const EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  // Helper method to keep build clean
+  Widget _buildBody(double containerWidth) {
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          child: Column(
+            children: [
+              if (isLoading)
+                _buildFrameShimmer(containerWidth)
+              else
+                RepaintBoundary(
+                  key: _repaintKey,
+                  child: LayoutBuilder(builder: (context, constraints) {
+                    const double logoBaseSize = 80.0;
+                    return SizedBox(
+                      height: containerWidth,
+                      width: containerWidth,
+                      child: Stack(
+                        children: [
+                          Positioned.fill(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: CachedNetworkImage(
+                                imageUrl: _validImagePaths[selectedIndex],
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) =>
+                                    const Center(
+                                  child: Icon(Icons.error, color: Colors.red),
+                                ),
+                              ),
+                            ),
+                          ),
+                          PageView.builder(
+                            itemCount: frameWidgets.length,
+                            controller:
+                                PageController(initialPage: selectedFrameIndex),
+                            onPageChanged: (index) {
+                              setState(() {
+                                selectedFrameIndex = index;
+                              });
+                            },
+                            itemBuilder: (context, index) {
+                              return frameWidgets.isEmpty
+                                  ? const SizedBox.shrink()
+                                  : frameWidgets[index];
+                            },
+                          ),
+                          if (showLogo && businessLogoUrl != null)
+                            Positioned(
+                              left: logoPosition.dx,
+                              top: logoPosition.dy,
+                              child: GestureDetector(
+                                onScaleStart: (details) {
+                                  _baseScale = logoScale;
+                                },
+                                onScaleUpdate: (details) {
+                                  setState(() {
+                                    logoScale = (_baseScale * details.scale)
+                                        .clamp(0.5, 2.0);
+
+                                    final currentLogoWidth =
+                                        logoBaseSize * logoScale;
+                                    final currentLogoHeight =
+                                        logoBaseSize * logoScale;
+
+                                    double newDx = logoPosition.dx +
+                                        details.focalPointDelta.dx;
+                                    double newDy = logoPosition.dy +
+                                        details.focalPointDelta.dy;
+
+                                    newDx = newDx.clamp(
+                                        0.0,
+                                        constraints.maxWidth -
+                                            currentLogoWidth);
+                                    newDy = newDy.clamp(
+                                        0.0,
+                                        constraints.maxHeight -
+                                            currentLogoHeight);
+
+                                    logoPosition = Offset(newDx, newDy);
+                                  });
+                                },
+                                child: Transform.scale(
+                                  scale: logoScale,
+                                  child: SizedBox(
+                                    width: logoBaseSize,
+                                    height: logoBaseSize,
+                                    child: CachedNetworkImage(
+                                      imageUrl: businessLogoUrl!,
+                                      placeholder: (context, url) => Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          const SizedBox.shrink(),
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+              SizedBox(height: 10.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  frameWidgets.length,
+                  (index) => Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 5),
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: selectedFrameIndex == index
+                          ? Colors.black
+                          : Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20.h),
+              GridView.builder(
+                padding: const EdgeInsets.all(10),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: MediaQuery.of(context).size.width > 600 ? 5 : 3, // Responsive!
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: _validImagePaths.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedIndex = index;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: selectedIndex == index
+                            ? Border.all(color: Colors.red, width: 2)
+                            : null,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: CachedNetworkImage(
+                          imageUrl: _validImagePaths[index],
+                          fit: BoxFit.cover,
+                          memCacheHeight:
+                              400, // Optimization: Resize active image
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey[200], // Simple placeholder
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              SizedBox(height: 100.h), // Space for bottom content
+            ],
+          ),
+        ),
+        if (isProcessing)
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 10),
+                  Text(progressMessage,
+                      style: const TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final containerWidth = MediaQuery.of(context).size.width * 0.97;
-
+    if (_validImagePaths.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: _validImagePaths.isEmpty
+            ? Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Text(
+                    'No supported images found for this category.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                        fontSize: 16.sp, color: Colors.grey[700]),
+                  ),
+                ),
+              )
+            : _buildBody(containerWidth), // Extracted body construction
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
           'Select Frame',
-          style: TextStyle(
+          style: GoogleFonts.b612(
             color: Colors.black,
             fontSize: 18.sp,
             fontWeight: FontWeight.bold,
@@ -554,136 +791,212 @@ class CategorySelectedState extends State<CategorySelected> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                shape: BoxShape.circle,
+          Container(
+            alignment: Alignment.center,
+            margin: const EdgeInsets.all(4.0),
+            width: 36.0,
+            height: 35.0,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.red,
+                width: 1.3,
               ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.edit,
-                  size: 24.0,
-                  color: Colors.black,
-                ),
-                tooltip: 'Edit Category',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const CategoryEditBusinessForm(),
-                    ),
-                  );
-                },
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.edit,
+                size: 21.0,
+                color: Colors.red,
               ),
+              tooltip: 'Edit Business Details',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CategoryEditBusinessForm(),
+                  ),
+                ).then((_) {
+                  printActiveBusinessData();
+                });
+              },
             ),
           ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                shape: BoxShape.circle,
+          Container(
+            alignment: Alignment.center,
+            margin: const EdgeInsets.all(4.0),
+            width: 36.0,
+            height: 35.0,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.red,
+                width: 1.3,
               ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.file_download,
-                  size: 24.0,
-                  color: Colors.black,
-                ),
-                tooltip: 'Download Image',
-                onPressed: status == 'active' && !isProcessing ? _downloadImage1 : (status != 'inactive' && !isProcessing ? _downloadImage : null),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: IconButton(
+              icon: const Icon(
+                Icons.file_download,
+                size: 21.0,
+                color: Colors.red,
               ),
+              tooltip: 'Download Image',
+              onPressed: status == 'active' && !isProcessing
+                  ? _downloadImage1
+                  : (status != 'inactive' && !isProcessing
+                      ? _downloadImage
+                      : null),
             ),
           ),
-
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                shape: BoxShape.circle,
+          Container(
+            alignment: Alignment.center,
+            margin: const EdgeInsets.all(4.0),
+            width: 36.0,
+            height: 35.0,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.red,
+                width: 1.3,
               ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.share,
-                  size: 24.0,
-                  color: Colors.black,
-                ),
-                tooltip: 'Share Image',
-                onPressed: !isProcessing ? _shareImage : null,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: IconButton(
+              icon: const Icon(
+                Icons.share,
+                size: 21.0,
+                color: Colors.red,
               ),
+              tooltip: 'Share Image',
+              onPressed: !isProcessing ? _shareImage : null,
             ),
           ),
         ],
       ),
-
       body: Stack(
         children: [
           SingleChildScrollView(
             child: Column(
               children: [
-                RepaintBoundary(
-                  key: _repaintKey,
-                  child: SizedBox(
-                    height: containerWidth,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Positioned(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: CachedNetworkImage(
-                              imageUrl: widget.imagePaths[selectedIndex],
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => const Center(child: CircularProgressIndicator()), // Show loading indicator while the image is being loaded
-                              errorWidget: (context, url, error) => const Center(
-                                child: Text(
-                                  'Failed to load image', // Show error message when image fails to load
-                                  style: TextStyle(color: Colors.red, fontSize: 16),
+                // --- FRAME PREVIEW SECTION (With Shimmer) ---
+                if (isLoading)
+                  _buildFrameShimmer(containerWidth)
+                else
+                  RepaintBoundary(
+                    key: _repaintKey,
+                    child: LayoutBuilder(builder: (context, constraints) {
+                      const double logoBaseSize = 80.0;
+                      return SizedBox(
+                        height: containerWidth,
+                        width: containerWidth,
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: CachedNetworkImage(
+                                  imageUrl: _validImagePaths[selectedIndex],
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => const Center(
+                                      child: CircularProgressIndicator()),
+                                  errorWidget: (context, url, error) =>
+                                      const Center(
+                                    child: Icon(Icons.error, color: Colors.red),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                            PageView.builder(
+                              itemCount: frameWidgets.length,
+                              controller: PageController(
+                                  initialPage: selectedFrameIndex),
+                              onPageChanged: (index) {
+                                setState(() {
+                                  selectedFrameIndex = index;
+                                });
+                              },
+                              itemBuilder: (context, index) {
+                                return frameWidgets.isEmpty
+                                    ? const SizedBox.shrink()
+                                    : frameWidgets[index];
+                              },
+                            ),
+                            if (showLogo && businessLogoUrl != null)
+                              Positioned(
+                                left: logoPosition.dx,
+                                top: logoPosition.dy,
+                                child: GestureDetector(
+                                  onScaleStart: (details) {
+                                    _baseScale = logoScale;
+                                  },
+                                  onScaleUpdate: (details) {
+                                    setState(() {
+                                      logoScale = (_baseScale * details.scale)
+                                          .clamp(0.5, 2.0);
+
+                                      final currentLogoWidth =
+                                          logoBaseSize * logoScale;
+                                      final currentLogoHeight =
+                                          logoBaseSize * logoScale;
+
+                                      double newDx = logoPosition.dx +
+                                          details.focalPointDelta.dx;
+                                      double newDy = logoPosition.dy +
+                                          details.focalPointDelta.dy;
+
+                                      newDx = newDx.clamp(
+                                          0.0,
+                                          constraints.maxWidth -
+                                              currentLogoWidth);
+                                      newDy = newDy.clamp(
+                                          0.0,
+                                          constraints.maxHeight -
+                                              currentLogoHeight);
+
+                                      logoPosition = Offset(newDx, newDy);
+                                    });
+                                  },
+                                  child: Transform.scale(
+                                    scale: logoScale,
+                                    child: SizedBox(
+                                      width: logoBaseSize,
+                                      height: logoBaseSize,
+                                      child: CachedNetworkImage(
+                                        imageUrl: businessLogoUrl!,
+                                        placeholder: (context, url) => Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            const SizedBox.shrink(),
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                        Positioned(
-                          left: 0.0,
-                          right: 0.0,
-                          top: 0,
-                          bottom: 0,
-                          child: PageView.builder(
-                            itemCount: frameWidgets.length,
-                            controller: PageController(initialPage: selectedFrameIndex),
-                            scrollDirection: Axis.horizontal,
-                            onPageChanged: (index) {
-                              setState(() {
-                                selectedFrameIndex = index;
-                              });
-                            },
-                            itemBuilder: (context, index) {
-                              return frameWidgets[index];
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    }),
                   ),
-                ),
                 SizedBox(height: 10.h),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
                     frameWidgets.length,
-                        (index) => Container(
+                    (index) => Container(
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       width: 12,
                       height: 12,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: selectedFrameIndex == index ? Colors.black : Colors.grey,
+                        color: selectedFrameIndex == index
+                            ? Colors.black
+                            : Colors.grey,
                       ),
                     ),
                   ),
@@ -698,7 +1011,7 @@ class CategorySelectedState extends State<CategorySelected> {
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                   ),
-                  itemCount: widget.imagePaths.length,
+                  itemCount: _validImagePaths.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
@@ -723,11 +1036,12 @@ class CategorySelectedState extends State<CategorySelected> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: CachedNetworkImage(
-                                imageUrl: widget.imagePaths[index],
+                                imageUrl: _validImagePaths[index],
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) => const CircularProgressIndicator(),
+                                placeholder: (context, url) =>
+                                    const CircularProgressIndicator(),
                                 errorWidget: (context, url, error) =>
-                                const Icon(Icons.error, color: Colors.red),
+                                    const Icon(Icons.error, color: Colors.red),
                               ),
                             ),
                           ),
@@ -758,7 +1072,8 @@ class CategorySelectedState extends State<CategorySelected> {
                   children: [
                     const CircularProgressIndicator(),
                     const SizedBox(height: 10),
-                    Text(progressMessage, style: const TextStyle(color: Colors.white)),
+                    Text(progressMessage,
+                        style: const TextStyle(color: Colors.white)),
                   ],
                 ),
               ),

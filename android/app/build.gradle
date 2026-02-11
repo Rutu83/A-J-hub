@@ -15,32 +15,35 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 if (flutterVersionCode == null) {
-    flutterVersionCode = "3"
+    flutterVersionCode = "16"
 }
 
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
 if (flutterVersionName == null) {
-    flutterVersionName = "1.0.2"
+    flutterVersionName = "3.0.0"
 }
 
 android {
-    compileSdk = 34
+    namespace = "com.ajhubdesignapp.ajhub_app"
+    compileSdk = 36
 
     defaultConfig {
         applicationId "com.ajhubdesignapp.ajhub_app"
-        minSdk = 23
-        targetSdk = 34 // Updated to match compileSdk
-        versionCode = 3
-        versionName "1.0.2"
+        minSdkVersion = flutter.minSdkVersion
+        targetSdk = 36 // Updated to match compileSdk
+        versionCode = 16
+        versionName "3.0.0"
+        multiDexEnabled true
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 
     buildTypes {
@@ -49,8 +52,8 @@ android {
         }
         release {
             signingConfig signingConfigs.debug
-            minifyEnabled false
-            shrinkResources false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -60,4 +63,10 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
+    implementation "com.android.installreferrer:installreferrer:2.2"
+    // ... other dependencies
 }

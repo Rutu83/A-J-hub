@@ -27,7 +27,6 @@ class Fram3 extends StatelessWidget {
       future: _simulateFrameLoading(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-
           return Shimmer.fromColors(
             baseColor: Colors.grey.shade300,
             highlightColor: Colors.grey.shade100,
@@ -88,7 +87,7 @@ class Fram3 extends StatelessWidget {
                   bottom: containerHeight * 0.02,
                   right: containerWidth * 0.07,
                   child: _buildText(
-                    text: website,
+                    text: businessName,
                     fontSize: containerWidth * 0.030,
                     color: Colors.white,
                   ),
@@ -100,6 +99,7 @@ class Fram3 extends StatelessWidget {
       },
     );
   }
+
   Widget _buildText({
     required String text,
     required double fontSize,
@@ -110,7 +110,7 @@ class Fram3 extends StatelessWidget {
       style: TextStyle(
         color: color,
         fontSize: fontSize,
-      //  fontWeight: FontWeight.bold,
+        //  fontWeight: FontWeight.bold,
       ),
     );
   }

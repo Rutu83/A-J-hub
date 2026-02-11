@@ -6,20 +6,19 @@ import 'package:ajhub_app/arth_screens/login_screen.dart';
 import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/model/business_mode.dart';
 import 'package:ajhub_app/network/rest_apis.dart';
-import 'package:ajhub_app/screens/active_user_screen.dart';
-import 'package:ajhub_app/screens/active_user_screen2.dart';
 import 'package:ajhub_app/screens/business_list.dart';
 import 'package:ajhub_app/screens/change_password_screen.dart';
-import 'package:ajhub_app/screens/contact_us.dart';
 import 'package:ajhub_app/screens/edit_profile.dart';
 import 'package:ajhub_app/screens/faq_page.dart';
 import 'package:ajhub_app/screens/feedback_screen.dart';
 import 'package:ajhub_app/screens/image_download_screen.dart';
-import 'package:ajhub_app/screens/kyc_screen.dart';
+import 'package:ajhub_app/screens/palnner/plan_list_screen.dart';
 import 'package:ajhub_app/screens/product_and_service.dart';
 import 'package:ajhub_app/screens/refer_earn.dart';
-import 'package:ajhub_app/screens/team_member_list.dart';
-import 'package:ajhub_app/screens/transaction_history.dart';
+import 'package:ajhub_app/screens/referral_user.dart';
+import 'package:ajhub_app/screens/payment/airpay_payment_screen.dart';
+import 'package:ajhub_app/screens/payment/premium_plans_screen.dart';
+import 'package:ajhub_app/screens/yourdocument_locker.dart';
 import 'package:ajhub_app/splash_screen.dart';
 import 'package:ajhub_app/utils/constant.dart';
 import 'package:ajhub_app/utils/shimmer/shimmer.dart';
@@ -34,7 +33,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -42,20 +40,22 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen>
+    with AutomaticKeepAliveClientMixin {
   String status = '';
   var userId;
-  var totalDownline;
-  var directDownline;
-  var totalIncome;
-  var GreenWallet;
-  var TDSIncome;
+  var username;
+  var email;
   Map<String, dynamic> userData = {};
   Future<Map<String, dynamic>>? futureUserDetail;
   UniqueKey keyForStatus = UniqueKey();
   bool _isLoading = true;
   Future<List<BusinessModal>>? futureBusiness;
   BusinessModal? businessData;
+  int directTeamCount = 0;
+
+  // --- NEW: State variable for the referral points wallet ---
+  int referPoints = 0;
 
   bool hasError = false;
   String errorMessage = "";
@@ -85,10 +85,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void init() async {
     futureUserDetail = getUserDetail();
-
   }
-
-
 
   void fetchUserData() async {
     try {
@@ -103,14 +100,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() {
         userId = userDetail['userId']?.toString() ?? "N/A";
         status = userDetail['status']?.toString() ?? "Unknown";
-        totalDownline = userDetail['total_downline_count']?.toString() ?? '0';
-        directDownline = userDetail['direct_team_count']?.toString() ?? '0';
-        String incomeString = userDetail['total_income']?.toString() ?? '0';
-        totalIncome = (double.tryParse(incomeString) ?? 0.0).toInt();
+        username = userDetail['username'] ?? '';
+        email = userDetail['email'] ?? '';
+        directTeamCount = userDetail['direct_team_count'] ?? 0;
 
-        int greenWallet1 = (totalIncome * 0.10).toInt();
-        GreenWallet = totalIncome - greenWallet1;
-        TDSIncome = (totalIncome * 0.10).toInt();
+        // --- UPDATED: Calculate referral points (1 referral = 5 points) ---
+        referPoints = directTeamCount * 5;
 
         _isLoading = false;
       });
@@ -144,69 +139,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-
+    super.build(context); // Ensure KeepAlive logic runs
     if (hasError) {
       return Scaffold(
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20), // Add padding to the sides
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Network Error Animation with border
-                AnimatedOpacity(
-                  opacity: hasError ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: SizedBox(
-                    width: 300, // Adjust the width for better responsiveness
-                    height: 300, // Adjust the height for better responsiveness
-                    // decoration: BoxDecoration(
-                    //   border: Border.all(
-                    //     color: Colors.red, // Border color
-                    //     width: 3, // Border width
-                    //   ),
-                    //   borderRadius: BorderRadius.circular(12), // Rounded corners
-                    // ),
-                    child: Lottie.asset(
-                      'assets/animation/no_internet_2_lottie.json',
-                      width: 350,
-                      height: 350,
-                    ),
+                SizedBox(
+                  width: 300,
+                  height: 300,
+                  child: Lottie.asset(
+                    'assets/animation/no_internet_2_lottie.json',
+                    width: 350,
+                    height: 350,
                   ),
                 ),
-
-                const SizedBox(height: 30), // Increase spacing
-
-                // Title Text
+                const SizedBox(height: 30),
                 const Text(
                   'Oops! Something went wrong.',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87, // Slightly darkened text for better contrast
+                    color: Colors.black87,
                   ),
                 ),
-
                 const SizedBox(height: 10),
-
-                // Subtitle Text
                 const Text(
                   'Please check your connection and try again.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                  textAlign: TextAlign.center, // Center align the text
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                  textAlign: TextAlign.center,
                 ),
-
-                const SizedBox(height: 30), // Increased space between text and button
-
-                // Retry Button
+                const SizedBox(height: 30),
                 ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
@@ -216,17 +188,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     fetchUserData();
                   },
                   icon: const Icon(Icons.refresh, color: Colors.white),
-                  label: const Text("Retry", style: TextStyle(color: Colors.white)),
+                  label: const Text("Retry",
+                      style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Button color
+                    backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 14),
                     textStyle: const TextStyle(
-                      fontSize: 18, // Slightly larger font size for better readability
-                      fontWeight: FontWeight.bold,
-                    ),
+                        fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -235,7 +206,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       );
     }
-
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -263,255 +233,264 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
-
-      body: _isLoading
-          ? _buildSkeletonLoader()
-          : SingleChildScrollView(
-               child: Container(
-
-                 padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 1.0),
-                 child: Column(
-                   crossAxisAlignment: CrossAxisAlignment.center,
-                   children: [
-                 Container(
-                 padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 10.w),
-                 decoration: BoxDecoration(
-                   //color: Colors.grey.shade50,
-                   borderRadius: BorderRadius.circular(12.r),
-                   // boxShadow: [
-                   //   BoxShadow(
-                   //     color: Colors.grey.withOpacity(0.3),
-                   //     blurRadius: 8,
-                   //     offset: const Offset(0, 4),
-                   //   ),
-                   // ],
-                 ),
-                 child: Row(
-                   crossAxisAlignment: CrossAxisAlignment.center,
-                   children: [
-                     Container(
-                       width: 80.w,
-                       height: 80.w,
-                       decoration: BoxDecoration(
-                         color: Colors.white,
-                         shape: BoxShape.circle,
-                         border: Border.all(
-                           color: Colors.red,
-                           width: 2.0,
-                         ),
-                         boxShadow: [
-                           BoxShadow(
-                             color: Colors.grey.withOpacity(0.3),
-                             blurRadius: 5,
-                             offset: const Offset(0, 2),
-                           ),
-                         ],
-                       ),
-                       child: CircleAvatar(
-                         radius: 28.w,
-                         backgroundImage: const AssetImage('assets/images/app_logo.png'),
-                         backgroundColor: Colors.red.shade50,
-                       ),
-                     ),
-                     SizedBox(width: 15.w),
-                     Expanded(
-                       child: Column(
-                         crossAxisAlignment: CrossAxisAlignment.start,
-                         children: [
-                           Row(
-                             mainAxisAlignment: MainAxisAlignment.spaceAround,
-                             children: [
-                               _buildInfoColumn('₹ ${totalIncome ?? 0}', "Gross Income", Colors.black),
-                               //   _buildInfoColumn(totalDownline, "Total Team", Colors.black),
-                               _buildInfoColumn(directDownline, "Total Refer", Colors.black),
-                             ],
-                           ),
-                         ],
-                       ),
-                     ),
-                   ],
-                 ),
-               ),
-
-
-          SizedBox(height: 20.h),
-                     Row(
-                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                       children: [
-                         _buildWalletBox(
-                           "₹ ${GreenWallet ?? 0}",
-                           "Net Income",
-                           Colors.green,
-                         ),
-                         _buildWalletBox(
-                           "₹ ${TDSIncome ?? 0}",
-                           "TDS (Tax)",
-                           Colors.red,
-                         ),
-                       ],
-                     ),
-                    SizedBox(height: 20.h),
-                    _buildMenuOptions(),
-                    SizedBox(height: 30.h),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-
-  Widget _buildSkeletonLoader() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-        children: [
-          Row(
+      body: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 1.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 80.r,
-                height: 80.r,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              SizedBox(width: 16.w),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(width: 150.w, height: 16.h, color: Colors.white),
-                  SizedBox(height: 8.h),
-                  Container(width: 100.w, height: 12.h, color: Colors.white),
-                ],
-              ),
+              SizedBox(height: 15.h),
+              _isLoading ? _buildHeaderShimmer() : _buildProfileHeader(),
+              SizedBox(height: 25.h),
+              // --- UPDATED: Using the new sectioned menu ---
+              _buildMenuOptions(),
+              SizedBox(height: 30.h),
             ],
           ),
-          SizedBox(height: 20.h),
-          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
-          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
-          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
-          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
-          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
-          Container(height: 60.h, margin: const EdgeInsets.only(bottom: 12), color: Colors.white),
-
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildInfoColumn(dynamic value, String label, Color color) {
-    return Column(
-      children: [
-        Text(
-          (value ?? 0).toString(),
-          style: GoogleFonts.poppins(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: color,
-          ),
-        ),
-        SizedBox(height: 3.h),
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: 12.sp,
-            color: Colors.black54,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWalletBox(String amount, String label, Color color) {
-    return Container(
-      width: 150.w,
-      padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 15.w),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            color == Colors.red ? Colors.red.shade400 : Colors.grey.shade500,
-            color == Colors.red ? Colors.red.shade600 : Colors.grey.shade700,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(15.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-
+  Widget _buildStatReferrals(String value, String label) {
+    return InkWell(
+      onTap: () {
+        final referrals = businessData?.business?.levelDownline;
+        if (referrals != null && referrals.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RefferalUserList(
+                userData: businessData!.business?.levelDownline,
+              ),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Please Wait Data Loaded...')),
+          );
+        }
+      },
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            amount,
+            value,
             style: GoogleFonts.poppins(
-              fontSize: 18.sp,
+              fontSize: 20.sp,
               fontWeight: FontWeight.w700,
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 5.h),
+          SizedBox(height: 4.h),
           Text(
             label,
             style: GoogleFonts.poppins(
-              fontSize: 14.sp,
-
+              fontSize: 13.sp,
               fontWeight: FontWeight.w500,
-              color: Colors.white,
+              color: Colors.white.withOpacity(0.9),
             ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
-
     );
   }
 
-  Widget _buildMenuOptions() {
+  Widget _buildStatColumn(String value, String label) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-
-        _buildMenuOption(CupertinoIcons.person_alt_circle, "My Profile"),
-        _buildMenuOption(Icons.business, "My Business"),
-        _buildMenuOption(Icons.groups, "Join Our Community"),
-        //    _buildMenuOption(CupertinoIcons.person_2_alt, "Team List"),
-        _buildMenuOption(Icons.verified_user, "Activation"),
-        _buildMenuOption(Icons.card_membership, "Activate Your Membership"),
-        _buildMenuOption(CupertinoIcons.bag, "Our Product & Services"),
-        _buildMenuOption(CupertinoIcons.arrow_right_arrow_left_circle, "Transaction History"),
-        _buildMenuOption(CupertinoIcons.arrow_down_to_line, "Downloaded Images"),
-        _buildMenuOption(CupertinoIcons.smiley, "Feedback"),
-        _buildMenuOption(Icons.question_answer, "FAQs"),
-        _buildMenuOption(CupertinoIcons.doc_plaintext, "Terms of Use", 'https://www.ajhub.co.in/term-condition'), // Article icon for terms
-        _buildMenuOption(Icons.account_balance_wallet, "KYC Details"),
-        _buildMenuOption(Icons.privacy_tip, "Privacy Policy", 'https://www.ajhub.co.in/policy'),
-        _buildMenuOption(CupertinoIcons.question_circle, "Help & Support"),
-        _buildMenuOption(CupertinoIcons.lock_shield, "Refund & Policy", 'https://www.ajhub.co.in/refund-policy'), // Policy icon
-        _buildMenuOption(Icons.share, "Refer & Earn"),
-        _buildMenuOption(CupertinoIcons.lock_rotation, "Change Password"),
-        _buildMenuOption(Icons.logout, "Logout"),
-        _buildMenuOption(Icons.delete_forever, "Delete Account"),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        SizedBox(height: 4.h),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w500,
+            color: Colors.white.withOpacity(0.9),
+          ),
+          textAlign: TextAlign.center,
+        ),
       ],
     );
   }
 
+  Widget _buildProfileHeader() {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 16.w),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.red.shade500, Colors.red.shade800],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.red.withOpacity(0.3),
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(3.w),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: CircleAvatar(
+                  radius: 32.r,
+                  backgroundImage:
+                      const AssetImage('assets/images/app_logo.png'),
+                  backgroundColor: Colors.red.shade50,
+                ),
+              ),
+              SizedBox(width: 15.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      username.toString(),
+                      style: GoogleFonts.poppins(
+                        fontSize: 20.sp,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      email.toString(),
+                      style: GoogleFonts.poppins(
+                        fontSize: 14.sp,
+                        color: Colors.white.withOpacity(0.9),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20.h),
+          Divider(color: Colors.white.withOpacity(0.5)),
+          SizedBox(height: 15.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildStatReferrals(
+                  directTeamCount.toString(), 'Total\nReferrals'),
+              _buildStatColumn(referPoints.toString(), 'Referral\nPoints'),
+              _buildStatColumn('₹${businessData?.business?.directIncome ?? 0}',
+                  'Referral\nIncome'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Container(
+        height: 180.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+      ),
+    );
+  }
+
+  // --- NEW: Helper widget to create section titles ---
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w, bottom: 12.h, top: 10.h),
+      child: Text(
+        title,
+        style: GoogleFonts.poppins(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w600,
+          color: Colors.grey.shade700,
+        ),
+      ),
+    );
+  }
+
+  // --- REFACTORED: Menu options are now grouped by category ---
+  Widget _buildMenuOptions() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle("Account"),
+        _buildMenuOption(CupertinoIcons.person_alt_circle, "My Profile"),
+        _buildMenuOption(Icons.business, "My Business"),
+        _buildMenuOption(CupertinoIcons.lock_rotation, "Change Password"),
+        SizedBox(height: 15.h),
+        _buildSectionTitle("App Features"),
+        _buildMenuOption(Icons.document_scanner, "Your Document Locker"),
+        _buildMenuOption(CupertinoIcons.list_bullet, "Plan A Day"),
+        _buildMenuOption(
+            CupertinoIcons.arrow_down_to_line, "Downloaded Images"),
+        _buildMenuOption(Icons.share, "Refer & Earn"),
+        SizedBox(height: 15.h),
+        _buildSectionTitle("Support & Community"),
+        _buildMenuOption(CupertinoIcons.question_circle, "Help & Support"),
+        _buildMenuOption(Icons.question_answer, "FAQs"),
+        _buildMenuOption(CupertinoIcons.smiley, "Feedback"),
+        _buildMenuOption(Icons.groups, "Join Our Community"),
+        _buildMenuOption(CupertinoIcons.bag, "Biz Boost"),
+        _buildMenuOption(Icons.credit_card, "Test Payment (Airpay)"),
+        _buildMenuOption(CupertinoIcons.doc_plaintext, "Terms of Use",
+            'https://www.ajhub.co.in/term-condition'),
+        _buildMenuOption(Icons.privacy_tip, "Privacy Policy",
+            'https://www.ajhub.co.in/policy'),
+        SizedBox(height: 15.h),
+        _buildSectionTitle("Actions"),
+        _buildMenuOption(
+          Icons.logout,
+          "Logout",
+          null,
+        ),
+        _buildMenuOption(
+          Icons.delete_forever,
+          "Delete Account",
+          null,
+        ),
+      ],
+    );
+  }
 
   void openWhatsAppGroup(BuildContext context) async {
-    const groupLink = "https://chat.whatsapp.com/K50pflHRu6EB1IXSpKOrbl"; // Your WhatsApp group link
-
+    const groupLink = "https://chat.whatsapp.com/K50pflHRu6EB1IXSpKOrbl";
+    final uri = Uri.parse(groupLink);
     try {
-      if (await canLaunch(groupLink)) {
-        await launch(groupLink, forceSafariVC: false, forceWebView: false);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Could not open WhatsApp group. Please ensure the app is installed.")),
+          const SnackBar(
+              content: Text(
+                  "Could not open WhatsApp group. Please ensure the app is installed.")),
         );
       }
     } catch (e) {
@@ -525,13 +504,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     const phone = "917863045542";
     final message = Uri.encodeComponent('');
     final whatsappUrl = "https://wa.me/$phone?text=$message";
-
+    final uri = Uri.parse(whatsappUrl);
     try {
-      if (await canLaunch(whatsappUrl)) {
-        await launch(whatsappUrl, forceSafariVC: false, forceWebView: false);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Could not open WhatsApp. Please ensure the app is installed.")),
+          const SnackBar(
+              content: Text(
+                  "Could not open WhatsApp. Please ensure the app is installed.")),
         );
       }
     } catch (e) {
@@ -541,141 +522,87 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Widget _buildMenuOption(IconData icon, String label, [String? url]) {
-    bool isButtonDisabled =  label == "My Business" && status != "active";
-
+  // --- UPDATED: `_buildMenuOption` now accepts an `isDestructive` flag ---
+  Widget _buildMenuOption(IconData icon, String label,
+      [String? url, bool isDestructive = false]) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: isButtonDisabled
-            ? () {
-          showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text("Membership Required"),
-                content: const Text(
-                 "You can add your business details after activating your membership package.",
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    child: const Text("OK"),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              );
-            },
-          );
-
-        }
-            : () async {
-          if (label == "Join Our Community") {
+        onTap: () async {
+          if (label == "Logout") {
+            _showLogOutAccountDialog();
+          } else if (label == "Delete Account") {
+            _showDeleteAccountDialog();
+          } else if (label == "Join Our Community") {
             openWhatsAppGroup(context);
+          } else if (label == "Help & Support") {
+            openWhatsApp(context);
           } else if (label == "FAQs") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const FAQPage()),
             );
-          } else if (label == "Logout") {
-            _showLogOutAccountDialog();
-          } else if (label == "Delete Account") {
-            _showDeleteAccountDialog();
           } else if (url != null) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => WebViewScreen(url: url)),
+            );
+          } else if (label == "Plan A Day") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const PlanListScreen()),
             );
           } else if (label == "My Profile") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const EditProfile()),
             );
-          } else if (label == "Transaction History") {
+          } else if (label == "My Business") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const TransactionHistory()),
+              MaterialPageRoute(builder: (context) => const BusinessList()),
             );
-          } else if (label == "Team List") {
-            if (businessData != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      TeamMemberList(userData: businessData!.business?.levelDownline),
-                ),
-              );
-            }
-          } else if (label == "Activation") {
+          } else if (label == "Your Document Locker") {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ActiveUserPage(),
-              ),
+                  builder: (context) => const DocumentLockerScreen()),
             );
-          } else if (label == "Our Product & Services") {
+          } else if (label == "Change Password") {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const OurProductAndService(),
-              ),
+                  builder: (context) => const ChangePasswordPage()),
             );
-          } else if (label == "Activate Your Membership") {
+          } else if (label == "Downloaded Images") {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const ActivateMembershipPage(),
-              ),
+                  builder: (context) => const DownloadedImagesPage()),
+            );
+          } else if (label == "Refer & Earn") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ReferEarn()),
             );
           } else if (label == "Feedback") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const FeedbackScreen()),
             );
-          } else if (label == "My Business") {
+          } else if (label == "Biz Boost") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const BusinessList()),
+              MaterialPageRoute(
+                builder: (context) => const OurProductAndService(),
+              ),
             );
-          } else if (label == "Downloaded Images") {
+          } else if (label == "Test Payment (Airpay)") {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const DownloadedImagesPage()),
-            );
-          } else if (label == "Refer & Earn") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ReferEarn()),
-            );
-            // if (status == "active") {
-            //   Navigator.push(
-            //     context,
-            //     MaterialPageRoute(builder: (context) => const ReferEarn()),
-            //   );
-            // } else {
-            //   ScaffoldMessenger.of(context).showSnackBar(
-            //     const SnackBar(
-            //       content: Text("This feature is disabled because your status is not active."),
-            //     ),
-            //   );
-            // }
-          } else if (label == "Contact Us") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ContactUs()),
-            );
-          } else if (label == "Help & Support") {
-            openWhatsApp(context);
-          } else if (label == "Change Password") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
-            );
-          } else if (label == "KYC Details") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const KycScreen()),
+              MaterialPageRoute(
+                builder: (context) => const PremiumPlansScreen(),
+              ),
             );
           } else {
             if (kDebugMode) {
@@ -686,15 +613,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 15.w),
           decoration: BoxDecoration(
-            color: isButtonDisabled ? Colors.grey.shade200 : Colors.white,
+            color: Colors.white,
             border: Border.all(
-              color: isButtonDisabled ? Colors.grey.shade400 : Colors.grey.shade300,
+              color: Colors.grey.shade300,
               width: 1.0,
             ),
             borderRadius: BorderRadius.circular(12.r),
-            boxShadow: isButtonDisabled
-                ? []
-                : [
+            boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.04),
                 blurRadius: 6,
@@ -708,11 +633,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Container(
                 padding: EdgeInsets.all(6.w),
                 decoration: BoxDecoration(
-                  color: isButtonDisabled ? Colors.grey.shade100 : Colors.red.shade50,
+                  color:
+                      isDestructive ? Colors.red.shade50 : Colors.red.shade50,
                   shape: BoxShape.circle,
-                  boxShadow: isButtonDisabled
-                      ? []
-                      : [
+                  boxShadow: [
                     BoxShadow(
                       color: Colors.red.withOpacity(0.08),
                       blurRadius: 4,
@@ -722,7 +646,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 child: Icon(
                   icon,
-                  color: isButtonDisabled ? Colors.grey.shade600 : Colors.red.shade700,
+                  color:
+                      isDestructive ? Colors.red.shade700 : Colors.red.shade700,
                   size: 22.sp,
                 ),
               ),
@@ -733,13 +658,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   style: GoogleFonts.poppins(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
-                    color: isButtonDisabled ? Colors.grey.shade600 : Colors.black87,
+                    color: isDestructive ? Colors.red.shade700 : Colors.black87,
                   ),
                 ),
               ),
               Icon(
                 Icons.arrow_forward_ios_outlined,
-                color: isButtonDisabled ? Colors.grey.shade600 : Colors.grey.shade500,
+                color:
+                    isDestructive ? Colors.red.shade700 : Colors.grey.shade500,
                 size: 16.sp,
               ),
             ],
@@ -748,7 +674,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-
 
   void _showLogOutAccountDialog() {
     showDialog(
@@ -776,9 +701,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 await appStore.setName('', isInitializing: true);
                 await appStore.setEmail('', isInitializing: true);
 
-                Navigator.pushReplacement(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
                 );
               },
               child: const Text('Log out', style: TextStyle(color: Colors.red)),
@@ -795,7 +721,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Delete Account'),
-          content: const Text('Are you sure you want to delete your account? This action cannot be undone.'),
+          content: const Text(
+              'Are you sure you want to delete your account? This action cannot be undone.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -806,6 +733,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
+                // You would add your account deletion API call here.
+                // For now, it just closes the dialog.
               },
               child: const Text('Delete', style: TextStyle(color: Colors.red)),
             ),
@@ -815,9 +744,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-
-
-
 
 class WebViewScreen extends StatelessWidget {
   final String url;
@@ -846,11 +772,11 @@ class WebViewScreen extends StatelessWidget {
       )
       ..loadRequest(Uri.parse(url));
 
-
     return Scaffold(
-
+      appBar: AppBar(
+          title:
+              Text(url.split('/').last.replaceAll('-', ' '))), // Simple AppBar
       body: WebViewWidget(controller: controller),
     );
   }
 }
-

@@ -27,7 +27,6 @@ class Fram1 extends StatelessWidget {
       future: _simulateFrameLoading(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-
           return Shimmer.fromColors(
             baseColor: Colors.grey.shade300,
             highlightColor: Colors.grey.shade100,
@@ -79,12 +78,11 @@ class Fram1 extends StatelessWidget {
                   bottom: containerHeight * 0.06,
                   right: containerWidth * 0.13,
                   child: _buildText(
-                    text: website,
+                    text: businessName,
                     fontSize: containerWidth * 0.029,
                     color: Colors.black,
                   ),
                 ),
-
                 Positioned(
                   bottom: containerHeight * 0.0033,
                   left: containerWidth * 0.06,

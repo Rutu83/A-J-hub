@@ -9,6 +9,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -69,6 +71,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   void dispose() {
     _enquiryController.dispose();
     super.dispose();
+  }
+
+  Future<void> _launchVisitUs() async {
+    const String url = 'https://google.com'; // TODO: Replace with dynamic Admin URL
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
+      if (kDebugMode) {
+        print('Could not launch $url');
+      }
+      // Fallback or user notification could go here
+    }
   }
 
 
@@ -389,12 +402,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
-                                child: Image.network(
-                                  imagePath,
+                                child: CachedNetworkImage(
+                                  imageUrl: imagePath,
                                   fit: BoxFit.cover,
                                   width: double.infinity,
                                   height: 400,
-                                  errorBuilder: (context, error, stackTrace) {
+                                  placeholder: (context, url) => Container(
+                                    height: 400,
+                                    color: Colors.grey[200],
+                                    child: const Center(
+                                        child: CircularProgressIndicator()),
+                                  ),
+                                  errorWidget: (context, url, error) {
                                     return Container(
                                       color: Colors.grey.shade300,
                                       child: const Center(
@@ -539,7 +558,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
         decoration: BoxDecoration(
           color: Colors.white70,
           borderRadius: const BorderRadius.vertical(
@@ -554,97 +572,87 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ),
           ],
         ),
-        child: Row(
-
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Column(
-            //   mainAxisSize: MainAxisSize.min,
-            //   crossAxisAlignment: CrossAxisAlignment.center,
-            //   children: [
-            //
-            //     Text(
-            //       'Price',
-            //       style: GoogleFonts.poppins(
-            //         fontSize: 16.sp,
-            //         fontWeight: FontWeight.bold,
-            //         color: Colors.black,
-            //       ),
-            //     ),
-            //     const SizedBox(height: 8),
-
-            //     Row(
-            //       mainAxisSize: MainAxisSize.min,
-            //       crossAxisAlignment: CrossAxisAlignment.center,
-            //       children: [
-            //         const Icon(
-            //           Icons.currency_rupee,
-            //           color: Colors.black,
-            //           size: 18,
-            //         ),
-            //         Text(
-            //           '499.00',
-            //           style: GoogleFonts.poppins(
-            //             fontSize: 16.sp,
-            //             fontWeight: FontWeight.bold,
-            //             color: Colors.black,
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ],
-            // ),
-            const SizedBox(
-              width: 30,
-            ),
-            ElevatedButton.icon(
-              onPressed: _showEnquiryModal,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: EdgeInsets.symmetric(vertical: 9.h, horizontal: 20.w),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                elevation: 5,
-                shadowColor: Colors.black,
-              ),
-              icon: const Icon(Icons.safety_check_rounded, color: Colors.white),
-              label: Row(
-                children: [
-                  Text(
-                    'Add Enquire',
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16.0, 20.0, 16.0, 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _launchVisitUs,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    padding:
+                        EdgeInsets.symmetric(vertical: 9.h, horizontal: 16.w),
+                    side: const BorderSide(color: Colors.grey),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 2,
+                  ),
+                  icon: const Icon(Icons.language, color: Colors.red),
+                  label: Text(
+                    'Visit Us',
                     style: GoogleFonts.poppins(
-                      fontSize: 16.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    padding: const EdgeInsets.all(8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white54,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 4,
-                          offset: const Offset(2, 2),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton.icon(
+                  onPressed: _showEnquiryModal,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding:
+                        EdgeInsets.symmetric(vertical: 9.h, horizontal: 20.w),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 5,
+                    shadowColor: Colors.black,
+                  ),
+                  icon: const Icon(Icons.safety_check_rounded,
+                      color: Colors.white),
+                  label: Row(
+                    children: [
+                      Text(
+                        'Add Enquire',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                      size: 20,
-                      weight: 55,
-                    ),
-                  )
-                ],
-              ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white54,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 4,
+                              offset: const Offset(2, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.arrow_forward,
+                          color: Colors.white,
+                          size: 20,
+                          weight: 55,
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ],
             ),
-
-          ],
+          ),
         ),
       ),
 

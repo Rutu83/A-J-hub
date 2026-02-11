@@ -14,42 +14,43 @@ class FAQPageState extends State<FAQPage> {
     {
       "question": "How do I use the AJ Hub app?",
       "answer":
-      "You can explore music, audiobooks, and the poster maker by navigating through the app's home menu. Each section has guided steps to help you get started."
+          "You can explore music, audiobooks, and the poster maker by navigating through the app's home menu. Each section has guided steps to help you get started."
     },
     {
       "question": "Can I update my profile details in AJ Hub?",
       "answer":
-      "Yes, you can update your name and other details under the \"Profile\" section in the app settings."
+          "Yes, you can update your name and other details under the \"Profile\" section in the app settings."
     },
     {
-      "question": "Can I log in to AJ Hub with multiple accounts on one device?",
+      "question":
+          "Can I log in to AJ Hub with multiple accounts on one device?",
       "answer":
-      "Currently, you can only use one account per device. If needed, log out and log in with a different account."
+          "Currently, you can only use one account per device. If needed, log out and log in with a different account."
     },
     {
       "question": "AJ Hub is not functioning properly. Can you assist me?",
       "answer":
-      "Please ensure your app is updated to the latest version and check your internet connection. If the issue persists, contact us via the support option in the app."
+          "Please ensure your app is updated to the latest version and check your internet connection. If the issue persists, contact us via the support option in the app."
     },
     {
       "question": "Can I create professional posters with AJ Hub in minutes?",
       "answer":
-      "Yes, the Poster Maker feature offers templates and tools to design high-quality posters in a few simple steps."
+          "Yes, the Poster Maker feature offers templates and tools to design high-quality posters in a few simple steps."
     },
     {
       "question": "How does the AJ Hub referral program work?",
       "answer":
-      "Invite friends to join AJ Hub using your unique referral code. Earn rewards benefits when they sign up and use the app."
+          "Invite friends to join AJ Hub using your unique referral code. Earn rewards benefits when they sign up and use the app."
     },
     {
       "question": "What promise does AJ Hub make to its users?",
       "answer":
-      "We are committed to providing an exceptional platform for creativity, learning, and growth, ensuring a seamless experience for every user."
+          "We are committed to providing an exceptional platform for creativity, learning, and growth, ensuring a seamless experience for every user."
     },
     {
       "question": "How can I contact AJ Hub for support?",
       "answer":
-      "You can reach out to us directly via the \"Contact Us\" section or tap the WhatsApp icon for instant help."
+          "You can reach out to us directly via the \"Contact Us\" section or tap the WhatsApp icon for instant help."
     },
   ];
 
@@ -69,12 +70,12 @@ class FAQPageState extends State<FAQPage> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               itemCount: faqList.length,
               itemBuilder: (context, index) {
                 final item = faqList[index];
@@ -96,7 +97,8 @@ class FAQPageState extends State<FAQPage> {
                       collapsedIconColor: Colors.black45,
                       collapsedBackgroundColor: Colors.grey.shade50,
                       backgroundColor: Colors.grey.shade100,
-                      tilePadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                      tilePadding: const EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
                       title: Row(
                         children: [
                           Icon(
@@ -146,14 +148,15 @@ class FAQPageState extends State<FAQPage> {
               },
             ),
           ),
-
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
             child: ElevatedButton.icon(
               onPressed: _openWhatsApp,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green.shade700,
-                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 16.0, horizontal: 20.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24.0),
                 ),
@@ -191,13 +194,11 @@ class FAQPageState extends State<FAQPage> {
           ),
         ],
       ),
-
-
     );
   }
 
   void _openWhatsApp() async {
-    const phone = "+919925850305";
+    const phone = "+917863045542";
     final message = Uri.encodeComponent("Hi, I need support!");
     final whatsappUrl = "https://wa.me/$phone?text=$message";
 
@@ -206,7 +207,8 @@ class FAQPageState extends State<FAQPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text("Could not open WhatsApp. Please ensure it is installed.")),
+            content: Text(
+                "Could not open WhatsApp. Please ensure it is installed.")),
       );
     }
   }

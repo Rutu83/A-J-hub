@@ -56,7 +56,6 @@ class Fram2 extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 Positioned(
                   top: containerHeight * 0.03,
                   left: containerWidth * 0.07,
@@ -66,7 +65,6 @@ class Fram2 extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-
                 Positioned(
                   bottom: containerHeight * 0.10,
                   left: containerWidth * 0.05,
@@ -76,7 +74,6 @@ class Fram2 extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-
                 Positioned(
                   bottom: (containerHeight * 0.02 + containerHeight * 0.01) / 2,
                   left: containerWidth * 0.07,
@@ -86,12 +83,11 @@ class Fram2 extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-
                 Positioned(
                   bottom: (containerHeight * 0.15 + containerHeight * 0.16) / 2,
                   left: containerWidth * 0.05,
                   child: _buildText(
-                    text: website,
+                    text: businessName,
                     fontSize: containerWidth * 0.035,
                     color: Colors.white,
                   ),

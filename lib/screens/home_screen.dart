@@ -1,1334 +1,780 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'package:ajhub_app/main.dart';
-import 'package:ajhub_app/model/categories_subcategories_modal%20.dart';
-import 'package:ajhub_app/model/daillyuse_modal.dart';
-import 'package:ajhub_app/model/subcategory_model.dart';
-import 'package:ajhub_app/screens/active_user_screen.dart';
-import 'package:ajhub_app/screens/business_list.dart';
-import 'package:ajhub_app/screens/category_topics.dart';
-import 'package:ajhub_app/screens/charity_screen.dart';
-import 'package:ajhub_app/screens/refer_earn.dart';
-import 'package:ajhub_app/utils/configs.dart';
-import 'package:ajhub_app/utils/shimmer/shimmer.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:lottie/lottie.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:ajhub_app/screens/category_selected.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
-import '../network/rest_apis.dart';
+import 'dart:ui'; // Needed for the blur effect
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+import 'package:ajhub_app/screens/charity_screen.dart';
+import 'package:ajhub_app/screens/devotional_blog.dart';
+import 'package:ajhub_app/screens/direct_selling_blog.dart';
+import 'package:ajhub_app/screens/homepagewidget/BannerSliderSection.dart';
+import 'package:ajhub_app/screens/homepagewidget/SubcategorySection.dart';
+import 'package:ajhub_app/screens/personal_card/agriculture_section.dart';
+import 'package:ajhub_app/screens/personal_card/celebrate_the_movement_section.dart';
+import 'package:ajhub_app/screens/personal_card/entrepreneurs_section.dart';
+import 'package:ajhub_app/screens/personal_card/temple_of_india_section.dart';
+import 'package:ajhub_app/screens/personal_card/todayeventimage.dart';
+import 'package:ajhub_app/screens/refer_earn.dart';
+import 'package:ajhub_app/screens/temple_slider_section.dart';
+import 'package:ajhub_app/screens/trendingsection.dart';
+import 'package:ajhub_app/screens/workwithus.dart';
+import 'package:ajhub_app/screens/yourdocument_locker.dart';
+import 'package:ajhub_app/screens/zoonSection.dart';
+import 'package:ajhub_app/utils/shimmer/shimmer.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'homepagewidget/DailyUseCategorySection.dart';
+import 'homepagewidget/HomeAppBar.dart';
+import 'homepagewidget/UpcomingCategorySection.dart';
+
+// --- NEW POPUP BANNER WIDGET ---
+
+class SubscriptionSuccessPopup extends StatelessWidget {
+  final VoidCallback onActionPressed;
+
+  const SubscriptionSuccessPopup({
+    Key? key,
+    required this.onActionPressed,
+  }) : super(key: key);
 
   @override
-  HomeScreenState createState() => HomeScreenState();
+  Widget build(BuildContext context) {
+    // BackdropFilter creates the blurred background effect
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      child: Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(20),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF6A3093), Color(0xFFA044FF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              )
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // To make the dialog fit content
+            children: [
+              const Text(
+                'Congratulations 🎊',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                        color: Colors.black26,
+                        blurRadius: 2,
+                        offset: Offset(1, 1))
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                '7 Days Free\nSubscription Activated', // Updated to 7 Days
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                  height: 1.4,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Divider(color: Colors.white24),
+              ),
+              const Text(
+                'Unlock More 🔑',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'For extended membership, join our Refer & Earn Reward Battle!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.white,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: onActionPressed,
+                style: ElevatedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  backgroundColor:
+                      const Color(0xFFE53935), // A strong red color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 8,
+                  shadowColor: Colors.red.withOpacity(0.5),
+                ),
+                child: const Text(
+                  'Click For More',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class HomeScreenState extends State<HomeScreen> {
+// --- DATA MODELS & CONFIGURATION ---
 
-  List<dynamic> businessData = [];
-  int? selectedBusiness;
-  List<String> _imageUrls = [];
-  int _currentIndex = 0;
-  bool isLoading = true;
-  bool hasError = false;
-  String errorMessage = '';
-  SubcategoryResponse? subcategoryData;
-  DaillyuseResponse? daillyuseData;
-  CategoriesWithSubcategoriesResponse? categoriesData;
+class ReferralStep {
+  final String name;
+  final int requiredReferrals; // Referrals needed for this specific step
+  final int validityDays;
+  final Color color;
+  final Color lightColor;
 
+  ReferralStep({
+    required this.name,
+    required this.requiredReferrals,
+    required this.validityDays,
+    required this.color,
+    required this.lightColor,
+  });
+}
+
+// --- List of steps: +7 days for each referral ---
+final List<ReferralStep> referralSteps = [
+  ReferralStep(
+      name: 'Step 1',
+      requiredReferrals: 1,
+      validityDays: 7,
+      color: const Color(0xFF6C5CE7), // Purple
+      lightColor: const Color(0xFFA29BFE)),
+  ReferralStep(
+      name: 'Step 2',
+      requiredReferrals: 2,
+      validityDays: 14, // Total
+      color: const Color(0xFF0984E3), // Blue
+      lightColor: const Color(0xFF74B9FF)),
+  ReferralStep(
+      name: 'Step 3',
+      requiredReferrals: 3,
+      validityDays: 21, // Total
+      color: const Color(0xFF00B894), // Green
+      lightColor: const Color(0xFF55EFC4)),
+];
+
+// --- MAIN HOME SCREEN WIDGET ---
+
+class HomeScreen extends StatefulWidget {
+  final int userReferralCount;
+  final int referralIncome; // NEW: Passed from Dashboard
+
+  const HomeScreen({
+    super.key,
+    required this.userReferralCount,
+    this.referralIncome = 0, // Default to 0
+  });
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen>
+    with AutomaticKeepAliveClientMixin {
+  // --- STATE FOR LOADING AND REFERRAL LOGIC ---
+  bool _isLoading = true;
+  bool _isPopupShown = false;
+  ReferralStep? _currentStep;
+  ReferralStep? _nextStep;
+  double _progress = 0.0;
+  int _referralsForNextStage = 0;
+  int _referralsMadeInStage = 0;
+  bool _hideCongrats = true; // Default to hidden until checked
+
+  // --- WALLET STATE ---
+  int _pointsBalance = 0; // Example: 5 points per referral
+  int _referralIncome = 0; // Used for UI
 
   @override
   void initState() {
     super.initState();
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-    ));
-    fetchAllData();
+    _calculateProgress();
+    _checkCongratsVisibility();
+    // Simulate a network delay for a better initial loading experience
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        // --- ADDED: Show popup after the screen is built and loading is done ---
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showInitialPopup(context);
+        });
+      }
+    });
+  }
+
+  // --- ADDED: Method to show the popup ---
+  void _showInitialPopup(BuildContext context) {
+    if (_isPopupShown) return; // Prevents showing it more than once per session
+
+    setState(() {
+      _isPopupShown = true; // Mark as shown
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible: true, // User can tap outside to close
+      builder: (BuildContext dialogContext) {
+        return SubscriptionSuccessPopup(
+          onActionPressed: () {
+            // First, close the dialog
+            Navigator.of(dialogContext).pop();
+            // Then, navigate to the Refer & Earn screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ReferEarn()),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
-  void dispose() {
-
-    super.dispose();
-  }
-
-
-
-  Future<void> fetchAllData() async {
-    try {
-      await Future.wait([
-        fetchBusinessData(),
-        _fetchBannerData(),
-        fetchCategoriesData(),
-        fetchSubcategoryData(),
-        fetchDailyUseCategoryData(),
-      ]);
-    } on SocketException catch (_) {
-      setState(() {
-        hasError = true;
-        errorMessage = "No internet connection. Please check your network.";
-      });
-    } on HttpException catch (_) {
-      setState(() {
-        hasError = true;
-        errorMessage = "Couldn't connect to the server. Try again later.";
-      });
-    } on TimeoutException catch (_) {
-      setState(() {
-        hasError = true;
-        errorMessage = "Network timeout. Please try again.";
-      });
-    } catch (e) {
-      setState(() {
-        hasError = true;
-        errorMessage = "An unexpected error occurred: $e";
-      });
+  void didUpdateWidget(covariant HomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.userReferralCount != oldWidget.userReferralCount) {
+      // Recalculate if referral count changes from an external source
+      _calculateProgress();
     }
   }
-  Future<void> fetchBusinessData() async {
-    const apiUrl = '${BASE_URL}getbusinessprofile';
-    String token = appStore.token;
 
+  // --- THIS IS THE CORRECTED & MORE ROBUST FUNCTION ---
+  void _calculateProgress() {
+    int currentUserReferrals = widget.userReferralCount;
+
+    // --- WALLET CALCULATION ---
+    _pointsBalance = currentUserReferrals * 5; // 5 Points per referral
+    _referralIncome = widget.referralIncome; // Use real income from API
+
+    // --- FIX: Prevents a crash when all steps are completed ---
     try {
-      final response = await http.get(
-        Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+      _nextStep = referralSteps.firstWhere(
+        (step) => step.requiredReferrals > currentUserReferrals,
       );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body)['data'];
-
-        setState(() {
-          businessData = data ?? [];
-          isLoading = false;
-
-          if (businessData.isNotEmpty) {
-            final activeBusiness = businessData.firstWhere(
-                  (business) => business['status'] == 'active',
-              orElse: () => businessData.first,
-            );
-
-            selectedBusiness = activeBusiness['id'];
-            SharedPreferences.getInstance().then((prefs) {
-              prefs.setString('active_business', json.encode(activeBusiness));
-            });
-          } else {
-            selectedBusiness = null;
-          }
-        });
-      } else if (response.statusCode == 404) {
-        setState(() {
-          businessData = [];
-          isLoading = false;
-        });
-        selectedBusiness = null;
-      } else {}
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        businessData = [];
-      });
+      _nextStep = null;
+    }
+
+    // Find the current highest achieved step.
+    _currentStep = referralSteps
+        .where((step) => step.requiredReferrals <= currentUserReferrals)
+        .lastOrNull;
+
+    if (_nextStep == null) {
+      // --- MAX STEP REACHED ---
+      final maxStepRequirement = referralSteps.last.requiredReferrals;
+
+      _progress = 1.0;
+      _referralsMadeInStage = currentUserReferrals >= maxStepRequirement
+          ? maxStepRequirement
+          : currentUserReferrals;
+      _referralsForNextStage = maxStepRequirement;
+
+      // Check if we should show congrats
+      _checkCongratsVisibility();
+    } else {
+      // --- PROGRESS TOWARDS NEXT STEP ---
+      _referralsForNextStage = _nextStep!.requiredReferrals;
+      _referralsMadeInStage = currentUserReferrals;
+
+      // Calculate progress...
+      // Since steps are 1, 2, 3... we can just use the previous step's requirement as base
+      final int previousStepReferrals = _currentStep?.requiredReferrals ?? 0;
+      final int progressInStage = currentUserReferrals - previousStepReferrals;
+      final int stageTotal =
+          _nextStep!.requiredReferrals - previousStepReferrals;
+
+      _progress = (stageTotal > 0) ? progressInStage / stageTotal : 1.0;
+
+      // Not at max step, so irrelevant, but ensuring it's hidden doesn't hurt
+      _hideCongrats = true;
+    }
+
+    if (mounted) {
+      setState(() {});
     }
   }
 
-  Future<void> _fetchBannerData() async {
-    const apiUrl = '${BASE_URL}getbanners';
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
+  Future<void> _checkCongratsVisibility() async {
+    if (_nextStep != null) return; // Only check if max level reached
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body)['data'];
+    final prefs = await SharedPreferences.getInstance();
+    final hasShown = prefs.getBool('congratulations_shown') ?? false;
+
+    if (!hasShown) {
+      if (mounted) {
         setState(() {
-          _imageUrls = List<String>.from(data.map((banner) => banner['banner_image_url']));
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          isLoading = false;
+          _hideCongrats = false; // Show it!
         });
       }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
+      // Mark as shown for next time
+      await prefs.setBool('congratulations_shown', true);
+    } else {
+      if (mounted) {
+        setState(() {
+          _hideCongrats = true; // Already shown, keep hidden
+        });
+      }
     }
   }
 
-  Future<void> fetchDailyUseCategoryData() async {
-    try {
-      final data = await getDailyUseWithSubcategory();
-      setState(() {
-        daillyuseData = data;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        hasError = true;
-        if (kDebugMode) {
-          print(e);
-        }
-        errorMessage = 'Failed to load data: $e';
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> fetchSubcategoryData() async {
-    try {
-      final data = await getSubCategories();
-      setState(() {
-        subcategoryData = data;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        hasError = true;
-        errorMessage = 'Failed to load data: $e';
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> fetchCategoriesData() async {
-    try {
-      final data = await getCategoriesWithSubcategories();
-      setState(() {
-        categoriesData = data;
-      });
-    } catch (e) {
-      setState(() {
-        hasError = true;
-        errorMessage = 'Failed to load categories data: $e';
-      });
-    }
-  }
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(
-      context,
-      designSize: const Size(360, 690),
-      minTextAdapt: true,
-      splitScreenMode: true,
-    );
-
-
-    if (hasError) {
-      return Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20), // Add padding to the sides
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Network Error Animation with border
-                AnimatedOpacity(
-                  opacity: hasError ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
-                  child: SizedBox(
-                    width: 300, // Adjust the width for better responsiveness
-                    height: 300, // Adjust the height for better responsiveness
-                    // decoration: BoxDecoration(
-                    //   border: Border.all(
-                    //     color: Colors.red, // Border color
-                    //     width: 3, // Border width
-                    //   ),
-                    //   borderRadius: BorderRadius.circular(12), // Rounded corners
-                    // ),
-                    child: Lottie.asset(
-                      'assets/animation/no_internet_2_lottie.json',
-                      width: 350,
-                      height: 350,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 30), // Increase spacing
-
-                // Title Text
-                const Text(
-                  'Oops! Something went wrong.',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87, // Slightly darkened text for better contrast
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                // Subtitle Text
-                const Text(
-                  'Please check your connection and try again.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                  textAlign: TextAlign.center, // Center align the text
-                ),
-
-                const SizedBox(height: 30), // Increased space between text and button
-
-                // Retry Button
-                ElevatedButton.icon(
-                  onPressed: () {
-                    setState(() {
-                      hasError = false;
-                      isLoading = true;
-                    });
-                    fetchAllData(); // Retry fetching data
-                  },
-                  icon: const Icon(Icons.refresh, color: Colors.white),
-                  label: const Text("Retry", style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Button color
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                    textStyle: const TextStyle(
-                      fontSize: 18, // Slightly larger font size for better readability
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+    super.build(context); // Ensure KeepAlive logic runs
+    // --- CONDITIONAL BUILD BASED ON LOADING STATE ---
+    if (_isLoading) {
+      return _buildSkeletonLoader();
     }
-
-
 
     return Scaffold(
-      appBar: AppBar(
-        forceMaterialTransparency: true,
-        surfaceTintColor: Colors.transparent,
-        backgroundColor: Colors.white,
-        titleSpacing: 7.w,
-        leading: Padding(
-          padding: EdgeInsets.only(left: 8.w),
-          child: CircleAvatar(
-            radius: 20.0.r,
-            backgroundImage: const AssetImage('assets/images/app_logo.png'),
-            backgroundColor: Colors.red.shade50,
-          ),
-        ),
+      body: SafeArea(
+        child: CustomScrollView(
+          clipBehavior: Clip.none,
+          slivers: [
+            SliverToBoxAdapter(child: HomeAppBar()),
+            SliverToBoxAdapter(child: BannerSliderSection()),
+            SliverToBoxAdapter(child: UpcomingCategorySection()),
+            SliverToBoxAdapter(child: TodayEventsSection()),
+            SliverToBoxAdapter(child: TrendingSection()),
+            SliverToBoxAdapter(child: SubcategorySection()),
 
-        title: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    'Welcome, ${appStore.Name}',
-                    style: TextStyle(
-                      fontSize: 14.0.sp,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black,
-                    ),
-                  ),
-                  Text(
-                    'Good Morning',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                      fontSize: 12.0.sp,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black,
-                    ),
-                  ),
-                ],
+            // --- WALLET SECTION (POINTS & INCOME) ---
+            SliverToBoxAdapter(child: _buildWalletCards()),
+
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
+              sliver: SliverToBoxAdapter(
+                child: _nextStep == null
+                    ? (_hideCongrats
+                        ? const SizedBox.shrink()
+                        : _buildMaxStepWidget())
+                    : _buildProgressWidget(),
               ),
             ),
+            SliverToBoxAdapter(child: ZoomSection()),
+            SliverToBoxAdapter(child: DailyUseCategorySection()),
 
-            IconButton(
-              icon: Icon(
-                Icons.business_center_outlined,
-                size: 22.0.sp,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) =>  const BusinessList()),
-                );
-              },
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.notifications_active,
-                size: 22.0.sp,
-                color: Colors.black,
-              ),
-              onPressed: () {},
-            ),
-          ],
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildBannerSlider(),
+            // 1. Agriculture - Below daily use blog
+            SliverToBoxAdapter(child: const AgricultureSection()),
 
-            Padding(
-              padding: const EdgeInsets.only(left: 6, right: 6, top: 0, bottom: 10),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  double buttonWidth = constraints.maxWidth / 4 - 12;
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildButton(context, Icons.share, 'Refer', buttonWidth, () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const ReferEarn()),
-                        );
-                      }),
-                      _buildButton(context, Icons.favorite, 'Charity', buttonWidth, () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) =>  const CharityScreen()),
-                        );
-                      }),
-                      _buildButton(context, Icons.group, 'Community', buttonWidth, () {
-                        openWhatsAppGroup(context);
-                      }),
-                      _buildButton(context, Icons.check_circle, 'Activation', buttonWidth, () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const ActiveUserPage()),
-                        );
-                      }),
-                    ],
-                  );
-                },
-              ),
-            ),
+            _buildBannerSliverRefer("assets/images/img_3.jpg"),
+            SliverToBoxAdapter(child: SubcategorySection()),
 
+            // 4. Celebrate The Movement - Above Locker Banner
+            SliverToBoxAdapter(child: const CelebrateTheMovementSection()),
 
-            _buildUpcomingCategorySection(),
-            _buildImageBanner(),
-            const SizedBox(height: 10),
-            _buildFestivalCategorySection(),
-            isLoading ? _buildSkeletonLoading() : _buildSubcategorySections(),
-            const SizedBox(height: 10),
-            _buildDailyUseSection(context,isLoading),
+            _buildBannerSliver("assets/images/img_1.jpg"), // Locker Banner
+            SliverToBoxAdapter(child: DevotionalCategorySection()),
 
+            // 3. Temple Of India - Above work with us banner
+            SliverToBoxAdapter(child: const TempleOfIndiaSection()),
+
+            _buildWorkwithusSliver("assets/images/workwithus.jpg"),
+            SliverToBoxAdapter(child: SubcategorySection()),
+            SliverToBoxAdapter(child: DirectSellingBlogCategorySection()),
+
+            // 2. Entrepreneurs - Above Charity Banner
+            SliverToBoxAdapter(child: const EntrepreneursSection()),
+
+            _buildBannerSliverCharity("assets/images/img_2.jpg"),
+            SliverToBoxAdapter(
+                child: const TempleSliderSection()), // <<< NEW WIDGET
+
+            SliverToBoxAdapter(child: SizedBox(height: 20.h)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildButton(BuildContext context, IconData icon, String label, double width, VoidCallback onPressed) {
-    return SizedBox(
-      width: width,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
-          backgroundColor: Colors.red,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
-        ),
-        onPressed: onPressed,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, size: 24),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // --- SKELETON LOADER WIDGET ---
 
-  void openWhatsAppGroup(BuildContext context) async {
-    const groupLink = "https://chat.whatsapp.com/K50pflHRu6EB1IXSpKOrbl"; // Your WhatsApp group link
-
-    try {
-      if (await canLaunch(groupLink)) {
-        await launch(groupLink, forceSafariVC: false, forceWebView: false);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Could not open WhatsApp group. Please ensure the app is installed.")),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("An error occurred: $e")),
-      );
-    }
-  }
-
-  Widget _buildImageBanner() {
-    return Padding(
-      padding: EdgeInsets.only(left: 12.0.w, right: 12.0.w, top: 0, bottom: 0),
-      child: InkWell(
-        onTap: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ReferEarn()),
-          );
-        },
-        child: Center(
-          child: Container(
-            width: double.infinity,
-            height: 120,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15.0),
-              image: const DecorationImage(
-                image: AssetImage('assets/images/banner3.jpg'),
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
-      )
-
-
-    );
-  }
-
-  Widget _buildBannerSlider() {
-    if (_imageUrls.isEmpty) {
-      return Padding(
-        padding: EdgeInsets.all(8.0.w),
-      );
-    }
-
-    return Padding(
-      padding: EdgeInsets.all(8.0.w),
-      child: Column(
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width,
-            child: CarouselSlider(
-              options: CarouselOptions(
-                height: 150.h,
-                autoPlay: true,
-                viewportFraction: 1.0,
-                onPageChanged: (index, reason) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-              ),
-              items: _imageUrls.map((url) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(15.0),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          image: DecorationImage(
-                            image: CachedNetworkImageProvider(url),
-                            fit: BoxFit.fill,
-                            onError: (error, stackTrace) {},
-                          ),
-                        ),
-                        child: CachedNetworkImage(
-                          imageUrl: url,
-                          fit: BoxFit.fill,
-                          placeholder: (context, url) => const Center(
-                            child: CircularProgressIndicator(color: Colors.grey,),
-                          ),
-                          errorWidget: (context, url, error) => const Center(
-                            child: Icon(Icons.error, color: Colors.red),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              }).toList(),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: _imageUrls.map((url) {
-              int index = _imageUrls.indexOf(url);
-              return Container(
-                width: 6.0.w,
-                height: 6.0.h,
-                margin: EdgeInsets.symmetric(vertical: 5.0.h, horizontal: 2.0.w),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _currentIndex == index ? Colors.black : Colors.grey,
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSkeletonLoading2() {
-    return Padding(padding: const EdgeInsets.only(left: 15,bottom: 10),
-    child: SizedBox(
-      height: 150.0,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
-              child: Container(
-                width: 120.0,
-                margin: const EdgeInsets.only(right: 8.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12.0),
-                  color: Colors.white,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 120.0,
-                      height: 90.0,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12.0),
-                        color: Colors.grey[200],
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    Container(
-                      width: 80.0,
-                      height: 14.0,
-                      color: Colors.grey[200],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    ),
-    );
-  }
-
-  Widget _buildSkeletonLoading3() {
-    return Padding(padding: const EdgeInsets.only(left: 15,bottom: 10),
-      child: SizedBox(
-        height: 120.0,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: 5,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
-                child: Container(
-                  width: 120.0,
-                  margin: const EdgeInsets.only(right: 8.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0),
-                    color: Colors.white,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 120.0,
-                        height: 90.0,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12.0),
-                          color: Colors.grey[200],    ),
-                      ),
-                      const SizedBox(height: 8.0),
-                      Container(
-                        width: 80.0,
-                        height: 14.0,
-                        color: Colors.grey[200],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUpcomingCategorySection() {
-    if (isLoading) {
-      return _buildSkeletonLoading2();
-    }
-
-    if (hasError) {
-      return const SizedBox(
-
-      );
-    }
-
-    if (categoriesData == null) {
-      return const SizedBox.shrink();
-    }
-
-    List<Widget> items = [];
-    String sectionTitle = 'Upcoming';
-    var upcomingCategory = categoriesData!.categories.firstWhere(
-          (category) => category.name.toLowerCase() == 'upcoming',
-      orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
-    );
-
-    if (upcomingCategory.subcategories.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    for (var subcategory in upcomingCategory.subcategories) {
-      String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/placeholder.jpg';
-      items.add(_buildUpcomingCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: true));
-    }
-
-    return _buildUpcomingHorizontalCard(sectionTitle: sectionTitle, items: items);
-  }
-
-  Widget _buildUpcomingCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
-    return InkWell(
-      onTap: () {
-        if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
-          _showErrorMessage(context);
-          return;
-        }
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategorySelected(
-              imagePaths: images,
-              title: title,
-            ),
-          ),
-        );
-
-      },
-      child: Container(
-        width: 101.w,
-        margin: EdgeInsets.only(right: 8.w),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.red.shade50),
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 120.w,
-              height: 90.h,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-                image: imageUrl.startsWith('http')
-                    ? DecorationImage(
-                  image: CachedNetworkImageProvider(cacheKey:imageUrl ,imageUrl),
-                  fit: BoxFit.cover,
-                  onError: (exception, stackTrace) {},
-                )
-                    : DecorationImage(
-                  image: AssetImage(imageUrl),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: imageUrl.startsWith('http')
-                    ? null
-                    : Container(
-                  color: Colors.grey,
-                  child: const Icon(Icons.error),
-                ),
-              ),
-            ),
-            if (showTitle) SizedBox(height: 6.h),
-            if (showTitle)
-              Text(
-                title,
-                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showErrorMessage(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: const Text('Something went wrong. Cannot navigate to the next screen.'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildFestivalCategorySection() {
-    if (isLoading) {
-      return _buildSkeletonLoading3();
-    }
-
-    if (hasError) {
-      return Container();
-    }
-
-    if (categoriesData == null) {
-      return const SizedBox.shrink();
-    }
-
-    List<Widget> items = [];
-    String sectionTitle = 'Festival';
-
-    var festivalCategory = categoriesData!.categories.firstWhere(
-          (category) => category.name.toLowerCase() == 'festival',
-      orElse: () => CategoryWithSubcategory(name: 'No Festival', subcategories: []),
-    );
-
-    if (festivalCategory.subcategories.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    for (var subcategory in festivalCategory.subcategories) {
-      String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/default_festival.jpg';
-
-      items.add(_buildCardFestival(subcategory.name, imageUrl, subcategory.images, showTitle: false));
-    }
-
-    return _buildHorizontalCardSection(sectionTitle: sectionTitle, items: items, imageUrls: []);
-  }
-
-  Widget _buildCardFestival(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
-    return InkWell(
-      onTap: () {
-        if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
-          _showErrorMessage(context);
-          return;
-        }
-
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images, title: title,),
-          ),
-        );
-      },
-      child: Container(
-        width: 120.w,
-        margin: EdgeInsets.only(right: 8.w),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 120.w,
-              height: 90.h,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      width: 120.w,
-                      height: 90.h,
-                      color: Colors.grey[300],
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    width: 120.w,
-                    height: 90.h,
-                    color: Colors.grey,
-                    child: const Icon(Icons.error, color: Colors.red),
-                  ),
-                ),
-              ),
-            ),
-            if (showTitle) SizedBox(height: 6.h),
-            if (showTitle)
-              Text(
-                title,
-                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubcategorySections() {
-    if (isLoading) {
-      return _buildSkeletonLoading();
-    }
-
-    if (hasError) {
-      return Container(
-        height: 200.h,
-        width: 300.w,
-        decoration: const BoxDecoration(),
-        child: Lottie.asset('assets/animation/error_lottie.json'),
-      );
-    }
-
-    if (subcategoryData == null || subcategoryData!.subcategories.isEmpty) {
-      return const SizedBox();
-    }
-
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          _buildSubcategory(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSubcategory() {
-    List<Widget> sections = [];
-
-    for (var subcategory in subcategoryData!.subcategories) {
-      // Limit to 7 items (you can adjust this to 6 if needed)
-      var limitedImages = subcategory.images.take(7).toList(); // Use 6 if you want 6 items instead
-
-      List<Widget> items = limitedImages.map((imageUrl) {
-        return _buildCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: false);
-      }).toList();
-
-      // Creating a section with limited items
-      sections.add(_buildHorizontalCardSection(
-        sectionTitle: subcategory.name,
-        items: items,
-        imageUrls: limitedImages, // Pass imageUrls as well
-      ));
-    }
-
-    return Column(children: sections);
-  }
-
-  Widget _buildSkeletonLoading() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Column(
-        children: List.generate(2, (index) => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-          child: Container(height: 140.h, color: Colors.white),
-        )),
-      ),
-    );
-  }
-
-  Widget _buildUpcomingHorizontalCard({required String sectionTitle, required List<Widget> items}) {
-    return Container(
-      color: const Color(0xFFFFF5F5),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
-        child: Column(
-
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 5.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 26.h,
-                  width: 6.w,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(5.r),
-                      bottom: Radius.circular(5.r),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Text(
-                  sectionTitle,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: 120.h,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: items,
-              ),
-            ),
-            SizedBox(height: 5.h),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHorizontalCardSection({required String sectionTitle, required List<Widget> items, required List<String> imageUrls,}) {
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 5.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 26.h,
-                  width: 6.w,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(5.r),
-                      bottom: Radius.circular(5.r),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Text(
-                  sectionTitle,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () {
-                    // Check if the items list is empty
-                    if (items.isEmpty) {
-                      _showErrorMessage(context); // Show error message if the list is empty
-                      return;
-                    }
-
-                    // Extract image URLs from the items (if necessary) and navigate to CategorySelected
-                    // In this case, we're using imageUrls, which can be passed to CategorySelected
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CategorySelected(
-                          imagePaths: imageUrls, // Pass the full list of imageUrls
-                          title: sectionTitle,
-                        ),
-                      ),
-                    );
-                  },
+  Widget _buildSkeletonLoader() {
+    return Scaffold(
+      body: SafeArea(
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: CustomScrollView(
+            physics: const NeverScrollableScrollPhysics(),
+            slivers: [
+              // Skeleton for HomeAppBar
+              SliverPadding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                sliver: SliverToBoxAdapter(
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'View All',
-                        style: GoogleFonts.lato(
-                          fontSize: 12.sp,
-                          color: Colors.grey,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSkeletonBox(height: 12, width: 100),
+                          const SizedBox(height: 8),
+                          _buildSkeletonBox(height: 20, width: 150),
+                        ],
                       ),
-                      const SizedBox(width: 4), // Adds a small space between the text and icon
-                      Icon(
-                        CupertinoIcons.arrow_right_square_fill,
-                        color: Colors.grey,
-                        size: 16.sp,
-                      ),
+                      _buildSkeletonBox(height: 45, width: 45, isCircle: true),
                     ],
                   ),
                 ),
-              ],
-            ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: 110.h,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: items,
               ),
-            ),
-            SizedBox(height: 5.h),
-          ],
-        ),
-      ),
-    );}
 
-  Widget _buildCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
-    return InkWell(
-      onTap: () {
-        if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
-          _showErrorMessage(context);
-          return;
-        }
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images, title: title,),
+              // Skeleton for BannerSlider
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: _buildSkeletonBox(height: 150, width: double.infinity),
+                ),
+              ),
+
+              // Skeleton for UpcomingCategorySection
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: List.generate(
+                        4,
+                        (index) => Column(
+                              children: [
+                                _buildSkeletonBox(
+                                    height: 60, width: 60, isCircle: true),
+                                const SizedBox(height: 8),
+                                _buildSkeletonBox(height: 10, width: 50),
+                              ],
+                            )),
+                  ),
+                ),
+              ),
+              // Skeleton for TodayEvents & Trending
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  child: _buildSkeletonBox(height: 120, width: double.infinity),
+                ),
+              ),
+              // Skeleton for Referral Progress Card
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
+                sliver: SliverToBoxAdapter(
+                  child: _buildSkeletonBox(height: 180, width: double.infinity),
+                ),
+              ),
+              // Skeleton for Banners
+              ...List.generate(
+                  3,
+                  (index) => SliverPadding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        sliver: SliverToBoxAdapter(
+                          child: _buildSkeletonBox(
+                              height: 110, width: double.infinity),
+                        ),
+                      )),
+            ],
           ),
-        );
-      },
-      child: Container(
-        width: 120.w,
-        margin: EdgeInsets.only(right: 8.w),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12.r),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 120.w,
-              height: 90.h,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Shimmer.fromColors(
-                    baseColor: Colors.grey[300]!,
-                    highlightColor: Colors.grey[100]!,
-                    child: Container(
-                      width: 120.w,
-                      height: 90.h,
-                      color: Colors.grey[300],
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => Container(
-                    width: 120.w,
-                    height: 90.h,
-                    color: Colors.grey,
-                    child: const Icon(Icons.error, color: Colors.red),
-                  ),
-                ),
-              ),
-            ),
-            if (showTitle) SizedBox(height: 6.h),
-            if (showTitle)
-              Text(
-                title,
-                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-          ],
         ),
       ),
     );
   }
 
-  Widget _buildDailyUseSection(BuildContext context, bool isLoading) {
-    if (isLoading) {
-      return _buildSkeletonLoadingForDailyUse(context);
-    }
-    List<Widget> items = [];
-    if (daillyuseData != null && daillyuseData!.subcategories.isNotEmpty) {
-      for (var category in daillyuseData!.subcategories) {
-        String title = category.name;
-        String imageUrl = category.images.isNotEmpty
-            ? category.images[0]
-            : 'assets/images/placeholder.jpg';
-
-        // Convert List<String> to List<Map<String, String>>
-        List<Map<String, String>> topicMaps =
-        category.images.map((url) => {'image': url}).toList();
-
-        items.add(_buildDailyUseItemCard(title, imageUrl, topicMaps, context));
-      }
-    }
-
-
-    if (daillyuseData == null || daillyuseData!.subcategories.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    int crossAxisCount = 4;
-    int rowCount = (items.length / crossAxisCount).ceil();
-    double rowHeight = 120.h;
-    double gridHeight = rowCount * rowHeight;
-
+  /// Helper to create a consistent skeleton box
+  Widget _buildSkeletonBox(
+      {required double height, double? width, bool isCircle = false}) {
     return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 5.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 26.h,
-                  width: 6.w,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(5.r),
-                      bottom: Radius.circular(5.r),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Text(
-                  'Daily Use',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: gridHeight,
-              child: GridView.builder(
-                primary: false,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 8.w,
-                  mainAxisSpacing: 15.h,
-                  childAspectRatio: 0.80,
-                ),
-                itemCount: items.length,
-                itemBuilder: (context, index) {
-                  return items[index];
-                },
-              ),
-            ),
-            SizedBox(height: 10.h),
-          ],
-        ),
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: isCircle ? null : BorderRadius.circular(8),
+        shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
       ),
     );
   }
 
-  Widget _buildDailyUseItemCard(String title, String imageUrl, List<Map<String, String>> topicMaps, BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (topicMaps.isEmpty) {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('No Topics Available'),
-              content: const Text('There are no topics available to display. Please try again later.'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            ),
-          );
-        } else {
-          try {
+  // --- All your existing helper and build methods remain unchanged below this line ---
+
+  Widget _buildBannerSliver(String imagePath, {BoxFit fit = BoxFit.fill}) {
+    // ... same as before
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      sliver: SliverToBoxAdapter(
+        child: InkWell(
+          onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => CategoryTopics(
-                  title: title,
-                  images: topicMaps,
-                ),
-              ),
+              MaterialPageRoute(builder: (context) => DocumentLockerScreen()),
             );
-          } catch (e) {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text('Error'),
-                content: const Text('An error occurred while navigating. Please try again later.'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-            );
-          }
-        }
-      },
-      child: Column(
-        children: [
-          CachedNetworkImage(
-            imageUrl: imageUrl,
-            width: 80.w,
-            height: 75.h,
-            fit: BoxFit.cover,
-            placeholder: (context, url) => Shimmer.fromColors(
-              baseColor: Colors.grey[300]!,
-              highlightColor: Colors.grey[100]!,
-              child: Container(
-                width: 80.w,
-                height: 75.h,
-                color: Colors.grey[300],
-              ),
-            ),
-            errorWidget: (context, url, error) => Container(
-              width: 80.w,
-              height: 75.h,
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: Colors.grey.shade200),
-              ),
-              child: const Icon(Icons.error, color: Colors.red),
+          },
+          child: Container(
+            height: 110,
+            decoration: BoxDecoration(
+              image: DecorationImage(image: AssetImage(imagePath), fit: fit),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
-          Text(
-            title,
-            style: TextStyle(fontSize: 10.sp),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRammandirSliver(String imagePath, {BoxFit fit = BoxFit.fill}) {
+    // ... same as before
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      sliver: SliverToBoxAdapter(
+        child: Container(
+          height: 110,
+          decoration: BoxDecoration(
+            image: DecorationImage(image: AssetImage(imagePath), fit: fit),
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWorkwithusSliver(String imagePath, {BoxFit fit = BoxFit.fill}) {
+    // ... same as before
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      sliver: SliverToBoxAdapter(
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => WorkWithUS()),
+            );
+          },
+          child: Container(
+            height: 110,
+            decoration: BoxDecoration(
+              image: DecorationImage(image: AssetImage(imagePath), fit: fit),
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBannerSliverRefer(String imagePath, {BoxFit fit = BoxFit.fill}) {
+    // ... same as before
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      sliver: SliverToBoxAdapter(
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ReferEarn()),
+            );
+          },
+          child: Container(
+            height: 110,
+            decoration: BoxDecoration(
+              image: DecorationImage(image: AssetImage(imagePath), fit: fit),
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBannerSliverCharity(String imagePath,
+      {BoxFit fit = BoxFit.fill}) {
+    // ... same as before
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      sliver: SliverToBoxAdapter(
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const CharityScreen()),
+            );
+          },
+          child: Container(
+            height: 110,
+            decoration: BoxDecoration(
+              image: DecorationImage(image: AssetImage(imagePath), fit: fit),
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressWidget() {
+    if (_nextStep == null) {
+      return const SizedBox.shrink();
+    }
+    int referralsRemaining = _referralsForNextStage - _referralsMadeInStage;
+    const startColor = Color(0xffc31432); // A deep red
+    const endColor = Color(0xff240b36); // A deep purple/black
+
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [startColor, endColor],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: startColor.withOpacity(0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Current Step Section
+              Expanded(
+                child: Column(children: [
+                  const Text('CURRENT STEP',
+                      style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Icon(
+                        _currentStep != null
+                            ? Icons.check_circle
+                            : Icons.lock_open,
+                        color: Colors.white,
+                        size: 20),
+                    const SizedBox(width: 6),
+                    Text(_currentStep?.name ?? 'Start',
+                        style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white)),
+                  ]),
+                ]),
+              ),
+              // Next Goal Section
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    _showRewardDialog(_nextStep!);
+                  },
+                  child: Column(children: [
+                    const Text('NEXT GOAL',
+                        style: TextStyle(
+                            color: Colors.yellowAccent,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 4),
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      const Icon(Icons.emoji_events,
+                          color: Colors.yellow, size: 20),
+                      const SizedBox(width: 6),
+                      Text(_nextStep!.name,
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.yellow)),
+                      const SizedBox(width: 4),
+                      const Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Icon(Icons.card_giftcard,
+                            color: Colors.yellow, size: 22),
+                      )
+                    ])
+                  ]),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            const Text('Progress:',
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500)),
+            Text('$_referralsMadeInStage / $_referralsForNextStage Referrals',
+                style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500)),
+          ]),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: _progress,
+              minHeight: 12,
+              backgroundColor: Colors.white.withOpacity(0.2),
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text.rich(
+            TextSpan(
+              style: const TextStyle(fontSize: 14, color: Colors.white70),
+              children: [
+                const TextSpan(text: 'Refer '),
+                TextSpan(
+                    text: '$referralsRemaining more friends',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white)),
+                const TextSpan(text: ' to unlock '),
+                TextSpan(
+                    text: '+${_nextStep!.validityDays} Days',
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, color: Colors.white)),
+                const TextSpan(text: ' validity!'),
+              ],
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -1336,94 +782,203 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSkeletonLoadingForDailyUse(BuildContext context) {
-    int crossAxisCount = 4;
-    int skeletonItemCount = 8;
-
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 5.h),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+  void _showRewardDialog(ReferralStep step) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              Icon(Icons.emoji_events, color: step.color),
+              const SizedBox(width: 8),
+              Text('Step Reward: ${step.name}'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  height: 26.h,
-                  width: 6.w,
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(5.r),
-                      bottom: Radius.circular(5.r),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 8.w),
                 Text(
-                  'Daily Use',
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  'By reaching ${step.name}, you will unlock:',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+                const SizedBox(height: 16),
+                _buildRewardRow(
+                  icon: Icons.calendar_month,
+                  color: Colors.teal,
+                  title: '+${step.validityDays} Days Validity',
+                  description: 'Extend your free trial.',
+                ),
+                const SizedBox(height: 12),
+                _buildRewardRow(
+                  icon: Icons.star,
+                  color: Colors.orange,
+                  title: '5 Points per Referral',
+                  description:
+                      'You get points for every single referral you make.',
+                ),
+                const Divider(height: 24),
+                const Text(
+                  'Keep going!',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Complete all 3 steps to get a total of 21 days validity.',
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                 ),
               ],
             ),
-            SizedBox(height: 5.h),
-            SizedBox(
-              height: 120.h * 2,
-              child: GridView.builder(
-                primary: false,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  crossAxisSpacing: 8.w,
-                  mainAxisSpacing: 15.h,
-                  childAspectRatio: 0.80,
-                ),
-                itemCount: skeletonItemCount,
-                itemBuilder: (context, index) {
-                  return _buildSkeletonItem();
-                },
+          ),
+          actions: [
+            TextButton(
+              child: const Text('GOT IT'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildWalletCards() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                  color: Colors.deepPurple,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.deepPurple.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4))
+                  ]),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.account_balance_wallet,
+                      color: Colors.white, size: 28),
+                  const SizedBox(height: 12),
+                  const Text("Points Balance",
+                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text("$_pointsBalance Pts",
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold)),
+                ],
               ),
             ),
-            SizedBox(height: 10.h),
-          ],
-        ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                  color: Colors.green.shade700,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.green.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4))
+                  ]),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.currency_rupee,
+                      color: Colors.white, size: 28),
+                  const SizedBox(height: 12),
+                  const Text("Referral Income",
+                      style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  Text("₹$_referralIncome",
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildSkeletonItem() {
-    return Column(
+  Widget _buildRewardRow({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String description,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            width: 80.w,
-            height: 70.h,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-          ),
-        ),
-        SizedBox(height: 8.h),
-        Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            width: 60.w,
-            height: 10.h,
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(6.r),
-            ),
+        Icon(icon, color: color, size: 32),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 2),
+              Text(description,
+                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13)),
+            ],
           ),
         ),
       ],
     );
   }
 
+  Widget _buildMaxStepWidget() {
+    final maxStep = referralSteps.last;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+              colors: [maxStep.lightColor, maxStep.color],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+                color: maxStep.color.withOpacity(0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 5))
+          ]),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          const Icon(Icons.military_tech_rounded,
+              color: Colors.white, size: 48),
+          const SizedBox(height: 12),
+          Text('Congratulations!',
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(color: Colors.black.withOpacity(0.2), blurRadius: 2)
+                  ])),
+          const SizedBox(height: 4),
+          Text('You have reached the final step: ${maxStep.name}!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 16, color: Colors.white.withOpacity(0.9))),
+        ],
+      ),
+    );
+  }
 }

@@ -1,8 +1,11 @@
 import 'dart:convert';
+
 import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/screens/business_form.dart';
 import 'package:ajhub_app/screens/edit_business_form.dart';
 import 'package:ajhub_app/utils/configs.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -19,36 +22,31 @@ class BusinessList extends StatefulWidget {
 class BusinessListState extends State<BusinessList> {
   List<dynamic> businessData = [];
   bool isLoading = true;
-  int? selectedBusiness;
+  int? selectedBusinessId;
 
   @override
   void initState() {
     super.initState();
-    fetchStoredBusinessID();
-    fetchBusinessData();
-    printActiveBusinessData();
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    await fetchStoredBusinessID();
+    await fetchBusinessData();
   }
 
   Future<void> fetchStoredBusinessID() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      selectedBusiness = prefs.getInt('selected_business_id');
-      String? activeBusinessData = prefs.getString('active_business');
-      if (activeBusinessData != null) {
-        final activeBusiness = json.decode(activeBusinessData);
-
-      }
-    });
-  }
-
-  Future<void> storeBusinessID(int id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt('selected_business_id', id);
+    if (mounted) {
+      setState(() {
+        selectedBusinessId = prefs.getInt('selected_business_id');
+      });
+    }
   }
 
   Future<void> fetchBusinessData() async {
     const apiUrl = '${BASE_URL}getbusinessprofile';
-    String token = appStore.token; // Replace with your actual token
+    String token = appStore.token;
 
     try {
       final response = await http.get(
@@ -61,57 +59,127 @@ class BusinessListState extends State<BusinessList> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body)['data'];
+        if (mounted) {
+          setState(() {
+            businessData = data ?? [];
+            isLoading = false;
+          });
 
-        setState(() {
-          businessData = data ?? [];
-          isLoading = false;
-
-          if (businessData.isNotEmpty) {
-            // Find the first active business
-            final activeBusiness = businessData.firstWhere(
-                  (business) => business['status'] == 'active',
-              orElse: () => businessData.first,
-            );
-
-            selectedBusiness = activeBusiness['id'];
-
-            // Store active business data in shared preferences
-            SharedPreferences.getInstance().then((prefs) {
-              prefs.setString('active_business', json.encode(activeBusiness));
-            });
-          } else {
-            // Clear preferences if no businesses are found
-            clearPreferences();
-            selectedBusiness = null;
+          if (selectedBusinessId == null && businessData.isNotEmpty) {
+            if (businessData.length == 1) {
+              _setActiveBusiness(businessData.first, showSnackbar: false);
+            } else {
+              _promptToSelectDefaultBusiness();
+            }
           }
-        });
+        }
       } else if (response.statusCode == 404) {
-        // Handle 404 response specifically
-        setState(() {
-          businessData = [];
-          isLoading = false;
-        });
-
-        // Clear preferences as no data is available
-        await clearPreferences();
-        selectedBusiness = null;
+        // --- MODIFIED: Treat 404 as "No Businesses Found" (Valid State) ---
+        if (mounted) {
+          setState(() {
+            businessData = [];
+            isLoading = false;
+          });
+        }
       } else {
         _handleErrorResponse(response);
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        businessData = [];
-      });
-
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
+  Future<void> _setActiveBusiness(dynamic business,
+      {bool showSnackbar = true}) async {
+    if (business == null) return;
+
+    if (mounted) {
+      setState(() {
+        selectedBusinessId = business['id'];
+      });
+    }
+
+    await _storeActiveBusiness(business);
+
+    if (showSnackbar && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${business['business_name']} is now set as active.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  void _promptToSelectDefaultBusiness() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false, // User must make a choice
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Select Your Active Business'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: businessData.length,
+                itemBuilder: (context, index) {
+                  final business = businessData[index];
+                  return ListTile(
+                    title:
+                        Text(business['business_name'] ?? 'Unnamed Business'),
+                    onTap: () {
+                      Navigator.of(dialogContext).pop();
+                      _setActiveBusiness(business);
+                    },
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      );
+    });
+  }
+
+  // --- MODIFIED: Proper saving of active business data ---
+  Future<void> _storeActiveBusiness(dynamic business) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (business['id'] == null) return;
+
+    // 1. Store the ID of the selected business
+    await prefs.setInt('selected_business_id', business['id']);
+
+    // 2. Store individual fields for easy access on other screens.
+    // This is useful if another screen only needs the name or logo without
+    // needing to decode the entire business object.
+    await prefs.setString(
+        'active_business_name', business['business_name'] ?? 'No Name');
+    await prefs.setString('active_business_logo', business['logo'] ?? '');
+    await prefs.setString(
+        'active_business_owner_photo', business['personal_photo'] ?? '');
+
+    await prefs.setString('active_business', json.encode(business));
+  }
 
   void _handleErrorResponse(http.Response response) {
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${response.statusCode}. Failed to load data.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _confirmDelete(String businessId) {
@@ -123,9 +191,7 @@ class BusinessListState extends State<BusinessList> {
           content: const Text('Are you sure you want to delete this business?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
+              onPressed: () => Navigator.pop(context),
               child: const Text('Cancel'),
             ),
             TextButton(
@@ -133,7 +199,7 @@ class BusinessListState extends State<BusinessList> {
                 Navigator.pop(context);
                 _deleteBusinessProfile(businessId);
               },
-              child:  const Text('Delete', style: TextStyle(color: Colors.red)),
+              child: const Text('Delete', style: TextStyle(color: Colors.red)),
             ),
           ],
         );
@@ -142,114 +208,88 @@ class BusinessListState extends State<BusinessList> {
   }
 
   Future<void> _deleteBusinessProfile(String businessId) async {
-    setState(() {
-      isLoading = true; // Show loading indicator
-    });
-
+    if (mounted) setState(() => isLoading = true);
     final String apiUrl = '${BASE_URL}delete/business-profile/$businessId';
     String token = appStore.token;
 
     try {
       final response = await http.post(
         Uri.parse(apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+        headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
-        await fetchBusinessData();
-
-        if (businessData.isEmpty) {
-          await clearPreferences();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Business deleted successfully.'),
+                backgroundColor: Colors.green),
+          );
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Business deleted successfully.')),
-        );
+        // --- MODIFIED: Properly clear all active business data if it was deleted ---
+        if (selectedBusinessId.toString() == businessId) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.remove('selected_business_id');
+          await prefs.remove('active_business');
+          await prefs.remove('active_business_name');
+          await prefs.remove('active_business_logo');
+          await prefs.remove('active_business_owner_photo');
+          if (mounted) {
+            setState(() {
+              selectedBusinessId = null;
+            });
+          }
+        }
+        await fetchBusinessData();
       } else {
         _handleErrorResponse(response);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred. Please try again later.')),
-      );
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-
-  Future<void> _updateBusinessStatus(int businessId) async {
-    const String apiUrl = '${BASE_URL}status/business-profile/';
-    String token = appStore.token;
-
-    try {
-      final response = await http.post(
-        Uri.parse('$apiUrl$businessId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        if (responseData['success'] == true) {
-          // Find the updated business from the list
-          final updatedBusiness = businessData.firstWhere(
-                (business) => business['id'] == businessId,
-          );
-
-          // Store active business data in shared preferences
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          prefs.setString('active_business', json.encode(updatedBusiness));
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Business ID $businessId activated successfully.')),
-          );
-
-          // Fetch updated data
-          await fetchBusinessData();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(responseData['message'] ?? 'Failed to update business status.')),
-          );
-        }
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update business status. Please try again.')),
+          const SnackBar(
+              content: Text('An error occurred. Please try again later.'),
+              backgroundColor: Colors.red),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred. Please try again later.')),
-      );
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
   }
 
+  Future<void> _handleBusinessSelection(int businessId) async {
+    if (selectedBusinessId == businessId) return;
 
-  Future<void> printActiveBusinessData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? activeBusinessData = prefs.getString('active_business');
+    final selectedBusinessObject = businessData
+        .firstWhere((b) => b['id'] == businessId, orElse: () => null);
+    if (selectedBusinessObject == null) return;
 
-    if (activeBusinessData != null) {
-      final activeBusiness = json.decode(activeBusinessData);
-    } else {
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Set Active Business'),
+        content: Text(
+            'Do you want to make "${selectedBusinessObject['business_name']}" your active business?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Confirm', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await _setActiveBusiness(selectedBusinessObject);
     }
   }
-
-
-  Future<void> clearPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('selected_business_id');
-    await prefs.remove('active_business');
-  }
-
-
-
 
   void _navigateToAddBusiness() {
     Navigator.push(
@@ -261,80 +301,62 @@ class BusinessListState extends State<BusinessList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F7),
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
-        elevation: 2, // Slight shadow for depth
+        elevation: 1,
         centerTitle: true,
-        iconTheme: const IconThemeData(
-          color: Colors.black, // Icon color to match the theme
-        ),
+        iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
-          'Business',
+          'My Businesses',
           style: GoogleFonts.poppins(
-            fontSize: 18.sp, // Adjust font size for readability
-            fontWeight: FontWeight.w600, // Medium-bold weight for emphasis
-            color: Colors.black, // Neutral black color for better visibility
-          ),
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87),
         ),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: Colors.red))
-          : Column(
-        children: [
-          Expanded(
-            child: businessData.isEmpty
-                ? _buildNoDataAvailable()
-                : ListView.builder(
-              itemCount: businessData.length,
-              itemBuilder: (context, index) {
-                final business = businessData[index];
-                return BusinessCard(
-                  business: business,
-                  selectedBusiness: selectedBusiness,
-                  onRadioChanged: (int? value) async {
-                    if (value != null) {
-                      setState(() {
-                        selectedBusiness = value;
-                      });
+          : businessData.isEmpty
+              ? _buildNoDataAvailable()
+              : ListView.builder(
+                  padding: EdgeInsets.all(12.w),
+                  itemCount: businessData.length,
+                  itemBuilder: (context, index) {
+                    final business = businessData[index];
+                    final bool isSelected =
+                        selectedBusinessId == business['id'];
 
-                      // Store the selected business ID in SharedPreferences
-                      await storeBusinessID(value);
-
-                      // Send API request to update the business status
-                      await _updateBusinessStatus(value);
-                    }
+                    return BusinessCard(
+                      business: business,
+                      isSelected: isSelected,
+                      onTap: () => _handleBusinessSelection(business['id']),
+                      onUpdate: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  EditBusinessForm(business: business)),
+                        ).then((result) {
+                          if (result == true) {
+                            fetchBusinessData();
+                          }
+                        });
+                      },
+                      onDelete: () => _confirmDelete(business['id'].toString()),
+                    );
                   },
-                  onUpdate: (){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EditBusinessForm(business: business),
-                      ),
-                    ).then((result) {
-                      if (result == true) {
-                        // Refresh the business data when coming back
-                        fetchBusinessData();
-                      }
-                    });
-                  },
-                  onDelete: () =>
-                      _confirmDelete(business['id'].toString()),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+                ),
       floatingActionButton: businessData.length < 3
-          ? FloatingActionButton(
-        onPressed: _navigateToAddBusiness,
-        backgroundColor: Colors.red,
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-      )
+          ? FloatingActionButton.extended(
+              onPressed: _navigateToAddBusiness,
+              backgroundColor: Colors.red,
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: Text('Add Business',
+                  style: GoogleFonts.poppins(
+                      color: Colors.white, fontWeight: FontWeight.w600)),
+            )
           : null,
     );
   }
@@ -344,248 +366,218 @@ class BusinessListState extends State<BusinessList> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.warning_amber_rounded,
-            size: 60,
-            color: Colors.red[600],
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'No business profiles found for this user.',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
+          Icon(CupertinoIcons.add_circled, size: 80, color: Colors.grey[400]),
+          SizedBox(height: 20.h),
+          Text('Add Your First Business',
+              style: GoogleFonts.poppins(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87)),
+          SizedBox(height: 10.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 40.w),
+            child: Text(
+              'Create a business profile to start generating posters.',
+              style:
+                  GoogleFonts.poppins(fontSize: 14.sp, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _navigateToAddBusiness,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
-            child: const Text('Add Business'),
           ),
         ],
       ),
     );
   }
-
 }
 
+// BusinessCard widget remains unchanged
 class BusinessCard extends StatelessWidget {
   final dynamic business;
+  final bool isSelected;
+  final VoidCallback onTap;
   final VoidCallback onUpdate;
   final VoidCallback onDelete;
-  final int? selectedBusiness;
-  final ValueChanged<int?> onRadioChanged;
 
   const BusinessCard({
     super.key,
     required this.business,
+    required this.isSelected,
+    required this.onTap,
     required this.onUpdate,
     required this.onDelete,
-    required this.selectedBusiness,
-    required this.onRadioChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     String imageUrl = business['logo'] ?? '';
+    String ownerPhotoUrl = business['personal_photo'] ?? '';
 
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Radio<int?>(
-            value: business['id'],
-            groupValue: selectedBusiness,
-            onChanged: onRadioChanged,
-            activeColor: Colors.red, // Set the active color to red
-          ),
-
-          Expanded(
-            child: Container(
-              height: 150,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    spreadRadius: 1,
-                    blurRadius: 9,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.only(left: 8, top: 8),
-              child: Stack(
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        color: Colors.white,
+        elevation: isSelected ? 6 : 2,
+        margin: EdgeInsets.only(bottom: 16.h),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.r),
+          side: BorderSide(
+              color: isSelected ? Colors.red : Colors.grey.shade200,
+              width: isSelected ? 2.0 : 1.0),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(12.w),
+              child: Row(
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (business['logo'] != null && business['logo'].isNotEmpty)
-                        Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
+                  SizedBox(
+                    width: 70.w,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircleAvatar(
+                          radius: 35.r,
+                          backgroundColor: Colors.grey.shade100,
+                          child: ClipOval(
+                            child: imageUrl.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: imageUrl,
+                                    fit: BoxFit.cover,
+                                    width: 70.r * 2,
+                                    height: 70.r * 2,
+                                    placeholder: (context, url) =>
+                                        const CupertinoActivityIndicator(),
+                                    errorWidget: (context, url, error) => Icon(
+                                        Icons.business_center,
+                                        size: 30.r,
+                                        color: Colors.grey.shade400),
+                                  )
+                                : Icon(Icons.business_center,
+                                    size: 30.r, color: Colors.grey.shade400),
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.network(
-                              imageUrl,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return const Icon(Icons.image_not_supported);
-                              },
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: CircleAvatar(
+                            radius: 15.r,
+                            backgroundColor: Colors.white,
+                            child: CircleAvatar(
+                              radius: 13.r,
+                              backgroundColor: Colors.grey.shade200,
+                              child: ClipOval(
+                                child: ownerPhotoUrl.isNotEmpty
+                                    ? CachedNetworkImage(
+                                        imageUrl: ownerPhotoUrl,
+                                        fit: BoxFit.cover,
+                                        width: 13.r * 2,
+                                        height: 13.r * 2,
+                                        placeholder: (context, url) =>
+                                            const CupertinoActivityIndicator(),
+                                        errorWidget: (context, url, error) =>
+                                            Icon(Icons.person,
+                                                size: 15.r,
+                                                color: Colors.grey.shade400),
+                                      )
+                                    : Icon(Icons.person,
+                                        size: 15.r,
+                                        color: Colors.grey.shade400),
+                              ),
                             ),
                           ),
                         ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            GestureDetector(
-                              onTap: () => _showFullBusinessName(context, business['business_name']),
-                              child: _buildBusinessNameRow(business['business_name'] ?? 'Not Provided'),
-                            ),
-                            _buildDetailRow(business['mobile_number'] ?? 'Not Provided'),
-                            _buildDetailRow(business['state']?['name'] ?? 'Not Provided'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    top: 4,
-                    right: 4,
-                    child: PopupMenuButton<String>(
-                      onSelected: (value) {
-                        if (value == 'Edit') {
-                          onUpdate();
-                        } else if (value == 'Delete') {
-                          onDelete();
-                        }
-                      },
-                      itemBuilder: (BuildContext context) {
-                        return {'Edit', 'Delete'}.map((String choice) {
-                          return PopupMenuItem<String>(
-                            value: choice,
-                            child: Text(choice),
-                          );
-                        }).toList();
-                      },
+                      ],
                     ),
                   ),
+                  SizedBox(width: 12.w),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          business['business_name'] ?? 'No Name',
+                          style: GoogleFonts.poppins(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          business['owner_name'] ?? 'No Owner Name',
+                          style: GoogleFonts.poppins(
+                              fontSize: 13.sp, color: Colors.grey.shade700),
+                        ),
+                        const Divider(height: 16),
+                        _buildDetailRow(Icons.phone_outlined,
+                            business['mobile_number'] ?? 'N/A'),
+                        SizedBox(height: 4.h),
+                        _buildDetailRow(
+                            Icons.email_outlined, business['email'] ?? 'N/A'),
+                      ],
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      if (value == 'Edit') onUpdate();
+                      if (value == 'Delete') onDelete();
+                    },
+                    icon: Icon(Icons.more_vert, color: Colors.grey.shade600),
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                          value: 'Edit', child: Text('Edit')),
+                      const PopupMenuItem<String>(
+                          value: 'Delete', child: Text('Delete')),
+                    ],
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBusinessNameRow(String businessName) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final availableWidth = constraints.maxWidth - 40;
-        int maxChars = _calculateMaxCharsToFit(businessName, availableWidth);
-
-        String displayedName = businessName.length > maxChars
-            ? '${businessName.substring(0, maxChars)}...'
-            : businessName;
-
-        return RichText(
-          text: TextSpan(
-            text: displayedName,
-            style: GoogleFonts.poppins(
-              fontSize: _calculateFontSize(displayedName, availableWidth),
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-            children: [
-              WidgetSpan(
-                alignment: PlaceholderAlignment.middle,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 5.0),
-                  child: Image.asset(
-                    'assets/icons/verified.png',
-                    width: 15,
-                    height: 15,
-                    fit: BoxFit.cover,
+            if (isSelected)
+              Positioned(
+                top: 0,
+                left: 0,
+                child: Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                  decoration: const BoxDecoration(
                     color: Colors.red,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(14),
+                        bottomRight: Radius.circular(14)),
+                  ),
+                  child: Text(
+                    'ACTIVE',
+                    style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1),
                   ),
                 ),
               ),
-            ],
-          ),
-          softWrap: true,
-          overflow: TextOverflow.ellipsis,
-        );
-      },
-    );
-  }
-
-  double _calculateFontSize(String text, double availableWidth) {
-    double fontSize = availableWidth / (text.length * 0.6);
-    return fontSize.clamp(10.0, 15.0);
-  }
-
-  int _calculateMaxCharsToFit(String businessName, double availableWidth) {
-
-    double fontSize = _calculateFontSize(businessName, availableWidth);
-    double charWidth = fontSize * 0.6;
-
-
-    int maxChars = (availableWidth / charWidth).floor();
-
-      return maxChars > 25 ? 25 : maxChars;
-  }
-
-
-
-
-
-  Widget _buildDetailRow(String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1.0),
-      child: Text(
-        value,
-        style: GoogleFonts.poppins(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          color: Colors.black,
+          ],
         ),
       ),
     );
   }
 
-
-  void _showFullBusinessName(BuildContext context, String businessName) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Business Name'),
-          content: Text(businessName),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+  Widget _buildDetailRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.grey.shade500, size: 14.sp),
+        SizedBox(width: 6.w),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.poppins(fontSize: 12.sp, color: Colors.black54),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }

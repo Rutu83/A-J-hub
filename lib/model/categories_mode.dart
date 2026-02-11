@@ -9,7 +9,8 @@ class CategoriesResponse {
 
   factory CategoriesResponse.fromJson(Map<String, dynamic> json) {
     var categoryList = json['categories'] as List;
-    List<Category> categories = categoryList.map((i) => Category.fromJson(i)).toList();
+    List<Category> categories =
+        categoryList.map((i) => Category.fromJson(i)).toList();
 
     return CategoriesResponse(
       status: json['status'],

@@ -9,9 +9,8 @@ class SubcategoryResponse {
 
   factory SubcategoryResponse.fromJson(Map<String, dynamic> json) {
     var subcategoryList = json['subcategory'] as List;
-    List<Subcategory> subcategories = subcategoryList
-        .map((i) => Subcategory.fromJson(i))
-        .toList();
+    List<Subcategory> subcategories =
+        subcategoryList.map((i) => Subcategory.fromJson(i)).toList();
 
     return SubcategoryResponse(
       status: json['status'],
@@ -41,4 +40,3 @@ class Subcategory {
     );
   }
 }
-

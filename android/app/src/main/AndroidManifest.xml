@@ -1,10 +1,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ajhubdesignapp.ajhub_app"> <!-- Corrected package placement -->
-   
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Required for exact alarms on Android 12+ -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32" />
+    <!-- Required for notifications on Android 13+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <queries>
         <intent>
@@ -43,14 +46,39 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <!-- Replace with your app's specific scheme if necessary -->
                 <data android:scheme="your_custom_scheme_here"/>
             </intent-filter>
+
+            <!-- For App Links -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- ✅ Make sure this is your actual app.link domain from Branch -->
+                <data android:scheme="https" android:host="ajhub.app.link" />
+            </intent-filter>
+
+            <!-- For URI Scheme -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- ✅ Make sure this is your URI scheme from Branch -->
+                <data android:scheme="ajhub" android:host="open" />
+            </intent-filter>
+
+
+
+
         </activity>
 
         <meta-data
             android:name="flutterEmbedding"
             android:value="2"/>
+
+        <!-- 1. ADD YOUR BRANCH KEY HERE -->
+        <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_pusewF11aC568J7X3aUsSinjBso0ZJ2U" />
+
     </application>
 
     <queries>

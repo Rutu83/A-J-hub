@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "909358236610",
+    "project_id": "ajhub-e1a21",
+    "storage_bucket": "ajhub-e1a21.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:909358236610:android:d4ec939a5dfaa5401fcc5b",
+        "android_client_info": {
+          "package_name": "com.ajhubdesignapp.ajhub_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2Lrc0fKeY2Tc542_vvMtNOCKP7XpxcKc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

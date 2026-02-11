@@ -1,16 +1,21 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:ajhub_app/main.dart';
-import 'package:ajhub_app/screens/category_selection_screen.dart';
+import 'package:ajhub_app/screens/dashbord_screen.dart';
 import 'package:ajhub_app/utils/configs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
+import 'package:mime/mime.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BusinessForm extends StatefulWidget {
   const BusinessForm({super.key});
@@ -20,7 +25,8 @@ class BusinessForm extends StatefulWidget {
 }
 
 class _BusinessFormState extends State<BusinessForm> {
-  File? _image;
+  File? _businessLogo;
+  File? _personalPhoto;
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _businessNameController = TextEditingController();
   final TextEditingController _ownerNameController = TextEditingController();
@@ -28,60 +34,30 @@ class _BusinessFormState extends State<BusinessForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _websiteController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  String? selectedState;
-  List<dynamic> states = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String? _selectedCategoryImage;
-  String? _selectedCategoryName;
-  String? _selectedCategoryId;
   bool _isLoading = false;
 
-  Future<void> fetchStates() async {
+  Future<void> _pickImage(ImageSource source, {required bool isLogo}) async {
     try {
-      final response = await http.get(Uri.parse('https://ajhub.co.in/get-states-regby-country/1'));
-      if (response.statusCode == 200) {
-        setState(() {
-          states = json.decode(response.body);
-          selectedState = null;
-        });
-      } else {}
-    } catch (e) {
-    if (kDebugMode) {
-      print(e);
-    }
-    }
-  }
-
-
-
-  Future<void> _pickImageFromGallery() async {
-    try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      final pickedFile = await _picker.pickImage(source: source);
       if (pickedFile != null) {
         setState(() {
-          _image = File(pickedFile.path);
+          if (isLogo) {
+            _businessLogo = File(pickedFile.path);
+          } else {
+            _personalPhoto = File(pickedFile.path);
+          }
         });
       }
     } catch (e) {
       if (kDebugMode) {
-      print(e);
-    }}
-  }
-
-  Future<void> _pickImageFromCamera() async {
-    try {
-      final pickedFile = await _picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        setState(() {
-          _image = File(pickedFile.path);
-        });
+        print(e);
       }
-    } catch (e) {
-      if (kDebugMode) {}
     }
   }
 
-  void _showImageSourceActionSheet(BuildContext context) {
+  void _showImageSourceActionSheet(BuildContext context,
+      {required bool isLogo}) {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -94,7 +70,7 @@ class _BusinessFormState extends State<BusinessForm> {
                 title: const Text('Gallery'),
                 onTap: () {
                   Navigator.pop(context);
-                  _pickImageFromGallery();
+                  _pickImage(ImageSource.gallery, isLogo: isLogo);
                 },
               ),
               ListTile(
@@ -102,7 +78,7 @@ class _BusinessFormState extends State<BusinessForm> {
                 title: const Text('Camera'),
                 onTap: () {
                   Navigator.pop(context);
-                  _pickImageFromCamera();
+                  _pickImage(ImageSource.camera, isLogo: isLogo);
                 },
               ),
             ],
@@ -113,177 +89,133 @@ class _BusinessFormState extends State<BusinessForm> {
   }
 
   Future<void> _submitBusinessProfile() async {
-    if (_formKey.currentState?.validate() == true) {
-      setState(() {
-        _isLoading = true;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_businessLogo == null) {
+      _showSnackbar('Please provide a logo for your business.', Colors.red);
+      return;
+    }
+    if (_personalPhoto == null) {
+      _showSnackbar('Please provide a personal photo.', Colors.red);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final prefs = await SharedPreferences.getInstance();
+    final bool wasAnyBusinessActive =
+        prefs.getInt('selected_business_id') != null;
+
+    try {
+      var request = http.MultipartRequest(
+          'POST', Uri.parse('${BASE_URL}businessprofile'));
+      request.headers.addAll({
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${appStore.token}',
       });
 
+      print('hello return error  : ${request}');
 
-      if (_selectedCategoryId == null || _selectedCategoryId!.isEmpty) {
-        _showSnackbar('Please select a category.', Colors.red);
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
+      request.fields['business_name'] = _businessNameController.text;
+      request.fields['owner_name'] = _ownerNameController.text;
+      request.fields['mobile_number'] = _mobileNumberController.text;
+      request.fields['email'] = _emailController.text;
+      request.fields['website'] = _websiteController.text;
+      request.fields['address'] = _addressController.text;
 
-      if (selectedState == null || selectedState!.isEmpty) {
-        _showSnackbar('Please select a state.', Colors.red);
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
+      final logoMimeType = lookupMimeType(_businessLogo!.path);
+      request.files.add(await http.MultipartFile.fromPath(
+        'logo',
+        _businessLogo!.path,
+        contentType:
+            logoMimeType != null ? MediaType.parse(logoMimeType) : null,
+      ));
 
-      if (_websiteController.text.isNotEmpty &&
-          !RegExp(r"^(https?://)?([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?$")
-              .hasMatch(_websiteController.text)) {
-        _showSnackbar('Please enter a valid website URL.', Colors.red);
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
+      const String correctPersonalPhotoKey = 'personal_photo';
+      final photoMimeType = lookupMimeType(_personalPhoto!.path);
+      request.files.add(await http.MultipartFile.fromPath(
+        correctPersonalPhotoKey,
+        _personalPhoto!.path,
+        contentType:
+            photoMimeType != null ? MediaType.parse(photoMimeType) : null,
+      ));
 
-      try {
-        if (_image != null) {
-          int fileSize = await _image!.length();
-          if (fileSize > 2048 * 1024) {
-            _showSnackbar('The logo image must not exceed 2 MB.', Colors.red);
-            setState(() {
-              _isLoading = false;
-            });
-            return;
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        _showSnackbar('Business profile submitted successfully!', Colors.green);
+
+        final responseData = json.decode(response.body);
+        final newBusiness = responseData['data'];
+
+        if (!wasAnyBusinessActive && newBusiness != null) {
+          await _storeActiveBusiness(newBusiness);
+          if (kDebugMode) {
+            print(
+                'First business created. Set as active: ${json.encode(newBusiness)}');
           }
-        } else {
-          _showSnackbar('Please provide a logo for your business.', Colors.red);
-          setState(() {
-            _isLoading = false;
-          });
-          return;
         }
 
-        var request = http.MultipartRequest(
-          'POST',
-          Uri.parse('${BASE_URL}businessprofile'),
+        // --- UPDATED: Compulsory redirect to the BusinessList page ---
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  const DashboardScreen()), // <-- Make sure this is your main screen
+          (Route<dynamic> route) =>
+              false, // This predicate removes all previous routes
         );
-        request.headers.addAll({
-          'Content-Type': 'multipart/form-data',
-          'Authorization': 'Bearer ${appStore.token}',
-        });
-
-        request.fields['business_name'] = _businessNameController.text;
-        request.fields['owner_name'] = _ownerNameController.text.isNotEmpty
-            ? _ownerNameController.text
-            : 'Owner Name';
-        request.fields['mobile_number'] = _mobileNumberController.text;
-        request.fields['email'] = _emailController.text.isNotEmpty
-            ? _emailController.text
-            : '';
-        request.fields['website'] = _websiteController.text;
-        request.fields['address'] = _addressController.text;
-        request.fields['category_id'] = _selectedCategoryId ?? '';
-        request.fields['state_id'] = selectedState ?? '';
-
-        if (_image != null) {
-          var logoFile = await http.MultipartFile.fromPath(
-            'logo',
-            _image!.path,
-            contentType: MediaType('image', 'jpeg'),
-          );
-          request.files.add(logoFile);
-        }
-        var response = await request.send();
-
-        if (response.statusCode == 200 || response.statusCode == 201) {
-
-          _showSnackbar('Business profile submitted successfully!', Colors.green);
-          setState(() {
-            _isLoading = false;
-          });
-          Navigator.pop(context);
-        } else {
-
-          final errorMessage = await response.stream.bytesToString();
-
-          String errorMsg = 'An unexpected error occurred. Please try again.';
-          switch (response.statusCode) {
-            case 400:
-              errorMsg = 'The request could not be understood or was missing required parameters.';
-              break;
-            case 401:
-              errorMsg = 'You are not authorized to perform this action. Please check your credentials.';
-              break;
-            case 403:
-              errorMsg = 'You do not have permission to access this resource.';
-              break;
-            case 404:
-              errorMsg = 'The requested resource was not found.';
-              break;
-            case 422:
-              var errorJson = json.decode(errorMessage);
-              if (errorJson['category_id'] != null) {
-                errorMsg = 'Please select a category.';
-              } else if (errorJson['website'] != null) {
-                errorMsg = 'Please enter a valid website URL.';
-              } else if (errorJson['state_id'] != null) {
-                errorMsg = 'Please select a state.';
-              }
-              break;
-            case 500:
-              errorMsg = 'An unexpected error occurred on the server. Please try again later.';
-              break;
-            case 502:
-              errorMsg = 'There was an issue connecting to the server. Please try again later.';
-              break;
-            case 503:
-              errorMsg = 'The server is temporarily unavailable. Please try again later.';
-              break;
-            default:
-              errorMsg = 'An unexpected error occurred. Please try again.';
-              break;
-          }
-
-
-          _showSnackbar(errorMsg, Colors.red);
-
-
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      } catch (e) {
-
-        _showSnackbar('An unexpected error occurred. Please try again.', Colors.red);
-        setState(() {
-          _isLoading = false;
-        });
+        // -------------------------------------------------------------
+      } else {
+        final errorMessage = json.decode(response.body)['message'] ??
+            'An unknown error occurred.';
+        _showSnackbar(
+            'Error ${response.statusCode}: $errorMessage', Colors.red);
+      }
+    } catch (e) {
+      _showSnackbar('An unexpected error occurred: $e', Colors.red);
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
 
-  void _showSnackbar(String message, Color color) {
+  Future<void> _storeActiveBusiness(dynamic business) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (business == null || business['id'] == null) return;
 
+    await prefs.setInt('selected_business_id', business['id']);
+    await prefs.setString(
+        'active_business_name', business['business_name'] ?? 'No Name');
+    await prefs.setString('active_business_logo', business['logo'] ?? '');
+    await prefs.setString(
+        'active_business_owner_photo', business['personal_photo'] ?? '');
+    await prefs.setString('active_business', json.encode(business));
+  }
+
+  void _showSnackbar(String message, Color color) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         backgroundColor: color,
         content: Row(
           children: [
-            const Icon(Icons.check_circle, color: Colors.white),
+            Icon(color == Colors.red ? Icons.error : Icons.check_circle,
+                color: Colors.white),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
                 message,
-                style: GoogleFonts.poppins(
-                  fontSize: 14.sp,
-                  color: Colors.black,
-                ),
+                style:
+                    GoogleFonts.poppins(fontSize: 14.sp, color: Colors.white),
               ),
             ),
           ],
@@ -292,31 +224,18 @@ class _BusinessFormState extends State<BusinessForm> {
     );
   }
 
-
-  void _navigateToCategorySelection() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => CategorySelectionScreen(
-          onCategorySelected: (String categoryId, String categoryName) {
-          },
-        ),
-      ),
-    );
-
-    if (result != null && result is Map<String, String>) {
-      setState(() {
-        _selectedCategoryId = result['id'];
-        _selectedCategoryName = result['name'];
-        _selectedCategoryImage = result['image'];
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    fetchStates();
+  void _clearForm() {
+    setState(() {
+      _businessLogo = null;
+      _personalPhoto = null;
+      _businessNameController.clear();
+      _ownerNameController.clear();
+      _mobileNumberController.clear();
+      _emailController.clear();
+      _websiteController.clear();
+      _addressController.clear();
+      _formKey.currentState?.reset();
+    });
   }
 
   @override
@@ -328,160 +247,68 @@ class _BusinessFormState extends State<BusinessForm> {
         centerTitle: true,
         title: const Text('Add Business'),
       ),
-      body:   SingleChildScrollView(
-        padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 0.h, top: 6),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(
+            16.w, 6.h, 16.w, 100.h), // Add bottom padding for buttons
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildLabel('Select Your Business Logo'),
-              InkWell(
-                onTap: () {
-                  _showImageSourceActionSheet(context);
-                },
-                child: SizedBox(
-                  width: 110.w,
-                  height: 100.h,
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 110.w,
-                        height: 100.h,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.red.shade300),
-                          borderRadius: BorderRadius.circular(10.r),
-                          color: Colors.grey[200],
-                          image: _image != null
-                              ? DecorationImage(
-                            image: FileImage(_image!),
-                            fit: BoxFit.cover,
-                          )
-                              : null,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        buildLabel('Business Logo', isRequired: true),
+                        SizedBox(height: 8.h),
+                        _buildImageUploader(
+                          imageFile: _businessLogo,
+                          onTap: () => _showImageSourceActionSheet(context,
+                              isLogo: true),
                         ),
-                        child: _image == null
-                            ? const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.add_a_photo_outlined,
-                                size: 20,
-                                color: Colors.grey,
-                              ),
-                            ],
-                          ),
-                        )
-                            : null,
-                      ),
-                      if (_image != null)
-                        Positioned(
-                          top: 8,
-                          right: 8,
-                          child: InkWell(
-                            onTap: () {
-                              _showImageSourceActionSheet(context);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                borderRadius: BorderRadius.all(Radius.circular(4)),
-                              ),
-                              child: const Icon(
-                                Icons.add_a_photo,
-                                color: Colors.red,
-                                size: 30,
-                              ),
-                            ),
-                          ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Expanded(
+                    child: Column(
+                      children: [
+                        buildLabel('Personal Photo', isRequired: true),
+                        SizedBox(height: 8.h),
+                        _buildImageUploader(
+                          imageFile: _personalPhoto,
+                          onTap: () => _showImageSourceActionSheet(context,
+                              isLogo: false),
+                          isPersonal: true,
                         ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
-
-              SizedBox(height: 16.h),
-
-              buildLabel('Business Category', isRequired: true),
-              InkWell(
-                onTap: _navigateToCategorySelection,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey.shade600),
-                    borderRadius: BorderRadius.circular(10.r),
-                    color: Colors.white,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 40.w,
-                            height: 35.h,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8.r),
-                              image: DecorationImage(
-                                image: _selectedCategoryImage != null
-                                    ? NetworkImage(_selectedCategoryImage!)
-                                    : const AssetImage('assets/images/placeholder.jpg') as ImageProvider,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Text(
-                            _selectedCategoryName ?? 'Select Category',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Image.asset(
-                        'assets/icons/edit.png',
-                        width: 20.w,
-                        height: 20.h,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-
-
               SizedBox(height: 16.h),
               buildLabel('Business Name', isRequired: true),
               _buildTextFormField(
                 controller: _businessNameController,
                 hintText: 'Enter your business name',
                 icon: Icons.business,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your business name';
-                  }
-                  return null;
-                },
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter your business name'
+                    : null,
               ),
-
               SizedBox(height: 16.h),
               buildLabel('Owner Name', isRequired: true),
               _buildTextFormField(
                 controller: _ownerNameController,
                 hintText: 'Enter owner name',
                 icon: Icons.person,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your owner name';
-                  }
-                  return null;
-                },
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter your owner name'
+                    : null,
               ),
-
               SizedBox(height: 16.h),
               buildLabel('Mobile Number', isRequired: true),
               _buildTextFormField(
@@ -490,16 +317,13 @@ class _BusinessFormState extends State<BusinessForm> {
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty)
                     return 'Please enter your mobile number';
-                  }
-                  if (value.length != 10) {
+                  if (value.length != 10)
                     return 'Please enter a valid 10-digit mobile number';
-                  }
                   return null;
                 },
               ),
-
               SizedBox(height: 16.h),
               buildLabel('Email Id', isRequired: true),
               _buildTextFormField(
@@ -508,18 +332,15 @@ class _BusinessFormState extends State<BusinessForm> {
                 icon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    final emailRegex = RegExp(r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
-                    if (!emailRegex.hasMatch(value)) {
-                      return 'Please enter a valid email ID';
-                    }
-                    return null;
-                  }
-                  return 'Please enter your email ID';
+                  if (value == null || value.isEmpty)
+                    return 'Please enter your email ID';
+                  final emailRegex = RegExp(
+                      r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
+                  if (!emailRegex.hasMatch(value))
+                    return 'Please enter a valid email ID';
+                  return null;
                 },
               ),
-
-
               SizedBox(height: 16.h),
               buildLabel('Website Name'),
               _buildTextFormField(
@@ -527,9 +348,7 @@ class _BusinessFormState extends State<BusinessForm> {
                 hintText: 'Enter website name',
                 icon: Icons.web,
                 keyboardType: TextInputType.url,
-
               ),
-
               SizedBox(height: 16.h),
               buildLabel('Address', isRequired: true),
               _buildTextFormField(
@@ -538,23 +357,58 @@ class _BusinessFormState extends State<BusinessForm> {
                 icon: Icons.location_on,
                 maxLines: 3,
                 minLines: 1,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your Address';
-                  }
-                  return null;
-                },
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter your Address'
+                    : null,
               ),
-
-              SizedBox(height: 16.h),
-              buildLabel('State', isRequired: true),
-              _buildStateDropdown(),
-
-              SizedBox(height: 16.h),
-              buildBottomButtons(),
             ],
           ),
         ),
+      ),
+      bottomSheet: buildBottomButtons(),
+    );
+  }
+
+  Widget _buildImageUploader({
+    required File? imageFile,
+    required VoidCallback onTap,
+    bool isPersonal = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: 120.w,
+        height: 120.h,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.red.shade300),
+          borderRadius: BorderRadius.circular(10.r),
+          color: Colors.grey[200],
+          image: imageFile != null
+              ? DecorationImage(image: FileImage(imageFile), fit: BoxFit.cover)
+              : null,
+        ),
+        child: imageFile == null
+            ? Center(
+                child: Icon(
+                  isPersonal
+                      ? Icons.person_add_alt_1_outlined
+                      : Icons.add_a_photo_outlined,
+                  size: 30,
+                  color: Colors.grey,
+                ),
+              )
+            : Align(
+                alignment: Alignment.bottomRight,
+                child: Container(
+                  margin: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.8),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.edit, color: Colors.red, size: 20),
+                ),
+              ),
       ),
     );
   }
@@ -583,14 +437,11 @@ class _BusinessFormState extends State<BusinessForm> {
                 onPressed: !_isLoading ? _clearForm : null,
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Colors.red),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.r)),
                 ),
-                child: Text(
-                  'Clear',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 16.sp,
-                  ),
-                ),
+                child: Text('Clear',
+                    style: TextStyle(color: Colors.red, fontSize: 16.sp)),
               ),
             ),
           ),
@@ -602,23 +453,18 @@ class _BusinessFormState extends State<BusinessForm> {
                 onPressed: !_isLoading ? _submitBusinessProfile : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.r)),
                 ),
                 child: _isLoading
                     ? SizedBox(
-                  width: 24.w,
-                  height: 24.h,
-                  child: const CircularProgressIndicator(
-                    color: Colors.red,
-                    strokeWidth: 2.5,
-                  ),
-                )
-                    : Text(
-                  'Submit',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: Colors.white,
-                  ),
-                ),
+                        width: 24.w,
+                        height: 24.h,
+                        child: const CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2.5),
+                      )
+                    : Text('Submit',
+                        style: TextStyle(fontSize: 16.sp, color: Colors.white)),
               ),
             ),
           ),
@@ -626,7 +472,6 @@ class _BusinessFormState extends State<BusinessForm> {
       ),
     );
   }
-
 
   Widget _buildTextFormField({
     required TextEditingController controller,
@@ -656,8 +501,10 @@ class _BusinessFormState extends State<BusinessForm> {
             ],
           ),
         ),
-        border: OutlineInputBorder(
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+        focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.r),
+          borderSide: const BorderSide(color: Colors.red, width: 2.0),
         ),
       ),
       keyboardType: keyboardType,
@@ -667,139 +514,26 @@ class _BusinessFormState extends State<BusinessForm> {
     );
   }
 
-  void _clearForm() {
-    setState(() {
-      _image = null;
-      selectedState = null;
-      _formKey.currentState?.reset();
-    });
-  }
-
-  Widget _buildStateDropdown() {
-    return InkWell(
-      onTap: () {
-        _showStateSelectionSheet();
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade600),
-          borderRadius: BorderRadius.circular(10.r),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.location_city, color: Colors.red),
-                Container(
-                  margin: EdgeInsets.symmetric(horizontal: 12.w),
-                  width: 1,
-                  height: 24.h,
-                  color: Colors.grey.shade300,
-                ),
-                SizedBox(width: 10.w),
-                Text(
-                  selectedState != null
-                      ? states.firstWhere((state) => state['id'].toString() == selectedState)['name']
-                      : 'Select Your State',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14.sp,
-                    color: selectedState != null ? Colors.black : Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-            Image.asset(
-              'assets/icons/edit.png',
-              width: 20.w,
-              height: 20.h,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showStateSelectionSheet() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        ),
-      ),
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return Container(
-          height: 700,
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                title: Text(
-                  'Select Your State',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: states.length,
-                  itemBuilder: (context, index) {
-                    return Column(
-                      children: [
-                        ListTile(
-                          title: Text(states[index]['name']),
-                          onTap: () {
-                            setState(() {
-                              selectedState = states[index]['id'].toString();
-                            });
-                            Navigator.pop(context);
-                          },
-                        ),
-                        Divider(
-                          color: Colors.grey.shade300,
-                          thickness: 1,
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   Widget buildLabel(String label, {bool isRequired = false}) {
-    return RichText(
-      text: TextSpan(
-        text: label,
-        style: GoogleFonts.poppins(
-          fontSize: 14.sp,
-          fontWeight: FontWeight.w500,
-          color: Colors.black,
-        ),
-        children: isRequired
-            ? [
-          const TextSpan(
-            text: ' *',
-            style: TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
-            ),
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8.h),
+      child: RichText(
+        text: TextSpan(
+          text: label,
+          style: GoogleFonts.poppins(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
           ),
-        ]
-            : [],
+          children: isRequired
+              ? [
+                  const TextSpan(
+                      text: ' *',
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold))
+                ]
+              : [],
+        ),
       ),
     );
   }

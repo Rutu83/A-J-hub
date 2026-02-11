@@ -42,7 +42,6 @@ class Fram5 extends StatelessWidget {
             height: containerHeight,
             child: Stack(
               children: [
-
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
@@ -60,7 +59,6 @@ class Fram5 extends StatelessWidget {
 
                 Positioned(
                   bottom: (containerHeight * 0.01 + containerHeight * 0.00) / 2,
-
                   left: containerWidth * 0.06,
                   child: _buildText(
                     text: emailAddress,
@@ -71,7 +69,6 @@ class Fram5 extends StatelessWidget {
 
                 Positioned(
                   bottom: (containerHeight * 0.01 + containerHeight * 0.00) / 2,
-
                   right: containerWidth * 0.06,
                   child: _buildText(
                     text: phoneNumber,
@@ -116,10 +113,7 @@ class Fram5 extends StatelessWidget {
   }) {
     return Text(
       text,
-      style: TextStyle(
-        color: color,
-        fontSize: fontSize
-      ),
+      style: TextStyle(color: color, fontSize: fontSize),
     );
   }
 
