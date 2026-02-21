@@ -1,4 +1,3 @@
-
 import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/utils/colors.dart';
 import 'package:ajhub_app/utils/constant.dart';
@@ -7,14 +6,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:html/parser.dart';
 import 'package:nb_utils/nb_utils.dart';
 
-
-
-
 Future<bool> get isVHMProduct async => await getPackageName() == appPackageName;
 
 bool get isLoginTypeUser => appStore.loginType == LOGIN_TYPE_USER;
-
-
 
 List<LanguageDataModel> languageList() {
   return [
@@ -59,7 +53,8 @@ void afterBuildCreated(Function()? onCreated) {
 InputDecoration inputDecoration(BuildContext context,
     {Widget? prefixIcon, String? labelText, double? borderRadius}) {
   return InputDecoration(
-    contentPadding: const EdgeInsets.only(left: 12, bottom: 10, top: 10, right: 10),
+    contentPadding:
+        const EdgeInsets.only(left: 12, bottom: 10, top: 10, right: 10),
     labelText: labelText,
     labelStyle: secondaryTextStyle(),
     alignLabelWithHint: true,
@@ -109,12 +104,10 @@ String calculateTimer(int secTime) {
 
   seconds = secTime - (hour * 3600) - (minute * 60);
 
-  String hourLeft =
-      hour.toString().length < 2 ? "0$hour" : hour.toString();
+  String hourLeft = hour.toString().length < 2 ? "0$hour" : hour.toString();
 
-  String minuteLeft = minute.toString().length < 2
-      ? "0$minute"
-      : minute.toString();
+  String minuteLeft =
+      minute.toString().length < 2 ? "0$minute" : minute.toString();
 
   String minutes = minuteLeft == '00' ? '01' : minuteLeft;
 
@@ -134,16 +127,13 @@ String newCalculateTimer(int secTime) {
 
   seconds = secTime - (hour * 3600) - (minute * 60);
 
-  String hourLeft =
-      hour.toString().length < 2 ? "0$hour" : hour.toString();
+  String hourLeft = hour.toString().length < 2 ? "0$hour" : hour.toString();
 
-  String minuteLeft = minute.toString().length < 2
-      ? "0$minute"
-      : minute.toString();
+  String minuteLeft =
+      minute.toString().length < 2 ? "0$minute" : minute.toString();
 
-  String secondsLeft = seconds.toString().length < 2
-      ? "0$seconds"
-      : seconds.toString();
+  String secondsLeft =
+      seconds.toString().length < 2 ? "0$seconds" : seconds.toString();
 
   String result = "$hourLeft:$minuteLeft:$secondsLeft";
 
@@ -228,7 +218,6 @@ num hourlyCalculation({required int secTime, required num price}) {
 
   return result.toDouble();
 }
-
 
 // void navigateToLoginScreen(BuildContext context) {
 //   Navigator.pushReplacement(

@@ -3,7 +3,8 @@
 import 'package:nb_utils/nb_utils.dart';
 
 /// DO NOT CHANGE THIS PACKAGE NAME
-var appPackageName = isAndroid ? 'com.mdinfotech.teacup.teacup' : 'com.mdinfotech.teacup.teacup';
+var appPackageName =
+    isAndroid ? 'com.mdinfotech.teacup.teacup' : 'com.mdinfotech.teacup.teacup';
 const String kregisterBox = "register_model";
 
 //region Common Configs
@@ -36,31 +37,25 @@ const ONESIGNAL_TAG_VALUE = 'userApp';
 
 const PER_PAGE_CHAT_LIST_COUNT = 50;
 
-
 const USER_NOT_CREATED = "User not created";
 
 const USER_CANNOT_LOGIN = "User can't login";
 
 const USER_NOT_FOUND = "User not found";
 
-
 const BOOKING_TYPE_ALL = 'all';
 
 const CATEGORY_LIST_ALL = "all";
-
 
 const BOOKING_TYPE_USER_POST_JOB = 'user_post_job';
 
 const BOOKING_TYPE_SERVICE = 'service';
 
-
 const DONE = 'Done';
 
 const SERVICE = 'service';
 
-
 const PAYMENT_STATUS_PAID = 'paid';
-
 
 const NOTIFICATION_TYPE_BOOKING = 'booking';
 
@@ -68,7 +63,6 @@ const NOTIFICATION_TYPE_POST_JOB = 'post_Job';
 //endregion
 
 //region LIVESTREAM KEYS
-
 
 const LIVESTREAM_UPDATE_ALL_STD_LIST = "UpdateAllStdList";
 
@@ -90,7 +84,6 @@ const LIVESTREAM_UPDATE_BIDER = 'updateBiderData';
 //region THEME MODE TYPE
 
 const THEME_MODE_LIGHT = 0;
-
 
 const THEME_MODE_DARK = 1;
 
@@ -132,7 +125,6 @@ const USER_MEDUIM = 'USER_MEDUIM';
 
 const USER_EMAIL = 'USER_EMAIL';
 
-
 const PROFILE_IMAGE = 'PROFILE_IMAGE';
 
 const IS_REMEMBERED = "IS_REMEMBERED";
@@ -152,7 +144,6 @@ const STATE_ID = 'STATE_ID';
 const CITY_ID = 'CITY_ID';
 
 const ADDRESS = 'ADDRESS';
-
 
 const PLAYERID = 'PLAYERID';
 
@@ -224,8 +215,6 @@ const APPLE_GIVE_NAME = 'APPLE_GIVE_NAME';
 
 const APPLE_FAMILY_NAME = 'APPLE_FAMILY_NAME';
 
-
-
 const APPSTORE_URL = 'APPSTORE_URL';
 
 const PLAY_STORE_URL = 'PLAY_STORE_URL';
@@ -269,7 +258,6 @@ const CUSTOMERID = 'CUSTOMERID';
 const PARENT_PROFESSION = 'PARENT_PROFESSION';
 const PARENT_GENDER = 'PARENT_GENDER';
 
-
 //region CURRENCY POSITION
 const CURRENCY_POSITION_LEFT = 'left';
 const CURRENCY_POSITION_RIGHT = 'right';
@@ -296,8 +284,10 @@ const ONESIGNAL_API_KEY = 'ONESIGNAL_API_KEY';
 const ONESIGNAL_REST_API_KEY = 'ONESIGNAL_REST_API_KEY';
 const ONESIGNAL_CHANNEL_KEY = 'ONESIGNAL_CHANNEL_ID';
 const ONESIGNAL_APP_ID_PROVIDER = 'ONESIGNAL_ONESIGNAL_APP_ID_PROVIDER';
-const ONESIGNAL_REST_API_KEY_PROVIDER = 'ONESIGNAL_ONESIGNAL_REST_API_KEY_PROVIDER';
-const ONESIGNAL_CHANNEL_KEY_PROVIDER = 'ONESIGNAL_ONESIGNAL_CHANNEL_ID_PROVIDER';
+const ONESIGNAL_REST_API_KEY_PROVIDER =
+    'ONESIGNAL_ONESIGNAL_REST_API_KEY_PROVIDER';
+const ONESIGNAL_CHANNEL_KEY_PROVIDER =
+    'ONESIGNAL_ONESIGNAL_CHANNEL_ID_PROVIDER';
 
 //endregion
 
@@ -358,7 +348,6 @@ const CONTACT_COLLECTION = "contact";
 
 const CHAT_DATA_IMAGES = "chatImages";
 
-
 const IS_ENTER_KEY = "IS_ENTER_KEY";
 
 const SELECTED_WALLPAPER = "SELECTED_WALLPAPER";
@@ -382,7 +371,6 @@ const BOOKING_STATUS_CANCELLED = 'cancelled';
 
 const BOOKING_STATUS_REJECTED = 'rejected';
 
-
 const BOOKING_STATUS_FAILED = 'failed';
 
 const BOOKING_STATUS_COMPLETED = 'completed';
@@ -402,7 +390,6 @@ const TEXT = "TEXT";
 
 const IMAGE = "IMAGE";
 
-
 const VIDEO = "VIDEO";
 
 const AUDIO = "AUDIO";
@@ -415,7 +402,6 @@ const List<String> RTL_LanguageS = ['ar', 'ur'];
 
 //region MessageType
 enum MessageType {
-
   TEXT,
   IMAGE,
   VIDEO,
@@ -472,7 +458,8 @@ const GOOGLE_MAP_PREFIX = 'https://www.google.com/maps/search/?api=1&query=';
 
 //endregion
 
-SlideConfiguration sliderConfigurationGlobal = SlideConfiguration(duration: 400.milliseconds, delay: 50.milliseconds);
+SlideConfiguration sliderConfigurationGlobal =
+    SlideConfiguration(duration: 400.milliseconds, delay: 50.milliseconds);
 
 // region JOB REQUEST STATUS
 

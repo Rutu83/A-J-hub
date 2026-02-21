@@ -16,7 +16,8 @@ import 'package:ajhub_app/store/app_store.dart';
 import 'package:ajhub_app/utils/common.dart';
 import 'package:ajhub_app/utils/constant.dart';
 import 'package:ajhub_app/utils/notification_service.dart';
-import 'package:ajhub_app/network/notification_service.dart' as model_ns; // Aliased import
+import 'package:ajhub_app/network/notification_service.dart'
+    as model_ns; // Aliased import
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';

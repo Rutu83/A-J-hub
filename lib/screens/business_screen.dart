@@ -19,6 +19,7 @@ class BusinessScreen extends StatefulWidget {
   @override
   _BusinessScreenState createState() => _BusinessScreenState();
 }
+
 class _BusinessScreenState extends State<BusinessScreen> {
   Future<List<BusinessModal>>? futureBusiness;
   String referralCode = "Loading...";
@@ -55,8 +56,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
         }
       }
 
-      setState(() {
-      });
+      setState(() {});
 
       return data;
     } on SocketException catch (_) {
@@ -115,18 +115,16 @@ class _BusinessScreenState extends State<BusinessScreen> {
       'Amount2': '₹8000',
       'Amount3': '₹8000',
     },
-
-
   ];
 
   @override
   Widget build(BuildContext context) {
-
     if (hasError) {
       return Scaffold(
         body: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20), // Add padding to the sides
+            padding: const EdgeInsets.symmetric(
+                horizontal: 20), // Add padding to the sides
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -161,7 +159,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87, // Slightly darkened text for better contrast
+                    color: Colors
+                        .black87, // Slightly darkened text for better contrast
                   ),
                 ),
 
@@ -177,7 +176,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
                   textAlign: TextAlign.center, // Center align the text
                 ),
 
-                const SizedBox(height: 30), // Increased space between text and button
+                const SizedBox(
+                    height: 30), // Increased space between text and button
 
                 // Retry Button
                 ElevatedButton.icon(
@@ -188,15 +188,18 @@ class _BusinessScreenState extends State<BusinessScreen> {
                     futureBusiness = fetchBusinessData();
                   },
                   icon: const Icon(Icons.refresh, color: Colors.white),
-                  label: const Text("Retry", style: TextStyle(color: Colors.white)),
+                  label: const Text("Retry",
+                      style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red, // Button color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 14),
                     textStyle: const TextStyle(
-                      fontSize: 18, // Slightly larger font size for better readability
+                      fontSize:
+                          18, // Slightly larger font size for better readability
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -213,7 +216,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
         backgroundColor: Colors.white,
-        title:  Text(
+        title: Text(
           "My Business",
           style: GoogleFonts.poppins(
             fontSize: 18,
@@ -235,9 +238,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return _buildSkeletonLoader();
           } else if (snapshot.hasError) {
-
             return Center(
-              child:Column(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -264,14 +266,15 @@ class _BusinessScreenState extends State<BusinessScreen> {
             // Existing logic for building UI with snapshot.data
             return SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0, bottom: 0),
+                padding: const EdgeInsets.only(
+                    left: 16.0, right: 16.0, top: 10.0, bottom: 0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     _buildIncomeRow(),
                     const SizedBox(height: 10),
                     // _buildBenefitsAnalysis(),
-                     const SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     // _buildButton(context),
                     // const SizedBox(height: 15),
 
@@ -279,7 +282,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
 
                     ListView.builder(
                       shrinkWrap: true, // Prevent unbounded height
-                      physics: const NeverScrollableScrollPhysics(), // Prevent nested scroll conflict
+                      physics:
+                          const NeverScrollableScrollPhysics(), // Prevent nested scroll conflict
                       padding: const EdgeInsets.all(6.0),
                       itemCount: rewards.length,
                       itemBuilder: (context, index) {
@@ -292,7 +296,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
                               bottom: 0,
                               child: Container(
                                 width: 2,
-                                color: Colors.grey.shade300, // Default Grey line
+                                color:
+                                    Colors.grey.shade300, // Default Grey line
                               ),
                             ),
                             // Highlighted Vertical Line
@@ -320,18 +325,13 @@ class _BusinessScreenState extends State<BusinessScreen> {
                               ),
                             ),
 
-
                             // Level Card
                             buildLevelCard(context, rewards[index], index),
                           ],
                         );
                       },
                     ),
-
-
-
-
-                ],
+                  ],
                 ),
               ),
             );
@@ -342,11 +342,10 @@ class _BusinessScreenState extends State<BusinessScreen> {
     );
   }
 
-
-
   Widget buildCenteredRewardTitle(String title, IconData icon) {
     return Align(
-      alignment: Alignment.centerLeft, // Align to center-left or adjust to right
+      alignment:
+          Alignment.centerLeft, // Align to center-left or adjust to right
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
         decoration: BoxDecoration(
@@ -368,7 +367,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
                 fontWeight: FontWeight.w500, // Medium weight
                 color: Colors.black87, // Text color
               ),
-              textAlign: TextAlign.center, // Center align text within the container
+              textAlign:
+                  TextAlign.center, // Center align text within the container
             ),
           ],
         ),
@@ -386,12 +386,12 @@ class _BusinessScreenState extends State<BusinessScreen> {
             borderRadius: BorderRadius.circular(222),
             boxShadow: reward.isCompleted
                 ? [
-              BoxShadow(
-                color: Colors.green.withOpacity(0.5),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ]
+                    BoxShadow(
+                      color: Colors.green.withOpacity(0.5),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
                 : [],
           ),
           child: CircleAvatar(
@@ -436,9 +436,7 @@ class _BusinessScreenState extends State<BusinessScreen> {
                           reward.isCompleted
                               ? Icons.check_circle
                               : Icons.pending,
-                          color: reward.isCompleted
-                              ? Colors.green
-                              : Colors.red,
+                          color: reward.isCompleted ? Colors.green : Colors.red,
                           size: 24,
                         ),
                       ],
@@ -484,16 +482,15 @@ class _BusinessScreenState extends State<BusinessScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: reward.benefits
                               .map((benefit) => Padding(
-                            padding:
-                            const EdgeInsets.only(top: 4.0),
-                            child: Text(
-                              "- $benefit",
-                              style: GoogleFonts.openSans(
-                                color: Colors.grey,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ))
+                                    padding: const EdgeInsets.only(top: 4.0),
+                                    child: Text(
+                                      "- $benefit",
+                                      style: GoogleFonts.openSans(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ))
                               .toList(),
                         ),
                     ],
@@ -506,10 +503,6 @@ class _BusinessScreenState extends State<BusinessScreen> {
       ],
     );
   }
-
-
-
-
 
   // Widget _buildButton(BuildContext context) {
   //   return InkWell(
@@ -554,8 +547,6 @@ class _BusinessScreenState extends State<BusinessScreen> {
   //   );
   // }
 
-
-
   Widget _buildIncomeRow() {
     return Column(
       children: [
@@ -598,7 +589,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
     return Expanded(
       child: Container(
         height: 120.h,
-        margin: const EdgeInsets.symmetric(horizontal: 8.0), // Space between containers
+        margin: const EdgeInsets.symmetric(
+            horizontal: 8.0), // Space between containers
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16), // Smooth rounded corners
@@ -609,7 +601,8 @@ class _BusinessScreenState extends State<BusinessScreen> {
               offset: const Offset(0, 4), // Shadow offset
             ),
           ],
-          border: Border.all(color: Colors.grey.shade300, width: 1.5), // Soft border
+          border: Border.all(
+              color: Colors.grey.shade300, width: 1.5), // Soft border
         ),
         child: Padding(
           padding: const EdgeInsets.all(6.0),
@@ -639,14 +632,14 @@ class _BusinessScreenState extends State<BusinessScreen> {
                 ),
               ),
               if (title == "Refer User")
-            Text(
-                income,
-                style: GoogleFonts.poppins(
-                  color: Colors.red.shade600,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16.sp, // Larger font for emphasis
+                Text(
+                  income,
+                  style: GoogleFonts.poppins(
+                    color: Colors.red.shade600,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.sp, // Larger font for emphasis
+                  ),
                 ),
-              ),
 
               if (title != "Refer User")
                 Text(
@@ -664,60 +657,60 @@ class _BusinessScreenState extends State<BusinessScreen> {
     );
   }
 
- //  Widget _buildBenefitsAnalysis() {
- // //   double totalValue = (businessData?.business?.totle_user ?? 1).toDouble(); // Convert to double
- //    double redValue = (businessData?.business?.totleUser ?? 0).toDouble(); // Convert to double
- //    double blueValue = (businessData?.business?.totalTeamCount ?? 0).toDouble(); // Convert to double
- //
- //    // Calculate percentages for each section (as fraction of the total value)
- //
- //    return Container(
- //      width: double.infinity,
- //      decoration: BoxDecoration(
- //        color: Colors.white,
- //        borderRadius: BorderRadius.circular(12),
- //        boxShadow: [
- //          BoxShadow(
- //            color: Colors.grey.withOpacity(0.5),
- //            spreadRadius: 3,
- //            blurRadius: 5,
- //            offset: const Offset(0, 3), // Shadow effect applied to the container
- //          ),
- //        ],
- //      ),
- //      child: Column(
- //        crossAxisAlignment: CrossAxisAlignment.start,
- //        children: [
- //          const Padding(
- //            padding: EdgeInsets.all(8.0),
- //            child: Text(
- //              'Team Analysis',
- //              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
- //            ),
- //          ),
- //          Center(
- //            child: SizedBox(
- //              height: 250,
- //              width: 300,
- //              child: PieChart(
- //                PieChartData(
- //                  sections: [
- //                    _buildPieChartSection('Total Team', Colors.red, redValue.toInt(), context),
- //                    _buildPieChartSection('Active Team', Colors.blue, blueValue.toInt(), context),
- //                  ],
- //                  centerSpaceRadius: 40,
- //                  sectionsSpace: 2,
- //                ),
- //              ),
- //            ),
- //          ),
- //          const SizedBox(height: 10),
- //          _buildLegendRow(),
- //          const SizedBox(height: 30),
- //        ],
- //      ),
- //    );
- //  }
+  //  Widget _buildBenefitsAnalysis() {
+  // //   double totalValue = (businessData?.business?.totle_user ?? 1).toDouble(); // Convert to double
+  //    double redValue = (businessData?.business?.totleUser ?? 0).toDouble(); // Convert to double
+  //    double blueValue = (businessData?.business?.totalTeamCount ?? 0).toDouble(); // Convert to double
+  //
+  //    // Calculate percentages for each section (as fraction of the total value)
+  //
+  //    return Container(
+  //      width: double.infinity,
+  //      decoration: BoxDecoration(
+  //        color: Colors.white,
+  //        borderRadius: BorderRadius.circular(12),
+  //        boxShadow: [
+  //          BoxShadow(
+  //            color: Colors.grey.withOpacity(0.5),
+  //            spreadRadius: 3,
+  //            blurRadius: 5,
+  //            offset: const Offset(0, 3), // Shadow effect applied to the container
+  //          ),
+  //        ],
+  //      ),
+  //      child: Column(
+  //        crossAxisAlignment: CrossAxisAlignment.start,
+  //        children: [
+  //          const Padding(
+  //            padding: EdgeInsets.all(8.0),
+  //            child: Text(
+  //              'Team Analysis',
+  //              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  //            ),
+  //          ),
+  //          Center(
+  //            child: SizedBox(
+  //              height: 250,
+  //              width: 300,
+  //              child: PieChart(
+  //                PieChartData(
+  //                  sections: [
+  //                    _buildPieChartSection('Total Team', Colors.red, redValue.toInt(), context),
+  //                    _buildPieChartSection('Active Team', Colors.blue, blueValue.toInt(), context),
+  //                  ],
+  //                  centerSpaceRadius: 40,
+  //                  sectionsSpace: 2,
+  //                ),
+  //              ),
+  //            ),
+  //          ),
+  //          const SizedBox(height: 10),
+  //          _buildLegendRow(),
+  //          const SizedBox(height: 30),
+  //        ],
+  //      ),
+  //    );
+  //  }
 
   // PieChartSectionData _buildPieChartSection(String title, Color color, int value, BuildContext context) {
   //   double screenWidth = MediaQuery.of(context).size.width;
@@ -841,7 +834,6 @@ final List<RewardLevel> rewards = [
     benefits: [
       "GET A DOMESTIC TRIP",
       "(1 N /2 DAYS)",
-
     ],
   ),
   RewardLevel(
@@ -852,7 +844,6 @@ final List<RewardLevel> rewards = [
     benefits: [
       "GET A GOA TRIP VOUCHER",
       "(2 NIGHTS / 3 DAYS)",
-
     ],
   ),
   RewardLevel(
@@ -883,7 +874,6 @@ final List<RewardLevel> rewards = [
     benefits: [
       "WALK AWAY WITH",
       "1,00,000 /- CASH",
-
     ],
   ),
   RewardLevel(
@@ -917,7 +907,3 @@ final List<RewardLevel> rewards = [
     ],
   ),
 ];
-
-
-
-

@@ -36,9 +36,6 @@ class User {
   }
 }
 
-
-
-
 class Transaction {
   final int id;
   final int userId;
@@ -82,4 +79,3 @@ class Transaction {
     );
   }
 }
-

@@ -43,7 +43,6 @@ class _EditProfileState extends State<EditProfile> {
   void tostMsgShow() {
     Navigator.pop(context);
     snackBarMsgShow1(context);
-
   }
 
   @override
@@ -77,7 +76,6 @@ class _EditProfileState extends State<EditProfile> {
     try {
       Map<String, dynamic> userDetail = await getUserDetail();
 
-
       setState(() {
         userId = userDetail['_id'];
         _firstNameController.text = userDetail['username'] ?? '';
@@ -91,9 +89,7 @@ class _EditProfileState extends State<EditProfile> {
         selectedCountryCode = userDetail['country_code'] ?? '';
         _isLoading = false;
       });
-
     } catch (e) {
-
       if (kDebugMode) {
         print("Error fetching user data: $e");
       }
@@ -105,7 +101,6 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-
     ScreenUtil.init(
       context,
       designSize: const Size(360, 690),
@@ -120,8 +115,8 @@ class _EditProfileState extends State<EditProfile> {
     }
 
     return Scaffold(
-   appBar: AppBar(
-     surfaceTintColor: Colors.transparent,
+      appBar: AppBar(
+        surfaceTintColor: Colors.transparent,
         backgroundColor: Colors.white,
         elevation: 2,
         centerTitle: true,
@@ -137,15 +132,14 @@ class _EditProfileState extends State<EditProfile> {
           ),
         ),
       ),
-
       body: Container(
         color: Colors.white,
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.only(left: 16.w,right: 16.w,bottom: 16.w,top: 6),
+            padding:
+                EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.w, top: 6),
             child: Column(
               children: [
-
                 _buildLogo(),
 
                 Column(
@@ -174,12 +168,12 @@ class _EditProfileState extends State<EditProfile> {
                       enabled: false,
                       prefixIcon: Icons.phone,
                     ),
-
                   ],
                 ),
                 // _buildPhoneNumberField(),
                 SizedBox(height: 6.h),
-                _buildDropdownField('Gender', selectedGender, _selectGender, true),
+                _buildDropdownField(
+                    'Gender', selectedGender, _selectGender, true),
                 SizedBox(height: 8.h),
                 _buildDateOfBirthField(),
                 _buildTextField(
@@ -215,14 +209,12 @@ class _EditProfileState extends State<EditProfile> {
                     });
 
                     updateProfile(
-                        name: _firstNameController.text,
-                        gender: selectedGender,
-                       dob: _dobController.text,
-
-                        onSuccess: navigateBack,
-                        onFail: tostMsgShow,
+                      name: _firstNameController.text,
+                      gender: selectedGender,
+                      dob: _dobController.text,
+                      onSuccess: navigateBack,
+                      onFail: tostMsgShow,
                     );
-
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
@@ -231,18 +223,16 @@ class _EditProfileState extends State<EditProfile> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child:  Text(
-                  'Update',
-                  style: GoogleFonts.roboto(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                    letterSpacing: 1.0,
+                  child: Text(
+                    'Update',
+                    style: GoogleFonts.roboto(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
+                      letterSpacing: 1.0,
+                    ),
                   ),
                 ),
-
-
-          ),
               ],
             ),
           ),
@@ -306,25 +296,26 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-
   int _calculateAge(DateTime birthDate) {
     DateTime currentDate = DateTime.now();
     int age = currentDate.year - birthDate.year;
-    if (currentDate.month < birthDate.month || (currentDate.month == birthDate.month && currentDate.day < birthDate.day)) {
+    if (currentDate.month < birthDate.month ||
+        (currentDate.month == birthDate.month &&
+            currentDate.day < birthDate.day)) {
       age--;
     }
     return age;
   }
 
   Widget _buildTextField(
-      String label,
-      String hint,
-      bool isRequired,
-      TextEditingController controller, {
-        bool isMultiline = false,
-        bool enabled = true,
-        IconData? prefixIcon,
-      }) {
+    String label,
+    String hint,
+    bool isRequired,
+    TextEditingController controller, {
+    bool isMultiline = false,
+    bool enabled = true,
+    IconData? prefixIcon,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -342,7 +333,8 @@ class _EditProfileState extends State<EditProfile> {
           alignment: Alignment.center,
           child: TextField(
             controller: controller,
-            keyboardType: isMultiline ? TextInputType.multiline : TextInputType.text,
+            keyboardType:
+                isMultiline ? TextInputType.multiline : TextInputType.text,
             maxLines: isMultiline ? null : 1,
             enabled: enabled,
             decoration: InputDecoration(
@@ -357,11 +349,12 @@ class _EditProfileState extends State<EditProfile> {
               filled: true,
               prefixIcon: prefixIcon != null
                   ? Icon(
-                prefixIcon,
-                color: Colors.red.shade400,
-              )
+                      prefixIcon,
+                      color: Colors.red.shade400,
+                    )
                   : null,
-              contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
                 borderSide: BorderSide(color: Colors.grey.shade400),
@@ -381,14 +374,9 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-
   Widget _buildDropdownField(
-      String label,
-      String value,
-      void Function() onTap,
-      bool isRequired,
-      {IconData? prefixIcon}
-      ) {
+      String label, String value, void Function() onTap, bool isRequired,
+      {IconData? prefixIcon}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -452,7 +440,6 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-
   void _selectGender() {
     showModalBottomSheet(
       context: context,
@@ -486,8 +473,6 @@ class _EditProfileState extends State<EditProfile> {
       },
     );
   }
-
-
 
   Widget _buildSkeletonLoader() {
     return Center(
@@ -540,8 +525,6 @@ class _EditProfileState extends State<EditProfile> {
     );
   }
 
-
-
   void snackBarMsgShow(BuildContext context) {
     const snackBar = SnackBar(
       content: Text(
@@ -555,7 +538,6 @@ class _EditProfileState extends State<EditProfile> {
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
-
 
   void snackBarMsgShow1(BuildContext context) {
     const snackBar = SnackBar(
@@ -571,6 +553,3 @@ class _EditProfileState extends State<EditProfile> {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
-
-
-

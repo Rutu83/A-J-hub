@@ -138,12 +138,8 @@ class _FestivalCategorySectionState extends State<FestivalCategorySection> {
                     color: Colors.grey[300],
                   ),
                 ),
-                errorWidget: (context, url, error) => Container(
-                  width: 120.w,
-                  height: 90.h,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.error, color: Colors.red),
-                ),
+                errorWidget: (context, url, error) =>
+                    Image.asset('assets/images/app_logo.png'),
               ),
             ),
             SizedBox(height: 6.h),

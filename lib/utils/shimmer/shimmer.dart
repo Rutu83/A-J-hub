@@ -88,7 +88,23 @@ class Shimmer extends StatefulWidget {
     this.direction = ShimmerDirection.ltr,
     this.loop = 0,
     this.enabled = true,
-  })  : gradient = LinearGradient(begin: Alignment.topLeft, end: Alignment.centerRight, colors: <Color>[baseColor, baseColor, highlightColor, baseColor, baseColor], stops: const <double>[0.0, 0.35, 0.5, 0.65, 1.0]);
+  }) : gradient = LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.centerRight,
+            colors: <Color>[
+              baseColor,
+              baseColor,
+              highlightColor,
+              baseColor,
+              baseColor
+            ],
+            stops: const <double>[
+              0.0,
+              0.35,
+              0.5,
+              0.65,
+              1.0
+            ]);
 
   @override
   ShimmerState createState() => ShimmerState();
@@ -96,10 +112,13 @@ class Shimmer extends StatefulWidget {
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<Gradient>('gradient', gradient, defaultValue: null));
+    properties.add(DiagnosticsProperty<Gradient>('gradient', gradient,
+        defaultValue: null));
     properties.add(EnumProperty<ShimmerDirection>('direction', direction));
-    properties.add(DiagnosticsProperty<Duration>('period', period, defaultValue: null));
-    properties.add(DiagnosticsProperty<bool>('enabled', enabled, defaultValue: null));
+    properties.add(
+        DiagnosticsProperty<Duration>('period', period, defaultValue: null));
+    properties
+        .add(DiagnosticsProperty<bool>('enabled', enabled, defaultValue: null));
     properties.add(DiagnosticsProperty<int>('loop', loop, defaultValue: 0));
   }
 }

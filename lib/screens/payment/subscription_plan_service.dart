@@ -131,9 +131,8 @@ class SubscriptionPlan {
       description: json['description'],
       priceMonthly: (json['price_monthly'] ?? 0).toDouble(),
       priceYearly: (json['price_yearly'] ?? 0).toDouble(),
-      features: json['features'] != null
-          ? List<String>.from(json['features'])
-          : [],
+      features:
+          json['features'] != null ? List<String>.from(json['features']) : [],
       isRecommended: json['is_recommended'] ?? false,
     );
   }

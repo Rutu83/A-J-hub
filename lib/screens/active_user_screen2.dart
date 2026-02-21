@@ -16,11 +16,10 @@ class ActivateMembershipPage extends StatefulWidget {
   const ActivateMembershipPage({super.key});
 
   @override
-  ActivateMembershipPageState createState() =>  ActivateMembershipPageState();
+  ActivateMembershipPageState createState() => ActivateMembershipPageState();
 }
 
-class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
-
+class ActivateMembershipPageState extends State<ActivateMembershipPage> {
   String accountNumber = '4111500508010101';
   String ifscCode = 'TMBL0000411';
   XFile? _selectedImage;
@@ -44,8 +43,6 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
   }
 
   Future<void> _submitPayment() async {
-
-
     if (_selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please upload a payment screenshot!")),
@@ -76,7 +73,9 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(decodedResponse['message'] ?? "Payment submitted successfully.")),
+          SnackBar(
+              content: Text(decodedResponse['message'] ??
+                  "Payment submitted successfully.")),
         );
 
         Navigator.pushReplacement(
@@ -86,7 +85,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
       } else {
         final responseBody = await response.stream.bytesToString();
         final decodedErrorResponse = json.decode(responseBody);
-        final errorMessage = decodedErrorResponse['message'] ?? "An error occurred.";
+        final errorMessage =
+            decodedErrorResponse['message'] ?? "An error occurred.";
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage)),
         );
@@ -99,7 +99,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
     } on SocketException catch (e) {
       // Handle no internet connection error
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No internet connection. Please try again later.")),
+        const SnackBar(
+            content: Text("No internet connection. Please try again later.")),
       );
       if (kDebugMode) {
         print("SocketException: $e");
@@ -127,11 +128,6 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
     }
   }
 
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -149,9 +145,7 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
         iconTheme: const IconThemeData(
           color: Colors.white, // Set icon color to red
         ),
-
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -190,7 +184,6 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(16.0),
@@ -211,7 +204,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.account_balance, color: Colors.red, size: 28),
+                      const Icon(Icons.account_balance,
+                          color: Colors.red, size: 28),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
@@ -229,7 +223,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Icon(Icons.person_outline, color: Colors.grey, size: 24),
+                      const Icon(Icons.person_outline,
+                          color: Colors.grey, size: 24),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -246,7 +241,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      const Icon(Icons.account_balance_wallet, color: Colors.grey, size: 24),
+                      const Icon(Icons.account_balance_wallet,
+                          color: Colors.grey, size: 24),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -266,7 +262,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.credit_card, color: Colors.grey, size: 24),
+                          const Icon(Icons.credit_card,
+                              color: Colors.grey, size: 24),
                           const SizedBox(width: 10),
                           Text(
                             'Account No: $accountNumber',
@@ -280,9 +277,11 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                       ),
                       IconButton(
                         tooltip: 'Copy Account Number',
-                        icon: const Icon(Icons.copy, color: Colors.red, size: 20),
+                        icon:
+                            const Icon(Icons.copy, color: Colors.red, size: 20),
                         onPressed: () {
-                          Clipboard.setData(ClipboardData(text: accountNumber)).then((_) {
+                          Clipboard.setData(ClipboardData(text: accountNumber))
+                              .then((_) {
                             // Show a small SnackBar or toast-like message
                             // ScaffoldMessenger.of(context).showSnackBar(
                             //   SnackBar(
@@ -302,7 +301,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.info_outline, color: Colors.grey, size: 24),
+                          const Icon(Icons.info_outline,
+                              color: Colors.grey, size: 24),
                           const SizedBox(width: 10),
                           Text(
                             'IFSC Code: $ifscCode',
@@ -316,10 +316,12 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                       ),
                       IconButton(
                         tooltip: 'Copy IFSC Code',
-                        icon: const Icon(Icons.copy, color: Colors.red, size: 20),
+                        icon:
+                            const Icon(Icons.copy, color: Colors.red, size: 20),
                         onPressed: () {
                           // Copy the IFSC code to the clipboard
-                          Clipboard.setData(ClipboardData(text: ifscCode)).then((_) {
+                          Clipboard.setData(ClipboardData(text: ifscCode))
+                              .then((_) {
                             // Show a snackbar or any other indicator for feedback
                             // ScaffoldMessenger.of(context).showSnackBar(
                             //   SnackBar(content: Text('IFSC Code Copied!')),
@@ -332,7 +334,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                   const SizedBox(height: 15),
                   Row(
                     children: [
-                      const Icon(Icons.support_agent, color: Colors.grey, size: 24),
+                      const Icon(Icons.support_agent,
+                          color: Colors.grey, size: 24),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Column(
@@ -363,22 +366,17 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                 ],
               ),
             ),
-
-
-
             const SizedBox(height: 20),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
-
-
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.photo_camera_back, color: Colors.red, size: 24),
+                        const Icon(Icons.photo_camera_back,
+                            color: Colors.red, size: 24),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
@@ -423,7 +421,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                     const SizedBox(height: 10),
                     ElevatedButton.icon(
                       onPressed: _chooseFile,
-                      icon: const Icon(Icons.upload_file, color: Colors.white, size: 20),
+                      icon: const Icon(Icons.upload_file,
+                          color: Colors.white, size: 20),
                       label: Text(
                         'Choose File',
                         style: GoogleFonts.poppins(
@@ -434,7 +433,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -444,7 +444,8 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                     const SizedBox(height: 10),
                     Row(
                       children: [
-                        const Icon(Icons.info_outline, color: Colors.red, size: 20),
+                        const Icon(Icons.info_outline,
+                            color: Colors.red, size: 20),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -459,24 +460,19 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                     ),
                   ],
                 ),
-
-
-
-
-
               ],
             ),
-
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: _isSubmitting
                   ? null // Disable button while submitting
                   : () {
-                _submitPayment();
-              },
+                      _submitPayment();
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -484,30 +480,29 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
               ),
               child: _isSubmitting
                   ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  color: Colors.white, // Match the text/icon color
-                  strokeWidth: 2.5,
-                ),
-              )
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white, // Match the text/icon color
+                        strokeWidth: 2.5,
+                      ),
+                    )
                   : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.send, color: Colors.white, size: 20),
-                  const SizedBox(width: 10),
-                  Text(
-                    'Submit Payment',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.send, color: Colors.white, size: 20),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Submit Payment',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
             ),
-
             const SizedBox(height: 25),
             Container(
               padding: const EdgeInsets.all(16.0),
@@ -526,7 +521,6 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-
                   const SizedBox(height: 10),
                   Text(
                     'Your payment request has been successfully submitted. Please allow up to 24 hours for admin approval. Once approved, your membership will be activated.',
@@ -551,12 +545,9 @@ class  ActivateMembershipPageState extends State<ActivateMembershipPage> {
                 ],
               ),
             ),
-
           ],
         ),
       ),
     );
   }
 }
-
-

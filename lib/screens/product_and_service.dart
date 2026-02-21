@@ -263,18 +263,8 @@ class _OurProductAndServiceState extends State<OurProductAndService>
                                           color: Colors.grey[200],
                                         ),
                                         errorWidget: (context, url, error) =>
-                                            Container(
-                                          height: 190,
-                                          width: double.infinity,
-                                          color: Colors.grey[200],
-                                          child: const Center(
-                                            child: Icon(
-                                              Icons.broken_image,
-                                              size: 40,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ),
+                                            Image.asset(
+                                                'assets/images/app_logo.png'),
                                       ),
                                     ),
                                   ),
@@ -282,7 +272,8 @@ class _OurProductAndServiceState extends State<OurProductAndService>
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Expanded(
                                         child: Column(

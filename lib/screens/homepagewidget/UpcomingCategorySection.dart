@@ -242,10 +242,8 @@ class _UpcomingCategorySectionState extends State<UpcomingCategorySection>
                             child: CircularProgressIndicator(
                                 strokeWidth: 2.0,
                                 color: Colors.red.withOpacity(0.3))),
-                        errorWidget: (context, url, error) => Icon(
-                            Icons.broken_image_outlined,
-                            color: Colors.grey.shade400,
-                            size: 40.sp),
+                        errorWidget: (context, url, error) =>
+                            Image.asset('assets/images/app_logo.png'),
                       )
                     : Center(
                         child: Icon(Icons.image_outlined,
@@ -281,6 +279,7 @@ class _UpcomingCategorySectionState extends State<UpcomingCategorySection>
       ),
     );
   }
+
   Widget _buildShimmer() {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8.h),

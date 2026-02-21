@@ -389,9 +389,8 @@ class _PremiumPlansScreenState extends State<PremiumPlansScreen> {
               true,
               // Negative logic if needed (e.g. starts with "No " or contains "Watermark" for free)
               isNegative: isFree && feature.contains("Watermark"),
-              accentColor: isPremium || !isFree
-                  ? const Color(0xFFE53935)
-                  : null,
+              accentColor:
+                  isPremium || !isFree ? const Color(0xFFE53935) : null,
               textColor: Colors.black87,
             ),
           ),

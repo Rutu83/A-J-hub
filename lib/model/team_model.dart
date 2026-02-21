@@ -1,5 +1,3 @@
-
-
 class TeamModel {
   List<User> users;
 
@@ -117,4 +115,3 @@ class User {
     };
   }
 }
-

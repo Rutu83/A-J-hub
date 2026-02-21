@@ -23,4 +23,3 @@ const ic_no_photo = "assets/icons/ic_no_photo.png";
 const ic_logout = 'assets/icons/ic_logout.png';
 
 const ic_fill_logout = 'assets/icons/ic_logout.png';
-

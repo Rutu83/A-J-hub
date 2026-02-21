@@ -60,11 +60,14 @@ class TeamMemberListState extends State<TeamMemberList> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     final levels = List.generate(10, (index) => index + 1);
-    final users = (widget.userData ?? []).where((user) => user.level == selectedLevel).toList();
+    final users = (widget.userData ?? [])
+        .where((user) => user.level == selectedLevel)
+        .toList();
     final selectedLevelIncome = levelIncomeRates[selectedLevel]! * users.length;
     final totalIncome = widget.userData?.fold<double>(0, (sum, user) {
-      return sum + (levelIncomeRates[user.level] ?? 0);
-    }) ?? 0.0;
+          return sum + (levelIncomeRates[user.level] ?? 0);
+        }) ??
+        0.0;
 
     return SafeArea(
       child: Scaffold(
@@ -85,12 +88,43 @@ class TeamMemberListState extends State<TeamMemberList> {
               child: RichText(
                 text: TextSpan(
                   children: [
-                    TextSpan(text: 'Level $selectedLevel: ${users.length} Member | Income: ', style: TextStyle(fontSize: screenWidth * 0.018,color: Colors.black,)),
-                    TextSpan(text: _formatIncome(selectedLevelIncome.toDouble()), style: TextStyle(fontSize: screenWidth * 0.018, color: Colors.green, fontWeight: FontWeight.bold)),
-                    TextSpan(text: ' | Total Team: ', style: TextStyle(fontSize: screenWidth * 0.018,color: Colors.black,)),
-                    TextSpan(text: '${widget.userData?.length ?? 0}', style: TextStyle(fontSize: screenWidth * 0.018, color: Colors.green, fontWeight: FontWeight.bold)),
-                    TextSpan(text: ' | Total Income: ', style: TextStyle(fontSize: screenWidth * 0.018,color: Colors.black,)),
-                    TextSpan(text: _formatIncome(totalIncome), style: TextStyle(fontSize: screenWidth * 0.018, color: Colors.green, fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text:
+                            'Level $selectedLevel: ${users.length} Member | Income: ',
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.018,
+                          color: Colors.black,
+                        )),
+                    TextSpan(
+                        text: _formatIncome(selectedLevelIncome.toDouble()),
+                        style: TextStyle(
+                            fontSize: screenWidth * 0.018,
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text: ' | Total Team: ',
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.018,
+                          color: Colors.black,
+                        )),
+                    TextSpan(
+                        text: '${widget.userData?.length ?? 0}',
+                        style: TextStyle(
+                            fontSize: screenWidth * 0.018,
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text: ' | Total Income: ',
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.018,
+                          color: Colors.black,
+                        )),
+                    TextSpan(
+                        text: _formatIncome(totalIncome),
+                        style: TextStyle(
+                            fontSize: screenWidth * 0.018,
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -108,11 +142,19 @@ class TeamMemberListState extends State<TeamMemberList> {
                   return GestureDetector(
                     onTap: () => setState(() => selectedLevel = level),
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.03),
-                      color: selectedLevel == level ? Colors.red : Colors.transparent,
+                      padding:
+                          EdgeInsets.symmetric(vertical: screenHeight * 0.03),
+                      color: selectedLevel == level
+                          ? Colors.red
+                          : Colors.transparent,
                       child: Text(
                         'Level $level',
-                        style: TextStyle(fontSize: screenWidth * 0.024, color: selectedLevel == level ? Colors.white : Colors.black38, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: screenWidth * 0.024,
+                            color: selectedLevel == level
+                                ? Colors.white
+                                : Colors.black38,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                   );
@@ -122,7 +164,6 @@ class TeamMemberListState extends State<TeamMemberList> {
             Expanded(
               child: Column(
                 children: [
-
                   Container(
                     color: Colors.red,
                     padding: EdgeInsets.all(screenHeight * 0.01),
@@ -142,7 +183,6 @@ class TeamMemberListState extends State<TeamMemberList> {
                       ],
                     ),
                   ),
-
                   Expanded(
                     child: ListView.builder(
                       itemCount: users.length,
@@ -166,7 +206,10 @@ class TeamMemberListState extends State<TeamMemberList> {
       fit: FlexFit.tight,
       child: Text(
         text,
-        style: TextStyle(fontSize: screenWidth * 0.020, fontWeight: FontWeight.bold, color: Colors.white),
+        style: TextStyle(
+            fontSize: screenWidth * 0.020,
+            fontWeight: FontWeight.bold,
+            color: Colors.white),
         textAlign: TextAlign.center,
       ),
     );
@@ -174,7 +217,9 @@ class TeamMemberListState extends State<TeamMemberList> {
 
   Widget _buildUserRow(LevelDownline user, int index, double screenWidth) {
     return Container(
-      color: index % 2 == 0 ? Colors.grey.withOpacity(0.11) : Colors.grey.withOpacity(0.22),
+      color: index % 2 == 0
+          ? Colors.grey.withOpacity(0.11)
+          : Colors.grey.withOpacity(0.22),
       padding: EdgeInsets.all(screenWidth * 0.02),
       child: Row(
         children: [
@@ -206,6 +251,7 @@ class TeamMemberListState extends State<TeamMemberList> {
   }
 
   Widget _buildVerticalDivider() {
-    return const SizedBox(height: 50, child: VerticalDivider(color: Colors.white24));
+    return const SizedBox(
+        height: 50, child: VerticalDivider(color: Colors.white24));
   }
 }

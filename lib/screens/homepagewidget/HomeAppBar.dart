@@ -156,10 +156,8 @@ class _HomeAppBarState extends State<HomeAppBar> {
           fit: BoxFit.cover,
           placeholder: (context, url) =>
               const CircularProgressIndicator(strokeWidth: 2),
-          errorWidget: (context, url, error) => Icon(Icons.person,
-              size: 17.sp,
-              // 4. Reverted icon color to black
-              color: Colors.black),
+          errorWidget: (context, url, error) =>
+              Image.asset('assets/images/app_logo.png'),
         ),
       );
     } else {

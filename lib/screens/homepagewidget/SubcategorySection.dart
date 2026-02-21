@@ -168,10 +168,8 @@ class _SubcategorySectionState extends State<SubcategorySection> {
               highlightColor: Colors.grey[100]!,
               child: Container(color: Colors.white),
             ),
-            errorWidget: (context, url, error) => Container(
-              color: Colors.grey[200],
-              child: const Icon(Icons.error, color: Colors.red),
-            ),
+            errorWidget: (context, url, error) =>
+                Image.asset('assets/images/app_logo.png'),
           ),
         ),
       ),

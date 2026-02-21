@@ -10,14 +10,16 @@ class ChangePasswordPage extends StatefulWidget {
   const ChangePasswordPage({super.key});
 
   @override
-   ChangePasswordPageState createState() =>  ChangePasswordPageState();
+  ChangePasswordPageState createState() => ChangePasswordPageState();
 }
 
-class  ChangePasswordPageState extends State<ChangePasswordPage> {
+class ChangePasswordPageState extends State<ChangePasswordPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _currentPasswordController = TextEditingController();
+  final TextEditingController _currentPasswordController =
+      TextEditingController();
   final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isLoading = false;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
@@ -30,7 +32,6 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
-
 
   void _showSnackBar(BuildContext context, String message, Color color) {
     final snackBar = SnackBar(
@@ -47,7 +48,6 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
               ),
             ),
           ),
-
         ],
       ),
       backgroundColor: color,
@@ -61,7 +61,6 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
-
 
   Future<void> _changePassword() async {
     if (!_formKey.currentState!.validate()) {
@@ -112,8 +111,9 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
     }
   }
 
-
-  Widget _buildPasswordTextField(String labelText, TextEditingController controller, {bool isConfirm = false}) {
+  Widget _buildPasswordTextField(
+      String labelText, TextEditingController controller,
+      {bool isConfirm = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -128,9 +128,11 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
         const SizedBox(height: 8.0),
         TextFormField(
           controller: controller,
-          obscureText: isConfirm ? !_isConfirmPasswordVisible : !_isPasswordVisible,
+          obscureText:
+              isConfirm ? !_isConfirmPasswordVisible : !_isPasswordVisible,
           decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             hintText: 'Enter $labelText',
             hintStyle: TextStyle(
               fontSize: 14.sp,
@@ -161,8 +163,12 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
             suffixIcon: IconButton(
               icon: Icon(
                 isConfirm
-                    ? (_isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off)
-                    : (_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+                    ? (_isConfirmPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off)
+                    : (_isPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off),
                 color: Colors.grey.shade600,
               ),
               onPressed: () {
@@ -211,7 +217,6 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -222,7 +227,6 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 26.0),
-
                 Container(
                   height: 250,
                   width: 250,
@@ -243,15 +247,16 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 30.0),
-                _buildPasswordTextField('Current Password', _currentPasswordController),
+                _buildPasswordTextField(
+                    'Current Password', _currentPasswordController),
                 const SizedBox(height: 25.0),
                 _buildPasswordTextField('New Password', _newPasswordController),
                 const SizedBox(height: 25.0),
-                _buildPasswordTextField('Confirm Password', _confirmPasswordController, isConfirm: true),
+                _buildPasswordTextField(
+                    'Confirm Password', _confirmPasswordController,
+                    isConfirm: true),
                 const SizedBox(height: 40.0),
-
                 InkWell(
                   onTap: _isLoading ? null : _changePassword,
                   child: Container(
@@ -276,14 +281,14 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
                     child: _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
-                      'Reset Password',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
+                            'Reset Password',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
                   ),
                 ),
               ],
@@ -291,8 +296,6 @@ class  ChangePasswordPageState extends State<ChangePasswordPage> {
           ),
         ),
       ),
-
     );
   }
 }
-

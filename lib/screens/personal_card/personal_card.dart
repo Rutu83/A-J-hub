@@ -426,7 +426,7 @@ class _PersonalCardPageState extends State<PersonalCardPage> {
                         placeholder: (context, url) =>
                             Container(color: Colors.grey[200]),
                         errorWidget: (context, url, error) =>
-                            const Icon(Icons.error),
+                            Image.asset('assets/images/app_logo.png'),
                       ),
                     ),
                   ),
@@ -674,7 +674,7 @@ class _PosterCardState extends State<PosterCard> {
                             placeholder: (context, url) =>
                                 Container(color: Colors.grey[200]),
                             errorWidget: (context, url, error) =>
-                                const SizedBox(),
+                                Image.asset('assets/images/app_logo.png'),
                           ),
                         ),
                         Container(color: Colors.black.withOpacity(0.1)),
@@ -683,9 +683,8 @@ class _PosterCardState extends State<PosterCard> {
                           fit: BoxFit.contain,
                           placeholder: (context, url) =>
                               Container(color: Colors.transparent),
-                          errorWidget: (context, url, error) => const Center(
-                              child:
-                                  Icon(Icons.broken_image, color: Colors.grey)),
+                          errorWidget: (context, url, error) =>
+                              Image.asset('assets/images/app_logo.png'),
                         ),
                       ],
                     ),
@@ -732,7 +731,7 @@ class _PosterCardState extends State<PosterCard> {
                                 imageUrl: widget.businessLogoUrl!,
                                 fit: BoxFit.contain,
                                 errorWidget: (context, url, error) =>
-                                    const SizedBox(),
+                                    Image.asset('assets/images/app_logo.png'),
                               ),
                             ),
                           ),
@@ -863,7 +862,7 @@ class _PosterCardState extends State<PosterCard> {
                 placeholder: (context, url) =>
                     Container(color: Colors.grey[200]),
                 errorWidget: (context, url, error) =>
-                    const Icon(Icons.person, color: Colors.grey),
+                    Image.asset('assets/images/app_logo.png'),
               ),
             ),
           ),
@@ -919,7 +918,7 @@ class _PosterCardState extends State<PosterCard> {
                       placeholder: (context, url) =>
                           Container(color: Colors.grey[200]),
                       errorWidget: (context, url, error) =>
-                          const Icon(Icons.person, color: Colors.grey),
+                          Image.asset('assets/images/app_logo.png'),
                     ),
                   ),
                 ),
@@ -1010,7 +1009,7 @@ class _PosterCardState extends State<PosterCard> {
                 placeholder: (context, url) =>
                     Container(color: Colors.grey[200]),
                 errorWidget: (context, url, error) =>
-                    const Icon(Icons.person, color: Colors.red),
+                    Image.asset('assets/images/app_logo.png'),
               ),
             ),
           ),

@@ -12,11 +12,11 @@ const APP_NAME_TAG_LINE = 'CUSTOMER APP';
 var defaultPrimaryColor = const Color(0xFF070707);
 
 // PRODUCTION URL (Restore when deploying)
-// const DOMAIN_URL = 'https://ajhub.co.in/api/';
+const DOMAIN_URL = 'https://ajhub.co.in/api/';
 
 // LOCAL TESTING URL (Android Emulator uses 10.0.2.2, iOS Simulator uses 127.0.0.1)
 // const DOMAIN_URL = 'http://10.0.2.2:8000/api/'; // Android Emulator
-const DOMAIN_URL = 'http://10.67.249.99:8000/api/'; // Real Device (Hotspot IP)
+// const DOMAIN_URL = 'http://10.67.249.99:8000/api/'; // Real Device (Hotspot IP)
 // const DOMAIN_URL = 'http://127.0.0.1:8000/api/'; // iOS Simulator
 
 const BASE_URL = DOMAIN_URL;

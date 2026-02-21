@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 abstract class BaseLanguage {
-  static BaseLanguage of(BuildContext context) => Localizations.of<BaseLanguage>(context, BaseLanguage)!;
-
-
+  static BaseLanguage of(BuildContext context) =>
+      Localizations.of<BaseLanguage>(context, BaseLanguage)!;
 
   String get skip;
 
@@ -224,10 +223,9 @@ abstract class BaseLanguage {
 
   String get calender;
 
-
   String get favourite;
 
- String get loginSuccessfully;
+  String get loginSuccessfully;
 
   String get pleaseTryAgain;
 
@@ -250,5 +248,4 @@ abstract class BaseLanguage {
   String get noBookingSubTitle;
 
   String get lblNoBookingsFound;
-
 }

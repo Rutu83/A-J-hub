@@ -23,14 +23,14 @@ class CustomLoopingIconButton extends StatefulWidget {
   });
 
   @override
-  State<CustomLoopingIconButton> createState() => _CustomLoopingIconButtonState();
+  State<CustomLoopingIconButton> createState() =>
+      _CustomLoopingIconButtonState();
 }
 
 // --- STEP 2: Add SingleTickerProviderStateMixin ---
 // This mixin is essential for the AnimationController to work.
 class _CustomLoopingIconButtonState extends State<CustomLoopingIconButton>
     with SingleTickerProviderStateMixin {
-
   // --- STEP 3: Declare the AnimationController ---
   late final AnimationController _controller;
 

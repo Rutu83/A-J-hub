@@ -641,13 +641,7 @@ class WithoutFramCategorySelectedState
                                   child:
                                       CircularProgressIndicator()), // Show loading indicator while the image is being loaded
                               errorWidget: (context, url, error) =>
-                                  const Center(
-                                child: Text(
-                                  'Failed to load image', // Show error message when image fails to load
-                                  style: TextStyle(
-                                      color: Colors.red, fontSize: 16),
-                                ),
-                              ),
+                                  Image.asset('assets/images/app_logo.png'),
                             ),
                           ),
                         ),
@@ -733,7 +727,7 @@ class WithoutFramCategorySelectedState
                                 placeholder: (context, url) =>
                                     const CircularProgressIndicator(),
                                 errorWidget: (context, url, error) =>
-                                    const Icon(Icons.error, color: Colors.red),
+                                    Image.asset('assets/images/app_logo.png'),
                               ),
                             ),
                           ),

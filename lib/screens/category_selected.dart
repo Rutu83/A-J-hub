@@ -578,9 +578,7 @@ class CategorySelectedState extends State<CategorySelected> {
                                 placeholder: (context, url) => const Center(
                                     child: CircularProgressIndicator()),
                                 errorWidget: (context, url, error) =>
-                                    const Center(
-                                  child: Icon(Icons.error, color: Colors.red),
-                                ),
+                                    Image.asset('assets/images/app_logo.png'),
                               ),
                             ),
                           ),
@@ -648,9 +646,10 @@ class CategorySelectedState extends State<CategorySelected> {
                                               BorderRadius.circular(8),
                                         ),
                                       ),
-                                      errorWidget: (context, url, error) =>
-                                          const SizedBox.shrink(),
                                       fit: BoxFit.contain,
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(
+                                              'assets/images/app_logo.png'),
                                     ),
                                   ),
                                 ),
@@ -685,7 +684,9 @@ class CategorySelectedState extends State<CategorySelected> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: MediaQuery.of(context).size.width > 600 ? 5 : 3, // Responsive!
+                  crossAxisCount: MediaQuery.of(context).size.width > 600
+                      ? 5
+                      : 3, // Responsive!
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
                 ),
@@ -714,8 +715,9 @@ class CategorySelectedState extends State<CategorySelected> {
                           placeholder: (context, url) => Container(
                             color: Colors.grey[200], // Simple placeholder
                           ),
+
                           errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
+                              Image.asset('assets/images/app_logo.png'),
                         ),
                       ),
                     ),
@@ -900,9 +902,7 @@ class CategorySelectedState extends State<CategorySelected> {
                                   placeholder: (context, url) => const Center(
                                       child: CircularProgressIndicator()),
                                   errorWidget: (context, url, error) =>
-                                      const Center(
-                                    child: Icon(Icons.error, color: Colors.red),
-                                  ),
+                                      Image.asset('assets/images/app_logo.png'),
                                 ),
                               ),
                             ),
@@ -963,16 +963,19 @@ class CategorySelectedState extends State<CategorySelected> {
                                       height: logoBaseSize,
                                       child: CachedNetworkImage(
                                         imageUrl: businessLogoUrl!,
-                                        placeholder: (context, url) => Container(
+                                        placeholder: (context, url) =>
+                                            Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.black.withOpacity(0.1),
+                                            color:
+                                                Colors.black.withOpacity(0.1),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                           ),
                                         ),
-                                        errorWidget: (context, url, error) =>
-                                            const SizedBox.shrink(),
                                         fit: BoxFit.contain,
+                                        errorWidget: (context, url, error) =>
+                                            Image.asset(
+                                                'assets/images/app_logo.png'),
                                       ),
                                     ),
                                   ),
@@ -1041,7 +1044,7 @@ class CategorySelectedState extends State<CategorySelected> {
                                 placeholder: (context, url) =>
                                     const CircularProgressIndicator(),
                                 errorWidget: (context, url, error) =>
-                                    const Icon(Icons.error, color: Colors.red),
+                                    Image.asset('assets/images/app_logo.png'),
                               ),
                             ),
                           ),

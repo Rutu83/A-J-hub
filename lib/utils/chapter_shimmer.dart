@@ -16,7 +16,8 @@ class ChapterShimmer extends StatelessWidget {
           ).paddingSymmetric(vertical: 16, horizontal: 16),
           AnimatedListView(
             physics: const NeverScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(bottom: 16, top: 16, right: 16, left: 16),
+            padding:
+                const EdgeInsets.only(bottom: 16, top: 16, right: 16, left: 16),
             itemCount: 20,
             shrinkWrap: true,
             listAnimationType: ListAnimationType.None,
@@ -43,7 +44,8 @@ class ChapterShimmer extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 4),
                                   decoration: BoxDecoration(
                                       borderRadius: radius(8),
                                       color: Colors.transparent),
@@ -66,7 +68,8 @@ class ChapterShimmer extends StatelessWidget {
                     Container(
                       decoration: boxDecorationWithRoundedCorners(
                         backgroundColor: context.cardColor,
-                        borderRadius: const BorderRadius.all(Radius.circular(16)),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(16)),
                       ),
                       width: context.width(),
                       margin: const EdgeInsets.all(8),

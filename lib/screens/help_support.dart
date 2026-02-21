@@ -19,44 +19,43 @@ class _HelpSupportState extends State<HelpSupport> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             Stack(
               children: [
                 Container(
                   height: 350,
                 ),
                 Positioned(
-                  child:_buildAppBar(),
+                  child: _buildAppBar(),
                 ),
                 Positioned(
                   top: 100,
                   left: 0,
                   right: 0,
-                  child:  buildImage('assets/images/help_support.jpg'),
+                  child: buildImage('assets/images/help_support.jpg'),
                 ),
               ],
             ),
-
-            const SizedBox(height: 20,),
+            const SizedBox(
+              height: 20,
+            ),
             buildTitle(),
-
             buildContactField(),
-
           ],
         ),
       ),
     );
   }
 
-
   Widget _buildAppBar() {
-    return  Container(
+    return Container(
       width: double.infinity,
       height: 130,
-      padding: const EdgeInsets.only(left: 10,right: 10,top: 30,bottom: 30),
+      padding: const EdgeInsets.only(left: 10, right: 10, top: 30, bottom: 30),
       decoration: BoxDecoration(
         color: Colors.red,
-        borderRadius: const BorderRadius.only( bottomLeft: Radius.circular(400.0),bottomRight:  Radius.circular(10.0)),
+        borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(400.0),
+            bottomRight: Radius.circular(10.0)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.2),
@@ -66,22 +65,27 @@ class _HelpSupportState extends State<HelpSupport> {
           ),
         ],
       ),
-
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           InkWell(
-            onTap: (){
+            onTap: () {
               Navigator.pop(context);
             },
-            child:  const Icon(Icons.arrow_back_sharp,color: Colors.white,size: 30,),
-          ),
-
-            const SizedBox(
-              width: 20,
+            child: const Icon(
+              Icons.arrow_back_sharp,
+              color: Colors.white,
+              size: 30,
             ),
-            const Text('Help and support',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 20),),
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+          const Text(
+            'Help and support',
+            style: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+          ),
         ],
       ),
     );
@@ -99,9 +103,9 @@ class _HelpSupportState extends State<HelpSupport> {
         borderRadius: const BorderRadius.only(topRight: Radius.circular(90)),
         child: imageUrl.startsWith('assets/')
             ? Image.asset(
-          imageUrl,
-          fit: BoxFit.fill,
-        )
+                imageUrl,
+                fit: BoxFit.fill,
+              )
             : CachedNetworkImage(
                 imageUrl: imageUrl,
                 fit: BoxFit.fill,
@@ -109,13 +113,11 @@ class _HelpSupportState extends State<HelpSupport> {
                   color: Colors.grey[200],
                   child: const Center(child: CircularProgressIndicator()),
                 ),
-                errorWidget: (context, url, error) {
-                  return const Icon(Icons.error);
-                },
+                errorWidget: (context, url, error) =>
+                    Image.asset('assets/images/app_logo.png'),
               ),
       ),
     );
-
   }
 
   Widget buildTitle() {
@@ -156,22 +158,22 @@ class _HelpSupportState extends State<HelpSupport> {
         buildContactContainer(
           iconPath: 'assets/images/backlog.png',
           contactInfo: 'Frequently Asked Questions',
-          onTap: (){},
+          onTap: () {},
         ),
         buildContactContainer(
           iconPath: 'assets/images/contact-book.png',
           contactInfo: 'Raise a Ticket',
-          onTap: (){},
+          onTap: () {},
         ),
         buildContactContainer(
           iconPath: 'assets/images/customer-service.png',
           contactInfo: 'Contact Us',
-          onTap: (){},
+          onTap: () {},
         ),
         buildContactContainer(
           iconPath: 'assets/images/review.png',
           contactInfo: 'Feedback',
-          onTap: (){},
+          onTap: () {},
         ),
       ],
     );
@@ -203,15 +205,15 @@ class _HelpSupportState extends State<HelpSupport> {
           ),
           child: Row(
             children: [
-
               const SizedBox(width: 10),
               Container(
                 decoration: const BoxDecoration(
                   color: Colors.red,
                   borderRadius: BorderRadius.all(Radius.circular(15)),
                 ),
-                child:  Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 7,vertical: 7),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 7, vertical: 7),
                   child: Image.asset(
                     iconPath,
                     color: Colors.white,
@@ -220,23 +222,25 @@ class _HelpSupportState extends State<HelpSupport> {
                   ),
                 ),
               ),
-
               const SizedBox(width: 10),
               Text(
                 contactInfo,
                 style: const TextStyle(fontSize: 16),
               ),
-              
-              const Spacer(flex: 1,),
-
-              const Icon(Icons.arrow_forward_ios_sharp,size: 20,weight: 1,color: Colors.black54,),
-               const SizedBox(width: 10),
+              const Spacer(
+                flex: 1,
+              ),
+              const Icon(
+                Icons.arrow_forward_ios_sharp,
+                size: 20,
+                weight: 1,
+                color: Colors.black54,
+              ),
+              const SizedBox(width: 10),
             ],
           ),
         ),
       ),
     );
   }
-
-
 }

@@ -106,13 +106,13 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen>
 
             if (newItems.isEmpty) {
               // If all items in this page were duplicates, we might assume there's no more *new* data
-              // Or we could try to load the next page? 
+              // Or we could try to load the next page?
               // For now, let's just append nothing but keep _hasMoreData true in case the next page has new stuff.
               // Logic choice: Append unique items only.
             } else {
               _allSubcategories.addAll(newItems);
             }
-            
+
             if (_searchController.text.isNotEmpty) {
               _onSearchChanged(); // Re-filter with new data
             } else {
@@ -287,6 +287,7 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen>
       }).toList();
     });
   }
+
   Widget _buildContentSliver() {
     if (_isLoading) {
       return _buildGridShimmer();
@@ -310,7 +311,8 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen>
     }
     // Use MediaQuery to determine responsiveness
     final double screenWidth = MediaQuery.of(context).size.width;
-    final int crossAxisCount = screenWidth > 600 ? 5 : 3; // 5 for tablets, 3 for phones
+    final int crossAxisCount =
+        screenWidth > 600 ? 5 : 3; // 5 for tablets, 3 for phones
 
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
@@ -485,7 +487,8 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen>
             itemCount: crossAxisCount * 3, // Show enough rows
             itemBuilder: (context, index) {
               return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch, // Ensure full width
+                crossAxisAlignment:
+                    CrossAxisAlignment.stretch, // Ensure full width
                 children: [
                   Expanded(
                     child: Container(
@@ -524,14 +527,17 @@ class SubcategoryCard extends StatefulWidget {
   State<SubcategoryCard> createState() => _SubcategoryCardState();
 }
 
-class _SubcategoryCardState extends State<SubcategoryCard> with AutomaticKeepAliveClientMixin {
+class _SubcategoryCardState extends State<SubcategoryCard>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
   @override
   Widget build(BuildContext context) {
     super.build(context); // Ensure KeepAlive logic runs
-    final imageUrl = widget.subcategory.images.isNotEmpty ? widget.subcategory.images[0] : '';
+    final imageUrl = widget.subcategory.images.isNotEmpty
+        ? widget.subcategory.images[0]
+        : '';
     return GestureDetector(
       onTap: () {
         if (widget.subcategory.images.isEmpty) return;
@@ -579,11 +585,8 @@ class _SubcategoryCardState extends State<SubcategoryCard> with AutomaticKeepAli
                       fit: BoxFit.cover,
                       placeholder: (context, url) =>
                           Container(color: Colors.grey[200]),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[200],
-                        child:
-                            const Icon(Icons.broken_image, color: Colors.grey),
-                      ),
+                      errorWidget: (context, url, error) =>
+                          Image.asset('assets/images/app_logo.png'),
                     )
                   else
                     Container(

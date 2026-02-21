@@ -31,7 +31,8 @@ class TempleDetailScreen extends StatelessWidget {
                   color: Colors.grey[200],
                   child: const Center(child: CircularProgressIndicator()),
                 ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+                errorWidget: (context, url, error) =>
+                    Image.asset('assets/images/app_logo.png'),
               ),
             ),
           ),

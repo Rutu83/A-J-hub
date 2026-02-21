@@ -16,7 +16,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   bool isLoading = false;
@@ -54,7 +55,9 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     try {
       final response = await http.post(
         Uri.parse('${BASE_URL}reset-password'),
-        headers: {'Content-Type': 'application/json'}, // ✅ Proper API request format
+        headers: {
+          'Content-Type': 'application/json'
+        }, // ✅ Proper API request format
         body: jsonEncode({
           'email': email,
           'password': password,
@@ -66,7 +69,8 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (kDebugMode) {
         print("🔄 API Request to: ${BASE_URL}reset-password");
         print("📧 Email: $email");
-        print("📝 Password: ${'*' * password.length}"); // Hide actual password for security
+        print(
+            "📝 Password: ${'*' * password.length}"); // Hide actual password for security
         print("📝 Confirm Password: ${'*' * confirm.length}");
         print("🟢 Response Status: ${response.statusCode}");
         print("📜 Response Body: ${response.body}");
@@ -83,16 +87,13 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           _isSubmitted = false; // Reset submission state
         });
 
-        Navigator.pushReplacement(context, (MaterialPageRoute(builder: (context)=>const LoginScreen())));
+        Navigator.pushReplacement(context,
+            (MaterialPageRoute(builder: (context) => const LoginScreen())));
         showSnackBar(
           responseData['message'] ?? "✅ Password reset successfully.",
           Colors.green,
         );
-
-
-
-      }
-      else {
+      } else {
         handleErrorResponse(response);
       }
     } catch (e) {
@@ -107,8 +108,6 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       });
     }
   }
-
-
 
   void showSnackBar(String message, Color color) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -157,7 +156,8 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (kDebugMode) {
         print("⚠️ JSON Parsing Error: $e");
       }
-      showSnackBar("⚠️ Unexpected error occurred. Please try again.", Colors.red);
+      showSnackBar(
+          "⚠️ Unexpected error occurred. Please try again.", Colors.red);
     }
   }
 
@@ -168,7 +168,8 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       for (var key in errors.keys) {
         if (errors[key] is List) {
-          errorMessages.add("${errors[key][0]}"); // Get first error for each field
+          errorMessages
+              .add("${errors[key][0]}"); // Get first error for each field
         } else if (errors[key] is String) {
           errorMessages.add(errors[key]);
         }
@@ -189,7 +190,9 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(label,
+            style:
+                GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 5),
         StatefulBuilder(
           builder: (context, setState) {
@@ -213,11 +216,14 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     obscureText: isPassword ? !isPasswordVisible : false,
                     keyboardType: keyboardType,
                     autovalidateMode: _isSubmitted
-                        ? AutovalidateMode.always // ✅ Show validation errors only after first submit
+                        ? AutovalidateMode
+                            .always // ✅ Show validation errors only after first submit
                         : AutovalidateMode.disabled,
-                    onChanged: (_) => _validateForm(), // ✅ Update button state on text change
+                    onChanged: (_) =>
+                        _validateForm(), // ✅ Update button state on text change
                     decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 14, horizontal: 20),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -225,23 +231,28 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       prefixIcon: Icon(icon, color: Colors.red),
                       suffixIcon: isPassword
                           ? IconButton(
-                        icon: Icon(isPasswordVisible ? Icons.visibility : Icons.visibility_off),
-                        onPressed: () {
-                          setState(() {
-                            isPasswordVisible = !isPasswordVisible;
-                          });
-                        },
-                      )
+                              icon: Icon(isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off),
+                              onPressed: () {
+                                setState(() {
+                                  isPasswordVisible = !isPasswordVisible;
+                                });
+                              },
+                            )
                           : null,
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) return "⚠️ Required";
                       if (isPassword) {
                         if (value.length < 8) return "⚠️ Min 8 chars";
-                        if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) return "⚠️ 1 Uppercase";
-                        if (!RegExp(r'(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~])').hasMatch(value)) return "⚠️ 1 Special Char";
+                        if (!RegExp(r'(?=.*[A-Z])').hasMatch(value))
+                          return "⚠️ 1 Uppercase";
+                        if (!RegExp(r'(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~])')
+                            .hasMatch(value)) return "⚠️ 1 Special Char";
                       }
-                      if (label.contains("Confirm Password") && value != passwordController.text) {
+                      if (label.contains("Confirm Password") &&
+                          value != passwordController.text) {
                         return "⚠️ Passwords do not match";
                       }
                       return null;
@@ -264,17 +275,25 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           } else if (isPassword) {
                             if (value.length < 6) {
                               errorText = "⚠️ Min 6 chars";
-                            } else if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) {
+                            } else if (!RegExp(r'(?=.*[A-Z])')
+                                .hasMatch(value)) {
                               errorText = "⚠️ 1 Uppercase";
-                            } else if (!RegExp(r'(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~])').hasMatch(value)) {
+                            } else if (!RegExp(
+                                    r'(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~])')
+                                .hasMatch(value)) {
                               errorText = "⚠️ 1 Special Char";
                             }
                           }
-                          if (label.contains("Confirm Password") && value != passwordController.text) {
+                          if (label.contains("Confirm Password") &&
+                              value != passwordController.text) {
                             errorText = "⚠️ Not matching";
                           }
                           return errorText != null
-                              ? Text(errorText, style: GoogleFonts.poppins(fontSize: 14, color: Colors.red, fontWeight: FontWeight.w500))
+                              ? Text(errorText,
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.w500))
                               : const SizedBox.shrink();
                         },
                       ),
@@ -295,14 +314,18 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       body: Container(
         width: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [Colors.redAccent, Colors.pinkAccent], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+          gradient: LinearGradient(
+              colors: [Colors.redAccent, Colors.pinkAccent],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter),
         ),
         child: Center(
           child: SingleChildScrollView(
             child: Card(
               elevation: 6,
               margin: const EdgeInsets.symmetric(horizontal: 20),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -310,55 +333,88 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   children: [
                     Image.asset('assets/images/f_pass.jpg', height: 100),
                     const SizedBox(height: 20),
-                    Text("Reset Your Password", style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.red)),
+                    Text("Reset Your Password",
+                        style: GoogleFonts.poppins(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red)),
                     const Divider(color: Colors.red),
                     const SizedBox(height: 10),
-                    Text("Enter your email and create a new password to reset your account.", textAlign: TextAlign.center, style: GoogleFonts.poppins(fontSize: 16)),
+                    Text(
+                        "Enter your email and create a new password to reset your account.",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(fontSize: 16)),
                     const SizedBox(height: 20),
-
                     Form(
                       key: _formKey,
                       child: Column(
                         children: [
-                          _buildTextField(label: "📧 Email Address *", controller: emailController, icon: Icons.email, isPassword: false, keyboardType: TextInputType.emailAddress),
+                          _buildTextField(
+                              label: "📧 Email Address *",
+                              controller: emailController,
+                              icon: Icons.email,
+                              isPassword: false,
+                              keyboardType: TextInputType.emailAddress),
                           const SizedBox(height: 16),
-                          _buildTextField(label: "🔑 New Password *", controller: passwordController, icon: Icons.lock, isPassword: true, keyboardType: TextInputType.visiblePassword),
+                          _buildTextField(
+                              label: "🔑 New Password *",
+                              controller: passwordController,
+                              icon: Icons.lock,
+                              isPassword: true,
+                              keyboardType: TextInputType.visiblePassword),
                           const SizedBox(height: 16),
-                          _buildTextField(label: "🔄 Confirm Password *", controller: confirmPasswordController, icon: Icons.lock, isPassword: true, keyboardType: TextInputType.visiblePassword),
+                          _buildTextField(
+                              label: "🔄 Confirm Password *",
+                              controller: confirmPasswordController,
+                              icon: Icons.lock,
+                              isPassword: true,
+                              keyboardType: TextInputType.visiblePassword),
                           const SizedBox(height: 30),
-
                           AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300), // Smooth transition
+                            duration: const Duration(
+                                milliseconds: 300), // Smooth transition
                             child: isLoading
                                 ? const CircularProgressIndicator() // Show loader when processing
                                 : AnimatedOpacity(
-                              duration: const Duration(milliseconds: 300), // Smooth fade-in effect
-                              opacity: _isFormValid ? 1.0 : 0.5, // Dim button when disabled
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: _isFormValid ? sendResetLink : null, // ✅ Disable if form is invalid
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: _isFormValid ? Colors.redAccent : Colors.grey, // Color changes when disabled
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12), // Rounded corners
+                                    duration: const Duration(
+                                        milliseconds:
+                                            300), // Smooth fade-in effect
+                                    opacity: _isFormValid
+                                        ? 1.0
+                                        : 0.5, // Dim button when disabled
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: _isFormValid
+                                            ? sendResetLink
+                                            : null, // ✅ Disable if form is invalid
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: _isFormValid
+                                              ? Colors.redAccent
+                                              : Colors
+                                                  .grey, // Color changes when disabled
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                                12), // Rounded corners
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 16),
+                                          elevation: _isFormValid
+                                              ? 5
+                                              : 0, // Remove shadow when disabled
+                                        ),
+                                        child: Text(
+                                          "🔄 Reset Password",
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    elevation: _isFormValid ? 5 : 0, // Remove shadow when disabled
                                   ),
-                                  child: Text(
-                                    "🔄 Reset Password",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
                           ),
-
                         ],
                       ),
                     ),

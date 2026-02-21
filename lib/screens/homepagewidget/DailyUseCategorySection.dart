@@ -51,7 +51,8 @@ class _DailyUseCategorySectionState extends State<DailyUseCategorySection>
       future: _dailyItems,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting &&
-            !snapshot.hasData) { // Only show loading if no data (including initialData)
+            !snapshot.hasData) {
+          // Only show loading if no data (including initialData)
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -189,12 +190,9 @@ class _DailyUseCategorySectionState extends State<DailyUseCategorySection>
                   ),
                 ),
               ),
-              errorWidget: (context, url, error) => Container(
-                width: 80.w,
-                height: 68.h,
-                color: Colors.grey[200],
-                child: const Icon(Icons.error, color: Colors.red),
-              ),
+
+              errorWidget: (context, url, error) =>
+                  Image.asset('assets/images/app_logo.png'),
             ),
           ),
           SizedBox(height: 2.h), // Reduced from 4.h

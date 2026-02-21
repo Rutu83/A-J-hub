@@ -81,10 +81,8 @@ class _BannerSliderSectionState extends State<BannerSliderSection> {
                       placeholder: (context, url) => Container(
                         color: Colors.grey[300],
                       ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.error, color: Colors.red),
-                      ),
+                      errorWidget: (context, url, error) =>
+                          Image.asset('assets/images/app_logo.png'),
                     ),
                   );
                 }).toList(),

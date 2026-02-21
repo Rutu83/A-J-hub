@@ -18,12 +18,10 @@ class _OportunityScreenState extends State<OportunityScreen> {
     'assets/images/slider/slider6.png',
     'assets/images/slider/slider4.png',
     'assets/images/slider/slider8.jpg',
-
   ];
 
   @override
   Widget build(BuildContext context) {
-
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
