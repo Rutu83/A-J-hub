@@ -8,19 +8,15 @@ class UserData {
   // Constructor
   UserData({this.id, this.username, this.email, this.role, this.status});
 
-
-
-
   factory UserData.fromJson(Map<String, dynamic> json) {
     return UserData(
-        id : json['id'],
-        username : json['username'],
-        email : json['email'],
-    role : json['role'],
-    status : json['status'],
+      id: json['id'],
+      username: json['username'],
+      email: json['email'],
+      role: json['role'],
+      status: json['status'],
     );
   }
-
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();

@@ -1,7 +1,5 @@
-
 import 'package:ajhub_app/utils/image.dart';
 import 'package:flutter/material.dart';
-
 
 // ignore: camel_case_extensions
 extension strEtx on String {
@@ -17,6 +15,4 @@ extension strEtx on String {
       },
     );
   }
-
-
 }

@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 import 'package:ajhub_app/main.dart';
@@ -16,7 +15,8 @@ class CategoryEditBusinessForm extends StatefulWidget {
   const CategoryEditBusinessForm({super.key});
 
   @override
-  State<CategoryEditBusinessForm> createState() => _CategoryEditBusinessFormState();
+  State<CategoryEditBusinessForm> createState() =>
+      _CategoryEditBusinessFormState();
 }
 
 class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
@@ -45,7 +45,8 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
 
   Future<void> fetchStates() async {
     try {
-      final response = await http.get(Uri.parse('https://ajhub.co.in/get-states-regby-country/1'));
+      final response = await http
+          .get(Uri.parse('https://ajhub.co.in/get-states-regby-country/1'));
       if (response.statusCode == 200) {
         setState(() {
           states = json.decode(response.body);
@@ -55,7 +56,8 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
     } catch (e) {
       if (kDebugMode) {
         print(e);
-      }}
+      }
+    }
   }
 
   Future<int?> getStoredBusinessID() async {
@@ -80,7 +82,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
         final responseData = json.decode(response.body);
         List<dynamic> businesses = responseData['data'];
 
-
         if (businesses.isNotEmpty) {
           List<dynamic> activeBusinesses = businesses.where((business) {
             return business['status'] == 'active';
@@ -89,22 +90,23 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
           if (activeBusinesses.isNotEmpty) {
             final activeBusiness = activeBusinesses.first;
             _selectedId = activeBusiness['id'].toString();
-            _businessNameController.text = activeBusiness['business_name'] ?? '';
+            _businessNameController.text =
+                activeBusiness['business_name'] ?? '';
             _ownerNameController.text = activeBusiness['owner_name'] ?? '';
-            _mobileNumberController.text = activeBusiness['mobile_number'] ?? '';
+            _mobileNumberController.text =
+                activeBusiness['mobile_number'] ?? '';
             _emailController.text = activeBusiness['email'] ?? '';
             _websiteController.text = activeBusiness['website'] ?? '';
             _addressController.text = activeBusiness['address'] ?? '';
-
           } else {}
         } else {}
       } else {}
     } catch (e) {
       if (kDebugMode) {
         print(e);
-      }}
+      }
+    }
   }
-
 
   Future<void> _pickImageFromGallery() async {
     try {
@@ -117,7 +119,8 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
     } catch (e) {
       if (kDebugMode) {
         print(e);
-      }}
+      }
+    }
   }
 
   Future<void> _pickImageFromCamera() async {
@@ -130,8 +133,9 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       }
     } catch (e) {
       if (kDebugMode) {
-      print(e);
-    }}
+        print(e);
+      }
+    }
   }
 
   Future<void> _updateBusinessProfile() async {
@@ -163,7 +167,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       );
 
       if (response.statusCode == 200) {
-
         await fetchBusinessData2();
       } else {}
     } catch (e) {
@@ -176,7 +179,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       });
     }
   }
-
 
   Future<void> fetchBusinessData2() async {
     const apiUrl = '${BASE_URL}getbusinessprofile';
@@ -198,27 +200,21 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
           _isLoading = false;
 
           if (businessData.isNotEmpty) {
-
             final activeBusiness = businessData.firstWhere(
-                  (business) => business['status'] == 'active',
+              (business) => business['status'] == 'active',
               orElse: () => businessData.first,
             );
 
             selectedBusiness = activeBusiness['id'];
 
-
             SharedPreferences.getInstance().then((prefs) {
               prefs.setString('active_business', json.encode(activeBusiness));
             });
 
-
             Navigator.popUntil(context, (route) => route.isFirst);
-
           } else {
-
-         //   clearPreferences();
+            //   clearPreferences();
             selectedBusiness = null;
-
           }
         });
       } else if (response.statusCode == 404) {
@@ -227,23 +223,16 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
           _isLoading = false;
         });
 
-
-       // await clearPreferences();
+        // await clearPreferences();
         selectedBusiness = null;
-
-      } else {
-
-      }
+      } else {}
     } catch (e) {
       setState(() {
         _isLoading = false;
         businessData = [];
       });
-
     }
   }
-
-
 
   void _showImageSourceActionSheet(BuildContext context) {
     showModalBottomSheet(
@@ -260,7 +249,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                   Navigator.pop(context);
 
                   _pickImageFromGallery();
-
                 },
               ),
               ListTile(
@@ -270,7 +258,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                   Navigator.pop(context);
 
                   _pickImageFromCamera();
-
                 },
               ),
             ],
@@ -279,6 +266,7 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       },
     );
   }
+
   String? _selectedCategoryId;
 
   void _navigateToCategorySelection() async {
@@ -290,14 +278,12 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
             setState(() {
               _selectedCategory = categoryName;
               _selectedCategoryId = categoryId;
-
             });
           },
         ),
       ),
     );
   }
-
 
   ImageProvider _getCategoryImage(String category) {
     switch (category) {
@@ -318,7 +304,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -329,9 +314,9 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
       ),
       body: Stack(
         children: [
-
           SingleChildScrollView(
-            padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 80.h, top: 6),
+            padding:
+                EdgeInsets.only(left: 16.w, right: 16.w, bottom: 80.h, top: 6),
             child: Form(
               key: _formKey,
               child: Column(
@@ -356,24 +341,25 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                               color: Colors.grey[200],
                               image: _image != null
                                   ? DecorationImage(
-                                image: FileImage(_image!),
-                                fit: BoxFit.cover,
-                              )
+                                      image: FileImage(_image!),
+                                      fit: BoxFit.cover,
+                                    )
                                   : null,
                             ),
                             child: _image == null
                                 ? const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.add_a_photo_outlined,
-                                    size: 20,
-                                    color: Colors.grey,
-                                  ),
-                                ],
-                              ),
-                            )
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.add_a_photo_outlined,
+                                          size: 20,
+                                          color: Colors.grey,
+                                        ),
+                                      ],
+                                    ),
+                                  )
                                 : null,
                           ),
                           if (_image != null)
@@ -388,7 +374,8 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                                   padding: const EdgeInsets.all(2),
                                   decoration: const BoxDecoration(
                                     shape: BoxShape.rectangle,
-                                    borderRadius: BorderRadius.all(Radius.circular(4)),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(4)),
                                   ),
                                   child: const Icon(
                                     Icons.add_a_photo,
@@ -409,7 +396,8 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                       _navigateToCategorySelection();
                     },
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey.shade600),
                         borderRadius: BorderRadius.circular(10.r),
@@ -429,7 +417,9 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                                   image: DecorationImage(
                                     image: _selectedCategory != null
                                         ? _getCategoryImage(_selectedCategory!)
-                                        : const AssetImage('assets/images/c5.png') as ImageProvider,
+                                        : const AssetImage(
+                                                'assets/images/c5.png')
+                                            as ImageProvider,
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -508,7 +498,6 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
               ),
             ),
           ),
-
           Positioned(
             bottom: 0,
             left: 0,
@@ -522,7 +511,7 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                     color: Colors.grey.withOpacity(0.2),
                     spreadRadius: 3,
                     blurRadius: 5,
-                    offset:  const Offset(0, -3),
+                    offset: const Offset(0, -3),
                   ),
                 ],
               ),
@@ -542,20 +531,20 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                           children: [
                             _isLoading
                                 ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
                                 : Text(
-                              'Update',
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                color: Colors.white,
-                              ),
-                            ),
+                                    'Update',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                           ],
                         ),
                       ),
@@ -633,7 +622,8 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
                 SizedBox(width: 10.w),
                 Text(
                   selectedState != null
-                      ? states.firstWhere((state) => state['id'].toString() == selectedState)['name']
+                      ? states.firstWhere((state) =>
+                          state['id'].toString() == selectedState)['name']
                       : 'Select Your State',
                   style: GoogleFonts.poppins(
                     fontSize: 14.sp,
@@ -723,19 +713,16 @@ class _CategoryEditBusinessFormState extends State<CategoryEditBusinessForm> {
         ),
         children: isRequired
             ? [
-          const TextSpan(
-            text: ' *',
-            style: TextStyle(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ]
+                const TextSpan(
+                  text: ' *',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ]
             : [],
       ),
     );
   }
-
 }
-
-

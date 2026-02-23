@@ -18,12 +18,12 @@ class CustomerScreen extends StatefulWidget {
   CustomerScreenState createState() => CustomerScreenState();
 }
 
-class CustomerScreenState extends State<CustomerScreen> with SingleTickerProviderStateMixin {
- // final FlutterAppAuth appAuth = const FlutterAppAuth();
+class CustomerScreenState extends State<CustomerScreen>
+    with SingleTickerProviderStateMixin {
+  // final FlutterAppAuth appAuth = const FlutterAppAuth();
   final String clientId = '000f55c4e8b5451bae4d7f099bc93a7a';
   final String redirectUri = 'https://ajsystem.in';
   final String clientSecret = 'c6113899241a471aa8dae63ac9f24b27';
-
 
   final List<String> scopes = ['user-library-read', 'user-read-email'];
 
@@ -47,8 +47,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       vsync: this,
       duration: const Duration(milliseconds: 200),
     )..addListener(() {
-      setState(() {});
-    });
+        setState(() {});
+      });
 
     fetchSubcategoryData();
     fetchCategoriesData();
@@ -123,11 +123,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       body: SingleChildScrollView(
         child: Column(
           children: [
-
             _buildUpcomingCategorySection(),
             _buildFestivalCategorySection(),
-
-
             const SizedBox(height: 10),
             isLoading ? _buildSkeletonLoading() : _buildContent(),
           ],
@@ -154,16 +151,13 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-
   Widget _buildUpcomingCategorySection() {
     if (isLoading) {
       return _buildSkeletonLoading2();
     }
 
     if (hasError) {
-      return const SizedBox(
-
-      );
+      return const SizedBox();
     }
 
     if (categoriesData == null) {
@@ -173,8 +167,9 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     List<Widget> items = [];
     String sectionTitle = 'Upcoming';
     var upcomingCategory = categoriesData!.categories.firstWhere(
-          (category) => category.name.toLowerCase() == 'upcoming',
-      orElse: () => CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
+      (category) => category.name.toLowerCase() == 'upcoming',
+      orElse: () =>
+          CategoryWithSubcategory(name: 'No Upcoming', subcategories: []),
     );
 
     if (upcomingCategory.subcategories.isEmpty) {
@@ -182,22 +177,23 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     }
 
     for (var subcategory in upcomingCategory.subcategories) {
-      String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/placeholder.jpg';
-      items.add(_buildUpcomingCardItem(subcategory.name, imageUrl, subcategory.images, showTitle: true));
+      String imageUrl = subcategory.images.isNotEmpty
+          ? subcategory.images[0]
+          : 'assets/images/placeholder.jpg';
+      items.add(_buildUpcomingCardItem(
+          subcategory.name, imageUrl, subcategory.images,
+          showTitle: true));
     }
 
-    return _buildUpcomingHorizontalCard(sectionTitle: sectionTitle, items: items);
+    return _buildUpcomingHorizontalCard(
+        sectionTitle: sectionTitle, items: items);
   }
 
-
-
-
-
-  Widget _buildUpcomingHorizontalCard({required String sectionTitle, required List<Widget> items}) {
+  Widget _buildUpcomingHorizontalCard(
+      {required String sectionTitle, required List<Widget> items}) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: Column(
-
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 5.h),
@@ -236,16 +232,14 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-
-
-
-
-  Widget _buildUpcomingCardItem(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+  Widget _buildUpcomingCardItem(
+      String title, String imageUrl, List<String> images,
+      {bool showTitle = true}) {
     return InkWell(
       onTap: () {
-
-        if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
-
+        if (imageUrl.isEmpty ||
+            !imageUrl.startsWith('http') ||
+            images.isEmpty) {
           _showErrorMessage(context);
           return;
         }
@@ -253,7 +247,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images,title: title),
+            builder: (context) =>
+                CategorySelected(imagePaths: images, title: title),
           ),
         );
       },
@@ -279,7 +274,6 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                     : _buildAssetImage(imageUrl),
               ),
             ),
-
             if (showTitle) SizedBox(height: 6.h),
             if (showTitle)
               Text(
@@ -298,9 +292,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     return Image.network(
       url,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        return _buildErrorPlaceholder();
-      },
+      errorBuilder: (context, error, stackTrace) =>
+          Image.asset('assets/images/app_logo.png'),
     );
   }
 
@@ -321,8 +314,6 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-
-
   Widget _buildFestivalCategorySection() {
     if (isLoading) {
       return _buildSkeletonLoading3();
@@ -340,8 +331,9 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     String sectionTitle = 'Festival';
 
     var festivalCategory = categoriesData!.categories.firstWhere(
-          (category) => category.name.toLowerCase() == 'festival',
-      orElse: () => CategoryWithSubcategory(name: 'No Festival', subcategories: []),
+      (category) => category.name.toLowerCase() == 'festival',
+      orElse: () =>
+          CategoryWithSubcategory(name: 'No Festival', subcategories: []),
     );
 
     if (festivalCategory.subcategories.isEmpty) {
@@ -349,24 +341,34 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     }
 
     for (var subcategory in festivalCategory.subcategories) {
-      String imageUrl = subcategory.images.isNotEmpty ? subcategory.images[0] : 'assets/images/default_festival.jpg';
+      String imageUrl = subcategory.images.isNotEmpty
+          ? subcategory.images[0]
+          : 'assets/images/default_festival.jpg';
 
-      items.add(_buildCardFestival(subcategory.name, imageUrl, subcategory.images, showTitle: false));
+      items.add(_buildCardFestival(
+          subcategory.name, imageUrl, subcategory.images,
+          showTitle: false));
     }
 
-    return _buildHorizontalCardSection2(sectionTitle: sectionTitle, items: items);
+    return _buildHorizontalCardSection2(
+        sectionTitle: sectionTitle, items: items);
   }
-  Widget _buildCardFestival(String title, String imageUrl, List<String> images, {bool showTitle = true}) {
+
+  Widget _buildCardFestival(String title, String imageUrl, List<String> images,
+      {bool showTitle = true}) {
     return InkWell(
       onTap: () {
-        if (imageUrl.isEmpty || !imageUrl.startsWith('http') || images.isEmpty) {
+        if (imageUrl.isEmpty ||
+            !imageUrl.startsWith('http') ||
+            images.isEmpty) {
           _showErrorMessage(context);
           return;
         }
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => CategorySelected(imagePaths: images,title: title),
+            builder: (context) =>
+                CategorySelected(imagePaths: images, title: title),
           ),
         );
       },
@@ -399,12 +401,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                       color: Colors.grey[300],
                     ),
                   ),
-                  errorWidget: (context, url, error) => Container(
-                    width: 120.w,
-                    height: 90.h,
-                    color: Colors.grey,
-                    child: const Icon(Icons.error, color: Colors.red),
-                  ),
+                  errorWidget: (context, url, error) =>
+                      Image.asset('assets/images/app_logo.png'),
                 ),
               ),
             ),
@@ -421,13 +419,15 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       ),
     );
   }
+
   void _showErrorMessage(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Error'),
-          content: const Text('Something went wrong. Cannot navigate to the next screen.'),
+          content: const Text(
+              'Something went wrong. Cannot navigate to the next screen.'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -442,7 +442,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
   }
 
   Widget _buildSkeletonLoading3() {
-    return Padding(padding: const EdgeInsets.only(left: 15,bottom: 10),
+    return Padding(
+      padding: const EdgeInsets.only(left: 15, bottom: 10),
       child: SizedBox(
         height: 120.0,
         child: ListView.builder(
@@ -458,7 +459,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                   width: 120.0, // Width to match your card's width
                   margin: const EdgeInsets.only(right: 8.0),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0), // Rounded corners like your card
+                    borderRadius: BorderRadius.circular(
+                        12.0), // Rounded corners like your card
                     color: Colors.white,
                   ),
                   child: Column(
@@ -469,8 +471,10 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                         width: 120.0,
                         height: 90.0, // Image height matches the actual card
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12.0), // Match card's rounded corners
-                          color: Colors.grey[200], // Light grey background for the skeleton image
+                          borderRadius: BorderRadius.circular(
+                              12.0), // Match card's rounded corners
+                          color: Colors.grey[
+                              200], // Light grey background for the skeleton image
                         ),
                       ),
                       const SizedBox(height: 8.0),
@@ -478,7 +482,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                       Container(
                         width: 80.0, // Title width
                         height: 14.0, // Title height
-                        color: Colors.grey[200], // Light grey color for the text skeleton
+                        color: Colors.grey[
+                            200], // Light grey color for the text skeleton
                       ),
                     ],
                   ),
@@ -495,10 +500,10 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     return Padding(
       padding: const EdgeInsets.only(left: 15, bottom: 10),
       child: SizedBox(
-        height: 120.0,  // Height to match your card's height
+        height: 120.0, // Height to match your card's height
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: 5,  // Simulate 5 skeleton cards
+          itemCount: 5, // Simulate 5 skeleton cards
           itemBuilder: (context, index) {
             return Padding(
               padding: const EdgeInsets.only(right: 8.0),
@@ -509,7 +514,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                   width: 120.0, // Width to match your card's width
                   margin: const EdgeInsets.only(right: 8.0),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.0), // Rounded corners for the container
+                    borderRadius: BorderRadius.circular(
+                        12.0), // Rounded corners for the container
                     color: Colors.white,
                   ),
                   child: Column(
@@ -517,11 +523,14 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                     children: [
                       // Skeleton for the circular image
                       Container(
-                        width: 60.0,  // Circular shape: set width and height equal
+                        width:
+                            60.0, // Circular shape: set width and height equal
                         height: 60.0, // Make sure it's equal to create a circle
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30.0), // Half of width/height for a circle
-                          color: Colors.grey[200], // Light grey background for the skeleton image
+                          borderRadius: BorderRadius.circular(
+                              30.0), // Half of width/height for a circle
+                          color: Colors.grey[
+                              200], // Light grey background for the skeleton image
                         ),
                       ),
                       const SizedBox(height: 8.0),
@@ -529,7 +538,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                       Container(
                         width: 80.0, // Title width
                         height: 14.0, // Title height
-                        color: Colors.grey[200], // Light grey color for the text skeleton
+                        color: Colors.grey[
+                            200], // Light grey color for the text skeleton
                       ),
                     ],
                   ),
@@ -542,8 +552,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-
-  Widget _buildHorizontalCardSection2({required String sectionTitle, required List<Widget> items}) {
+  Widget _buildHorizontalCardSection2(
+      {required String sectionTitle, required List<Widget> items}) {
     return Container(
       color: Colors.white,
       child: Padding(
@@ -569,7 +579,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                 SizedBox(width: 8.w),
                 Text(
                   sectionTitle,
-                  style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+                  style:
+                      TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -588,11 +599,6 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
     );
   }
 
-
-
-
-
-
   Widget _buildContent() {
     if (isLoading) {
       return _buildSkeletonLoading(); // Show skeleton loader while loading
@@ -600,7 +606,7 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
 
     if (hasError) {
       return Center(
-        child:Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -635,7 +641,6 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       ),
     );
   }
-
 
   Widget _buildSubcategorySections() {
     List<Widget> sections = [];
@@ -694,17 +699,22 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       children: sections,
     );
   }
-  Widget _buildCardItem2(String title, String plays, String imageUrl, List<String> allImages) {
+
+  Widget _buildCardItem2(
+      String title, String plays, String imageUrl, List<String> allImages) {
     return InkWell(
       onTap: () {
         // Check if the image URL or allImages list is empty or null
         if (imageUrl.isEmpty || allImages.isEmpty) {
-          _showErrorMessage(context);  // Show error message if data is missing
+          _showErrorMessage(context); // Show error message if data is missing
         } else {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => CategorySelected(imagePaths: allImages, title: title,),
+              builder: (context) => CategorySelected(
+                imagePaths: allImages,
+                title: title,
+              ),
             ),
           );
         }
@@ -734,10 +744,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                       color: Colors.grey[300],
                     ),
                   ),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey,
-                    child: const Icon(Icons.error, color: Colors.red),
-                  ),
+                  errorWidget: (context, url, error) =>
+                      Image.asset('assets/images/app_logo.png'),
                 ),
               ),
             ),
@@ -765,7 +773,8 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
                 width: 4.w,
                 decoration: const BoxDecoration(
                   color: Colors.red,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(5), bottom: Radius.circular(5)),
+                  borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(5), bottom: Radius.circular(5)),
                 ),
               ),
               SizedBox(width: 8.w),
@@ -776,9 +785,11 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
               const Spacer(),
               InkWell(
                 onTap: onTap,
-                child: Text('See All', style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
+                child: Text('See All',
+                    style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
               ),
-              const Icon(Icons.arrow_right_outlined, color: Colors.grey, size: 25),
+              const Icon(Icons.arrow_right_outlined,
+                  color: Colors.grey, size: 25),
             ],
           ),
           SizedBox(height: 5.h),
@@ -793,12 +804,4 @@ class CustomerScreenState extends State<CustomerScreen> with SingleTickerProvide
       ),
     );
   }
-
-
-
-
-
-
- }
-
-
+}

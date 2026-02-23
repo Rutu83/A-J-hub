@@ -10,7 +10,14 @@ class ShimmerWidget extends StatelessWidget {
   final Color? baseColor;
   final Color? highlightColor;
 
-  const ShimmerWidget({super.key, this.height, this.width, this.child, this.backgroundColor, this.baseColor, this.highlightColor});
+  const ShimmerWidget(
+      {super.key,
+      this.height,
+      this.width,
+      this.child,
+      this.backgroundColor,
+      this.baseColor,
+      this.highlightColor});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +31,8 @@ class ShimmerWidget extends StatelessWidget {
           Container(
             height: height?.validate(),
             width: width.validate(),
-            decoration: boxDecorationWithRoundedCorners(backgroundColor: backgroundColor ?? context.cardColor),
+            decoration: boxDecorationWithRoundedCorners(
+                backgroundColor: backgroundColor ?? context.cardColor),
           ),
     );
   }

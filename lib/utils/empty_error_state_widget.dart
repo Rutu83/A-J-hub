@@ -9,7 +9,8 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Lottie.asset('assets/animation/empty_lottie.json', height: 10, repeat: true);
+    return Lottie.asset('assets/animation/empty_lottie.json',
+        height: 10, repeat: true);
   }
 }
 
@@ -21,6 +22,7 @@ class ErrorStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Lottie.asset('assets/animation/error_lottie.json', height: 1, repeat: true);
+    return Lottie.asset('assets/animation/error_lottie.json',
+        height: 1, repeat: true);
   }
 }

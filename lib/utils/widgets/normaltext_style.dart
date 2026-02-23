@@ -28,7 +28,6 @@ Widget headingText({
         height: 2.0,
         letterSpacing: .8,
         color: color,
-        fontWeight: FontWeight.w600
-    ),
+        fontWeight: FontWeight.w600),
   );
 }

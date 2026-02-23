@@ -1,7 +1,6 @@
 import 'package:ajhub_app/local/languages.dart';
 
 class LanguageGuj extends BaseLanguage {
-
   @override
   String get skip => 'skip';
 
@@ -18,7 +17,6 @@ class LanguageGuj extends BaseLanguage {
   String get signIn => 'Sign In';
   @override
   String get deleteAccount => 'Delete Your Account';
-
 
   @override
   String get forgotPassword => 'Forgot password';
@@ -80,7 +78,6 @@ class LanguageGuj extends BaseLanguage {
   @override
   String get profile => 'Profile';
 
-
   @override
   String get addCustomer => 'Add Customer';
 
@@ -100,7 +97,7 @@ class LanguageGuj extends BaseLanguage {
   String get email => 'Email';
 
   @override
-  String get save =>  'Save';
+  String get save => 'Save';
 
   @override
   String get coffee => 'Coffee';
@@ -142,10 +139,10 @@ class LanguageGuj extends BaseLanguage {
   String get appointments => 'Appointments';
 
   @override
-  String get totalRevenue=> 'Total Revenue';
+  String get totalRevenue => 'Total Revenue';
 
   @override
-  String get totalCustomer=> 'Total Customer';
+  String get totalCustomer => 'Total Customer';
 
   @override
   String get teaOrCoffee => 'Tea | Coffee';
@@ -154,20 +151,19 @@ class LanguageGuj extends BaseLanguage {
   String get todayRevenue => 'Today Revenue';
 
   @override
-  String get recentDelivery=> 'Recent Delivery';
+  String get recentDelivery => 'Recent Delivery';
 
   @override
   String get notification => 'Notification';
 
   @override
-  String get todayRegister=> 'Today Register';
+  String get todayRegister => 'Today Register';
 
   @override
   String get report => 'Report';
 
   @override
   String get totalSales => 'Total Sales';
-
 
   @override
   String get searchItemLbl => 'Search for an item...';
@@ -179,7 +175,8 @@ class LanguageGuj extends BaseLanguage {
   String get yourStaffDescription => 'See added staff vouchers here';
 
   @override
-  String get notificationDescription => 'Change your Password regularly Notification';
+  String get notificationDescription =>
+      'Change your Password regularly Notification';
 
   @override
   String get inviteYourFriends => 'Invite Your Friends';
@@ -197,13 +194,15 @@ class LanguageGuj extends BaseLanguage {
   String get helpCenter => 'Help center';
 
   @override
-  String get helpCenterDescription => 'To find any queties relate to app of features';
+  String get helpCenterDescription =>
+      'To find any queties relate to app of features';
 
   @override
   String get changePassword => 'Change Password';
 
   @override
-  String get changePasswordDescription => 'change your password regularly  to  stay secure';
+  String get changePasswordDescription =>
+      'change your password regularly  to  stay secure';
 
   @override
   String get logout => 'Logout';
@@ -328,7 +327,6 @@ class LanguageGuj extends BaseLanguage {
   @override
   String get currentPassword => 'Current Password';
 
-
   @override
   String get oldPassword => 'Old Password';
 
@@ -339,7 +337,8 @@ class LanguageGuj extends BaseLanguage {
   String get getStarted => 'Get Started';
 
   @override
-  String get badGateway => 'one server on the internet received an invalid response from another server';
+  String get badGateway =>
+      'one server on the internet received an invalid response from another server';
 
   @override
   String get badRequest => 'user Does not exists';
@@ -373,7 +372,4 @@ class LanguageGuj extends BaseLanguage {
 
   @override
   String get enableStaff => 'Enable Staff';
-
-
-
 }

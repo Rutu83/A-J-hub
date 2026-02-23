@@ -17,13 +17,11 @@ class ProductDetailPage extends StatefulWidget {
 
   const ProductDetailPage({super.key, required this.product});
 
-
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
 }
 
 class _ProductDetailPageState extends State<ProductDetailPage> {
-
   List<String> images = [];
   final TextEditingController _enquiryController = TextEditingController();
 
@@ -45,13 +43,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       widget.product['product_image_3'],
       widget.product['product_image_4'],
       widget.product['product_image_5'],
-    ].where((image) => image != null && image.isNotEmpty).cast<String>().toList();
+    ]
+        .where((image) => image != null && image.isNotEmpty)
+        .cast<String>()
+        .toList();
   }
 
   void fetchUserData() async {
     try {
       Map<String, dynamic> userDetail = await getUserDetail();
-
 
       setState(() {
         userId = userDetail['userId'] ?? '';
@@ -59,7 +59,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         email = userDetail['email'] ?? '';
         phone = userDetail['phone_number'] ?? '';
       });
-
     } catch (e) {
       if (kDebugMode) {
         print("Error fetching user data: $e");
@@ -74,7 +73,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   }
 
   Future<void> _launchVisitUs() async {
-    const String url = 'https://google.com'; // TODO: Replace with dynamic Admin URL
+    const String url =
+        'https://google.com'; // TODO: Replace with dynamic Admin URL
     final Uri uri = Uri.parse(url);
     if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
       if (kDebugMode) {
@@ -83,8 +83,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       // Fallback or user notification could go here
     }
   }
-
-
 
   void _showEnquiryModal() {
     ValueNotifier<bool> isButtonEnabled = ValueNotifier(false);
@@ -121,7 +119,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     controller: _enquiryController,
                     maxLines: 3,
                     onChanged: (value) {
-
                       isButtonEnabled.value = value.trim().isNotEmpty;
                     },
                     decoration: InputDecoration(
@@ -142,13 +139,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           ElevatedButton(
                             onPressed: isEnabled
                                 ? () {
-                              final enquiry = _enquiryController.text.trim();
-                              Navigator.pop(context);
-                              _submitEnquiry(enquiry, widget.product['id']);
-                            }
+                                    final enquiry =
+                                        _enquiryController.text.trim();
+                                    Navigator.pop(context);
+                                    _submitEnquiry(
+                                        enquiry, widget.product['id']);
+                                  }
                                 : null,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: isEnabled ? Colors.red : Colors.grey,
+                              backgroundColor:
+                                  isEnabled ? Colors.red : Colors.grey,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -175,12 +175,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-
-
-
   void _submitEnquiry(String enquiry, int productId) async {
-
-
     const String apiUrl = "${BASE_URL}submit-inquery";
     String token = appStore.token;
 
@@ -192,13 +187,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       "phone_number": phone,
     };
 
-
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           content: Row(
             children: [
               const CircularProgressIndicator(color: Colors.red),
@@ -228,8 +223,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       Navigator.of(context, rootNavigator: true).pop();
       if (response.statusCode == 200 || response.statusCode == 201) {
         final responseData = json.decode(response.body);
-        final successMessage = responseData['message'] ?? 'Enquiry submitted successfully!';
-       Navigator.pop(context);
+        final successMessage =
+            responseData['message'] ?? 'Enquiry submitted successfully!';
+        Navigator.pop(context);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -246,19 +242,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 Expanded(
                   child: Text(
                     successMessage,
-                    style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.white),
+                    style: GoogleFonts.poppins(
+                        fontSize: 14.sp, color: Colors.white),
                   ),
                 ),
               ],
             ),
           ),
         );
-
-
       } else {
         Navigator.pop(context);
-       final responseData = json.decode(response.body);
-        final errorMessage = responseData['message'] ?? 'Failed to submit enquiry. Please try again.';
+        final responseData = json.decode(response.body);
+        final errorMessage = responseData['message'] ??
+            'Failed to submit enquiry. Please try again.';
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -276,14 +272,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 Expanded(
                   child: Text(
                     errorMessage,
-                    style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.white),
+                    style: GoogleFonts.poppins(
+                        fontSize: 14.sp, color: Colors.white),
                   ),
                 ),
               ],
             ),
           ),
         );
-
       }
     } catch (e) {
       Navigator.of(context, rootNavigator: true).pop();
@@ -303,7 +299,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               Expanded(
                 child: Text(
                   'An error occurred. Please try again later.',
-                  style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.white),
+                  style:
+                      GoogleFonts.poppins(fontSize: 14.sp, color: Colors.white),
                 ),
               ),
             ],
@@ -313,8 +310,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
     _enquiryController.clear();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -350,7 +345,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                       children: [
                         const TextSpan(
-                          text: 'As Promised, We''re The Most Professional ',
+                          text: 'As Promised, We' 're The Most Professional ',
                         ),
                         TextSpan(
                           text: '${widget.product['title']}',
@@ -377,73 +372,65 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   children: [
                     images.isNotEmpty
                         ? CarouselSlider(
-                      options: CarouselOptions(
-                        height: 400,
-                        enlargeCenterPage: true,
-                        autoPlay: false,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                        },
-                        viewportFraction: 1.0,
-                      ),
-                      items: images.map((imagePath) {
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Colors.grey.shade200,
-                                  width: 1.0,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: CachedNetworkImage(
-                                  imageUrl: imagePath,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: 400,
-                                  placeholder: (context, url) => Container(
-                                    height: 400,
-                                    color: Colors.grey[200],
-                                    child: const Center(
-                                        child: CircularProgressIndicator()),
-                                  ),
-                                  errorWidget: (context, url, error) {
-                                    return Container(
-                                      color: Colors.grey.shade300,
-                                      child: const Center(
-                                        child: Icon(
-                                          Icons.broken_image,
-                                          color: Colors.white,
-                                          size: 50,
-                                        ),
+                            options: CarouselOptions(
+                              height: 400,
+                              enlargeCenterPage: true,
+                              autoPlay: false,
+                              onPageChanged: (index, reason) {
+                                setState(() {
+                                  _currentIndex = index;
+                                });
+                              },
+                              viewportFraction: 1.0,
+                            ),
+                            items: images.map((imagePath) {
+                              return Builder(
+                                builder: (BuildContext context) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey.shade200,
+                                        width: 1.0,
                                       ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      }).toList(),
-                    )
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(20),
+                                      child: CachedNetworkImage(
+                                        imageUrl: imagePath,
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: 400,
+                                        placeholder: (context, url) =>
+                                            Container(
+                                          height: 400,
+                                          color: Colors.grey[200],
+                                          child: const Center(
+                                              child:
+                                                  CircularProgressIndicator()),
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            Image.asset(
+                                                'assets/images/app_logo.png'),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            }).toList(),
+                          )
                         : Container(
-                      height: 400,
-                      color: Colors.grey.shade300,
-                      child: const Center(
-                        child: Text(
-                          'No Images Available',
-                          style: TextStyle(color: Colors.black54, fontSize: 18),
-                        ),
-                      ),
-                    ),
+                            height: 400,
+                            color: Colors.grey.shade300,
+                            child: const Center(
+                              child: Text(
+                                'No Images Available',
+                                style: TextStyle(
+                                    color: Colors.black54, fontSize: 18),
+                              ),
+                            ),
+                          ),
                     const SizedBox(height: 10),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: images.asMap().entries.map((entry) {
@@ -456,13 +443,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             curve: Curves.easeInOut,
                             width: _currentIndex == entry.key ? 12.0 : 8.0,
                             height: 9,
-                            margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 4.0),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: (Theme.of(context).brightness == Brightness.dark
-                                  ? Colors.white
-                                  : Colors.red)
-                                  .withOpacity(_currentIndex == entry.key ? 0.9 : 0.4),
+                              color: (Theme.of(context).brightness ==
+                                          Brightness.dark
+                                      ? Colors.white
+                                      : Colors.red)
+                                  .withOpacity(
+                                      _currentIndex == entry.key ? 0.9 : 0.4),
                             ),
                           ),
                         );
@@ -470,25 +460,12 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     ),
                   ],
                 ),
-              )
-              ,
-
-
-
-
-
-
-
-
-
-
+              ),
               Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 0.0),
                   child: Column(
-
                     children: [
-
                       const Icon(
                         Icons.description,
                         color: Colors.grey,
@@ -521,38 +498,33 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       //   ),
                       // ),
 
-
-
-                  Center(
-                    child: Html(
-                      data: cleanHtml(widget.product['description']),
-                      style: {
-                        "p": Style(
-                          fontSize: FontSize(14.sp),
-                          fontFamily: GoogleFonts.poppins().fontFamily,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w500,
-                          textAlign: TextAlign.center,
-                          margin: Margins.only(top: 8,bottom: 0),
+                      Center(
+                        child: Html(
+                          data: cleanHtml(widget.product['description']),
+                          style: {
+                            "p": Style(
+                              fontSize: FontSize(14.sp),
+                              fontFamily: GoogleFonts.poppins().fontFamily,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
+                              textAlign: TextAlign.center,
+                              margin: Margins.only(top: 8, bottom: 0),
+                            ),
+                            "strong": Style(
+                              fontSize: FontSize(16.sp),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            "br": Style(
+                              whiteSpace: WhiteSpace.normal,
+                            ),
+                          },
                         ),
-                        "strong": Style(
-                          fontSize: FontSize(16.sp),
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                        "br": Style(
-                          whiteSpace: WhiteSpace.normal,
-                        ),
-                      },
-                    ),
-                  )
-
+                      )
                     ],
                   ),
                 ),
               ),
-
-
             ],
           ),
         ),
@@ -655,11 +627,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           ),
         ),
       ),
-
-
     );
   }
-
 
   String cleanHtml(String html) {
     return html.replaceAll(RegExp(r'(<br\s*/?>\s*)+'), '<br>').trim();

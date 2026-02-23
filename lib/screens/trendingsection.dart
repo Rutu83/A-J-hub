@@ -179,14 +179,12 @@ class _TrendingSectionState extends State<TrendingSection>
                 width: 110.w,
                 height: 110.h,
                 fit: BoxFit.cover,
-                errorWidget: (context, url, error) => Container(
-                  width: 110.w,
-                  height: 110.h,
-                  color: Colors.black,
-                  child: const Icon(Icons.error, color: Colors.red),
-                ),
+
                 placeholder: (context, url) => Container(
                     width: 110.w, height: 110.h, color: Colors.grey[300]),
+
+                errorWidget: (context, url, error) =>
+                    Image.asset('assets/images/app_logo.png'),
               ),
             ),
             Expanded(

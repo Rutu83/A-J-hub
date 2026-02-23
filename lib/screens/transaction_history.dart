@@ -8,10 +8,10 @@ class TransactionHistory extends StatefulWidget {
   const TransactionHistory({super.key});
 
   @override
-   TransactionHistoryState createState() =>  TransactionHistoryState();
+  TransactionHistoryState createState() => TransactionHistoryState();
 }
 
-class  TransactionHistoryState extends State<TransactionHistory> {
+class TransactionHistoryState extends State<TransactionHistory> {
   bool _isLoading = true;
   List<Transaction> transactions = [];
   String searchQuery = '';
@@ -25,14 +25,16 @@ class  TransactionHistoryState extends State<TransactionHistory> {
 
   Future<void> fetchBusinessData() async {
     try {
-      final List<TransactionResponse> response = await getTransactionData(transactionmodal: []);
+      final List<TransactionResponse> response =
+          await getTransactionData(transactionmodal: []);
 
       if (kDebugMode) {
         print(response);
       }
 
       setState(() {
-        transactions = response.map((e) => e.transactions).expand((e) => e).toList();
+        transactions =
+            response.map((e) => e.transactions).expand((e) => e).toList();
         _isLoading = false;
       });
     } catch (e) {
@@ -45,36 +47,34 @@ class  TransactionHistoryState extends State<TransactionHistory> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     List<Transaction> filteredTransactions = transactions.where((tx) {
       final matchesFilter =
           selectedFilter == 'All' || tx.transactionStatus == selectedFilter;
       final matchesSearchQuery =
-      tx.userName.toLowerCase().contains(searchQuery.toLowerCase());
+          tx.userName.toLowerCase().contains(searchQuery.toLowerCase());
       return matchesFilter && matchesSearchQuery;
     }).toList();
 
     double totalBalance = filteredTransactions.fold(
       0.0,
-          (sum, tx) {
-        if (tx.transactionStatus != 'Credit' && tx.transactionStatus != 'Debit') {
+      (sum, tx) {
+        if (tx.transactionStatus != 'Credit' &&
+            tx.transactionStatus != 'Debit') {
           return sum;
         }
 
         try {
           final double amount = double.parse(tx.amount);
-          double updatedSum = tx.transactionStatus == 'Credit' ? sum + amount : sum - amount;
+          double updatedSum =
+              tx.transactionStatus == 'Credit' ? sum + amount : sum - amount;
           return updatedSum < 0 ? 0 : updatedSum;
         } catch (e) {
           return sum;
         }
       },
     );
-
-
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -112,220 +112,214 @@ class  TransactionHistoryState extends State<TransactionHistory> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      labelText: 'Search transactions by name',
-                      labelStyle: GoogleFonts.poppins(
-                        color: Colors.black,
-                      ),
-                      border: const OutlineInputBorder(
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(12)),
-                      ),
-                      focusedBorder: const OutlineInputBorder(
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(12)),
-                        borderSide:
-                        BorderSide(color: Colors.black, width: 2.0),
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(12)),
-                        borderSide:
-                        BorderSide(color: Colors.grey, width: 1.5),
-                      ),
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: searchQuery.isNotEmpty
-                          ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          setState(() {
-                            searchQuery = '';
-                          });
-                        },
-                      )
-                          : null,
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value;
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            Row(
-              children: [
-                FilterChip(
-                  label: Text(
-                    'All',
-                    style: GoogleFonts.poppins(
-                      color: selectedFilter == 'All'
-                          ? Colors.white
-                          : Colors.black,
-                    ),
-                  ),
-                  selected: selectedFilter == 'All',
-                  backgroundColor: Colors.grey[200],
-                  selectedColor: Colors.blue,
-                  onSelected: (selected) {
-                    setState(() {
-                      selectedFilter = 'All';
-                    });
-                  },
-                ),
-                const SizedBox(width: 10),
-                FilterChip(
-                  label: Text(
-                    'Credit',
-                    style: GoogleFonts.poppins(
-                      color: selectedFilter == 'Credit'
-                          ? Colors.white
-                          : Colors.black,
-                    ),
-                  ),
-                  selected: selectedFilter == 'Credit',
-                  backgroundColor: Colors.grey[200],
-                  selectedColor: Colors.blue,
-                  onSelected: (selected) {
-                    setState(() {
-                      selectedFilter = 'Credit';
-                    });
-                  },
-                ),
-                const SizedBox(width: 10),
-                FilterChip(
-                  label: Text(
-                    'Debit',
-                    style: GoogleFonts.poppins(
-                      color: selectedFilter == 'Debit'
-                          ? Colors.white
-                          : Colors.black,
-                    ),
-                  ),
-                  selected: selectedFilter == 'Debit',
-                  backgroundColor: Colors.grey[200],
-                  selectedColor: Colors.blue,
-                  onSelected: (selected) {
-                    setState(() {
-                      selectedFilter = 'Debit';
-                    });
-                  },
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 children: [
-                  Text(
-                    'Total Balance',
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '₹${totalBalance < 0 ? '0.00' : totalBalance.toStringAsFixed(2)}',
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: totalBalance >= 0 ? Colors.green : Colors.red,
-                    ),
-                  ),
-
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredTransactions.length,
-                itemBuilder: (context, index) {
-                  final transaction = filteredTransactions[index];
-                  final isCredit = transaction.transactionStatus == 'Credit';
-
-                  for (var tx in filteredTransactions) {
-                    if (kDebugMode) {
-                      print('Transaction: ${tx.userName}, Amount: ${tx.amount}, Status: ${tx.transactionStatus}');
-                    }
-                  }
-
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: isCredit
-                          ? Colors.green.withOpacity(0.2)
-                          : Colors.red.withOpacity(0.2),
-                      child: Text(
-                        transaction.userName[0],
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold,
-                          color: isCredit ? Colors.green : Colors.red,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(
+                            labelText: 'Search transactions by name',
+                            labelStyle: GoogleFonts.poppins(
+                              color: Colors.black,
+                            ),
+                            border: const OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(12)),
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(12)),
+                              borderSide:
+                                  BorderSide(color: Colors.black, width: 2.0),
+                            ),
+                            enabledBorder: const OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(12)),
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 1.5),
+                            ),
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: searchQuery.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        searchQuery = '';
+                                      });
+                                    },
+                                  )
+                                : null,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              searchQuery = value;
+                            });
+                          },
                         ),
                       ),
-                    ),
-                    title: Text(
-                      transaction.userName,
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-
-                        Text(
-                          transaction.createdAt.toString(),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      FilterChip(
+                        label: Text(
+                          'All',
                           style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.black54,
+                            color: selectedFilter == 'All'
+                                ? Colors.white
+                                : Colors.black,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          transaction.paymentPurpose?.toString() ?? 'No purpose provided',
+                        selected: selectedFilter == 'All',
+                        backgroundColor: Colors.grey[200],
+                        selectedColor: Colors.blue,
+                        onSelected: (selected) {
+                          setState(() {
+                            selectedFilter = 'All';
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 10),
+                      FilterChip(
+                        label: Text(
+                          'Credit',
                           style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: Colors.blueGrey,
+                            color: selectedFilter == 'Credit'
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                        ),
+                        selected: selectedFilter == 'Credit',
+                        backgroundColor: Colors.grey[200],
+                        selectedColor: Colors.blue,
+                        onSelected: (selected) {
+                          setState(() {
+                            selectedFilter = 'Credit';
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 10),
+                      FilterChip(
+                        label: Text(
+                          'Debit',
+                          style: GoogleFonts.poppins(
+                            color: selectedFilter == 'Debit'
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                        ),
+                        selected: selectedFilter == 'Debit',
+                        backgroundColor: Colors.grey[200],
+                        selectedColor: Colors.blue,
+                        onSelected: (selected) {
+                          setState(() {
+                            selectedFilter = 'Debit';
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Total Balance',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '₹${totalBalance < 0 ? '0.00' : totalBalance.toStringAsFixed(2)}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                totalBalance >= 0 ? Colors.green : Colors.red,
                           ),
                         ),
                       ],
                     ),
-                    trailing: Text(
-                      '${isCredit ? '+' : '-'} ₹${transaction.amount}',
-                      style: GoogleFonts.poppins(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: isCredit ? Colors.green : Colors.red,
-                      ),
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filteredTransactions.length,
+                      itemBuilder: (context, index) {
+                        final transaction = filteredTransactions[index];
+                        final isCredit =
+                            transaction.transactionStatus == 'Credit';
+
+                        for (var tx in filteredTransactions) {
+                          if (kDebugMode) {
+                            print(
+                                'Transaction: ${tx.userName}, Amount: ${tx.amount}, Status: ${tx.transactionStatus}');
+                          }
+                        }
+
+                        return ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: isCredit
+                                ? Colors.green.withOpacity(0.2)
+                                : Colors.red.withOpacity(0.2),
+                            child: Text(
+                              transaction.userName[0],
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.bold,
+                                color: isCredit ? Colors.green : Colors.red,
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            transaction.userName,
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                transaction.createdAt.toString(),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                transaction.paymentPurpose?.toString() ??
+                                    'No purpose provided',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.blueGrey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          trailing: Text(
+                            '${isCredit ? '+' : '-'} ₹${transaction.amount}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: isCredit ? Colors.green : Colors.red,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
+                  ),
+                ],
               ),
             ),
-
-
-          ],
-        ),
-      ),
     );
   }
-
 
   void _showFilterDialog() {
     showDialog(

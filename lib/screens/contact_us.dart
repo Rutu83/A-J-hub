@@ -11,7 +11,6 @@ class ContactUs extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-
         backgroundColor: Colors.red,
         titleSpacing: 7.w,
         centerTitle: true,
@@ -27,7 +26,6 @@ class ContactUs extends StatelessWidget {
           ),
         ),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -46,7 +44,8 @@ class ContactUs extends StatelessWidget {
   Widget buildImage(String imageUrl) {
     return ClipRRect(
       borderRadius: const BorderRadius.only(topRight: Radius.circular(90)),
-      child: Image.asset(imageUrl, height: 350, width: double.infinity, fit: BoxFit.fill),
+      child: Image.asset(imageUrl,
+          height: 350, width: double.infinity, fit: BoxFit.fill),
     );
   }
 
@@ -89,7 +88,10 @@ class ContactUs extends StatelessWidget {
     );
   }
 
-  Widget buildContactContainer({required String iconPath, required String contactInfo, required VoidCallback onTap}) {
+  Widget buildContactContainer(
+      {required String iconPath,
+      required String contactInfo,
+      required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -118,8 +120,6 @@ class ContactUs extends StatelessWidget {
       ),
     );
   }
-
-
 
   Future<void> _launchUrl(String url) async {
     if (await canLaunch(url)) {

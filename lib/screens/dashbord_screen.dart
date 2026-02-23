@@ -69,17 +69,18 @@ class DashboardScreenState extends State<DashboardScreen> {
 
       setState(() {
         directTeamCount = userDetail['direct_team_count'] ?? 0;
-        
+
         // --- EXTRACTION FOR TRIAL LOGIC ---
         userStatus = userDetail['status'];
         if (userDetail['created_at'] != null) {
           userCreatedAt = DateTime.parse(userDetail['created_at']);
         }
 
-        print("direct count $directTeamCount, CreatedAt: $userCreatedAt, Status: $userStatus");
-        
+        print(
+            "direct count $directTeamCount, CreatedAt: $userCreatedAt, Status: $userStatus");
+
         _isLoading = false;
-        
+
         // Check Trial Expiry immediately after user data is loaded
         _checkTrialStatus();
       });
@@ -125,7 +126,7 @@ class DashboardScreenState extends State<DashboardScreen> {
             print("direct income $directIncome");
 
             // --- CHECK TRIAL EXPIRY (Moved to fetchUserData) ---
-            // _checkTrialStatus(); 
+            // _checkTrialStatus();
           }
         });
       }
@@ -142,26 +143,25 @@ class DashboardScreenState extends State<DashboardScreen> {
     final DateTime now = DateTime.now();
     final int differenceInDays = now.difference(userCreatedAt!).inDays;
 
-    print("Trial Check: Days since creation: $differenceInDays, Status: $userStatus");
+    print(
+        "Trial Check: Days since creation: $differenceInDays, Status: $userStatus");
 
     // If trial expired ( > 7 days) and user is NOT active/paid
     if (differenceInDays >= 7 && userStatus != 'active') {
-      
       print("Trial Expired! Triggering Payment Screen.");
 
       // Show Paywall
       WidgetsBinding.instance.addPostFrameCallback((_) {
         // Double check mounted
         if (mounted) {
-           Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const PremiumPlansScreen()),
-            );
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const PremiumPlansScreen()),
+          );
         }
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

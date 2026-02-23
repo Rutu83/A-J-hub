@@ -1,5 +1,3 @@
-
-
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:ajhub_app/utils/constant.dart';
@@ -9,12 +7,10 @@ import 'package:nb_utils/nb_utils.dart';
 
 part 'app_store.g.dart';
 
-
 // ignore: library_private_types_in_public_api
 class AppStore = _AppStore with _$AppStore;
 
 abstract class _AppStore with Store {
-
   @observable
   String token = '';
 
@@ -41,7 +37,6 @@ abstract class _AppStore with Store {
 
   @observable
   String Status = '';
-
 
   @observable
   String Email = '';
@@ -82,7 +77,6 @@ abstract class _AppStore with Store {
     }
   }
 
-
   @action
   Future<void> setStatus(String val, {bool isInitializing = false}) async {
     try {
@@ -106,7 +100,6 @@ abstract class _AppStore with Store {
       }
     }
   }
-
 
   @action
   Future<void> setToken(String val, {bool isInitializing = false}) async {

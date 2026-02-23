@@ -119,8 +119,7 @@ mixin _$AppStore on _AppStore, Store {
     });
   }
 
-  late final _$NameAtom =
-      Atom(name: '_AppStore.Name', context: context);
+  late final _$NameAtom = Atom(name: '_AppStore.Name', context: context);
 
   @override
   String get Name {
@@ -163,7 +162,7 @@ mixin _$AppStore on _AppStore, Store {
   }
 
   late final _$setStatusAsyncAction =
-  AsyncAction('_AppStore.setstatus', context: context);
+      AsyncAction('_AppStore.setstatus', context: context);
 
   @override
   Future<void> setStatus(String val, {bool isInitializing = false}) {
@@ -171,17 +170,14 @@ mixin _$AppStore on _AppStore, Store {
         .run(() => super.setStatus(val, isInitializing: isInitializing));
   }
 
-
   late final _$setEmailAsyncAction =
-  AsyncAction('_AppStore.setemail', context: context);
+      AsyncAction('_AppStore.setemail', context: context);
 
   @override
   Future<void> setEmail(String val, {bool isInitializing = false}) {
     return _$setEmailAsyncAction
         .run(() => super.setEmail(val, isInitializing: isInitializing));
   }
-
-
 
   late final _$setTokenAsyncAction =
       AsyncAction('_AppStore.setToken', context: context);

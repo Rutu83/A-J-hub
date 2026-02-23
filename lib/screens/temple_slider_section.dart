@@ -132,10 +132,9 @@ class _TempleSliderSectionState extends State<TempleSliderSection> {
                     color: Colors.grey[200],
                     child: const Center(child: CircularProgressIndicator()),
                   ),
-                  errorWidget: (context, url, error) => Container(
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.broken_image, color: Colors.grey),
-                  ),
+
+                  errorWidget: (context, url, error) =>
+                      Image.asset('assets/images/app_logo.png'),
                 )
               else
                 // If the imageUrl is empty, show a placeholder icon instead.

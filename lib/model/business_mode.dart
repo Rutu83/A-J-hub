@@ -7,7 +7,8 @@ class BusinessModal {
   factory BusinessModal.fromJson(Map<String, dynamic> json) {
     return BusinessModal(
       status: json['status'],
-      business: json['business'] != null ? Business.fromJson(json['business']) : null,
+      business:
+          json['business'] != null ? Business.fromJson(json['business']) : null,
     );
   }
 
@@ -53,10 +54,11 @@ class Business {
       directTeamCount: json['direct_team_count'] ?? 0,
       directIncome: json['direct_income'] ?? 0,
       levelDownline: (json['level_downline'] as List<dynamic>?)
-          ?.map((item) => LevelDownline.fromJson(item))
-          .toList() ??
+              ?.map((item) => LevelDownline.fromJson(item))
+              .toList() ??
           [],
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String()),
     );
   }
 
@@ -109,7 +111,8 @@ class LevelDownline {
           ? double.tryParse(json['total_income']) ?? 0.0
           : (json['total_income'] ?? 0.0).toDouble(),
       totalTeamCount: json['total_team_count'] ?? 0,
-      createdAt: DateTime.parse(json['created_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+          json['created_at'] ?? DateTime.now().toIso8601String()),
     );
   }
 

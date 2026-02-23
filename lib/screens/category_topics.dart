@@ -9,10 +9,8 @@ class CategoryTopics extends StatelessWidget {
 
   const CategoryTopics({super.key, required this.title, required this.images});
 
-
   @override
   Widget build(BuildContext context) {
-
     if (images == null || images!.isEmpty) {
       return Scaffold(
         appBar: AppBar(
@@ -56,13 +54,13 @@ class CategoryTopics extends StatelessWidget {
             return InkWell(
               onTap: () {
                 List<String> allImageUrls =
-                images!.map((imgData) => imgData['image'] ?? '').toList();
+                    images!.map((imgData) => imgData['image'] ?? '').toList();
 
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        CategorySelected(imagePaths: allImageUrls, title: title),
+                    builder: (context) => CategorySelected(
+                        imagePaths: allImageUrls, title: title),
                   ),
                 );
               },
@@ -85,10 +83,8 @@ class CategoryTopics extends StatelessWidget {
                         height: double.infinity,
                       ),
                     ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey.shade300,
-                      child: const Icon(Icons.error, color: Colors.red),
-                    ),
+                    errorWidget: (context, url, error) =>
+                        Image.asset('assets/images/app_logo.png'),
                   ),
                 ),
               ),

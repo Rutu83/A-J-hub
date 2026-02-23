@@ -149,11 +149,8 @@ class _TempleOfIndiaSectionState extends State<TempleOfIndiaSection> {
             fit: BoxFit.cover,
             placeholder: (context, url) =>
                 Container(width: 110.w, color: Colors.grey[300]),
-            errorWidget: (context, url, error) => Container(
-              width: 110.w,
-              color: Colors.grey[200],
-              child: const Icon(Icons.error, color: Colors.red),
-            ),
+            errorWidget: (context, url, error) =>
+                Image.asset('assets/images/app_logo.png'),
           ),
         ),
       ),

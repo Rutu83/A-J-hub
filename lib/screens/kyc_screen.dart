@@ -26,20 +26,19 @@ class KycScreenState extends State<KycScreen> {
   final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _aadhaarCardController = TextEditingController();
   final TextEditingController _panCardController = TextEditingController();
-  final TextEditingController _accountHolderNameController = TextEditingController();
-  final TextEditingController _accountNumberController = TextEditingController();
+  final TextEditingController _accountHolderNameController =
+      TextEditingController();
+  final TextEditingController _accountNumberController =
+      TextEditingController();
   final TextEditingController _ifscCodeController = TextEditingController();
   final TextEditingController _bankNameController = TextEditingController();
   String? _bankProofImageUrl;
-
 
   @override
   void initState() {
     super.initState();
     _getKycData();
   }
-
-
 
   Future<void> _getKycData() async {
     const String apiUrl = "${BASE_URL}kyc/submit";
@@ -63,17 +62,22 @@ class KycScreenState extends State<KycScreen> {
         setState(() {
           _kycData = responseData['kyc'];
           _userIdController.text = _kycData?['user_id']?.toString() ?? '';
-          _aadhaarCardController.text = _kycData?['aadhaar_card']?.toString() ?? '';
+          _aadhaarCardController.text =
+              _kycData?['aadhaar_card']?.toString() ?? '';
           _panCardController.text = _kycData?['pan_card']?.toString() ?? '';
-          _accountHolderNameController.text = _kycData?['account_holder_name'] ?? '';
-          _accountNumberController.text = _kycData?['account_number']?.toString() ?? '';
+          _accountHolderNameController.text =
+              _kycData?['account_holder_name'] ?? '';
+          _accountNumberController.text =
+              _kycData?['account_number']?.toString() ?? '';
           _ifscCodeController.text = _kycData?['ifsc_code'] ?? '';
           _bankNameController.text = _kycData?['bank_name'] ?? '';
 
           if (_kycData?['bank_proof'] != null) {
             _bankProofImageUrl = _kycData?['bank_proof'] as String?;
-            if (_bankProofImageUrl != null && !_bankProofImageUrl!.startsWith("http")) {
-              _bankProofImageUrl = "http://ajhub.co.in/storage/app/public/${_bankProofImageUrl!}";
+            if (_bankProofImageUrl != null &&
+                !_bankProofImageUrl!.startsWith("http")) {
+              _bankProofImageUrl =
+                  "http://ajhub.co.in/storage/app/public/${_bankProofImageUrl!}";
             }
           }
         });
@@ -86,7 +90,8 @@ class KycScreenState extends State<KycScreen> {
         String errorMessage = '';
         if (errors != null) {
           if (errors['aadhaar_card'] != null) {
-            errorMessage += 'Aadhaar Card: ${errors['aadhaar_card'].join(', ')}\n';
+            errorMessage +=
+                'Aadhaar Card: ${errors['aadhaar_card'].join(', ')}\n';
           }
           if (errors['pan_card'] != null) {
             errorMessage += 'Pan Card: ${errors['pan_card'].join(', ')}\n';
@@ -95,22 +100,25 @@ class KycScreenState extends State<KycScreen> {
 
         // Show the error message
         if (errorMessage.isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(errorMessage)));
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Validation errors')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Validation errors')));
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to retrieve KYC data')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to retrieve KYC data')));
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
-
 
   Future<void> _pickBankProofImage() async {
     final XFile? pickedFile = await _picker.pickImage(
@@ -156,14 +164,15 @@ class KycScreenState extends State<KycScreen> {
     }
 
     // Check if there are any changes to be made
-    final bool isDataModified =
-        _aadhaarCardController.text != (_kycData?['aadhaar_card'] ?? '') ||
-            _panCardController.text != (_kycData?['pan_card'] ?? '') ||
-            _accountHolderNameController.text != (_kycData?['account_holder_name'] ?? '') ||
-            _accountNumberController.text != (_kycData?['account_number'] ?? '') ||
-            _ifscCodeController.text != (_kycData?['ifsc_code'] ?? '') ||
-            _bankNameController.text != (_kycData?['bank_name'] ?? '') ||
-            _pickedBankProofImage != null;
+    final bool isDataModified = _aadhaarCardController.text !=
+            (_kycData?['aadhaar_card'] ?? '') ||
+        _panCardController.text != (_kycData?['pan_card'] ?? '') ||
+        _accountHolderNameController.text !=
+            (_kycData?['account_holder_name'] ?? '') ||
+        _accountNumberController.text != (_kycData?['account_number'] ?? '') ||
+        _ifscCodeController.text != (_kycData?['ifsc_code'] ?? '') ||
+        _bankNameController.text != (_kycData?['bank_name'] ?? '') ||
+        _pickedBankProofImage != null;
 
     if (!isDataModified) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -231,7 +240,8 @@ class KycScreenState extends State<KycScreen> {
             _kycData = responseData['kyc'] ?? {};
           });
         } else {
-          final errorMessage = responseData['message'] ?? 'Unexpected error occurred';
+          final errorMessage =
+              responseData['message'] ?? 'Unexpected error occurred';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed: $errorMessage')),
           );
@@ -245,13 +255,15 @@ class KycScreenState extends State<KycScreen> {
         String errorMessage = '';
         if (errors != null) {
           if (errors['aadhaar_card'] != null) {
-            errorMessage += 'Aadhaar Card: ${errors['aadhaar_card'].join(', ')}\n';
+            errorMessage +=
+                'Aadhaar Card: ${errors['aadhaar_card'].join(', ')}\n';
           }
           if (errors['pan_card'] != null) {
             errorMessage += 'Pan Card: ${errors['pan_card'].join(', ')}\n';
           }
           if (errors['account_number'] != null) {
-            errorMessage += 'Account Number: ${errors['account_number'].join(', ')}\n';
+            errorMessage +=
+                'Account Number: ${errors['account_number'].join(', ')}\n';
           }
           if (errors['ifsc_code'] != null) {
             errorMessage += 'IFSC Code: ${errors['ifsc_code'].join(', ')}\n';
@@ -263,9 +275,11 @@ class KycScreenState extends State<KycScreen> {
 
         // Show the validation error messages
         if (errorMessage.isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(errorMessage)));
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Validation errors')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Validation errors')));
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -286,10 +300,8 @@ class KycScreenState extends State<KycScreen> {
     }
   }
 
-
   @override
   void dispose() {
-
     _userIdController.dispose();
     _aadhaarCardController.dispose();
     _panCardController.dispose();
@@ -308,85 +320,111 @@ class KycScreenState extends State<KycScreen> {
         title: Text(
           'KYC Verification',
           style: GoogleFonts.poppins(
-            color: Colors.white,  // Title color is white for contrast
-            fontSize: 20,  // Set font size to 20
-            fontWeight: FontWeight.w600,  // Semi-bold font weight for a clean, professional look
+            color: Colors.white, // Title color is white for contrast
+            fontSize: 20, // Set font size to 20
+            fontWeight: FontWeight
+                .w600, // Semi-bold font weight for a clean, professional look
           ),
         ),
-        backgroundColor: Colors.red,  // Red background for a vibrant, classic look
-        centerTitle: true,  // Center the title in the AppBar
+        backgroundColor:
+            Colors.red, // Red background for a vibrant, classic look
+        centerTitle: true, // Center the title in the AppBar
         iconTheme: const IconThemeData(
-          color: Colors.white,  // Icons in the AppBar will be white to match the title
+          color: Colors
+              .white, // Icons in the AppBar will be white to match the title
         ),
-        elevation: 4,  // Slight shadow under the AppBar to give it depth
+        elevation: 4, // Slight shadow under the AppBar to give it depth
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.h),
         child: Column(
           children: [
-
-              SizedBox(height: 12.h),
-              _buildTextField(_aadhaarCardController, 'Aadhaar Card'),
-              SizedBox(height: 16.h),
-              _buildTextField(_panCardController, 'PAN Card'),
-              SizedBox(height: 16.h),
-              _buildTextField(_accountHolderNameController, 'Account Holder Name'),
-              SizedBox(height: 16.h),
-              _buildTextField(_accountNumberController, 'Account Number'),
-              SizedBox(height: 16.h),
-              _buildTextField(_ifscCodeController, 'IFSC Code'),
-              SizedBox(height: 16.h),
-              _buildTextField(_bankNameController, 'Bank Name'),
-              SizedBox(height: 16.h),
-              Text('Bank Proof:', style: TextStyle(fontSize: 16.sp)),
-              SizedBox(height: 8.h),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  _pickedBankProofImage != null
-                      ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
-                    child: Image.file(
-                      _pickedBankProofImage!,
-                      height: 200.h,
-                      width: 200.w,
-                      fit: BoxFit.cover,
+            SizedBox(height: 12.h),
+            _buildTextField(_aadhaarCardController, 'Aadhaar Card'),
+            SizedBox(height: 16.h),
+            _buildTextField(_panCardController, 'PAN Card'),
+            SizedBox(height: 16.h),
+            _buildTextField(
+                _accountHolderNameController, 'Account Holder Name'),
+            SizedBox(height: 16.h),
+            _buildTextField(_accountNumberController, 'Account Number'),
+            SizedBox(height: 16.h),
+            _buildTextField(_ifscCodeController, 'IFSC Code'),
+            SizedBox(height: 16.h),
+            _buildTextField(_bankNameController, 'Bank Name'),
+            SizedBox(height: 16.h),
+            Text('Bank Proof:', style: TextStyle(fontSize: 16.sp)),
+            SizedBox(height: 8.h),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                _pickedBankProofImage != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12.0),
+                        child: Image.file(
+                          _pickedBankProofImage!,
+                          height: 200.h,
+                          width: 200.w,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : _kycData != null && _bankProofImageUrl != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(12.0),
+                            child: CachedNetworkImage(
+                              imageUrl: _bankProofImageUrl ?? '',
+                              height: 200.0,
+                              width: 200.0,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  const CircularProgressIndicator(),
+                              errorWidget: (context, url, error) =>
+                                  Image.asset('assets/images/app_logo.png'),
+                            ),
+                          )
+                        : ClipRRect(
+                            borderRadius: BorderRadius.circular(12.0),
+                            child: Image.asset(
+                              'assets/images/placeholder.jpg',
+                              height: 200.h,
+                              width: 200.w,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: ElevatedButton(
+                    onPressed: _pickBankProofImage,
+                    style: ButtonStyle(
+                      backgroundColor:
+                          WidgetStateProperty.all<Color>(Colors.white),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                          side: const BorderSide(color: Colors.red),
+                        ),
+                      ),
                     ),
-                  )
-                      : _kycData != null && _bankProofImageUrl != null
-                      ?ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
-                    child: CachedNetworkImage(
-                      imageUrl: _bankProofImageUrl ?? '',
-                      height: 200.0,
-                      width: 200.0,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const CircularProgressIndicator(),
-                      errorWidget: (context, url, error) {
-                        if (kDebugMode) {
-                          print("Error loading image: $error");
-                        }
-                        return Image.asset('assets/images/placeholder.jpg');
-                      },
-                    ),
-                  )
-
-                      : ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
-                    child: Image.asset(
-                      'assets/images/placeholder.jpg',
-                      height: 200.h,
-                      width: 200.w,
-                      fit: BoxFit.cover,
+                    child: const Icon(
+                      Icons.add_a_photo_outlined,
+                      color: Colors.red,
                     ),
                   ),
+                ),
+                if (_pickedBankProofImage != null)
                   Positioned(
                     bottom: 0,
-                    right: 0,
+                    left: 0,
                     child: ElevatedButton(
-                      onPressed: _pickBankProofImage,
+                      onPressed: () {
+                        setState(() {
+                          _pickedBankProofImage = null;
+                        });
+                      },
                       style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
+                        backgroundColor:
+                            WidgetStateProperty.all<Color>(Colors.white),
                         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                           RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12.0),
@@ -395,131 +433,115 @@ class KycScreenState extends State<KycScreen> {
                         ),
                       ),
                       child: const Icon(
-                        Icons.add_a_photo_outlined,
+                        Icons.refresh_outlined,
                         color: Colors.red,
                       ),
                     ),
                   ),
-
-                  if (_pickedBankProofImage != null)
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _pickedBankProofImage = null;
-                          });
-                        },
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all<Color>(Colors.white),
-                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
-                              side: const BorderSide(color: Colors.red),
-                            ),
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.refresh_outlined,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-
+              ],
+            ),
             SizedBox(height: 24.h),
             Center(
               child: ElevatedButton(
                 onPressed: _updateKycData,
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(Colors.red.shade400),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.red.shade400),
                   padding: MaterialStateProperty.all<EdgeInsets>(
                     const EdgeInsets.symmetric(vertical: 18, horizontal: 40),
                   ),
-                  minimumSize: MaterialStateProperty.all<Size>(const Size(400, 60)),
+                  minimumSize:
+                      MaterialStateProperty.all<Size>(const Size(400, 60)),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),  // More pronounced rounded corners
+                      borderRadius: BorderRadius.circular(
+                          30.0), // More pronounced rounded corners
                     ),
                   ),
-                  elevation: MaterialStateProperty.all(5), // Adding elevation for shadow effect
+                  elevation: MaterialStateProperty.all(
+                      5), // Adding elevation for shadow effect
                 ),
                 child: _isLoading
                     ? Shimmer.fromColors(
-                  baseColor: Colors.grey.shade500,
-                  highlightColor: Colors.white,
-                  child: Text(
-                    'Updating KYC Data...',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                )
+                        baseColor: Colors.grey.shade500,
+                        highlightColor: Colors.white,
+                        child: Text(
+                          'Updating KYC Data...',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
                     : Text(
-                  'Update KYC Data',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                        'Update KYC Data',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
           ],
         ),
       ),
-
     );
-
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, {TextInputType inputType = TextInputType.text}) {
+  Widget _buildTextField(TextEditingController controller, String label,
+      {TextInputType inputType = TextInputType.text}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 10.0),
       child: TextFormField(
         controller: controller,
-        keyboardType: inputType,  // Adjust input type (keyboard) based on the field
+        keyboardType:
+            inputType, // Adjust input type (keyboard) based on the field
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.poppins(  // Using Poppins font for label
+          labelStyle: GoogleFonts.poppins(
+            // Using Poppins font for label
             color: Colors.black,
             fontSize: 16.0,
-            fontWeight: FontWeight.bold,  // Make the label bold
+            fontWeight: FontWeight.bold, // Make the label bold
           ),
-          hintStyle: GoogleFonts.poppins(  // Using Poppins font for hint text
+          hintStyle: GoogleFonts.poppins(
+            // Using Poppins font for hint text
             color: Colors.black.withOpacity(0.6),
             fontSize: 16.0,
           ),
-          filled: true,  // Fill the background with color
-          fillColor: Colors.grey.shade100,  // Light grey background
-          contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 18.0),
+          filled: true, // Fill the background with color
+          fillColor: Colors.grey.shade100, // Light grey background
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 15.0, horizontal: 18.0),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30.0),  // Rounded corners
+            borderRadius: BorderRadius.circular(30.0), // Rounded corners
             borderSide: const BorderSide(
               color: Colors.black,
               width: 1.5,
             ),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30.0),  // Rounded corners when focused
+            borderRadius:
+                BorderRadius.circular(30.0), // Rounded corners when focused
             borderSide: const BorderSide(
-              color: Colors.red,  // Blue color for focused state
+              color: Colors.red, // Blue color for focused state
               width: 2.0,
             ),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30.0),  // Rounded corners when enabled
+            borderRadius:
+                BorderRadius.circular(30.0), // Rounded corners when enabled
             borderSide: BorderSide(
-              color: Colors.black.withOpacity(0.6),  // Slightly faded color when not focused
+              color: Colors.black
+                  .withOpacity(0.6), // Slightly faded color when not focused
               width: 1.5,
             ),
           ),
         ),
-        style: GoogleFonts.poppins(  // Using Poppins font for the input text
+        style: GoogleFonts.poppins(
+          // Using Poppins font for the input text
           color: Colors.black,
           fontSize: 16.0,
         ),
@@ -527,7 +549,3 @@ class KycScreenState extends State<KycScreen> {
     );
   }
 }
-
-
-
-

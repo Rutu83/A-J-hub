@@ -896,10 +896,10 @@ class _DocumentLockerContentPageState extends State<DocumentLockerContentPage> {
                   child: CachedNetworkImage(
                     imageUrl: doc.imageUrl,
                     fit: BoxFit.cover,
-                    placeholder: (context, url) => Center(
-                        child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) => const Center(
-                        child: Icon(Icons.error, color: Colors.red)),
+                    placeholder: (context, url) =>
+                        Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) =>
+                        Image.asset('assets/images/app_logo.png'),
                   ),
                 ),
                 Container(

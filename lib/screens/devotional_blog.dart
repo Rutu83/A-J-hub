@@ -51,7 +51,8 @@ class _DevotionalCategorySectionState extends State<DevotionalCategorySection>
       future: _dailyItems,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting &&
-            !snapshot.hasData) { // Only show loading if no data
+            !snapshot.hasData) {
+          // Only show loading if no data
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -85,7 +86,8 @@ class _DevotionalCategorySectionState extends State<DevotionalCategorySection>
   Widget _buildGrid(List<DevotationCategory> items) {
     // Use MediaQuery to determine responsiveness
     final double screenWidth = MediaQuery.of(context).size.width;
-    final int crossAxisCount = screenWidth > 600 ? 6 : 4; // 6 for tablets, 4 for phones
+    final int crossAxisCount =
+        screenWidth > 600 ? 6 : 4; // 6 for tablets, 4 for phones
 
     int rowCount = (items.length / crossAxisCount).ceil();
     double rowHeight = 120.h;
@@ -155,12 +157,9 @@ class _DevotionalCategorySectionState extends State<DevotionalCategorySection>
                   ),
                 ),
               ),
-              errorWidget: (context, url, error) => Container(
-                width: 80.w,
-                height: 68.h,
-                color: Colors.grey[200],
-                child: const Icon(Icons.error, color: Colors.red),
-              ),
+
+              errorWidget: (context, url, error) =>
+                  Image.asset('assets/images/app_logo.png'),
             ),
           ),
           SizedBox(height: 2.h), // Reduced from 4.h

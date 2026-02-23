@@ -10,10 +10,10 @@ class FeedbackScreen extends StatefulWidget {
   const FeedbackScreen({super.key});
 
   @override
-   FeedbackScreenState createState() =>  FeedbackScreenState();
+  FeedbackScreenState createState() => FeedbackScreenState();
 }
 
-class  FeedbackScreenState extends State<FeedbackScreen> {
+class FeedbackScreenState extends State<FeedbackScreen> {
   double _selectedRating = -1; // Initial rating not selected
   String _feedbackText = ""; // Feedback text
   final int _maxCharacters = 2048;
@@ -132,11 +132,14 @@ class  FeedbackScreenState extends State<FeedbackScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: _isLoading ? null : () {
-                  _submitFeedback(); // Only allow button press if not loading
-                },
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        _submitFeedback(); // Only allow button press if not loading
+                      },
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 12.0, horizontal: 20.0),
                   elevation: 5,
                   shadowColor: Colors.redAccent,
                   backgroundColor: Colors.red,
@@ -146,16 +149,16 @@ class  FeedbackScreenState extends State<FeedbackScreen> {
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                )
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
                     : const Text(
-                  "Submit Feedback",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+                        "Submit Feedback",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ],
           ),
@@ -383,12 +386,14 @@ class  FeedbackScreenState extends State<FeedbackScreen> {
                   Navigator.pop(context); // Close the bottom sheet
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const DashboardScreen()),
                   ); // Navigate to DashboardScreen
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -405,5 +410,3 @@ class  FeedbackScreenState extends State<FeedbackScreen> {
     );
   }
 }
-
-

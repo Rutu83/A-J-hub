@@ -447,10 +447,9 @@ class BusinessCard extends StatelessWidget {
                                     height: 70.r * 2,
                                     placeholder: (context, url) =>
                                         const CupertinoActivityIndicator(),
-                                    errorWidget: (context, url, error) => Icon(
-                                        Icons.business_center,
-                                        size: 30.r,
-                                        color: Colors.grey.shade400),
+                                    errorWidget: (context, url, error) =>
+                                        Image.asset(
+                                            'assets/images/app_logo.png'),
                                   )
                                 : Icon(Icons.business_center,
                                     size: 30.r, color: Colors.grey.shade400),
@@ -475,9 +474,8 @@ class BusinessCard extends StatelessWidget {
                                         placeholder: (context, url) =>
                                             const CupertinoActivityIndicator(),
                                         errorWidget: (context, url, error) =>
-                                            Icon(Icons.person,
-                                                size: 15.r,
-                                                color: Colors.grey.shade400),
+                                            Image.asset(
+                                                'assets/images/app_logo.png'),
                                       )
                                     : Icon(Icons.person,
                                         size: 15.r,
