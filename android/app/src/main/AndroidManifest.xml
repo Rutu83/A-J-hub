@@ -17,7 +17,7 @@
     </queries>
 
     <application
-
+        android:usesCleartextTraffic="true"
         android:label="Aj Hub"
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/LaunchTheme"

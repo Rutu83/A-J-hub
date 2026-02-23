@@ -767,11 +767,22 @@ Future<Map<String, dynamic>> initiateAirpayPayment({
   required String paymentId,
   required int planId,
   required String period,
+  String? chmod,
 }) async {
   try {
     final String apiUrl = '${BASE_URL}airpay/initiate';
     print('--- 🚀 [POST] Initiate Airpay 🚀 ---');
     print('URL: $apiUrl');
+
+    final Map<String, dynamic> requestBody = {
+      'payment_id': paymentId,
+      'plan_id': planId,
+      'period': period,
+    };
+
+    if (chmod != null) {
+      requestBody['chmod'] = chmod;
+    }
 
     final response = await http.post(
       Uri.parse(apiUrl),
@@ -782,11 +793,7 @@ Future<Map<String, dynamic>> initiateAirpayPayment({
         if (appStore.token.isNotEmpty)
           "Authorization": "Bearer ${appStore.token}",
       },
-      body: jsonEncode({
-        'payment_id': paymentId,
-        'plan_id': planId,
-        'period': period,
-      }),
+      body: jsonEncode(requestBody),
     );
 
     print('--- 👽 [POST] Response 👽 ---');

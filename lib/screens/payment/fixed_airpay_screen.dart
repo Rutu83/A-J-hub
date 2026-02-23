@@ -1,10 +1,9 @@
+import 'package:airpay_flutter_v4/screens/airpay_home_intent.dart';
 import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:ajhub_app/utils/colors.dart';
 import 'package:ajhub_app/utils/configs.dart';
 import 'package:flutter/material.dart';
-import 'package:airpay_flutter_v4/screens/airpay_home_intent.dart';
 import 'package:airpay_flutter_v4/model/UserRequest.dart';
-import 'package:airpay_flutter_v4/model/Transaction.dart';
 import 'package:nb_utils/nb_utils.dart';
 
 class FixedAirpayScreen extends StatefulWidget {
@@ -49,6 +48,7 @@ class _FixedAirpayScreenState extends State<FixedAirpayScreen> {
         paymentId: paymentId,
         planId: widget.planId,
         period: widget.period,
+        chmod: 'upi',
       );
       print('>>> [FixedAirpay] Backend Response: $response');
 
@@ -76,7 +76,7 @@ class _FixedAirpayScreenState extends State<FixedAirpayScreen> {
           currency: '356', // INR numeric code
           isocurrency: 'INR',
           sb_amount: '', // Blank as per Airpay team
-
+          chmod: 'upi',
           // Buyer details
           buyerEmail: data['buyer_email'] ?? '',
           buyerPhone: data['buyer_phone'] ?? '',
@@ -90,12 +90,11 @@ class _FixedAirpayScreenState extends State<FixedAirpayScreen> {
 
           // URLs
           protoDomain: (data['is_staging'] ?? true)
-              ? 'https://payments.airpay.ninja/pay/v4/'
-              : 'https://payments.airpay.co.in/pay/v4/',
+              ? '${BASE_URL}pay/v4/'
+              : '${BASE_URL}pay/v4/',
 
-          chmod: 'upi',
           successUrl: '$BASE_URL/api/airpay/success',
-          failedUrl: 'https://payments.airpay.co.in/error.php',
+          failedUrl: '$BASE_URL/',
 
           // App customization
           appName: 'AJ Hub',
@@ -131,6 +130,7 @@ class _FixedAirpayScreenState extends State<FixedAirpayScreen> {
         print('    ProtoDomain: ${userRequest?.protoDomain}');
         print('    Success URL: ${userRequest?.successUrl}');
         print('    Failed URL: ${userRequest?.failedUrl}');
+        print('    Chmod: ${userRequest?.chmod}');
 
         setState(() {
           isLoading = false;
@@ -146,34 +146,28 @@ class _FixedAirpayScreenState extends State<FixedAirpayScreen> {
       }
     } catch (e) {
       setState(() {
-        errorMessage = 'Error: \$e';
+        errorMessage = 'Error: $e';
         isLoading = false;
       });
       print('>>> [FixedAirpay] Init Catch Error: $e');
     }
   }
 
-  void _handlePaymentResponse(bool success, Transaction response) {
+  void _handlePaymentResponse(bool success, dynamic response) {
     print('>>> [FixedAirpay] _handlePaymentResponse called');
     print('>>> [FixedAirpay] Success: $success');
     try {
-      print('>>> [FixedAirpay] Transaction Dump: ${response.toJson()}');
+      print('>>> [FixedAirpay] Response Dump: $response');
     } catch (e) {
-      print('>>> [FixedAirpay] Transaction Dump Error: $e');
+      print('>>> [FixedAirpay] Dump Error: $e');
     }
-    // print('>>> [FixedAirpay] Transaction ID: ${response.TRANSACTIONID}'); // Removed due to lint error
-    // print('>>> [FixedAirpay] Transaction Status: ${response.TRANSSTATUS}'); // Removed due to lint error
-    // print('>>> [FixedAirpay] Transaction Msg: ${response.STATUSMSG}'); // Removed due to lint error
 
     Navigator.pop(context); // Go back to previous screen
 
     if (success) {
-      // toast('Payment Successful: Order ${response.oRDERID ?? ""}');
       toast('Payment Successful');
       // Handle successful payment
-      // You can navigate to success page or update UI
     } else {
-      // toast('Payment Failed: ${response.sTATUSMSG ?? "Unknown error"}', bgColor: Colors.red);
       toast('Payment Failed', bgColor: Colors.red);
       // Handle failed payment
     }
@@ -232,9 +226,11 @@ class _FixedAirpayScreenState extends State<FixedAirpayScreen> {
     }
 
     // Use the official Airpay SDK widget
-    return AirPay(
-      user: userRequest!,
-      closure: _handlePaymentResponse,
+    return Scaffold(
+      body: AirPay(
+        user: userRequest!,
+        closure: _handlePaymentResponse,
+      ),
     );
   }
 }
