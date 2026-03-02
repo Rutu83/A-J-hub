@@ -19,10 +19,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   // Data for the onboarding pages using your provided images.
   final List<String> _onboardingImages = [
-    "assets/images/onboarding_1.jpg",
-    "assets/images/onboarding_2.jpg",
-    "assets/images/onboarding_3.jpg",
-    "assets/images/onboarding_4.jpg",
+    "assets/images/onboarding_1.jpeg",
+    "assets/images/onboarding_2.jpeg",
+    "assets/images/onboarding_3.jpeg",
   ];
 
   /// Marks onboarding as complete and navigates to the chosen auth screen.

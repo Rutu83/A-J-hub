@@ -102,6 +102,7 @@ class ActiveUserPageState extends State<ActiveUserPage> {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(
@@ -120,11 +121,13 @@ class ActiveUserPageState extends State<ActiveUserPage> {
           errorMessage = errorData['error'];
         }
 
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage)),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Network error: $e')),
       );
@@ -292,7 +295,7 @@ class ActiveUserPageState extends State<ActiveUserPage> {
                                                           return Container(
                                                             margin:
                                                                 const EdgeInsets
-                                                                        .symmetric(
+                                                                    .symmetric(
                                                                     vertical: 4,
                                                                     horizontal:
                                                                         16),

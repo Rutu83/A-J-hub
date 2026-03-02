@@ -3,7 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/model/business_mode.dart';
 import 'package:ajhub_app/model/categories_mode.dart';
@@ -59,9 +59,9 @@ Future<void> saveUserDataMobile(
   await appStore.setEmail(data.email.validate());
   await appStore.setStatus(data.status.validate());
   appStore.setLoading(false);
-  if (appStore.isLoggedIn) {
-    //getAppConfigurations();
-  }
+
+  // Load plan limits so FeatureGate widgets know what this user can access
+  fetchAndStorePlanLimits(userPlanId: data.subscriptionPlanId);
 }
 
 // get user profile
@@ -234,7 +234,7 @@ Future<List<Temple>> fetchTemples() async {
 
     if (response.statusCode == 200) {
       // Decode the JSON response into a Map.
-      final dynamic decodedBody = jsonDecode(response.body);
+      final dynamic decodedBody = await compute(jsonDecode, response.body);
 
       // --- ROBUST HANDLING ---
       // 1. Check if the decoded body is a Map and contains the 'data' key.
@@ -281,7 +281,7 @@ Future<List<NotificationModel>> fetchNotification() async {
 
     if (response.statusCode == 200) {
       // Decode the JSON response into a Map.
-      final dynamic decodedBody = jsonDecode(response.body);
+      final dynamic decodedBody = await compute(jsonDecode, response.body);
 
       // --- ROBUST HANDLING ---
       // 1. Check if the decoded body is a Map and contains the 'data' key.
@@ -759,6 +759,42 @@ Future<List<SubscriptionPlan>> getSubscriptionPlans() async {
     print('--- 💥 [GET] Failed to load plans 💥 ---');
     print('Error: $e');
     rethrow;
+  }
+}
+
+/// Fetch the subscription plans and store the limits of the user's current plan.
+/// Call this after login and after a successful payment.
+/// [userPlanId] = the plan ID stored on the user (from the profile/login API).
+Future<void> fetchAndStorePlanLimits({int? userPlanId}) async {
+  try {
+    final plans = await getSubscriptionPlans();
+    if (plans.isEmpty) return;
+
+    SubscriptionPlan? userPlan;
+
+    if (userPlanId != null && userPlanId > 0) {
+      // Find the user's specific plan
+      userPlan = plans.firstWhere(
+        (p) => p.id == userPlanId,
+        orElse: () => plans.first,
+      );
+    } else {
+      // No plan assigned — user has no subscription, use empty limits
+      appStore.setPlanLimits(PlanLimits.empty);
+      print('⚠️ No plan ID — using empty limits');
+      return;
+    }
+
+    appStore.setPlanLimits(userPlan.limits);
+    appStore
+        .setPlanName(userPlan.name); // ✅ Store plan name for HomeAppBar badge
+    print('✅ Plan limits loaded for plan: ${userPlan.name}');
+    print('   Download/day: ${userPlan.limits.downloadPosterDaily}');
+    print('   Business seminar: ${userPlan.limits.businessSeminar}');
+    print('   Plan A Day: ${userPlan.limits.planADay}');
+  } catch (e) {
+    print('⚠️ Could not fetch plan limits: $e');
+    // Fail silently — don't block login on this
   }
 }
 

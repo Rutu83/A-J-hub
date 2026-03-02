@@ -31,9 +31,6 @@ class _BusinessScreenState extends State<BusinessScreen> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-    ));
     futureBusiness = fetchBusinessData();
   }
 

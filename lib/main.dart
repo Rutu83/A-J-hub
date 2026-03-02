@@ -21,6 +21,7 @@ import 'package:ajhub_app/network/notification_service.dart'
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -67,8 +68,23 @@ Future<void> main() async {
   }
   await setupFlutterNotifications(); // Set up notifications
   await initialize();
-  await initialize();
   localeLanguageList = languageList();
+
+  // ✅ Match status bar to app's white theme
+  // White bar + dark icons so time/battery are always visible
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.white, // solid white — never black on any device
+    statusBarIconBrightness: Brightness.dark, // dark icons (for white bg)
+    statusBarBrightness: Brightness.light, // iOS equivalent
+    systemNavigationBarColor: Colors.white, // bottom nav bar
+    systemNavigationBarIconBrightness: Brightness.dark,
+  ));
+
+  // Lock orientation to portrait
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   await appStore.setLoggedIn(getBoolAsync(IS_LOGGED_IN), isInitializing: true);
   await appStore.setLoggedIn(getBoolAsync(IS_LOGGED_IN));
 
@@ -199,9 +215,21 @@ class MyApp extends StatelessWidget {
             );
 
             // Return a new MediaQuery with the overridden data, wrapping your app.
-            return MediaQuery(
-              data: constrainedTextScale,
-              child: widget!,
+            // ✅ AnnotatedRegion applies white status bar (dark icons) to EVERY screen
+            // globally — no need to add per-screen AppBar or SystemChrome calls.
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: const SystemUiOverlayStyle(
+                statusBarColor:
+                    Colors.white, // solid white on all Android versions
+                statusBarIconBrightness: Brightness.dark, // Android: dark icons
+                statusBarBrightness: Brightness.light, // iOS: dark icons
+                systemNavigationBarColor: Colors.white,
+                systemNavigationBarIconBrightness: Brightness.dark,
+              ),
+              child: MediaQuery(
+                data: constrainedTextScale,
+                child: widget!,
+              ),
             );
           },
           // END OF NEW CODE
@@ -217,6 +245,17 @@ class MyApp extends StatelessWidget {
               color: Colors.white,
             ),
             textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
+            // ✅ AppBar matches white theme — no colored bar bleeding through
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
+              elevation: 0,
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: Colors.white,
+                statusBarIconBrightness: Brightness.dark,
+                statusBarBrightness: Brightness.light,
+              ),
+            ),
           ),
           home: const SplashScreen(),
         );

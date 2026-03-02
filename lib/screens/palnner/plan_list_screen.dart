@@ -551,9 +551,10 @@ class _PlanListScreenState extends State<PlanListScreen> {
       return _buildEmptyState();
     }
 
-    return ListView(
+    return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      children: listItems,
+      itemCount: listItems.length,
+      itemBuilder: (context, index) => listItems[index],
     );
   }
 

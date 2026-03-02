@@ -180,22 +180,6 @@ mixin _$AppStore on _AppStore, Store {
     });
   }
 
-  late final _$planNameAtom =
-      Atom(name: '_AppStore.planName', context: context);
-
-  @override
-  String get planName {
-    _$planNameAtom.reportRead();
-    return super.planName;
-  }
-
-  @override
-  set planName(String value) {
-    _$planNameAtom.reportWrite(value, super.planName, () {
-      super.planName = value;
-    });
-  }
-
   late final _$setLoggedInAsyncAction =
       AsyncAction('_AppStore.setLoggedIn', context: context);
 
@@ -265,17 +249,6 @@ mixin _$AppStore on _AppStore, Store {
   }
 
   @override
-  void setPlanName(String name) {
-    final _$actionInfo =
-        _$_AppStoreActionController.startAction(name: '_AppStore.setPlanName');
-    try {
-      return super.setPlanName(name);
-    } finally {
-      _$_AppStoreActionController.endAction(_$actionInfo);
-    }
-  }
-
-  @override
   void setLoading(bool val) {
     final _$actionInfo =
         _$_AppStoreActionController.startAction(name: '_AppStore.setLoading');
@@ -321,8 +294,7 @@ number: ${number},
 Name: ${Name},
 Status: ${Status},
 Email: ${Email},
-planLimits: ${planLimits},
-planName: ${planName}
+planLimits: ${planLimits}
     ''';
   }
 }

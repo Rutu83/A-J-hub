@@ -154,6 +154,7 @@ class _AirpayPaymentScreenState extends State<AirpayPaymentScreen> {
             planId: widget.planId,
             period: widget.period,
             amount: widget.amount.toString(),
+            paymentData: credentials,
           ),
           // builder: (context) => NewAirpayScreen(
           //   user: user,

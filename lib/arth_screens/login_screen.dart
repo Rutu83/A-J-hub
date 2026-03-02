@@ -82,6 +82,7 @@ class LoginScreenState extends State<LoginScreen>
     log(request);
 
     await loginCurrentAdminMobile(context, req: request).then((value) async {
+      if (!mounted) return;
       // --- MODIFIED: The success callback is now async to handle the business fetch ---
       saveDataToAdminPreferenceMobile(context,
           loginResponse: value,
@@ -211,6 +212,7 @@ class LoginScreenState extends State<LoginScreen>
     // ... (This function remains unchanged)
     var pref = await SharedPreferences.getInstance();
     pref.setBool(SplashScreenState.keyLogin, true);
+    if (!mounted) return;
     const DashboardScreen().launch(context,
         isNewTask: true, pageRouteAnimation: PageRouteAnimation.Fade);
   }

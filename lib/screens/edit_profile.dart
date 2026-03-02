@@ -49,9 +49,6 @@ class _EditProfileState extends State<EditProfile> {
   void initState() {
     super.initState();
     init();
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-    ));
     fetchUserData();
   }
 

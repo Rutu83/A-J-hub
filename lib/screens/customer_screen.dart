@@ -39,9 +39,6 @@ class CustomerScreenState extends State<CustomerScreen>
   @override
   void initState() {
     super.initState();
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-    ));
 
     _controller = AnimationController(
       vsync: this,
@@ -221,9 +218,10 @@ class CustomerScreenState extends State<CustomerScreen>
           SizedBox(height: 5.h),
           SizedBox(
             height: 120.h,
-            child: ListView(
+            child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              children: items,
+              itemCount: items.length,
+              itemBuilder: (context, index) => items[index],
             ),
           ),
           SizedBox(height: 5.h),
@@ -289,10 +287,15 @@ class CustomerScreenState extends State<CustomerScreen>
   }
 
   Widget _buildNetworkImage(String url) {
-    return Image.network(
-      url,
+    return CachedNetworkImage(
+      imageUrl: url,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) =>
+      placeholder: (context, url) => Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(color: Colors.white),
+      ),
+      errorWidget: (context, url, error) =>
           Image.asset('assets/images/app_logo.png'),
     );
   }
@@ -587,9 +590,10 @@ class CustomerScreenState extends State<CustomerScreen>
             SizedBox(height: 5.h),
             SizedBox(
               height: 110.h,
-              child: ListView(
+              child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                children: items,
+                itemCount: items.length,
+                itemBuilder: (context, index) => items[index],
               ),
             ),
             SizedBox(height: 5.h),
@@ -795,9 +799,10 @@ class CustomerScreenState extends State<CustomerScreen>
           SizedBox(height: 5.h),
           SizedBox(
             height: 110.h,
-            child: ListView(
+            child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              children: items,
+              itemCount: items.length,
+              itemBuilder: (context, index) => items[index],
             ),
           ),
         ],

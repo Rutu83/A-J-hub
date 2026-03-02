@@ -3,10 +3,12 @@ import 'dart:io';
 
 import 'package:ajhub_app/arth_screens/login_screen.dart';
 import 'package:ajhub_app/main.dart';
+import 'package:ajhub_app/screens/payment/premium_plans_screen.dart';
 import 'package:ajhub_app/splash_screen.dart';
 import 'package:ajhub_app/utils/common.dart';
 import 'package:ajhub_app/utils/configs.dart';
 import 'package:ajhub_app/utils/constant.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:nb_utils/nb_utils.dart';
@@ -81,7 +83,7 @@ Future<String> refreshToken() async {
   );
 
   if (response.statusCode == 200) {
-    final data = jsonDecode(response.body);
+    final data = await compute(jsonDecode, response.body);
     appStore.token = data['access_token'];
     return data['access_token'];
   } else {
@@ -137,6 +139,26 @@ Future handleResponse(http.Response response,
   } else if (response.statusCode == 400) {
     throw language.badRequest;
   } else if (response.statusCode == 403) {
+    // Check if this is a subscription enforcement 403 from CheckSubscription middleware
+    try {
+      final body =
+          await compute(jsonDecode, response.body) as Map<String, dynamic>;
+      final code = body['code'] as String?;
+      if (code == 'SUBSCRIPTION_EXPIRED' || code == 'SUBSCRIPTION_INACTIVE') {
+        // Redirect to PremiumPlansScreen instead of throwing a generic error
+        log('[Subscription] $code — redirecting to plans screen');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          navigatorKeyNew.currentState?.push(
+            MaterialPageRoute(
+              builder: (_) => const PremiumPlansScreen(),
+            ),
+          );
+        });
+        throw body['message'] ?? language.forbidden;
+      }
+    } catch (e) {
+      if (e is String) rethrow; // rethrow the subscription message we set above
+    }
     throw language.forbidden;
   } else if (response.statusCode == 404) {
     throw language.pageNotFound;
@@ -154,11 +176,12 @@ Future handleResponse(http.Response response,
   }
 
   if (response.statusCode.isSuccessful() || response.statusCode == 200) {
-    return jsonDecode(response.body);
+    return await compute(jsonDecode, response.body);
   } else {
     if (isSadadPayment.validate()) {
       try {
-        var body = jsonDecode(response.body);
+        var body =
+            await compute(jsonDecode, response.body) as Map<String, dynamic>;
         throw parseHtmlString(body['error']['message']);
       } on Exception catch (e) {
         log(e);
@@ -166,7 +189,8 @@ Future handleResponse(http.Response response,
       }
     } else {
       try {
-        var body = jsonDecode(response.body);
+        var body =
+            await compute(jsonDecode, response.body) as Map<String, dynamic>;
         throw parseHtmlString(body['message']);
       } on Exception catch (e) {
         log(e);

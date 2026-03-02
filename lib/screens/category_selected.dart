@@ -9,9 +9,9 @@ import 'package:ajhub_app/dynamic_fram/fram_3.dart';
 import 'package:ajhub_app/dynamic_fram/fram_4.dart';
 import 'package:ajhub_app/dynamic_fram/fram_5.dart';
 import 'package:ajhub_app/network/rest_apis.dart';
-import 'package:ajhub_app/screens/active_user_screen2.dart';
-import 'package:ajhub_app/screens/payment/premium_plans_screen.dart';
+
 import 'package:ajhub_app/screens/category_edit_business_form.dart';
+import 'package:ajhub_app/screens/locked_feature_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,12 +19,15 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gallery_saver_plus/gallery_saver.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ajhub_app/main.dart';
+import 'package:ajhub_app/utils/configs.dart';
 
 import 'business_form.dart';
-import 'package:shimmer/shimmer.dart'; // Import Shimmer package
+import 'package:shimmer/shimmer.dart';
 
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -105,15 +108,15 @@ class CategorySelectedState extends State<CategorySelected> {
     super.dispose();
   }
 
-  // --- NEW CODE ADDED: This function shows the popup ---
+  // Checks current business count against the plan limit and navigates accordingly.
+  // Called when user has no active business stored — prompts them to add one.
   void _showAddBusinessPopup() {
-    // Ensures the dialog is shown after the current build cycle is complete.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return; // Check if the widget is still in the tree
+      if (!mounted) return;
 
       showDialog(
         context: context,
-        barrierDismissible: false, // User must interact with the dialog
+        barrierDismissible: false,
         builder: (BuildContext dialogContext) {
           return AlertDialog(
             shape:
@@ -127,7 +130,7 @@ class CategorySelectedState extends State<CategorySelected> {
               TextButton(
                 child: const Text('Maybe Later'),
                 onPressed: () {
-                  Navigator.of(dialogContext).pop(); // Just close the dialog
+                  Navigator.of(dialogContext).pop();
                 },
               ),
               ElevatedButton(
@@ -137,14 +140,65 @@ class CategorySelectedState extends State<CategorySelected> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8)),
                 ),
-                onPressed: () {
-                  Navigator.of(dialogContext).pop(); // Close the dialog first
-                  // Navigate to the form to add/edit business details
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const BusinessForm()),
-                  );
+                onPressed: () async {
+                  Navigator.of(dialogContext).pop();
+
+                  // ✅ PLAN LIMIT CHECK — mirrors FeatureGate._hasAccess() logic exactly:
+                  //   inactive user → trial limit of 1 (matches FeatureGate hardcoded trial logic)
+                  //   active user   → read plan limit; 0 means feature is blocked entirely
+                  try {
+                    final response = await http.get(
+                      Uri.parse('${BASE_URL}getbusinessprofile'),
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ${appStore.token}',
+                      },
+                    );
+                    int currentCount = 0;
+                    if (response.statusCode == 200) {
+                      final data =
+                          (json.decode(response.body)['data'] as List?);
+                      currentCount = data?.length ?? 0;
+                    }
+
+                    bool allowed;
+                    if (appStore.Status == 'inactive') {
+                      // Trial: max 1 business (same as FeatureGate trial logic)
+                      allowed = currentCount < 1;
+                    } else {
+                      final limit =
+                          appStore.planLimits.getLimit('add_business');
+                      // limit=0 → feature blocked entirely (don't fallback)
+                      allowed = limit > 0 && currentCount < limit;
+                    }
+
+                    if (!allowed) {
+                      if (mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const LockedFeatureScreen(
+                              featureName: 'Add Business',
+                              description:
+                                  'You have reached your plan limit for adding businesses. Upgrade your plan to add more.',
+                              icon: Icons.business,
+                            ),
+                          ),
+                        );
+                      }
+                      return;
+                    }
+                  } catch (_) {
+                    // If API fails, allow navigation (fail open for UX)
+                  }
+
+                  if (mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const BusinessForm()),
+                    );
+                  }
                 },
                 child: const Text('Add Details'),
               ),
@@ -202,6 +256,7 @@ class CategorySelectedState extends State<CategorySelected> {
       }
       await _loadFrames();
     } catch (error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error loading data: $error'),
@@ -216,7 +271,7 @@ class CategorySelectedState extends State<CategorySelected> {
   }
 
   Future<void> _loadFrames() async {
-    frameWidgets = [
+    final allFrames = [
       Fram1(
           businessName: businessName,
           phoneNumber: mobileNumber,
@@ -248,46 +303,80 @@ class CategorySelectedState extends State<CategorySelected> {
           address: address,
           website: website),
     ];
+
+    // Get the limit, defaulting to 1 if not set (or 2 for basic if that was default)
+    // The backend provides the exact number.
+    final limit = appStore.planLimits.getLimit('business_frame');
+    final actualLimit =
+        limit > 0 ? limit : 2; // Fallback to 2 basic frames if limit is 0/unset
+
+    frameWidgets = allFrames.take(actualLimit).toList();
+
     if (mounted) {
-      setState(() {});
+      setState(() {
+        // Reset selected index if the new limits shrink the array too much
+        if (selectedFrameIndex >= frameWidgets.length) {
+          selectedFrameIndex = 0;
+        }
+      });
     }
   }
 
   // (The rest of your file remains exactly the same...)
-  static const maxDownloads = 5;
+  // Get today's date string (e.g., '2023-10-27') to track daily limits
+  String _getTodayDateString() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
 
   Future<void> _incrementDownloadCount(String filePath) async {
     final prefs = await SharedPreferences.getInstance();
+    final today = _getTodayDateString();
+    final limit = appStore.planLimits.getLimit('download_poster_daily');
+
+    // Store simple daily count
+    Map<String, int> dailyDownloadCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_download_count') ?? '{}'));
+
+    // Clean up old dates
+    dailyDownloadCount.removeWhere((key, value) => key != today);
+
+    dailyDownloadCount[today] = (dailyDownloadCount[today] ?? 0) + 1;
+    await prefs.setString(
+        'daily_download_count', json.encode(dailyDownloadCount));
+
+    // Store paths if needed (optional, keeping backward compatibility mostly)
     Map<String, dynamic> downloadedPaths =
         json.decode(prefs.getString('downloaded_paths') ?? '{}');
     Map<String, List<String>> downloadedPathsSafe = downloadedPaths
         .map((key, value) => MapEntry(key, List<String>.from(value ?? [])));
-    Map<String, int> categoryDownloadCount = Map<String, int>.from(
-        json.decode(prefs.getString('category_download_count') ?? '{}'));
-    categoryDownloadCount[widget.title] =
-        categoryDownloadCount[widget.title] ?? 0;
+
     downloadedPathsSafe[widget.title] = downloadedPathsSafe[widget.title] ?? [];
-    if (categoryDownloadCount[widget.title]! < maxDownloads) {
-      categoryDownloadCount[widget.title] =
-          categoryDownloadCount[widget.title]! + 1;
-      downloadedPathsSafe[widget.title]!.add(filePath);
-      await prefs.setString(
-          'category_download_count', json.encode(categoryDownloadCount));
-      await prefs.setString(
-          'downloaded_paths', json.encode(downloadedPathsSafe));
-      if (categoryDownloadCount[widget.title] == maxDownloads) {}
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Maximum downloads for "${widget.title}" reached!')));
+    downloadedPathsSafe[widget.title]!.add(filePath);
+    await prefs.setString('downloaded_paths', json.encode(downloadedPathsSafe));
+
+    if (dailyDownloadCount[today] == limit && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Daily download limit reached!')));
     }
   }
 
   Future<int> _getDownloadCount() async {
     final prefs = await SharedPreferences.getInstance();
-    Map<String, int> categoryDownloadCount = Map<String, int>.from(
-        json.decode(prefs.getString('category_download_count') ?? '{}'));
-    _showDownloads();
-    return categoryDownloadCount[widget.title] ?? 0;
+    final today = _getTodayDateString();
+
+    Map<String, int> dailyDownloadCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_download_count') ?? '{}'));
+
+    // Clean up old dates
+    if (dailyDownloadCount.keys.any((key) => key != today)) {
+      dailyDownloadCount.removeWhere((key, value) => key != today);
+      await prefs.setString(
+          'daily_download_count', json.encode(dailyDownloadCount));
+    }
+
+    _showDownloads(); // Keeping this as it seems to just read paths
+    return dailyDownloadCount[today] ?? 0;
   }
 
   Future<void> _showDownloads() async {
@@ -306,7 +395,9 @@ class CategorySelectedState extends State<CategorySelected> {
     });
     try {
       final downloadCount = await _getDownloadCount();
-      if (downloadCount >= maxDownloads) {
+      final limit = appStore.planLimits.getLimit('download_poster_daily');
+
+      if (downloadCount >= limit) {
         _showUpgradePopup();
         return;
       }
@@ -323,8 +414,12 @@ class CategorySelectedState extends State<CategorySelected> {
             '${directory.path}/frame_${DateTime.now().millisecondsSinceEpoch}.png';
         final file = File(filePath);
         await file.writeAsBytes(pngBytes);
-        await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
-        await _incrementDownloadCount(filePath);
+        final bool? success =
+            await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
+        if (success == true) {
+          await _incrementDownloadCount(filePath);
+        }
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             behavior: SnackBarBehavior.floating,
@@ -350,6 +445,7 @@ class CategorySelectedState extends State<CategorySelected> {
         );
       }
     } catch (error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
@@ -381,107 +477,18 @@ class CategorySelectedState extends State<CategorySelected> {
     }
   }
 
-  Future<void> _downloadImage1() async {
-    setState(() {
-      isProcessing = true;
-      progressMessage = "Downloading image...";
-    });
-    try {
-      final boundary = _repaintKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
-      if (boundary == null) throw Exception('Unable to capture frame.');
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      final pngBytes = byteData?.buffer.asUint8List();
-      if (pngBytes != null) {
-        final directory = Directory('/storage/emulated/0/Pictures/AJHUB');
-        if (!directory.existsSync()) directory.createSync(recursive: true);
-        final filePath =
-            '${directory.path}/frame_${DateTime.now().millisecondsSinceEpoch}.png';
-        final file = File(filePath);
-        await file.writeAsBytes(pngBytes);
-        await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(5),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            backgroundColor: Colors.grey.shade400,
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Image downloaded successfully!',
-                    style: GoogleFonts.poppins(
-                        fontSize: 14.sp, color: Colors.black),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Colors.grey.shade400,
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Failed to download image. Please try again later.',
-                  style:
-                      GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
-                ),
-              ),
-            ],
-          ),
+  void _showUpgradePopup({bool isShare = false}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LockedFeatureScreen(
+          featureName: isShare
+              ? 'Daily Share Limit REACHED'
+              : 'Daily Download Limit REACHED',
+          description:
+              'You have reached your daily limit for ${isShare ? "sharing" : "downloading"} business posters. Upgrade your plan to unlock more limits.',
+          icon: isShare ? Icons.share : Icons.download,
         ),
-      );
-    } finally {
-      setState(() {
-        isProcessing = false;
-      });
-    }
-  }
-
-  void _showUpgradePopup() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Upgrade Membership'),
-        content: const Text(
-            'You have reached the maximum download limit. Upgrade to premium membership for unlimited downloads.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const PremiumPlansScreen()),
-              );
-            },
-            child: const Text('Upgrade Now'),
-          ),
-        ],
       ),
     );
   }
@@ -497,12 +504,47 @@ class CategorySelectedState extends State<CategorySelected> {
     }
   }
 
+  Future<int> _getShareCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = _getTodayDateString();
+    Map<String, int> dailyShareCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_share_count') ?? '{}'));
+
+    // Clean up old dates
+    if (dailyShareCount.keys.any((key) => key != today)) {
+      dailyShareCount.removeWhere((key, value) => key != today);
+      await prefs.setString('daily_share_count', json.encode(dailyShareCount));
+    }
+
+    return dailyShareCount[today] ?? 0;
+  }
+
+  Future<void> _incrementShareCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = _getTodayDateString();
+    Map<String, int> dailyShareCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_share_count') ?? '{}'));
+
+    // Clean up old dates
+    dailyShareCount.removeWhere((key, value) => key != today);
+
+    dailyShareCount[today] = (dailyShareCount[today] ?? 0) + 1;
+    await prefs.setString('daily_share_count', json.encode(dailyShareCount));
+  }
+
   Future<void> _shareImage() async {
     setState(() {
       isProcessing = true;
       progressMessage = "Preparing image for sharing...";
     });
     try {
+      final shareCount = await _getShareCount();
+      final limit = appStore.planLimits.getLimit('share_poster_daily');
+
+      if (shareCount >= limit) {
+        _showUpgradePopup(isShare: true);
+        return;
+      }
       final boundary = _repaintKey.currentContext?.findRenderObject()
           as RenderRepaintBoundary?;
       if (boundary == null) throw Exception('Unable to capture frame.');
@@ -514,14 +556,19 @@ class CategorySelectedState extends State<CategorySelected> {
           '${directory.path}/shared_frame_${DateTime.now().millisecondsSinceEpoch}.png';
       final file = File(filePath);
       await file.writeAsBytes(pngBytes!);
-      await Share.shareXFiles(
+      final ShareResult result = await Share.shareXFiles(
         [XFile(filePath)],
         text: 'AJ HUb Mobile App!',
       );
+
+      if (result.status == ShareResultStatus.success) {
+        await _incrementShareCount();
+      }
     } catch (error) {
       if (kDebugMode) {
         print("Error sharing image: $error");
       }
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error sharing image: $error')),
       );
@@ -844,11 +891,7 @@ class CategorySelectedState extends State<CategorySelected> {
                 color: Colors.red,
               ),
               tooltip: 'Download Image',
-              onPressed: status == 'active' && !isProcessing
-                  ? _downloadImage1
-                  : (status != 'inactive' && !isProcessing
-                      ? _downloadImage
-                      : null),
+              onPressed: !isProcessing ? _downloadImage : null,
             ),
           ),
           Container(
@@ -1049,13 +1092,20 @@ class CategorySelectedState extends State<CategorySelected> {
                             ),
                           ),
                           if (selectedIndex == index)
-                            const Positioned(
-                              bottom: 5,
+                            Positioned(
+                              top: 5,
                               right: 5,
-                              child: Icon(
-                                Icons.check_circle_rounded,
-                                color: Colors.red,
-                                size: 24,
+                              child: Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.check_circle_rounded,
+                                  color: Colors.red,
+                                  size: 24,
+                                ),
                               ),
                             ),
                         ],

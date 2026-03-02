@@ -14,8 +14,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Required for SharedPreferences
+import 'package:ajhub_app/main.dart';
+import 'package:ajhub_app/utils/feature_gate_widget.dart';
+import 'package:ajhub_app/screens/locked_feature_screen.dart';
 
-// --- FRAME DATA MODEL (No changes) ---
 class Frame {
   final int id;
   final String name;
@@ -28,10 +30,14 @@ class Frame {
   });
 }
 
-const List<Frame> availableFrames = [
-  Frame(id: 1, name: 'Frame 1', thumbnailAsset: 'assets/frames/frame_1.png'),
-  Frame(id: 2, name: 'Frame 2', thumbnailAsset: 'assets/frames/frame_2.png'),
-  Frame(id: 3, name: 'Frame 3', thumbnailAsset: 'assets/frames/frame_3.png'),
+// Will be defined dynamically based on user limits
+List<Frame> availableFrames = [
+  const Frame(
+      id: 1, name: 'Frame 1', thumbnailAsset: 'assets/frames/frame_1.png'),
+  const Frame(
+      id: 2, name: 'Frame 2', thumbnailAsset: 'assets/frames/frame_2.png'),
+  const Frame(
+      id: 3, name: 'Frame 3', thumbnailAsset: 'assets/frames/frame_3.png'),
 ];
 
 // --- MAIN PAGE WIDGET (STATEFUL) ---
@@ -90,17 +96,34 @@ class _PersonalCardPageState extends State<PersonalCardPage> {
   ];
   int _selectedFilterIndex = 0;
 
+  // --- SCROLL-AWARE FILTER BAR ---
+  final ScrollController _scrollController = ScrollController();
+  bool _isFilterVisible = true;
+
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
     _fetchInitialData();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    // Show filter when near the top (<= 50px), hide when scrolling down
+    final shouldShow = _scrollController.offset <= 50;
+    if (shouldShow != _isFilterVisible) {
+      setState(() {
+        _isFilterVisible = shouldShow;
+      });
+    }
   }
 
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -244,13 +267,31 @@ class _PersonalCardPageState extends State<PersonalCardPage> {
           ? const Center(child: CircularProgressIndicator(color: Colors.red))
           : Column(
               children: [
-                _buildFilterTabs(), // NEW Filter Tabs
+                // Collapsing filter bar — hides on scroll down, shows on scroll up
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  height: _isFilterVisible ? 50.h : 0.0,
+                  child: SingleChildScrollView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    child: _buildFilterTabs(),
+                  ),
+                ),
                 if (_filteredSubcategories.isEmpty)
                   const Expanded(
                     child: Center(child: Text('No subcategories found.')),
                   )
                 else ...[
-                  _buildSubcategoryList(_filteredSubcategories),
+                  // Collapsing image subcategory strip — collapses together with filter tabs
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    height: _isFilterVisible ? 155.0 : 0.0,
+                    child: SingleChildScrollView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      child: _buildSubcategoryList(_filteredSubcategories),
+                    ),
+                  ),
                   Expanded(
                     child: _buildImagePosterList(),
                   ),
@@ -468,6 +509,7 @@ class _PersonalCardPageState extends State<PersonalCardPage> {
       );
     }
     return ListView.builder(
+      controller: _scrollController, // ← wired to collapse the filter
       padding: EdgeInsets.all(16.w),
       itemCount: imagesToShow.length,
       itemBuilder: (context, index) {
@@ -525,9 +567,21 @@ class _PosterCardState extends State<PosterCard> {
   @override
   void initState() {
     super.initState();
-    _selectedFrame = availableFrames.first;
     _pageController = PageController();
     showLogo = widget.businessLogoUrl != null;
+
+    // Slicing frames based on user limits
+    final limit = appStore.planLimits.getLimit('personal_frame');
+    final actualLimit = limit > 0 ? limit : 2; // Default if unset
+
+    availableFrames = availableFrames.take(actualLimit).toList();
+
+    _selectedFrame = availableFrames.isNotEmpty
+        ? availableFrames.first
+        : const Frame(
+            id: 1,
+            name: 'Frame 1',
+            thumbnailAsset: 'assets/frames/frame_1.png');
   }
 
   @override
@@ -557,7 +611,110 @@ class _PosterCardState extends State<PosterCard> {
     }
   }
 
+  String _getTodayDateString() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _incrementDownloadCount(String filePath) async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = _getTodayDateString();
+
+    // Store simple daily count
+    Map<String, int> dailyDownloadCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_download_count') ?? '{}'));
+
+    // Clean up old dates
+    dailyDownloadCount.removeWhere((key, value) => key != today);
+
+    dailyDownloadCount[today] = (dailyDownloadCount[today] ?? 0) + 1;
+    await prefs.setString(
+        'daily_download_count', json.encode(dailyDownloadCount));
+
+    // Store paths if needed
+    Map<String, dynamic> downloadedPaths =
+        json.decode(prefs.getString('downloaded_paths') ?? '{}');
+    Map<String, List<String>> downloadedPathsSafe = downloadedPaths
+        .map((key, value) => MapEntry(key, List<String>.from(value ?? [])));
+
+    // Use a generic key or 'Personal' context as widget.title doesn't exist
+    final contextKey = 'Personal Card';
+    downloadedPathsSafe[contextKey] = downloadedPathsSafe[contextKey] ?? [];
+    downloadedPathsSafe[contextKey]!.add(filePath);
+    await prefs.setString('downloaded_paths', json.encode(downloadedPathsSafe));
+  }
+
+  Future<int> _getDownloadCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = _getTodayDateString();
+
+    Map<String, int> dailyDownloadCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_download_count') ?? '{}'));
+
+    // Clean up old dates
+    if (dailyDownloadCount.keys.any((key) => key != today)) {
+      dailyDownloadCount.removeWhere((key, value) => key != today);
+      await prefs.setString(
+          'daily_download_count', json.encode(dailyDownloadCount));
+    }
+
+    return dailyDownloadCount[today] ?? 0;
+  }
+
+  Future<int> _getShareCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = _getTodayDateString();
+
+    Map<String, int> dailyShareCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_share_count') ?? '{}'));
+
+    // Clean up old dates
+    if (dailyShareCount.keys.any((key) => key != today)) {
+      dailyShareCount.removeWhere((key, value) => key != today);
+      await prefs.setString('daily_share_count', json.encode(dailyShareCount));
+    }
+
+    return dailyShareCount[today] ?? 0;
+  }
+
+  Future<void> _incrementShareCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = _getTodayDateString();
+
+    Map<String, int> dailyShareCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_share_count') ?? '{}'));
+
+    // Clean up old dates
+    dailyShareCount.removeWhere((key, value) => key != today);
+
+    dailyShareCount[today] = (dailyShareCount[today] ?? 0) + 1;
+    await prefs.setString('daily_share_count', json.encode(dailyShareCount));
+  }
+
+  void _showUpgradePopup(String featureName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LockedFeatureScreen(
+          featureName: featureName,
+          description:
+              'You have reached your daily limit for $featureName. Upgrade your plan to unlock more limits.',
+          icon: Icons.star_rounded,
+        ),
+      ),
+    );
+  }
+
   Future<void> _downloadImage() async {
+    final limit = appStore.planLimits.getLimit('download_poster_daily');
+    final currentCount = await _getDownloadCount();
+
+    // -1 means unlimited
+    if (limit != -1 && currentCount >= limit) {
+      _showUpgradePopup('Downloading Posters');
+      return;
+    }
+
     setState(() {
       _isProcessing = true;
       _progressMessage = "Downloading image...";
@@ -575,7 +732,13 @@ class _PosterCardState extends State<PosterCard> {
       final file = File(filePath);
       await file.writeAsBytes(pngBytes);
 
-      await GallerySaver.saveImage(filePath, albumName: 'MyPosters');
+      final bool? success =
+          await GallerySaver.saveImage(filePath, albumName: 'MyPosters');
+
+      if (success == true) {
+        await _incrementDownloadCount(filePath);
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Image downloaded successfully!'),
@@ -597,6 +760,14 @@ class _PosterCardState extends State<PosterCard> {
   }
 
   Future<void> _shareImage() async {
+    final limit = appStore.planLimits.getLimit('share_poster_daily');
+    final currentCount = await _getShareCount();
+
+    if (limit != -1 && currentCount >= limit) {
+      _showUpgradePopup('Sharing Posters');
+      return;
+    }
+
     setState(() {
       _isProcessing = true;
       _progressMessage = "Preparing image for sharing...";
@@ -611,11 +782,15 @@ class _PosterCardState extends State<PosterCard> {
       final file = File(filePath);
       await file.writeAsBytes(pngBytes);
 
-      await Share.shareXFiles(
+      final ShareResult result = await Share.shareXFiles(
         [XFile(filePath)],
         text: 'Created with AJ Hub Mobile App!',
         subject: 'Check out my new poster!',
       );
+
+      if (result.status == ShareResultStatus.success) {
+        await _incrementShareCount();
+      }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -768,43 +943,103 @@ class _PosterCardState extends State<PosterCard> {
     return Container(
       padding: EdgeInsets.all(12.w),
       color: Colors.white,
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: _isProcessing ? null : _downloadImage,
-              icon: const Icon(Icons.download, color: Colors.white),
-              label:
-                  const Text('Download', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue.shade700,
-                disabledBackgroundColor: Colors.grey,
-                padding: EdgeInsets.symmetric(vertical: 12.h),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.r)),
+      child: FeatureGate(
+        feature: 'personal_frame',
+        customLockWidget: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LockedFeatureScreen(
+                        featureName: 'Personal Posters',
+                        icon: Icons.person,
+                        description:
+                            'Upgrade your plan to unlock Personal Posters features.',
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.download, color: Colors.white),
+                label: const Text('Download',
+                    style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade700,
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.r)),
+                ),
               ),
             ),
-          ),
-          SizedBox(width: 12.w),
-          Expanded(
-            child: OutlinedButton.icon(
-              onPressed: _isProcessing ? null : _shareImage,
-              icon: const Icon(Icons.share),
-              label: const Text('Share'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.black87,
-                disabledForegroundColor: Colors.grey,
-                padding: EdgeInsets.symmetric(vertical: 12.h),
-                side: BorderSide(
-                    color: _isProcessing
-                        ? Colors.grey.shade300
-                        : Colors.grey.shade400),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.r)),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LockedFeatureScreen(
+                        featureName: 'Personal Posters',
+                        icon: Icons.person,
+                        description:
+                            'Upgrade your plan to unlock Personal Posters features.',
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.share),
+                label: const Text('Share'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.black87,
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  side: BorderSide(color: Colors.grey.shade400),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.r)),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                onPressed: _isProcessing ? null : _downloadImage,
+                icon: const Icon(Icons.download, color: Colors.white),
+                label: const Text('Download',
+                    style: TextStyle(color: Colors.white)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue.shade700,
+                  disabledBackgroundColor: Colors.grey,
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.r)),
+                ),
+              ),
+            ),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _isProcessing ? null : _shareImage,
+                icon: const Icon(Icons.share),
+                label: const Text('Share'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.black87,
+                  disabledForegroundColor: Colors.grey,
+                  padding: EdgeInsets.symmetric(vertical: 12.h),
+                  side: BorderSide(
+                      color: _isProcessing
+                          ? Colors.grey.shade300
+                          : Colors.grey.shade400),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.r)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

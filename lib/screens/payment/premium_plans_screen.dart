@@ -6,7 +6,8 @@ import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:ajhub_app/model/subscription_plan_model.dart';
 
 class PremiumPlansScreen extends StatefulWidget {
-  const PremiumPlansScreen({super.key});
+  final bool isLocked;
+  const PremiumPlansScreen({super.key, this.isLocked = false});
 
   @override
   State<PremiumPlansScreen> createState() => _PremiumPlansScreenState();
@@ -29,106 +30,110 @@ class _PremiumPlansScreenState extends State<PremiumPlansScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF4F6FA), // App's Light Grey Background
-      body: SafeArea(
-        child: Stack(
-          children: [
-            // --- SCROLLABLE CONTENT ---
-            SingleChildScrollView(
-              padding: EdgeInsets.only(
-                bottom: 100.h,
-              ), // Space for sticky button
-              physics: const BouncingScrollPhysics(),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 20.h),
-                    // --- HEADER ---
-                    _buildHeader(),
-                    SizedBox(height: 24.h),
+    return PopScope(
+      canPop: !widget.isLocked,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF4F6FA), // App's Light Grey Background
+        body: SafeArea(
+          child: Stack(
+            children: [
+              // --- SCROLLABLE CONTENT ---
+              SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  bottom: 100.h,
+                ), // Space for sticky button
+                physics: const BouncingScrollPhysics(),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(height: 20.h),
+                      // --- HEADER ---
+                      _buildHeader(),
+                      SizedBox(height: 24.h),
 
-                    // --- TOGGLE ---
-                    _buildToggle(),
-                    SizedBox(height: 32.h),
+                      // --- TOGGLE ---
+                      _buildToggle(),
+                      SizedBox(height: 32.h),
 
-                    // --- DYNAMIC PLANS ---
-                    FutureBuilder<List<SubscriptionPlan>>(
-                      future: _plansFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return _buildLoadingShimmer();
-                        } else if (snapshot.hasError) {
-                          return Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(20.0),
-                              child: Text(
-                                "Failed to load plans.\nPlease check your connection.",
-                                textAlign: TextAlign.center,
-                                style: GoogleFonts.poppins(color: Colors.red),
+                      // --- DYNAMIC PLANS ---
+                      FutureBuilder<List<SubscriptionPlan>>(
+                        future: _plansFuture,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return _buildLoadingShimmer();
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: Text(
+                                  "Failed to load plans.\nPlease check your connection.",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.poppins(color: Colors.red),
+                                ),
                               ),
-                            ),
+                            );
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return Center(
+                              child: Text(
+                                "No plans available at the moment.",
+                                style: GoogleFonts.poppins(),
+                              ),
+                            );
+                          }
+
+                          final plans = snapshot.data!;
+
+                          // Ensure selected index is valid
+                          if (_selectedPlanIndex >= plans.length) {
+                            _selectedPlanIndex = plans.length - 1;
+                          }
+
+                          return ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: plans.length,
+                            separatorBuilder: (context, index) =>
+                                SizedBox(height: 16.h),
+                            itemBuilder: (context, index) {
+                              return _buildDynamicPlanCard(plans[index], index);
+                            },
                           );
-                        } else if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          return Center(
-                            child: Text(
-                              "No plans available at the moment.",
-                              style: GoogleFonts.poppins(),
-                            ),
-                          );
-                        }
+                        },
+                      ),
 
-                        final plans = snapshot.data!;
+                      SizedBox(height: 100.h),
+                    ],
+                  ),
+                ),
+              ),
 
-                        // Ensure selected index is valid
-                        if (_selectedPlanIndex >= plans.length) {
-                          _selectedPlanIndex = plans.length - 1;
-                        }
-
-                        return ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: plans.length,
-                          separatorBuilder: (context, index) =>
-                              SizedBox(height: 16.h),
-                          itemBuilder: (context, index) {
-                            return _buildDynamicPlanCard(plans[index], index);
-                          },
-                        );
-                      },
+              // --- STICKY BACK BUTTON (Top Left) --- (hidden when locked)
+              if (!widget.isLocked)
+                Positioned(
+                  top: 10.h,
+                  left: 10.w,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.white,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.black),
+                      onPressed: () => Navigator.pop(context),
                     ),
-
-                    SizedBox(height: 100.h),
-                  ],
+                  ),
                 ),
-              ),
-            ),
 
-            // --- STICKY BACK BUTTON (Top Left) ---
-            Positioned(
-              top: 10.h,
-              left: 10.w,
-              child: CircleAvatar(
-                backgroundColor: Colors.white,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.black),
-                  onPressed: () => Navigator.pop(context),
-                ),
+              // --- STICKY BOTTOM BUTTON ---
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: _buildStickyButton(),
               ),
-            ),
-
-            // --- STICKY BOTTOM BUTTON ---
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: _buildStickyButton(),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

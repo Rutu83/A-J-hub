@@ -82,6 +82,7 @@ dependencies:
   encrypt: ^5.0.3
   flutter_spinkit: ^5.2.2
   qr_flutter: ^4.1.0
+  app_links: ^6.4.1
   
 
 #  flutter_branch_sdk: ^8.5.0 # Use the latest version

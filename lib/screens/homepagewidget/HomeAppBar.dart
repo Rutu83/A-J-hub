@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/screens/notification_page.dart';
+import 'package:ajhub_app/screens/payment/premium_plans_screen.dart';
 import 'package:ajhub_app/screens/personal_card/personal_card.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../../utils/ring.dart'; // Assuming this is where CustomLoopingIconButton is defined
 
@@ -54,11 +56,22 @@ class _HomeAppBarState extends State<HomeAppBar> {
     }
   }
 
+  String _getGreeting() {
+    var hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good Morning';
+    } else if (hour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent, // Make status bar transparent
+        statusBarColor: Colors.white, // White status bar (matches app theme)
         statusBarIconBrightness:
             Brightness.dark, // Dark icons (black) for white background
         statusBarBrightness: Brightness.light, // Light background for iOS
@@ -66,7 +79,11 @@ class _HomeAppBarState extends State<HomeAppBar> {
       child: Container(
         // --- MODIFICATION START ---
         padding: EdgeInsets.fromLTRB(
-            8.w, 12.h, 8.w, 15.h), // Adjusted bottom padding
+          8.w,
+          12.h,
+          8.w,
+          15.h,
+        ), // Adjusted bottom padding
         decoration: BoxDecoration(
           // 1. Set background back to white
           color: Colors.white,
@@ -99,7 +116,7 @@ class _HomeAppBarState extends State<HomeAppBar> {
                     ),
                   ),
                   Text(
-                    'Good Morning',
+                    _getGreeting(),
                     style: GoogleFonts.b612(
                       fontSize: 12.sp,
                       fontWeight: FontWeight.w600,
@@ -111,12 +128,85 @@ class _HomeAppBarState extends State<HomeAppBar> {
               ),
             ),
 
+            // --- CONDITIONAL UPGRADE/PRO BUTTON ---
+            Observer(
+              builder: (_) {
+                final isActive = appStore.Status == 'active';
+
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const PremiumPlansScreen(),
+                      ), // Assuming this is the plan screen
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 4.h,
+                    ),
+                    margin: EdgeInsets.only(right: 4.w),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isActive
+                            ? [
+                                const Color(0xFFD32F2F), // deep red
+                                const Color(0xFF8B0000), // dark red
+                              ]
+                            : [
+                                const Color(0xFF424242), // dark grey
+                                const Color(0xFF070707), // app primary black
+                              ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: (isActive ? Colors.red : Colors.black)
+                              .withOpacity(0.35),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isActive ? Icons.verified : Icons.star_rounded,
+                          color: Colors.white,
+                          size: 14.sp,
+                        ),
+                        SizedBox(width: 4.w),
+                        Text(
+                          isActive
+                              ? (appStore.planName.isNotEmpty
+                                  ? appStore.planName
+                                  : 'Pro')
+                              : 'Upgrade',
+                          style: GoogleFonts.b612(
+                            color: Colors.white,
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+
             // Notification Icon
             IconButton(
-              icon: Icon(Icons.notifications_active,
-                  // 4. Reverted icon color to black
-                  color: Colors.black,
-                  size: 22.sp),
+              icon: Icon(
+                Icons.notifications_active,
+                // 4. Reverted icon color to black
+                color: Colors.black,
+                size: 22.sp,
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
@@ -161,10 +251,12 @@ class _HomeAppBarState extends State<HomeAppBar> {
         ),
       );
     } else {
-      return Icon(Icons.person,
-          size: 17.sp,
-          // 4. Reverted icon color to black
-          color: Colors.black);
+      return Icon(
+        Icons.person,
+        size: 17.sp,
+        // 4. Reverted icon color to black
+        color: Colors.black,
+      );
     }
   }
 }

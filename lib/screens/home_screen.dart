@@ -15,6 +15,8 @@ import 'package:ajhub_app/screens/temple_slider_section.dart';
 import 'package:ajhub_app/screens/trendingsection.dart';
 import 'package:ajhub_app/screens/workwithus.dart';
 import 'package:ajhub_app/screens/yourdocument_locker.dart';
+import 'package:ajhub_app/utils/feature_gate_widget.dart';
+import 'package:ajhub_app/screens/locked_feature_screen.dart';
 import 'package:ajhub_app/screens/zoonSection.dart';
 import 'package:ajhub_app/utils/shimmer/shimmer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -89,49 +91,25 @@ class SubscriptionSuccessPopup extends StatelessWidget {
                   height: 1.4,
                 ),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 20),
-                child: Divider(color: Colors.white24),
-              ),
-              const Text(
-                'Unlock More 🔑',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'For extended membership, join our Refer & Earn Reward Battle!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                  height: 1.4,
-                ),
-              ),
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: onActionPressed,
                 style: ElevatedButton.styleFrom(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  backgroundColor:
-                      const Color(0xFFE53935), // A strong red color
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF6A3093),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                   elevation: 8,
-                  shadowColor: Colors.red.withOpacity(0.5),
                 ),
                 child: const Text(
-                  'Click For More',
+                  'Awesome!',
                   style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -187,11 +165,15 @@ final List<ReferralStep> referralSteps = [
 class HomeScreen extends StatefulWidget {
   final int userReferralCount;
   final int referralIncome; // NEW: Passed from Dashboard
+  final String? userStatus; // NEW: Passed from Dashboard
+  final DateTime? userCreatedAt; // NEW: Passed from Dashboard
 
   const HomeScreen({
     super.key,
     required this.userReferralCount,
     this.referralIncome = 0, // Default to 0
+    this.userStatus,
+    this.userCreatedAt,
   });
 
   @override
@@ -227,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen>
         });
         // --- ADDED: Show popup after the screen is built and loading is done ---
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          // _showInitialPopup(context);
+          _showInitialPopup(context);
         });
       }
     });
@@ -236,6 +218,14 @@ class _HomeScreenState extends State<HomeScreen>
   // --- ADDED: Method to show the popup ---
   void _showInitialPopup(BuildContext context) {
     if (_isPopupShown) return; // Prevents showing it more than once per session
+
+    // ✅ ONLY show popup if user is in their 7-day trial
+    if (widget.userStatus != 'inactive' || widget.userCreatedAt == null) return;
+    final int daysSinceSignup =
+        DateTime.now().difference(widget.userCreatedAt!).inDays;
+
+    // If trial is over, DashboardScreen handles the paywall push. Don't show this popup.
+    if (daysSinceSignup >= 7) return;
 
     setState(() {
       _isPopupShown = true; // Mark as shown
@@ -247,13 +237,8 @@ class _HomeScreenState extends State<HomeScreen>
       builder: (BuildContext dialogContext) {
         return SubscriptionSuccessPopup(
           onActionPressed: () {
-            // First, close the dialog
+            // Simply close the dialog
             Navigator.of(dialogContext).pop();
-            // Then, navigate to the Refer & Earn screen
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ReferEarn()),
-            );
           },
         );
       },
@@ -538,18 +523,41 @@ class _HomeScreenState extends State<HomeScreen>
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       sliver: SliverToBoxAdapter(
-        child: InkWell(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => DocumentLockerScreen()),
-            );
-          },
-          child: Container(
-            height: 110,
-            decoration: BoxDecoration(
-              image: DecorationImage(image: AssetImage(imagePath), fit: fit),
-              borderRadius: BorderRadius.circular(12),
+        child: FeatureGate(
+          feature: 'locker_doc_save',
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DocumentLockerScreen()),
+              );
+            },
+            child: Container(
+              height: 110,
+              decoration: BoxDecoration(
+                image: DecorationImage(image: AssetImage(imagePath), fit: fit),
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          customLockWidget: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LockedFeatureScreen(
+                    featureName: 'Your Document Locker',
+                    icon: Icons.document_scanner,
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              height: 110,
+              decoration: BoxDecoration(
+                image: DecorationImage(image: AssetImage(imagePath), fit: fit),
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ),

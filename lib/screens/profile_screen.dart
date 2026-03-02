@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names, use_build_context_synchronously
 import 'dart:async';
 import 'dart:io';
-
 import 'package:ajhub_app/arth_screens/login_screen.dart';
 import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/model/business_mode.dart';
@@ -16,13 +15,13 @@ import 'package:ajhub_app/screens/palnner/plan_list_screen.dart';
 import 'package:ajhub_app/screens/product_and_service.dart';
 import 'package:ajhub_app/screens/refer_earn.dart';
 import 'package:ajhub_app/screens/referral_user.dart';
-import 'package:ajhub_app/screens/payment/airpay_payment_screen.dart';
-import 'package:ajhub_app/screens/payment/premium_plans_screen.dart';
 import 'package:ajhub_app/screens/yourdocument_locker.dart';
 import 'package:ajhub_app/screens/workwithus.dart';
+import 'package:ajhub_app/screens/locked_feature_screen.dart';
 import 'package:ajhub_app/splash_screen.dart';
 import 'package:ajhub_app/utils/constant.dart';
 import 'package:ajhub_app/utils/shimmer/shimmer.dart';
+import 'package:ajhub_app/utils/feature_gate_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -55,6 +54,10 @@ class _ProfileScreenState extends State<ProfileScreen>
   BusinessModal? businessData;
   int directTeamCount = 0;
 
+  // Subscription state
+  DateTime? _subscriptionEndDate;
+  DateTime? _subscriptionStartDate;
+
   // --- NEW: State variable for the referral points wallet ---
   int referPoints = 0;
 
@@ -65,9 +68,6 @@ class _ProfileScreenState extends State<ProfileScreen>
   void initState() {
     super.initState();
     init();
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-    ));
     fetchUserData();
     futureBusiness = fetchBusinessData();
   }
@@ -105,10 +105,21 @@ class _ProfileScreenState extends State<ProfileScreen>
         email = userDetail['email'] ?? '';
         directTeamCount = userDetail['direct_team_count'] ?? 0;
 
+        // Parse subscription dates
+        final endStr = userDetail['subscription_end_date'] as String?;
+        final startStr = userDetail['subscription_start_date'] as String?;
+        _subscriptionEndDate =
+            endStr != null ? DateTime.tryParse(endStr) : null;
+        _subscriptionStartDate =
+            startStr != null ? DateTime.tryParse(startStr) : null;
+
         // --- UPDATED: Calculate referral points (1 referral = 5 points) ---
         referPoints = directTeamCount * 5;
 
         _isLoading = false;
+
+        // Fetch limits for the user's plan
+        fetchAndStorePlanLimits(userPlanId: userDetail['subscription_plan_id']);
       });
     } on SocketException {
       setState(() {
@@ -390,19 +401,192 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ],
           ),
-          SizedBox(height: 20.h),
-          Divider(color: Colors.white.withOpacity(0.5)),
-          SizedBox(height: 15.h),
+          SizedBox(height: 16.h),
+          // ── Subscription Status Card ──
+          _buildSubscriptionCard(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubscriptionCard() {
+    final now = DateTime.now();
+    final endDate = _subscriptionEndDate;
+    final startDate = _subscriptionStartDate;
+
+    // Determine display state
+    final isActive =
+        status == 'active' && endDate != null && endDate.isAfter(now);
+    final isTrial = status == 'inactive';
+    final isExpired =
+        status == 'active' && (endDate == null || endDate.isBefore(now));
+
+    // Days logic
+    final daysLeft = endDate != null ? endDate.difference(now).inDays : 0;
+    final totalDays = (startDate != null && endDate != null)
+        ? endDate.difference(startDate).inDays
+        : 30;
+    final progress = (isActive && totalDays > 0)
+        ? (daysLeft / totalDays).clamp(0.0, 1.0)
+        : 0.0;
+    final isExpiringSoon = isActive && daysLeft <= 7;
+
+    // Plan name from appStore (already set by fetchAndStorePlanLimits)
+    final planName = appStore.planName.isNotEmpty ? appStore.planName : 'Free';
+
+    // Badge config
+    Color badgeBg;
+    String badgeText;
+    IconData badgeIcon;
+    if (isActive && !isExpiringSoon) {
+      badgeBg = Colors.green.shade600;
+      badgeText = 'Active';
+      badgeIcon = Icons.verified;
+    } else if (isExpiringSoon) {
+      badgeBg = Colors.orange.shade700;
+      badgeText = 'Expiring Soon';
+      badgeIcon = Icons.warning_amber_rounded;
+    } else if (isTrial) {
+      badgeBg = Colors.blue.shade600;
+      badgeText = 'Trial';
+      badgeIcon = Icons.hourglass_top_rounded;
+    } else {
+      badgeBg = Colors.grey.shade700;
+      badgeText = 'Expired';
+      badgeIcon = Icons.cancel_outlined;
+    }
+
+    return Container(
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(14.r),
+        border: Border.all(color: Colors.white.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // _buildStatReferrals(
-              //     directTeamCount.toString(), 'Total\nReferrals'),
-              // _buildStatColumn(referPoints.toString(), 'Referral\nPoints'),
-              // _buildStatColumn('₹${businessData?.business?.directIncome ?? 0}',
-              //     'Referral\nIncome'),
+              // Plan name
+              Row(
+                children: [
+                  const Icon(Icons.workspace_premium,
+                      color: Colors.white, size: 18),
+                  SizedBox(width: 6.w),
+                  Text(
+                    planName,
+                    style: GoogleFonts.poppins(
+                      fontSize: 15.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              // Status badge
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                decoration: BoxDecoration(
+                  color: badgeBg,
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(badgeIcon, color: Colors.white, size: 12.sp),
+                    SizedBox(width: 4.w),
+                    Text(
+                      badgeText,
+                      style: GoogleFonts.poppins(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
+          if (isActive || isTrial) ...[
+            SizedBox(height: 10.h),
+            if (isActive) ...[
+              // Progress bar
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4.r),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 6,
+                  backgroundColor: Colors.white.withOpacity(0.25),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isExpiringSoon ? Colors.orange.shade300 : Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(height: 6.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    daysLeft > 0 ? '$daysLeft days remaining' : 'Expires today',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12.sp,
+                      color: Colors.white.withOpacity(0.9),
+                    ),
+                  ),
+                  if (endDate != null)
+                    Text(
+                      'Until ${endDate.day}/${endDate.month}/${endDate.year}',
+                      style: GoogleFonts.poppins(
+                        fontSize: 11.sp,
+                        color: Colors.white.withOpacity(0.75),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+            if (isTrial)
+              Text(
+                'Upgrade to unlock all features',
+                style: GoogleFonts.poppins(
+                  fontSize: 12.sp,
+                  color: Colors.white.withOpacity(0.9),
+                ),
+              ),
+          ],
+          if (isExpiringSoon || isTrial || isExpired) ...[
+            SizedBox(height: 12.h),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/premium-plans');
+                },
+                icon: Icon(
+                  isExpired ? Icons.refresh : Icons.upgrade,
+                  size: 16.sp,
+                ),
+                label: Text(
+                  isExpired ? 'Renew Plan' : 'Upgrade Plan',
+                  style: GoogleFonts.poppins(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.red.shade700,
+                  padding: EdgeInsets.symmetric(vertical: 10.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -448,20 +632,35 @@ class _ProfileScreenState extends State<ProfileScreen>
         _buildMenuOption(CupertinoIcons.lock_rotation, "Change Password"),
         SizedBox(height: 15.h),
         _buildSectionTitle("App Features"),
-        _buildMenuOption(Icons.document_scanner, "Your Document Locker"),
-        _buildMenuOption(CupertinoIcons.list_bullet, "Plan A Day"),
+        FeatureGate(
+          feature: 'locker_doc_save',
+          customLockWidget: _buildMenuOption(Icons.document_scanner,
+              "Your Document Locker", null, false, true),
+          child:
+              _buildMenuOption(Icons.document_scanner, "Your Document Locker"),
+        ),
+        FeatureGate(
+          feature: 'plan_a_day',
+          customLockWidget: _buildMenuOption(
+              CupertinoIcons.list_bullet, "Plan A Day", null, false, true),
+          child: _buildMenuOption(CupertinoIcons.list_bullet, "Plan A Day"),
+        ),
         _buildMenuOption(
             CupertinoIcons.arrow_down_to_line, "Downloaded Images"),
-        // _buildMenuOption(Icons.share, "Refer & Earn"),
+        _buildMenuOption(Icons.share, "Invite Friends"),
         SizedBox(height: 15.h),
         _buildSectionTitle("Support & Community"),
         _buildMenuOption(CupertinoIcons.question_circle, "Help & Support"),
         _buildMenuOption(Icons.question_answer, "FAQs"),
         _buildMenuOption(CupertinoIcons.smiley, "Feedback"),
         _buildMenuOption(Icons.groups, "Join Our Community"),
-        _buildMenuOption(CupertinoIcons.bag, "Biz Boost"),
+        FeatureGate(
+          feature: 'business_seminar',
+          customLockWidget: _buildMenuOption(
+              CupertinoIcons.bag, "Biz Boost", null, false, true),
+          child: _buildMenuOption(CupertinoIcons.bag, "Biz Boost"),
+        ),
         _buildMenuOption(Icons.handshake, "Work with Us"),
-        _buildMenuOption(Icons.credit_card, "Test Payment (Airpay)"),
         _buildMenuOption(CupertinoIcons.doc_plaintext, "Terms of Use",
             'https://www.ajhub.co.in/term-condition'),
         _buildMenuOption(Icons.privacy_tip, "Privacy Policy",
@@ -524,13 +723,26 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
-  // --- UPDATED: `_buildMenuOption` now accepts an `isDestructive` flag ---
+  // --- UPDATED: `_buildMenuOption` now accepts an `isDestructive` and `isLocked` flag ---
   Widget _buildMenuOption(IconData icon, String label,
-      [String? url, bool isDestructive = false]) {
+      [String? url, bool isDestructive = false, bool isLocked = false]) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () async {
+          if (isLocked) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LockedFeatureScreen(
+                  featureName: label,
+                  icon: icon,
+                ),
+              ),
+            );
+            return;
+          }
+
           if (label == "Logout") {
             _showLogOutAccountDialog();
           } else if (label == "Delete Account") {
@@ -582,7 +794,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               MaterialPageRoute(
                   builder: (context) => const DownloadedImagesPage()),
             );
-          } else if (label == "Refer & Earn") {
+          } else if (label == "Invite Friends") {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => ReferEarn()),
@@ -604,13 +816,6 @@ class _ProfileScreenState extends State<ProfileScreen>
               context,
               MaterialPageRoute(
                 builder: (context) => const WorkWithUS(),
-              ),
-            );
-          } else if (label == "Test Payment (Airpay)") {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PremiumPlansScreen(),
               ),
             );
           } else {

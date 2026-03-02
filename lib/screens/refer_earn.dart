@@ -47,11 +47,6 @@ class _ReferEarnState extends State<ReferEarn> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent, // Make status bar transparent
-      statusBarIconBrightness:
-          Brightness.light, // Icons on status bar are light
-    ));
     fetchUserData();
   }
 
@@ -131,7 +126,7 @@ class _ReferEarnState extends State<ReferEarn> {
 
     // --- UPDATED SHARE MESSAGE ---
     final String shareText =
-        'Join AJHub today and unlock exciting benefits! 🚀\n\n'
+        'Join AJHub today and enjoy exciting benefits! 🚀\n\n'
         'Greetings! 🎉 I\'ve been enjoying the "Aj Hub: Festival & Business Poster Maker App" and thought you\'d love it too.\n\n'
         'Use my referral code when you sign up: *$referral_code* 🔑\n\n'
         'Click the link to get started:\n'
@@ -177,7 +172,7 @@ class _ReferEarnState extends State<ReferEarn> {
               slivers: [
                 _buildAppBar(),
                 _buildHookSection(),
-                _buildDetailsSection(),
+                //_buildDetailsSection(),
               ],
             ),
     );
@@ -186,9 +181,8 @@ class _ReferEarnState extends State<ReferEarn> {
   // --- UI BUILDER METHODS ---
 
   SliverAppBar _buildAppBar() {
-    // ... (Your existing code, no changes needed)
     return SliverAppBar(
-      backgroundColor: Colors.red,
+      backgroundColor: Colors.red.shade700,
       pinned: true,
       elevation: 0,
       leading: IconButton(
@@ -204,69 +198,113 @@ class _ReferEarnState extends State<ReferEarn> {
     );
   }
 
-  // In _ReferEarnState class in refer_earn.dart
-
   Widget _buildReferralCodeSection() {
     // Don't show anything if the username (which is the code) isn't loaded yet.
     if (username == null || (username as String).isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 40.w, vertical: 24.h),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 24.w, vertical: 10.h),
+      padding: EdgeInsets.all(24.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            offset: Offset(0, 10),
+            blurRadius: 20,
+          ),
+        ],
+      ),
       child: Column(
         children: [
           Text(
-            "Or share your code directly",
+            "Your Referral Code",
             style: GoogleFonts.poppins(
               fontSize: 14.sp,
-              color: Colors.white.withOpacity(0.8),
+              fontWeight: FontWeight.w500,
+              color: Colors.grey.shade600,
             ),
           ),
           SizedBox(height: 12.h),
-          // This is the styled container for the code and copy button.
           Container(
-            padding:
-                EdgeInsets.only(left: 24.w, right: 12.w, top: 8.h, bottom: 8.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(50.r), // Pill shape
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: Colors.red.shade200, width: 1.5),
             ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // The referral code text
                 Expanded(
                   child: Text(
-                    referral_code, // This is the user's referral code
+                    referral_code,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
-                      fontSize: 20.sp,
+                      fontSize: 22.sp,
                       fontWeight: FontWeight.bold,
-                      color: kReferYellow, // Make the code stand out
-                      letterSpacing: 2.5, // Adds a premium feel
+                      letterSpacing: 2.0,
+                      color: Colors.red.shade800,
                     ),
                   ),
                 ),
-                // The copy button
-                IconButton(
-                  icon: Icon(Icons.copy_all_rounded, color: Colors.white),
-                  onPressed: () {
-                    // Logic to copy the code to the clipboard
+                GestureDetector(
+                  onTap: () {
                     Clipboard.setData(ClipboardData(text: referral_code));
-
-                    // Show a confirmation message to the user
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Referral code copied to clipboard!'),
+                      SnackBar(
+                        content: Row(
+                          children: [
+                            Icon(Icons.check_circle, color: Colors.white),
+                            SizedBox(width: 8.w),
+                            Text('Code copied to clipboard!'),
+                          ],
+                        ),
                         behavior: SnackBarBehavior.floating,
-                        backgroundColor: kReferPurple,
+                        backgroundColor: Colors.green.shade600,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r)),
                       ),
                     );
                   },
+                  child: Container(
+                    padding: EdgeInsets.all(10.w),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade600,
+                      borderRadius: BorderRadius.circular(10.r),
+                    ),
+                    child: Icon(Icons.copy_rounded,
+                        color: Colors.white, size: 20.sp),
+                  ),
                 ),
               ],
+            ),
+          ),
+          SizedBox(height: 24.h),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _shareReferralLink,
+              icon: Icon(Icons.share_rounded, size: 20.sp),
+              label: Text(
+                'Share App Link',
+                style: GoogleFonts.poppins(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade600,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 14.h),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14.r),
+                ),
+                elevation: 0,
+              ),
             ),
           ),
         ],
@@ -276,208 +314,215 @@ class _ReferEarnState extends State<ReferEarn> {
 
   SliverToBoxAdapter _buildHookSection() {
     return SliverToBoxAdapter(
-      child: Container(
-        padding: EdgeInsets.only(bottom: 40.h),
-        color: Colors.red,
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 32.w),
-          child: Column(
-            children: [
-              Text(
-                'Earn ₹100!',
-                style: GoogleFonts.poppins(
-                  fontSize: 42.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+                top: 10.h, bottom: 60.h, left: 24.w, right: 24.w),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.red.shade700, Colors.red.shade900],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
-              SizedBox(height: 16.h),
-              Text(
-                'Invite your friends & family to AJHub.\nEarn rewards on Every successful Paid Subscription.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.white.withOpacity(0.9),
-                  height: 1.5,
-                ),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30.r),
+                bottomRight: Radius.circular(30.r),
               ),
-              SizedBox(height: 40.h),
-              ElevatedButton(
-                // <<<--- MODIFIED THIS
-                onPressed: _shareReferralLink,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: kReferYellow,
-                  foregroundColor: kReferPurple,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(50.r),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(20.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    shape: BoxShape.circle,
                   ),
-                  padding:
-                      EdgeInsets.symmetric(vertical: 14.h, horizontal: 40.w),
+                  child: Icon(Icons.card_giftcard_rounded,
+                      size: 50.sp, color: Colors.white),
                 ),
-                child: Text(
-                  'Refer a friend',
+                SizedBox(height: 20.h),
+                Text(
+                  'Share App Link\nTo Download!',
+                  textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 28.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    height: 1.2,
                   ),
                 ),
-              ),
-              _buildReferralCodeSection(),
-            ],
+                SizedBox(height: 12.h),
+                Text(
+                  'Invite your friends & family to AJHub\nand let them explore our amazing features.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.white.withOpacity(0.9),
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+          Transform.translate(
+            offset: Offset(0, -40.h),
+            child: _buildReferralCodeSection(),
+          ),
+        ],
       ),
     );
   }
 
   // ... (All your other build methods like _buildDetailsSection, _buildProgressCard, etc. remain unchanged)
   // ... (Paste all your other unchanged methods here)
-  SliverToBoxAdapter _buildDetailsSection() {
-    return SliverToBoxAdapter(
-      child: Container(
-        transform: Matrix4.translationValues(0.0, -20.0, 0.0),
-        decoration: BoxDecoration(
-          color: kBackgroundColor,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)),
-        ),
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildProgressCard(),
-              SizedBox(height: 20.h),
-              _buildBenefitsRow(),
-              SizedBox(height: 24.h),
-              Text(
-                "Referral Steps", // Renamed from Milestones
-                style: GoogleFonts.poppins(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              SizedBox(height: 12.h),
+  // SliverToBoxAdapter _buildDetailsSection() {
+  //   return SliverToBoxAdapter(
+  //     child: Container(
+  //       transform: Matrix4.translationValues(0.0, -20.0, 0.0),
+  //       decoration: BoxDecoration(
+  //         color: kBackgroundColor,
+  //         borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)),
+  //       ),
+  //       child: Padding(
+  //         padding: EdgeInsets.all(16.w),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             _buildProgressCard(),
+  //             SizedBox(height: 20.h),
+  //             _buildBenefitsRow(),
+  //             SizedBox(height: 24.h),
+  //             Text(
+  //               "Referral Steps", // Renamed from Milestones
+  //               style: GoogleFonts.poppins(
+  //                 fontSize: 18.sp,
+  //                 fontWeight: FontWeight.bold,
+  //                 color: Colors.black87,
+  //               ),
+  //             ),
+  //             SizedBox(height: 12.h),
 
-              // --- STEP 1 ---
-              _buildTierCard(
-                tierColor: const Color(0xFF6C5CE7), // Purple
-                title: "Step 1",
-                description: "Get 7 Days Validity",
-                requiredRefers: 1,
-                completedRefers: directTeamCount,
-              ),
+  //             // --- STEP 1 ---
+  //             _buildTierCard(
+  //               tierColor: const Color(0xFF6C5CE7), // Purple
+  //               title: "Step 1",
+  //               description: "Get 7 Days Validity",
+  //               requiredRefers: 1,
+  //               completedRefers: directTeamCount,
+  //             ),
 
-              // --- STEP 2 ---
-              _buildTierCard(
-                tierColor: const Color(0xFF0984E3), // Blue
-                title: "Step 2",
-                description: "Get +7 Days Validity (Total 14)",
-                requiredRefers: 2,
-                completedRefers: directTeamCount,
-              ),
+  //             // --- STEP 2 ---
+  //             _buildTierCard(
+  //               tierColor: const Color(0xFF0984E3), // Blue
+  //               title: "Step 2",
+  //               description: "Get +7 Days Validity (Total 14)",
+  //               requiredRefers: 2,
+  //               completedRefers: directTeamCount,
+  //             ),
 
-              // --- STEP 3 ---
-              _buildTierCard(
-                tierColor: const Color(0xFF00B894), // Green
-                title: "Step 3",
-                description: "Get +7 Days Validity (Total 21)",
-                requiredRefers: 3,
-                completedRefers: directTeamCount,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  //             // --- STEP 3 ---
+  //             _buildTierCard(
+  //               tierColor: const Color(0xFF00B894), // Green
+  //               title: "Step 3",
+  //               description: "Get +7 Days Validity (Total 21)",
+  //               requiredRefers: 3,
+  //               completedRefers: directTeamCount,
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _buildProgressCard() {
-    double progress = (directTeamCount / 100.0).clamp(0.0, 1.0);
-    return Card(
-      elevation: 4,
-      shadowColor: Colors.grey.withOpacity(0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-      child: Padding(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Your Progress",
-              style: GoogleFonts.poppins(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            SizedBox(height: 12.h),
-            Row(
-              children: [
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10.r),
-                    child: LinearProgressIndicator(
-                      value: progress,
-                      minHeight: 10.h,
-                      backgroundColor: Colors.grey.shade200,
-                      color: Colors.red,
-                    ),
-                  ),
-                ),
-                SizedBox(width: 12.w),
-                Text(
-                  "$directTeamCount/100",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.red,
-                  ),
-                )
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget _buildProgressCard() {
+  //   double progress = (directTeamCount / 100.0).clamp(0.0, 1.0);
+  //   return Card(
+  //     elevation: 4,
+  //     shadowColor: Colors.grey.withOpacity(0.1),
+  //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+  //     child: Padding(
+  //       padding: EdgeInsets.all(16.w),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Text(
+  //             "Your Progress",
+  //             style: GoogleFonts.poppins(
+  //               fontSize: 16.sp,
+  //               fontWeight: FontWeight.w600,
+  //               color: Colors.black87,
+  //             ),
+  //           ),
+  //           SizedBox(height: 12.h),
+  //           Row(
+  //             children: [
+  //               Expanded(
+  //                 child: ClipRRect(
+  //                   borderRadius: BorderRadius.circular(10.r),
+  //                   child: LinearProgressIndicator(
+  //                     value: progress,
+  //                     minHeight: 10.h,
+  //                     backgroundColor: Colors.grey.shade200,
+  //                     color: Colors.red,
+  //                   ),
+  //                 ),
+  //               ),
+  //               SizedBox(width: 12.w),
+  //               Text(
+  //                 "$directTeamCount/100",
+  //                 style: GoogleFonts.poppins(
+  //                   fontSize: 14.sp,
+  //                   fontWeight: FontWeight.bold,
+  //                   color: Colors.red,
+  //                 ),
+  //               )
+  //             ],
+  //           )
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
-  Widget _buildBenefitsRow() {
-    return Row(
-      children: [
-        Expanded(
-            child: _buildBenefitWidget(
-                icon: Icons.star_rounded, text: "5 Points per Refer")),
-        SizedBox(width: 12.w),
-        Expanded(
-            child: _buildBenefitWidget(
-                icon: Icons.account_balance_wallet_rounded,
-                text: "₹100 Refer Income")),
-      ],
-    );
-  }
+  // Widget _buildBenefitsRow() {
+  //   return Row(
+  //     children: [
+  //       Expanded(
+  //           child: _buildBenefitWidget(
+  //               icon: Icons.star_rounded, text: "5 Points per Refer")),
+  //       SizedBox(width: 12.w),
+  //       Expanded(
+  //           child: _buildBenefitWidget(
+  //               icon: Icons.account_balance_wallet_rounded,
+  //               text: "₹100 Refer Income")),
+  //     ],
+  //   );
+  // }
 
-  Widget _buildBenefitWidget({required IconData icon, required String text}) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: Colors.grey.shade200)),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.red, size: 18.sp),
-          SizedBox(width: 8.w),
-          Expanded(
-            child: Text(text,
-                style: GoogleFonts.poppins(
-                    fontSize: 11.sp, fontWeight: FontWeight.w500)),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget _buildBenefitWidget({required IconData icon, required String text}) {
+  //   return Container(
+  //     padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+  //     decoration: BoxDecoration(
+  //         color: Colors.white,
+  //         borderRadius: BorderRadius.circular(12.r),
+  //         border: Border.all(color: Colors.grey.shade200)),
+  //     child: Row(
+  //       children: [
+  //         Icon(icon, color: Colors.red, size: 18.sp),
+  //         SizedBox(width: 8.w),
+  //         Expanded(
+  //           child: Text(text,
+  //               style: GoogleFonts.poppins(
+  //                   fontSize: 11.sp, fontWeight: FontWeight.w500)),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildTierCard({
     required Color tierColor,

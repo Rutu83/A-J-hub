@@ -36,6 +36,7 @@ class ActivateMembershipPageState extends State<ActivateMembershipPage> {
         _selectedImage = pickedFile;
       });
     } else {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("No file selected!")),
       );
@@ -72,6 +73,7 @@ class ActivateMembershipPageState extends State<ActivateMembershipPage> {
           print("Response body: $decodedResponse");
         }
 
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text(decodedResponse['message'] ??
@@ -87,6 +89,7 @@ class ActivateMembershipPageState extends State<ActivateMembershipPage> {
         final decodedErrorResponse = json.decode(responseBody);
         final errorMessage =
             decodedErrorResponse['message'] ?? "An error occurred.";
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(errorMessage)),
         );
@@ -98,6 +101,7 @@ class ActivateMembershipPageState extends State<ActivateMembershipPage> {
       }
     } on SocketException catch (e) {
       // Handle no internet connection error
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text("No internet connection. Please try again later.")),
@@ -107,6 +111,7 @@ class ActivateMembershipPageState extends State<ActivateMembershipPage> {
       }
     } on FormatException catch (e) {
       // Handle JSON format errors
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Invalid response format.")),
       );
@@ -115,6 +120,7 @@ class ActivateMembershipPageState extends State<ActivateMembershipPage> {
       }
     } catch (e) {
       // Handle general errors
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("An unexpected error occurred: $e")),
       );

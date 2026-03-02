@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:ajhub_app/model/subscription_plan_model.dart';
 import 'package:ajhub_app/utils/constant.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
@@ -40,6 +41,30 @@ abstract class _AppStore with Store {
 
   @observable
   String Email = '';
+
+  /// The current user's plan limits — loaded after login
+  @observable
+  PlanLimits planLimits = PlanLimits.empty;
+
+  /// The current user's plan name — e.g. 'Starter', 'Pro'
+  @observable
+  String planName = '';
+
+  /// Convenience: check if user's plan allows a boolean feature
+  bool canAccess(String feature) => planLimits.canAccess(feature);
+
+  /// Convenience: get the numeric limit for a feature (0 = not allowed)
+  int getLimit(String feature) => planLimits.getLimit(feature);
+
+  @action
+  void setPlanLimits(PlanLimits limits) {
+    planLimits = limits;
+  }
+
+  @action
+  void setPlanName(String name) {
+    planName = name;
+  }
 
   @action
   Future<void> setLoggedIn(bool val, {bool isInitializing = false}) async {

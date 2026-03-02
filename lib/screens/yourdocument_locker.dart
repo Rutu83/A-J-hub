@@ -18,6 +18,7 @@ import 'package:path_provider/path_provider.dart'; // ** NEW: For temp file path
 import 'package:photo_view/photo_view.dart';
 import 'package:share_plus/share_plus.dart'; // ** NEW: For sharing files **
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ajhub_app/screens/locked_feature_screen.dart';
 
 // ===================================================================
 // PIN AUTHENTICATION GATE (Now with Recovery)
@@ -768,6 +769,22 @@ class _DocumentLockerContentPageState extends State<DocumentLockerContentPage> {
   }
 
   Future<void> _handleUploadProcess() async {
+    final limit = appStore.planLimits.getLimit('locker_doc_save');
+    if (_documents.length >= limit) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LockedFeatureScreen(
+            featureName: 'Document Limit REACHED',
+            description:
+                'You have reached the maximum number of documents allowed on your current plan. Upgrade to save more documents.',
+            icon: Icons.folder_off_outlined,
+          ),
+        ),
+      );
+      return;
+    }
+
     final String? docName = await _showNameDialog();
     if (docName != null && docName.isNotEmpty) {
       _showImageSourceActionSheet(context, (ImageSource source) async {

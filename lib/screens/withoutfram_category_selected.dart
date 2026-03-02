@@ -6,8 +6,8 @@ import 'dart:ui';
 
 import 'package:ajhub_app/dynamic_fram/fram_6.dart';
 import 'package:ajhub_app/network/rest_apis.dart';
-import 'package:ajhub_app/screens/active_user_screen2.dart';
 import 'package:ajhub_app/screens/category_edit_business_form.dart';
+import 'package:ajhub_app/screens/locked_feature_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +18,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ajhub_app/main.dart';
 
 class WithoutFramCategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -185,64 +186,59 @@ class WithoutFramCategorySelectedState
   //   );
   // }
 
-  static const maxDownloads = 5;
+  // Get today's date string (e.g., '2023-10-27') to track daily limits
+  String _getTodayDateString() {
+    final now = DateTime.now();
+    return '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+  }
 
   Future<void> _incrementDownloadCount(String filePath) async {
     final prefs = await SharedPreferences.getInstance();
+    final today = _getTodayDateString();
+    final limit = appStore.planLimits.getLimit('download_poster_daily');
 
-    Map<String, dynamic> downloadedPaths = json.decode(
-      prefs.getString('downloaded_paths') ?? '{}',
-    );
-    Map<String, List<String>> downloadedPathsSafe = downloadedPaths.map(
-      (key, value) => MapEntry(key, List<String>.from(value ?? [])),
-    );
+    // Store simple daily count
+    Map<String, int> dailyDownloadCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_download_count') ?? '{}'));
 
-    Map<String, int> categoryDownloadCount = Map<String, int>.from(
-      json.decode(prefs.getString('category_download_count') ?? '{}'),
-    );
+    // Clean up old dates
+    dailyDownloadCount.removeWhere((key, value) => key != today);
 
-    categoryDownloadCount[widget.title] =
-        categoryDownloadCount[widget.title] ?? 0;
+    dailyDownloadCount[today] = (dailyDownloadCount[today] ?? 0) + 1;
+    await prefs.setString(
+        'daily_download_count', json.encode(dailyDownloadCount));
+
+    // Store paths if needed (optional, keeping backward compatibility mostly)
+    Map<String, dynamic> downloadedPaths =
+        json.decode(prefs.getString('downloaded_paths') ?? '{}');
+    Map<String, List<String>> downloadedPathsSafe = downloadedPaths
+        .map((key, value) => MapEntry(key, List<String>.from(value ?? [])));
+
     downloadedPathsSafe[widget.title] = downloadedPathsSafe[widget.title] ?? [];
+    downloadedPathsSafe[widget.title]!.add(filePath);
+    await prefs.setString('downloaded_paths', json.encode(downloadedPathsSafe));
 
-    if (categoryDownloadCount[widget.title]! < maxDownloads) {
-      categoryDownloadCount[widget.title] =
-          categoryDownloadCount[widget.title]! + 1;
-      downloadedPathsSafe[widget.title]!.add(filePath);
-
-      await prefs.setString(
-          'category_download_count', json.encode(categoryDownloadCount));
-      await prefs.setString(
-          'downloaded_paths', json.encode(downloadedPathsSafe));
-
-      if (categoryDownloadCount[widget.title] == maxDownloads) {}
-    } else {
+    if (dailyDownloadCount[today] == limit && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Maximum downloads for "${widget.title}" reached!')),
-      );
+          const SnackBar(content: Text('Daily download limit reached!')));
     }
   }
 
   Future<int> _getDownloadCount() async {
     final prefs = await SharedPreferences.getInstance();
-    Map<String, int> categoryDownloadCount = Map<String, int>.from(
-        json.decode(prefs.getString('category_download_count') ?? '{}'));
-    _showDownloads();
-    return categoryDownloadCount[widget.title] ?? 0;
-  }
+    final today = _getTodayDateString();
 
-  Future<void> _showDownloads() async {
-    final prefs = await SharedPreferences.getInstance();
+    Map<String, int> dailyDownloadCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_download_count') ?? '{}'));
 
-    Map<String, dynamic> downloadedPaths = json.decode(
-      prefs.getString('downloaded_paths') ?? '{}',
-    );
-    Map<String, List<String>> downloadedPathsSafe = downloadedPaths.map(
-      (key, value) => MapEntry(key, List<String>.from(value ?? [])),
-    );
+    // Clean up old dates
+    if (dailyDownloadCount.keys.any((key) => key != today)) {
+      dailyDownloadCount.removeWhere((key, value) => key != today);
+      await prefs.setString(
+          'daily_download_count', json.encode(dailyDownloadCount));
+    }
 
-    List<String> pathsForTitle = downloadedPathsSafe[widget.title] ?? [];
+    return dailyDownloadCount[today] ?? 0;
   }
 
   Future<void> _downloadImage() async {
@@ -253,7 +249,9 @@ class WithoutFramCategorySelectedState
 
     try {
       final downloadCount = await _getDownloadCount();
-      if (downloadCount >= maxDownloads) {
+      final limit = appStore.planLimits.getLimit('download_poster_daily');
+
+      if (downloadCount >= limit) {
         _showUpgradePopup();
         return;
       }
@@ -275,8 +273,11 @@ class WithoutFramCategorySelectedState
         final file = File(filePath);
         await file.writeAsBytes(pngBytes);
 
-        await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
-        await _incrementDownloadCount(filePath);
+        final bool? success =
+            await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
+        if (success == true) {
+          await _incrementDownloadCount(filePath);
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -334,120 +335,18 @@ class WithoutFramCategorySelectedState
     }
   }
 
-  Future<void> _downloadImage1() async {
-    setState(() {
-      isProcessing = true;
-      progressMessage = "Downloading image...";
-    });
-
-    try {
-      // Skip download count check to remove limit
-      // final downloadCount = await _getDownloadCount();
-      // if (downloadCount >= maxDownloads) {
-      //   _showUpgradePopup();
-      //   return;
-      // }
-
-      final boundary = _repaintKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
-      if (boundary == null) throw Exception('Unable to capture frame.');
-
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      final pngBytes = byteData?.buffer.asUint8List();
-
-      if (pngBytes != null) {
-        final directory = Directory('/storage/emulated/0/Pictures/AJHUB');
-        if (!directory.existsSync()) directory.createSync(recursive: true);
-
-        final filePath =
-            '${directory.path}/frame_${DateTime.now().millisecondsSinceEpoch}.png';
-        final file = File(filePath);
-        await file.writeAsBytes(pngBytes);
-
-        await GallerySaver.saveImage(filePath, albumName: 'MyFrames');
-        // await _incrementDownloadCount(filePath);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(5),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            backgroundColor: Colors.grey.shade400,
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.white),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Image downloaded successfully!',
-                    style: GoogleFonts.poppins(
-                        fontSize: 14.sp, color: Colors.black),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          backgroundColor: Colors.grey.shade400,
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Failed to download image. Please try again later.',
-                  style:
-                      GoogleFonts.poppins(fontSize: 14.sp, color: Colors.black),
-                ),
-              ),
-            ],
-          ),
+  void _showUpgradePopup({bool isShare = false}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LockedFeatureScreen(
+          featureName: isShare
+              ? 'Daily Share Limit REACHED'
+              : 'Daily Download Limit REACHED',
+          description:
+              'You have reached your daily limit for ${isShare ? "sharing" : "downloading"} business posters. Upgrade your plan to unlock more limits.',
+          icon: isShare ? Icons.share : Icons.download,
         ),
-      );
-    } finally {
-      setState(() {
-        isProcessing = false;
-      });
-    }
-  }
-
-  void _showUpgradePopup() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Upgrade Membership'),
-        content: const Text(
-            'You have reached the maximum download limit. Upgrade to premium membership for unlimited downloads.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const ActivateMembershipPage()),
-              );
-            },
-            child: const Text('Upgrade Now'),
-          ),
-        ],
       ),
     );
   }
@@ -464,6 +363,34 @@ class WithoutFramCategorySelectedState
     }
   }
 
+  Future<int> _getShareCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = _getTodayDateString();
+    Map<String, int> dailyShareCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_share_count') ?? '{}'));
+
+    // Clean up old dates
+    if (dailyShareCount.keys.any((key) => key != today)) {
+      dailyShareCount.removeWhere((key, value) => key != today);
+      await prefs.setString('daily_share_count', json.encode(dailyShareCount));
+    }
+
+    return dailyShareCount[today] ?? 0;
+  }
+
+  Future<void> _incrementShareCount() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = _getTodayDateString();
+    Map<String, int> dailyShareCount = Map<String, int>.from(
+        json.decode(prefs.getString('daily_share_count') ?? '{}'));
+
+    // Clean up old dates
+    dailyShareCount.removeWhere((key, value) => key != today);
+
+    dailyShareCount[today] = (dailyShareCount[today] ?? 0) + 1;
+    await prefs.setString('daily_share_count', json.encode(dailyShareCount));
+  }
+
   Future<void> _shareImage() async {
     setState(() {
       isProcessing = true;
@@ -471,6 +398,13 @@ class WithoutFramCategorySelectedState
     });
 
     try {
+      final shareCount = await _getShareCount();
+      final limit = appStore.planLimits.getLimit('share_poster_daily');
+
+      if (shareCount >= limit) {
+        _showUpgradePopup(isShare: true);
+        return;
+      }
       final boundary = _repaintKey.currentContext?.findRenderObject()
           as RenderRepaintBoundary?;
       if (boundary == null) throw Exception('Unable to capture frame.');
@@ -485,10 +419,14 @@ class WithoutFramCategorySelectedState
       final file = File(filePath);
       await file.writeAsBytes(pngBytes!);
 
-      await Share.shareXFiles(
+      final ShareResult result = await Share.shareXFiles(
         [XFile(filePath)],
         text: 'AJ Hub Mobile App !',
       );
+
+      if (result.status == ShareResultStatus.success) {
+        await _incrementShareCount();
+      }
     } catch (error) {
       if (kDebugMode) {
         print("Error sharing image: $error");
@@ -584,11 +522,7 @@ class WithoutFramCategorySelectedState
                 color: Colors.red,
               ),
               tooltip: 'Download Image',
-              onPressed: status == 'active' && !isProcessing
-                  ? _downloadImage1
-                  : (status != 'inactive' && !isProcessing
-                      ? _downloadImage
-                      : null),
+              onPressed: !isProcessing ? _downloadImage : null,
             ),
           ),
           Container(

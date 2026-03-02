@@ -4,6 +4,7 @@ import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/screens/business_form.dart';
 import 'package:ajhub_app/screens/edit_business_form.dart';
 import 'package:ajhub_app/utils/configs.dart';
+import 'package:ajhub_app/utils/feature_gate_widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ajhub_app/screens/locked_feature_screen.dart';
 
 class BusinessList extends StatefulWidget {
   const BusinessList({super.key});
@@ -348,16 +350,36 @@ class BusinessListState extends State<BusinessList> {
                     );
                   },
                 ),
-      floatingActionButton: businessData.length < 3
-          ? FloatingActionButton.extended(
-              onPressed: _navigateToAddBusiness,
-              backgroundColor: Colors.red,
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: Text('Add Business',
-                  style: GoogleFonts.poppins(
-                      color: Colors.white, fontWeight: FontWeight.w600)),
-            )
-          : null,
+      floatingActionButton: FeatureGate(
+        feature: 'add_business',
+        currentCount: businessData.length,
+        customLockWidget: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const LockedFeatureScreen(
+                  featureName: 'Add Business',
+                  icon: Icons.business,
+                ),
+              ),
+            );
+          },
+          backgroundColor: Colors.red,
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: Text('Add Business',
+              style: GoogleFonts.poppins(
+                  color: Colors.white, fontWeight: FontWeight.w600)),
+        ),
+        child: FloatingActionButton.extended(
+          onPressed: _navigateToAddBusiness,
+          backgroundColor: Colors.red,
+          icon: const Icon(Icons.add, color: Colors.white),
+          label: Text('Add Business',
+              style: GoogleFonts.poppins(
+                  color: Colors.white, fontWeight: FontWeight.w600)),
+        ),
+      ),
     );
   }
 
