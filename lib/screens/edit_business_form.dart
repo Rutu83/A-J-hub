@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -129,7 +130,10 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
 
     try {
       var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
-      request.headers.addAll({'Authorization': 'Bearer $token'});
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      });
 
       // Add text fields
       request.fields['business_name'] = _businessNameController.text;
@@ -141,14 +145,24 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
 
       // Add business logo file if it was changed
       if (_businessLogoFile != null) {
-        request.files.add(
-            await http.MultipartFile.fromPath('logo', _businessLogoFile!.path));
+        final logoExt = _businessLogoFile!.path.split('.').last.toLowerCase();
+        final logoMime = logoExt == 'png' ? 'png' : 'jpeg';
+        request.files.add(await http.MultipartFile.fromPath(
+          'logo',
+          _businessLogoFile!.path,
+          contentType: MediaType('image', logoMime),
+        ));
       }
 
-      // --- NEW: Add personal photo file if it was changed ---
+      // Add personal photo file if it was changed
       if (_personalPhotoFile != null) {
+        final photoExt = _personalPhotoFile!.path.split('.').last.toLowerCase();
+        final photoMime = photoExt == 'png' ? 'png' : 'jpeg';
         request.files.add(await http.MultipartFile.fromPath(
-            'personal_photo', _personalPhotoFile!.path));
+          'personal_photo',
+          _personalPhotoFile!.path,
+          contentType: MediaType('image', photoMime),
+        ));
       }
 
       var response = await request.send();

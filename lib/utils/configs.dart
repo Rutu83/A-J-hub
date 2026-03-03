@@ -12,8 +12,8 @@ const APP_NAME_TAG_LINE = 'CUSTOMER APP';
 var defaultPrimaryColor = const Color(0xFF070707);
 
 // PRODUCTION URL (Restore when deploying)
-//const DOMAIN_URL = 'https://ajhub.co.in/api/';
-const DOMAIN_URL = 'https://mediumspringgreen-trout-511690.hostingersite.com/api/';
+const DOMAIN_URL = 'https://ajhub.co.in/api/';
+//const DOMAIN_URL = 'https://mediumspringgreen-trout-511690.hostingersite.com/api/';
 
 // LOCAL TESTING URL (Android Emulator uses 10.0.2.2, iOS Simulator uses 127.0.0.1)
 // const DOMAIN_URL = 'http://10.0.2.2:8000/api/'; // Android Emulator
