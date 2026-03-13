@@ -129,6 +129,11 @@ class _FestivalCategorySectionState extends State<FestivalCategorySection> {
                 width: 120.w,
                 height: 90.h,
                 fit: BoxFit.cover,
+                memCacheWidth: 240,
+                memCacheHeight: 180,
+                maxWidthDiskCache: 320,
+                maxHeightDiskCache: 240,
+                fadeInDuration: const Duration(milliseconds: 150),
                 placeholder: (context, url) => Shimmer.fromColors(
                   baseColor: Colors.grey[300]!,
                   highlightColor: Colors.grey[100]!,

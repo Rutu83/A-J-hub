@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 import 'dart:convert';
 
 class CategorySelectionScreen extends StatefulWidget {
@@ -80,7 +81,25 @@ class CategorySelectionScreenState extends State<CategorySelectionScreen> {
         ],
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? ListView.builder(
+              itemCount: 8,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemBuilder: (context, index) => Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                child: Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            )
           : ListView.builder(
               itemCount: categories.length,
               itemBuilder: (context, index) {
@@ -106,13 +125,20 @@ class CategorySelectionScreenState extends State<CategorySelectionScreen> {
                                 width: 40,
                                 height: 40,
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) => Container(
-                                  width: 40,
-                                  height: 40,
-                                  color: Colors.grey[200],
-                                  child: const Center(
-                                      child: CircularProgressIndicator(
-                                          strokeWidth: 2)),
+                                // FIX: Cache at actual display size (40×40)
+                                memCacheWidth: 80,
+                                memCacheHeight: 80,
+                                fadeInDuration:
+                                    const Duration(milliseconds: 150),
+                                placeholder: (context, url) =>
+                                    Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    width: 40,
+                                    height: 40,
+                                    color: Colors.white,
+                                  ),
                                 ),
                                 errorWidget: (context, url, error) =>
                                     Image.asset('assets/images/app_logo.png'),

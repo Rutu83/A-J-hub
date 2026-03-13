@@ -5,6 +5,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:shimmer/shimmer.dart';
 
 import '../../utils/configs.dart';
 
@@ -46,9 +47,16 @@ class _BannerSliderSectionState extends State<BannerSliderSection> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Padding(
             padding: EdgeInsets.all(12.w),
-            child: SizedBox(
-              height: 140.h,
-              child: Center(child: CircularProgressIndicator()),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                height: 150.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15.r),
+                ),
+              ),
             ),
           );
         } else if (snapshot.hasError ||
@@ -78,8 +86,15 @@ class _BannerSliderSectionState extends State<BannerSliderSection> {
                       imageUrl: url,
                       fit: BoxFit.cover,
                       width: double.infinity,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[300],
+                      memCacheWidth: 800,
+                      memCacheHeight: 300,
+                      maxWidthDiskCache: 900,
+                      maxHeightDiskCache: 360,
+                      fadeInDuration: const Duration(milliseconds: 150),
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(color: Colors.white),
                       ),
                       errorWidget: (context, url, error) =>
                           Image.asset('assets/images/app_logo.png'),

@@ -5,6 +5,7 @@ import 'package:ajhub_app/screens/category_selected.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shimmer/shimmer.dart';
 
 class TrendingSection extends StatefulWidget {
   const TrendingSection({super.key});
@@ -57,11 +58,42 @@ class _TrendingSectionState extends State<TrendingSection>
     super.build(context);
     if (_isLoading) {
       return Container(
-        // *** CHANGE: Adjusted height for compact loading state ***
-        height: 190.h,
         color: const Color(0xFFF6F6FF),
-        child: const Center(
-          child: CircularProgressIndicator(color: Colors.red),
+        padding: EdgeInsets.symmetric(vertical: 12.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child:
+                    Container(height: 20.h, width: 140.w, color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 12.h),
+            SizedBox(
+              height: 155.h,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                itemCount: 5,
+                itemBuilder: (context, index) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 110.w,
+                    margin: EdgeInsets.only(right: 16.w),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       );
     }
@@ -179,10 +211,17 @@ class _TrendingSectionState extends State<TrendingSection>
                 width: 110.w,
                 height: 110.h,
                 fit: BoxFit.cover,
-
-                placeholder: (context, url) => Container(
-                    width: 110.w, height: 110.h, color: Colors.grey[300]),
-
+                memCacheWidth: 220,
+                memCacheHeight: 220,
+                maxWidthDiskCache: 300,
+                maxHeightDiskCache: 300,
+                fadeInDuration: const Duration(milliseconds: 150),
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                      width: 110.w, height: 110.h, color: Colors.white),
+                ),
                 errorWidget: (context, url, error) =>
                     Image.asset('assets/images/app_logo.png'),
               ),

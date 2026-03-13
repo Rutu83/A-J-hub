@@ -238,10 +238,16 @@ class _UpcomingCategorySectionState extends State<UpcomingCategorySection>
                     ? CachedNetworkImage(
                         imageUrl: imageUrl,
                         fit: BoxFit.cover,
-                        placeholder: (context, url) => Center(
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2.0,
-                                color: Colors.red.withOpacity(0.3))),
+                        memCacheWidth: 220,
+                        memCacheHeight: 216,
+                        maxWidthDiskCache: 300,
+                        maxHeightDiskCache: 300,
+                        fadeInDuration: const Duration(milliseconds: 150),
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey[300]!,
+                          highlightColor: Colors.grey[100]!,
+                          child: Container(color: Colors.white),
+                        ),
                         errorWidget: (context, url, error) =>
                             Image.asset('assets/images/app_logo.png'),
                       )

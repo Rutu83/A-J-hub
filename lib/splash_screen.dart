@@ -94,7 +94,7 @@ class SplashScreenState extends State<SplashScreen>
             const Spacer(),
             FadeTransition(
               opacity: _fadeInAnimation,
-              child: Text('Version 3.0.0',
+              child: Text('Version 4.0.0',
                   style: TextStyle(fontSize: 14.sp, color: Colors.red)),
             ),
             SizedBox(height: 20.h),

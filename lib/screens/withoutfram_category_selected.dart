@@ -19,6 +19,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ajhub_app/main.dart';
+import 'package:shimmer/shimmer.dart';
 
 class WithoutFramCategorySelected extends StatefulWidget {
   final List<String> imagePaths;
@@ -571,9 +572,14 @@ class WithoutFramCategorySelectedState
                             child: CachedNetworkImage(
                               imageUrl: widget.imagePaths[selectedIndex],
                               fit: BoxFit.cover,
-                              placeholder: (context, url) => const Center(
-                                  child:
-                                      CircularProgressIndicator()), // Show loading indicator while the image is being loaded
+                              memCacheWidth: 800,
+                              memCacheHeight: 800,
+                              fadeInDuration: const Duration(milliseconds: 150),
+                              placeholder: (context, url) => Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(color: Colors.white),
+                              ),
                               errorWidget: (context, url, error) =>
                                   Image.asset('assets/images/app_logo.png'),
                             ),
@@ -658,8 +664,16 @@ class WithoutFramCategorySelectedState
                               child: CachedNetworkImage(
                                 imageUrl: widget.imagePaths[index],
                                 fit: BoxFit.cover,
+                                memCacheWidth: 300,
+                                memCacheHeight: 300,
+                                fadeInDuration:
+                                    const Duration(milliseconds: 150),
                                 placeholder: (context, url) =>
-                                    const CircularProgressIndicator(),
+                                    Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(color: Colors.white),
+                                ),
                                 errorWidget: (context, url, error) =>
                                     Image.asset('assets/images/app_logo.png'),
                               ),
@@ -685,16 +699,42 @@ class WithoutFramCategorySelectedState
           ),
           if (isProcessing)
             Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withOpacity(0.55),
               child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 10),
-                    Text(progressMessage,
-                        style: const TextStyle(color: Colors.white)),
-                  ],
+                child: Shimmer.fromColors(
+                  baseColor: Colors.grey[700]!,
+                  highlightColor: Colors.grey[300]!,
+                  child: Container(
+                    width: 200,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          height: 14,
+                          width: 120,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          height: 10,
+                          width: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

@@ -622,8 +622,14 @@ class CategorySelectedState extends State<CategorySelected> {
                               child: CachedNetworkImage(
                                 imageUrl: _validImagePaths[selectedIndex],
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) => const Center(
-                                    child: CircularProgressIndicator()),
+                                placeholder: (context, url) =>
+                                    Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    color: Colors.white,
+                                  ),
+                                ),
                                 errorWidget: (context, url, error) =>
                                     Image.asset('assets/images/app_logo.png'),
                               ),
@@ -759,10 +765,16 @@ class CategorySelectedState extends State<CategorySelected> {
                           fit: BoxFit.cover,
                           memCacheHeight:
                               400, // Optimization: Resize active image
-                          placeholder: (context, url) => Container(
-                            color: Colors.grey[200], // Simple placeholder
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                           ),
-
                           errorWidget: (context, url, error) =>
                               Image.asset('assets/images/app_logo.png'),
                         ),
@@ -777,16 +789,42 @@ class CategorySelectedState extends State<CategorySelected> {
         ),
         if (isProcessing)
           Container(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withOpacity(0.55),
             child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 10),
-                  Text(progressMessage,
-                      style: const TextStyle(color: Colors.white)),
-                ],
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[700]!,
+                highlightColor: Colors.grey[300]!,
+                child: Container(
+                  width: 200,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: 14,
+                        width: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        height: 10,
+                        width: 80,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -942,8 +980,14 @@ class CategorySelectedState extends State<CategorySelected> {
                                 child: CachedNetworkImage(
                                   imageUrl: _validImagePaths[selectedIndex],
                                   fit: BoxFit.cover,
-                                  placeholder: (context, url) => const Center(
-                                      child: CircularProgressIndicator()),
+                                  placeholder: (context, url) =>
+                                      Shimmer.fromColors(
+                                    baseColor: Colors.grey[300]!,
+                                    highlightColor: Colors.grey[100]!,
+                                    child: Container(
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                   errorWidget: (context, url, error) =>
                                       Image.asset('assets/images/app_logo.png'),
                                 ),
@@ -1085,7 +1129,11 @@ class CategorySelectedState extends State<CategorySelected> {
                                 imageUrl: _validImagePaths[index],
                                 fit: BoxFit.cover,
                                 placeholder: (context, url) =>
-                                    const CircularProgressIndicator(),
+                                    Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(color: Colors.white),
+                                ),
                                 errorWidget: (context, url, error) =>
                                     Image.asset('assets/images/app_logo.png'),
                               ),
@@ -1118,16 +1166,42 @@ class CategorySelectedState extends State<CategorySelected> {
           ),
           if (isProcessing)
             Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withOpacity(0.55),
               child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircularProgressIndicator(),
-                    const SizedBox(height: 10),
-                    Text(progressMessage,
-                        style: const TextStyle(color: Colors.white)),
-                  ],
+                child: Shimmer.fromColors(
+                  baseColor: Colors.grey[700]!,
+                  highlightColor: Colors.grey[300]!,
+                  child: Container(
+                    width: 200,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          height: 14,
+                          width: 120,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          height: 10,
+                          width: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

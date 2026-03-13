@@ -178,6 +178,11 @@ class _DailyUseCategorySectionState extends State<DailyUseCategorySection>
               width: 70.w,
               height: 68.h, // Slightly reduced from 70.h
               fit: BoxFit.fill,
+              memCacheWidth: 140,
+              memCacheHeight: 136,
+              maxWidthDiskCache: 200,
+              maxHeightDiskCache: 200,
+              fadeInDuration: const Duration(milliseconds: 150),
               placeholder: (context, url) => Shimmer.fromColors(
                 baseColor: Colors.grey[300]!,
                 highlightColor: Colors.grey[100]!,

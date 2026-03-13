@@ -72,15 +72,64 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     super.dispose();
   }
 
-  Future<void> _launchVisitUs() async {
-    const String url =
-        'https://google.com'; // TODO: Replace with dynamic Admin URL
-    final Uri uri = Uri.parse(url);
-    if (!await launchUrl(uri, mode: LaunchMode.inAppWebView)) {
+  // NOTE: The meeting link is dynamically driven by the backend.
+  // The backend should return a 'meeting_link' field in the product/business
+  // API response. When the backend adds or updates the URL, no app update
+  // is needed — the app will pick it up automatically on the next data fetch.
+  //
+  // Expected backend field: product['meeting_link'] (String | null)
+  // Example backend response:
+  //   { ..., "meeting_link": "https://meet.google.com/xyz-abc-def", ... }
+  Future<void> _launchJoinMeeting() async {
+    final String? meetingLink = widget.product['meeting_link'];
+
+    if (meetingLink == null || meetingLink.trim().isEmpty) {
+      // Backend hasn't provided a link yet — show friendly message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(12),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          backgroundColor: Colors.orange,
+          content: Row(
+            children: [
+              const Icon(Icons.info_outline, color: Colors.white),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Meeting link is not available yet. Please check back later.',
+                  style:
+                      GoogleFonts.poppins(fontSize: 13.sp, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      return;
+    }
+
+    final Uri uri = Uri.parse(meetingLink.trim());
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (kDebugMode) {
-        print('Could not launch $url');
+        print('Could not launch meeting link: $meetingLink');
       }
-      // Fallback or user notification could go here
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(12),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            backgroundColor: Colors.redAccent,
+            content: Text(
+              'Could not open the meeting link. Please try again.',
+              style: GoogleFonts.poppins(fontSize: 13.sp, color: Colors.white),
+            ),
+          ),
+        );
+      }
     }
   }
 
@@ -107,7 +156,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Submit Your Enquiry',
+                    'Submit Comments',
                     style: GoogleFonts.poppins(
                       fontSize: 18.sp,
                       fontWeight: FontWeight.bold,
@@ -122,7 +171,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       isButtonEnabled.value = value.trim().isNotEmpty;
                     },
                     decoration: InputDecoration(
-                      hintText: 'Type your enquiry here...',
+                      hintText: 'Type your comment here...',
                       hintStyle: GoogleFonts.poppins(fontSize: 14.sp),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -200,7 +249,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               const SizedBox(width: 20),
               Expanded(
                 child: Text(
-                  'Submitting your enquiry...',
+                  'Submitting your comment...',
                   style: GoogleFonts.poppins(fontSize: 12.sp),
                 ),
               ),
@@ -332,40 +381,40 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      style: GoogleFonts.poppins(
-                        fontSize: 12.sp,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      children: [
-                        const TextSpan(
-                          text: 'As Promised, We' 're The Most Professional ',
-                        ),
-                        TextSpan(
-                          text: '${widget.product['title']}',
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline,
-                            decorationColor: Colors.red,
-                            decorationThickness: 1.0,
-                          ),
-                        ),
-                        const TextSpan(
-                          text: '  Company.',
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 5),
+              // Center(
+              //   child: Padding(
+              //     padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              //     child: RichText(
+              //       textAlign: TextAlign.center,
+              //       text: TextSpan(
+              //         style: GoogleFonts.poppins(
+              //           fontSize: 12.sp,
+              //           color: Colors.black87,
+              //           fontWeight: FontWeight.w500,
+              //         ),
+              //         children: [
+              //           const TextSpan(
+              //             text: 'As Promised, We\'re The Most Professional ',
+              //           ),
+              //           TextSpan(
+              //             text: '${widget.product['title']}',
+              //             style: const TextStyle(
+              //               color: Colors.red,
+              //               fontWeight: FontWeight.bold,
+              //               decoration: TextDecoration.underline,
+              //               decorationColor: Colors.red,
+              //               decorationThickness: 1.0,
+              //             ),
+              //           ),
+              //           const TextSpan(
+              //             text: '  Company.',
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
+              // const SizedBox(height: 5),
               Padding(
                 padding: const EdgeInsets.only(left: 10, right: 10),
                 child: Column(
@@ -551,7 +600,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton.icon(
-                  onPressed: _launchVisitUs,
+                  onPressed: _launchJoinMeeting,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
@@ -563,9 +612,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     ),
                     elevation: 2,
                   ),
-                  icon: const Icon(Icons.language, color: Colors.red),
+                  icon: const Icon(Icons.video_call_rounded, color: Colors.red),
                   label: Text(
-                    'Visit Us',
+                    'Join Meeting',
                     style: GoogleFonts.poppins(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
@@ -586,40 +635,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     elevation: 5,
                     shadowColor: Colors.black,
                   ),
-                  icon: const Icon(Icons.safety_check_rounded,
-                      color: Colors.white),
-                  label: Row(
-                    children: [
-                      Text(
-                        'Add Enquire',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.white54,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 4,
-                              offset: const Offset(2, 2),
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.white,
-                          size: 20,
-                          weight: 55,
-                        ),
-                      )
-                    ],
+                  icon: const Icon(Icons.comment_rounded, color: Colors.white),
+                  label: Text(
+                    'Comment',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],

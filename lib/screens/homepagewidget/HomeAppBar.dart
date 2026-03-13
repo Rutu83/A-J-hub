@@ -11,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../utils/ring.dart'; // Assuming this is where CustomLoopingIconButton is defined
 
@@ -244,8 +245,18 @@ class _HomeAppBarState extends State<HomeAppBar> {
           width: 24.w,
           height: 24.h,
           fit: BoxFit.cover,
-          placeholder: (context, url) =>
-              const CircularProgressIndicator(strokeWidth: 2),
+          memCacheWidth: 48,
+          memCacheHeight: 48,
+          fadeInDuration: const Duration(milliseconds: 150),
+          placeholder: (context, url) => Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              width: 24.w,
+              height: 24.h,
+              color: Colors.white,
+            ),
+          ),
           errorWidget: (context, url, error) =>
               Image.asset('assets/images/app_logo.png'),
         ),

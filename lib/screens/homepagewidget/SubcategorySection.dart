@@ -163,6 +163,11 @@ class _SubcategorySectionState extends State<SubcategorySection> {
           child: CachedNetworkImage(
             imageUrl: imageUrl,
             fit: BoxFit.cover,
+            memCacheWidth: 220,
+            memCacheHeight: 220,
+            maxWidthDiskCache: 300,
+            maxHeightDiskCache: 300,
+            fadeInDuration: const Duration(milliseconds: 150),
             placeholder: (context, url) => Shimmer.fromColors(
               baseColor: Colors.grey[300]!,
               highlightColor: Colors.grey[100]!,

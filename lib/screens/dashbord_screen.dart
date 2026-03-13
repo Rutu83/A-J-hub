@@ -40,6 +40,7 @@ class DashboardScreenState extends State<DashboardScreen>
   Future<Map<String, dynamic>>? futureUserDetail;
   UniqueKey keyForStatus = UniqueKey();
   bool _isLoading = true;
+  bool _isFetching = false; // 🔑 Guard: prevents concurrent API calls
   Future<List<BusinessModal>>? futureBusiness;
   BusinessModal? businessData;
   int directTeamCount = 0;
@@ -62,7 +63,8 @@ class DashboardScreenState extends State<DashboardScreen>
   /// (e.g. subscription expiry detected as soon as the app foregrounds).
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    // Only re-fetch on resume and NOT if a fetch is already in progress
+    if (state == AppLifecycleState.resumed && !_isFetching) {
       fetchUserData();
     }
   }
@@ -76,6 +78,9 @@ class DashboardScreenState extends State<DashboardScreen>
   }
 
   void fetchUserData() async {
+    // 🔑 Guard: if already fetching, do not fire another request
+    if (_isFetching) return;
+    _isFetching = true;
     try {
       setState(() {
         _isLoading = true;
@@ -138,6 +143,8 @@ class DashboardScreenState extends State<DashboardScreen>
         hasError = true;
         errorMessage = "An unexpected error occurred: $e";
       });
+    } finally {
+      _isFetching = false; // Always release the lock
     }
   }
 

@@ -552,24 +552,16 @@ class _SubcategoryCardState extends State<SubcategoryCard>
         );
       },
       child: Container(
-        // The container now handles clipping its children to the border shape.
-        clipBehavior: Clip.antiAlias, // This is a key improvement!
+        // Use hardEdge for scroll performance (antiAlias is very expensive in grids)
+        clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16.r), // Softer corners
-          // --- REFINED BORDER ---
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: Colors.grey.shade300, // Subtler border color
-            width: 1.0, // Thinner border
+            color: Colors.grey.shade300,
+            width: 1.0,
           ),
-
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05), // Softer shadow
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            )
-          ],
+          // Removed expensive shadow blur to maintain 60FPS while scrolling
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -583,8 +575,18 @@ class _SubcategoryCardState extends State<SubcategoryCard>
                     CachedNetworkImage(
                       imageUrl: imageUrl,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          Container(color: Colors.grey[200]),
+                      // 🔑 FIX: Decode & cache at display size, not full resolution.
+                      // Grid tiles are ~120px wide — no need to load a 1200px image.
+                      memCacheWidth: 300,
+                      memCacheHeight: 300,
+                      maxWidthDiskCache: 400,
+                      maxHeightDiskCache: 400,
+                      fadeInDuration: const Duration(milliseconds: 150),
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(color: Colors.white),
+                      ),
                       errorWidget: (context, url, error) =>
                           Image.asset('assets/images/app_logo.png'),
                     )
