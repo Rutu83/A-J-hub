@@ -3,6 +3,7 @@
 import 'package:ajhub_app/model/temple_model.dart';
 import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:ajhub_app/screens/temple_detail_screen.dart';
+import 'package:ajhub_app/utils/common.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
@@ -173,7 +174,7 @@ class _TempleSliderSectionState extends State<TempleSliderSection> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      temple.name,
+                      parseHtmlString(temple.name),
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -185,7 +186,7 @@ class _TempleSliderSectionState extends State<TempleSliderSection> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      temple.location,
+                      parseHtmlString(temple.location),
                       style: TextStyle(
                         color: Colors.white.withOpacity(0.9),
                         fontSize: 12,

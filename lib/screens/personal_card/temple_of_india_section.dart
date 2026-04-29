@@ -2,6 +2,7 @@
 
 import 'package:ajhub_app/network/rest_apis.dart';
 import 'package:ajhub_app/screens/category_selected.dart';
+import 'package:ajhub_app/utils/common.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -82,8 +83,8 @@ class _TempleOfIndiaSectionState extends State<TempleOfIndiaSection> {
                     ? subcategory.images.first
                     : '';
 
-                return _buildItem(
-                    context, subcategory.name, imageUrl, subcategory.images);
+                return _buildItem(context, parseHtmlString(subcategory.name),
+                    imageUrl, subcategory.images);
               },
             ),
           ),

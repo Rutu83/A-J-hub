@@ -185,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen>
   // --- STATE FOR LOADING AND REFERRAL LOGIC ---
   bool _isLoading = true;
   bool _isPopupShown = false;
+
   ReferralStep? _currentStep;
   ReferralStep? _nextStep;
   double _progress = 0.0;
@@ -214,6 +215,8 @@ class _HomeScreenState extends State<HomeScreen>
       }
     });
   }
+
+
 
   // --- ADDED: Method to show the popup ---
   void _showInitialPopup(BuildContext context) {

@@ -141,7 +141,9 @@ class _PersonalCardPageState extends State<PersonalCardPage> {
       final response = await getAllSubCategories();
       if (mounted) {
         setState(() {
-          _allSubcategories = response.subcategories;
+          _allSubcategories = response.subcategories
+              .where((item) => !item.name.toLowerCase().contains('custom'))
+              .toList();
         });
         _applyFilters(); // Apply filters to generate "All" option initially
       }

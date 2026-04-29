@@ -16,42 +16,52 @@ class CategoriesWithSubcategoriesResponse {
 }
 
 class CategoryWithSubcategory {
+  final int id;
   final String name;
   final List<Subcategory> subcategories;
 
   CategoryWithSubcategory({
+    this.id = 0,
     required this.name,
     required this.subcategories,
   });
 
   factory CategoryWithSubcategory.fromJson(Map<String, dynamic> json) {
-    var subcategoryList = json['subcategories'] as List;
+    // Accommodate standard Laravel structure and the previous mapped structure
+    var subcategoryList = (json['subcategories'] ?? json['subcategory'] ?? []) as List;
     List<Subcategory> subcategories =
         subcategoryList.map((i) => Subcategory.fromJson(i)).toList();
 
     return CategoryWithSubcategory(
-      name: json['category_name'],
+      id: json['id'] ?? 0,
+      name: json['category_name'] ?? json['name'] ?? '',
       subcategories: subcategories,
     );
   }
 }
 
 class Subcategory {
+  final int id;
   final String name;
   final List<String> images;
 
   Subcategory({
+    this.id = 0,
     required this.name,
     required this.images,
   });
 
   factory Subcategory.fromJson(Map<String, dynamic> json) {
-    var imageList = json['images'] as List;
-    List<String> images =
-        imageList.map((image) => image.toString().trim()).toList();
+    // If images exist in structure
+    var imageList = json['images'] != null ? json['images'] as List : [];
+    List<String> images = imageList.map((image) {
+      String url = image.toString().trim();
+      return url.replaceAll('127.0.0.1', '10.0.2.2').replaceAll('localhost', '10.0.2.2');
+    }).toList();
 
     return Subcategory(
-      name: json['subcategory_name'],
+      id: json['id'] ?? 0,
+      name: json['subcategory_name'] ?? json['name'] ?? '',
       images: images,
     );
   }

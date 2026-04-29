@@ -25,6 +25,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ajhub_app/main.dart';
 import 'package:ajhub_app/utils/configs.dart';
+import 'package:ajhub_app/screens/editor/photo_editor_screen.dart';
 
 import 'business_form.dart';
 import 'package:shimmer/shimmer.dart';
@@ -32,9 +33,14 @@ import 'package:shimmer/shimmer.dart';
 class CategorySelected extends StatefulWidget {
   final List<String> imagePaths;
   final String title;
+  final bool isCustomEdit;
 
-  const CategorySelected(
-      {super.key, required this.imagePaths, required this.title});
+  const CategorySelected({
+    super.key,
+    required this.imagePaths,
+    required this.title,
+    this.isCustomEdit = false,
+  });
 
   @override
   CategorySelectedState createState() => CategorySelectedState();
@@ -747,9 +753,21 @@ class CategorySelectedState extends State<CategorySelected> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      setState(() {
-                        selectedIndex = index;
-                      });
+                      if (widget.isCustomEdit) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PhotoEditorScreen(
+                              imageUrl: _validImagePaths[index],
+                              businessLogoUrl: businessLogoUrl,
+                            ),
+                          ),
+                        );
+                      } else {
+                        setState(() {
+                          selectedIndex = index;
+                        });
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -907,6 +925,39 @@ class CategorySelectedState extends State<CategorySelected> {
                 ).then((_) {
                   printActiveBusinessData();
                 });
+              },
+            ),
+          ),
+          // --- Edit with Custom (Pro Image Editor) ---
+          Container(
+            alignment: Alignment.center,
+            margin: const EdgeInsets.all(4.0),
+            width: 36.0,
+            height: 35.0,
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.brush_rounded,
+                size: 21.0,
+                color: Colors.white,
+              ),
+              tooltip: 'Edit with Custom',
+              onPressed: () {
+                final imageUrl = _validImagePaths.isNotEmpty
+                    ? _validImagePaths[selectedIndex]
+                    : null;
+                if (imageUrl == null) return;
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        PhotoEditorScreen(imageUrl: imageUrl),
+                  ),
+                );
               },
             ),
           ),

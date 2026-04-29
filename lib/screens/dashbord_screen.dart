@@ -14,8 +14,10 @@ import 'package:ajhub_app/screens/profile_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ajhub_app/utils/feature_gate_widget.dart';
+
 import 'package:ajhub_app/screens/locked_feature_screen.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:ajhub_app/screens/custom_edit_category_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -114,7 +116,7 @@ class DashboardScreenState extends State<DashboardScreen>
         fetchAndStorePlanLimits(userPlanId: userDetail['subscription_plan_id']);
 
         // Check Trial Expiry immediately after user data is loaded
-        _checkTrialStatus();
+        _checkTrialStatus(); // Trial check successfully re-enabled
       });
     } on SocketException {
       setState(() {
@@ -399,49 +401,62 @@ class DashboardScreenState extends State<DashboardScreen>
               userStatus: userStatus,
               userCreatedAt: userCreatedAt), // <--- Passed Status and CreatedAt
           SubcategoriesScreen(),
-          OurProductAndService(),
+          const CustomEditCategoryScreen(),
           ProfileScreen(),
         ],
       ),
-      floatingActionButton: FeatureGate(
-        feature: 'plan_a_day',
-        customLockWidget: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const LockedFeatureScreen(
-                  featureName: 'Plan A Day',
-                  icon: Icons.calendar_month,
-                ),
-              ),
-            );
-          },
-          backgroundColor: Colors.grey,
-          child: const Icon(
-            Icons.lock_outline,
-            color: Colors.white,
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        backgroundColor: const Color(0xFFD32F2F),
+        foregroundColor: Colors.white,
+        overlayColor: Colors.black,
+        overlayOpacity: 0.5,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.calendar_month),
+            backgroundColor: Colors.blue,
+            foregroundColor: Colors.white,
+            label: 'Plan A Day',
+            onTap: () {
+              if (appStore.planLimits.planADay) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const AddPlanScreen()),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LockedFeatureScreen(
+                      featureName: 'Plan A Day',
+                      icon: Icons.calendar_month,
+                    ),
+                  ),
+                );
+              }
+            },
           ),
-        ),
-        child: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const AddPlanScreen()),
-            );
-          },
-          backgroundColor:
-              const Color(0xFFD32F2F), // Use your theme's red color
-          child: const Icon(
-            Icons.add,
-            color: Colors.white,
+          SpeedDialChild(
+            child: const Icon(Icons.widgets),
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+            label: 'Biz Boost',
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const OurProductAndService()),
+              );
+            },
           ),
-        ),
+        ],
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 72.h,
-          padding: EdgeInsets.symmetric(horizontal: 11.w),
+          padding: EdgeInsets.symmetric(horizontal: 8.w),
           decoration: BoxDecoration(
             color: Colors.white,
             // boxShadow: [
@@ -453,13 +468,15 @@ class DashboardScreenState extends State<DashboardScreen>
             // ],
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               // Home
               _buildMenuItem(Icons.home, "Home", 0),
-              // Refer & Earn
+
+              // Categories
               _buildMenuItem(Icons.category, "Categories", 1),
-              // Center Logo
+
+              // Business Logo (Center)
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -491,8 +508,10 @@ class DashboardScreenState extends State<DashboardScreen>
                   ),
                 ),
               ),
-              // Services
-              _buildMenuItem(Icons.widgets, "Biz Boost", 2),
+
+              // Custom
+              _buildMenuItem(Icons.brush, "Custom", 2),
+
               // Account
               _buildMenuItem(Icons.account_circle, "Account", 3),
             ],
@@ -570,13 +589,6 @@ class DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildMenuItem(IconData icon, String label, int index) {
-    if (label == 'Biz Boost') {
-      return FeatureGate(
-        feature: 'business_seminar',
-        customLockWidget: _buildMenuItemContent(icon, label, index, true),
-        child: _buildMenuItemContent(icon, label, index),
-      );
-    }
     return _buildMenuItemContent(icon, label, index);
   }
 
@@ -607,7 +619,7 @@ class DashboardScreenState extends State<DashboardScreen>
         );
       },
       child: SizedBox(
-        width: 60.w, // Fixed width to align all menu items
+        width: 55.w, // Fixed width to align all menu items
         height: 60.h,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -637,7 +649,7 @@ class DashboardScreenState extends State<DashboardScreen>
                   ),
             SizedBox(height: 6.h),
             SizedBox(
-              width: 55.w, // Fixed width for label to align under icon
+              width: 50.w, // Fixed width for label to align under icon
               child: Text(
                 label,
                 textAlign: TextAlign.center, // Center the text under icon

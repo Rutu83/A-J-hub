@@ -11,7 +11,8 @@ import '../../network/rest_apis.dart';
 import '../../utils/shimmer/shimmer.dart';
 
 class SubcategorySection extends StatefulWidget {
-  const SubcategorySection({super.key});
+  final bool isCustomEdit;
+  const SubcategorySection({super.key, this.isCustomEdit = false});
 
   @override
   State<SubcategorySection> createState() => _SubcategorySectionState();
@@ -28,6 +29,13 @@ class _SubcategorySectionState extends State<SubcategorySection> {
 
   Future<List<Subcategory>> fetchSubcategories() async {
     final response = await getSubCategories();
+    // Exclude the 'custom' category from the Exclusive Category list unless it is specifically
+    // requested for a Custom Edit context.
+    if (!widget.isCustomEdit) {
+      return response.subcategories
+          .where((item) => !item.name.toLowerCase().contains('custom'))
+          .toList();
+    }
     return response.subcategories;
   }
 
@@ -98,6 +106,7 @@ class _SubcategorySectionState extends State<SubcategorySection> {
                         builder: (context) => CategorySelected(
                           imagePaths: subcategory.images,
                           title: subcategory.name,
+                          isCustomEdit: widget.isCustomEdit,
                         ),
                       ),
                     );
@@ -151,6 +160,7 @@ class _SubcategorySectionState extends State<SubcategorySection> {
             builder: (context) => CategorySelected(
               imagePaths: fullImages,
               title: title,
+              isCustomEdit: widget.isCustomEdit,
             ),
           ),
         );

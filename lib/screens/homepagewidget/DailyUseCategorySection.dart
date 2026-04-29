@@ -9,7 +9,8 @@ import '../../network/rest_apis.dart';
 import '../../utils/shimmer/shimmer.dart';
 
 class DailyUseCategorySection extends StatefulWidget {
-  const DailyUseCategorySection({super.key});
+  final bool isCustomEdit;
+  const DailyUseCategorySection({super.key, this.isCustomEdit = false});
 
   @override
   State<DailyUseCategorySection> createState() =>
@@ -115,42 +116,6 @@ class _DailyUseCategorySectionState extends State<DailyUseCategorySection>
         return _buildItemCard(item.name, imageUrl, topicMaps, context);
       },
     );
-    // return Container(
-    //   color: Colors.white,
-    //   padding: EdgeInsets.symmetric(horizontal: 6.w),
-    //   child: Column(
-    //     crossAxisAlignment: CrossAxisAlignment.start,
-    //     children: [
-    //       _buildSectionTitle(),
-    //       SizedBox(
-    //         height: gridHeight,
-    //         child: GridView.builder(
-    //           primary: false,
-    //           shrinkWrap: true,
-    //           physics: const NeverScrollableScrollPhysics(),
-    //           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-    //             crossAxisCount: crossAxisCount,
-    //             crossAxisSpacing: 2.w,
-    //             mainAxisSpacing: 2.h,
-    //             childAspectRatio: 0.80,
-    //           ),
-    //           itemCount: items.length,
-    //           itemBuilder: (context, index) {
-    //             final item = items[index];
-    //             final imageUrl = item.images.isNotEmpty
-    //                 ? item.images[0]
-    //                 : 'assets/images/placeholder.jpg';
-    //
-    //             final topicMaps =
-    //                 item.images.map((url) => {'image': url}).toList();
-    //
-    //             return _buildItemCard(item.name, imageUrl, topicMaps, context);
-    //           },
-    //         ),
-    //       ),
-    //     ],
-    //   ),
-    // );
   }
 
   Widget _buildItemCard(String title, String imageUrl,
@@ -163,7 +128,11 @@ class _DailyUseCategorySectionState extends State<DailyUseCategorySection>
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => CategoryTopics(title: title, images: topicMaps),
+              builder: (_) => CategoryTopics(
+                title: title, 
+                images: topicMaps,
+                isCustomEdit: widget.isCustomEdit,
+              ),
             ),
           );
         }

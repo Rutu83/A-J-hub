@@ -57,11 +57,12 @@ class _OportunityScreenState extends State<OportunityScreen> {
                   return Container(
                     width: screenWidth * 0.95,
                     margin: EdgeInsets.symmetric(horizontal: 5.w),
-                    decoration: BoxDecoration(
+                    child: ClipRRect(
                       borderRadius: BorderRadius.circular(15.0),
-                      image: DecorationImage(
-                        image: AssetImage(imagePath),
+                      child: Image.asset(
+                        imagePath,
                         fit: BoxFit.contain,
+                        cacheWidth: 800, // Optimize RAM usage by preventing full-res expansion
                       ),
                     ),
                   );

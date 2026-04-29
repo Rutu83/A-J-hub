@@ -6,8 +6,14 @@ import 'package:cached_network_image/cached_network_image.dart';
 class CategoryTopics extends StatelessWidget {
   final String title;
   final List<Map<String, String>>? images;
+  final bool isCustomEdit;
 
-  const CategoryTopics({super.key, required this.title, required this.images});
+  const CategoryTopics({
+    super.key,
+    required this.title,
+    required this.images,
+    this.isCustomEdit = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +66,10 @@ class CategoryTopics extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => CategorySelected(
-                        imagePaths: allImageUrls, title: title),
+                        imagePaths: allImageUrls,
+                        title: title,
+                        isCustomEdit: isCustomEdit,
+                    ),
                   ),
                 );
               },

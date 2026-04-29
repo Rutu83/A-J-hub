@@ -26,21 +26,30 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
   }
 
   Future<void> _loadDownloadedImages() async {
-    // --- NEW: Request permission before accessing storage ---
+    final dirs = [
+      Directory('/storage/emulated/0/Pictures/AJHUB'),
+      Directory('/storage/emulated/0/Pictures/AJHUB Collage'),
+    ];
 
-    final directory = Directory('/storage/emulated/0/Pictures/AJHUB');
-    if (await directory.exists()) {
+    List<FileSystemEntity> allFiles = [];
+
+    for (final dir in dirs) {
+      if (await dir.exists()) {
+        allFiles.addAll(dir.listSync());
+      }
+    }
+
+    if (allFiles.isNotEmpty) {
       // Sort files by modification date, newest first
-      List<FileSystemEntity> files = directory.listSync();
-      files.sort(
-          (a, b) => b.statSync().modified.compareTo(a.statSync().modified));
+      allFiles.sort((a, b) => b.statSync().modified.compareTo(a.statSync().modified));
 
       setState(() {
-        downloadedImages = files.whereType<File>().toList();
+        downloadedImages = allFiles.whereType<File>().toList();
         isLoading = false;
       });
     } else {
       setState(() {
+        downloadedImages = [];
         isLoading = false;
       });
     }
@@ -150,24 +159,49 @@ class _DownloadedImagesPageState extends State<DownloadedImagesPage> {
                             ),
                           ),
                         ),
-                        // The delete button overlay
+                        // The action buttons overlay (Delete & Share)
                         Positioned(
                           top: 4,
                           right: 4,
-                          child: GestureDetector(
-                            onTap: () => _deleteImage(imageFile),
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.6),
-                                shape: BoxShape.circle,
+                          child: Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Share.shareXFiles(
+                                    [XFile(imageFile.path)],
+                                    text: 'Aj Hub Mobile App',
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  margin: const EdgeInsets.only(right: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.6),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.share,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
                               ),
-                              child: const Icon(
-                                Icons.delete,
-                                color: Colors.white,
-                                size: 18,
+                              GestureDetector(
+                                onTap: () => _deleteImage(imageFile),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.6),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ],

@@ -15,12 +15,12 @@ if (localPropertiesFile.exists()) {
 
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 if (flutterVersionCode == null) {
-    flutterVersionCode = "17"
+    flutterVersionCode = "24"
 }
 
 def flutterVersionName = localProperties.getProperty("flutter.versionName")
 if (flutterVersionName == null) {
-    flutterVersionName = "4.0.0"
+    flutterVersionName = "4.0.7"
 }
 
 // Load keystore properties
@@ -38,8 +38,8 @@ android {
         applicationId "com.ajhubdesignapp.ajhub_app"
         minSdkVersion = flutter.minSdkVersion
         targetSdk = 36 // Updated to match compileSdk
-        versionCode = 17
-        versionName "4.0.0"
+        versionCode = 24
+        versionName "4.0.7"
         multiDexEnabled true
     }
 

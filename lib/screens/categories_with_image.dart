@@ -65,10 +65,15 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen>
       final response = await getAllSubCategories(page: 1);
       if (mounted) {
         setState(() {
-          _allSubcategories = response.subcategories;
-          _filteredSubcategories = response.subcategories;
-          _isLoading = false;
           // Assume if we get less than PER_PAGE_ITEM or 0, no more data
+          // Filter out "custom" categories
+          final filteredSubcategories = response.subcategories
+              .where((item) => !item.name.toLowerCase().contains('custom'))
+              .toList();
+
+          _allSubcategories = filteredSubcategories;
+          _filteredSubcategories = filteredSubcategories;
+          _isLoading = false;
           if (response.subcategories.isEmpty) {
             _hasMoreData = false;
           }
@@ -101,7 +106,8 @@ class _SubcategoriesScreenState extends State<SubcategoriesScreen>
             // Filter out duplicates based on name
             final existingNames = _allSubcategories.map((e) => e.name).toSet();
             final newItems = response.subcategories
-                .where((item) => !existingNames.contains(item.name))
+                .where((item) => !existingNames.contains(item.name) && 
+                                 !item.name.toLowerCase().contains('custom'))
                 .toList();
 
             if (newItems.isEmpty) {

@@ -19,6 +19,8 @@ import 'package:ajhub_app/model/temple_model.dart';
 import 'package:ajhub_app/model/transaction_model.dart';
 import 'package:ajhub_app/model/upcoming_model.dart';
 import 'package:ajhub_app/model/user_data_modal.dart';
+import 'package:ajhub_app/model/custom_template_model.dart';
+
 import 'package:ajhub_app/network/network_utils.dart';
 import 'package:ajhub_app/network/notification_service.dart';
 import 'package:ajhub_app/utils/configs.dart';
@@ -1087,6 +1089,58 @@ Future<UpcomingSubcategoryResponse>
         cachedCelebrateTheMovementSubcategory ?? [];
     cachedCelebrateTheMovementSubcategory!.clear();
     cachedCelebrateTheMovementSubcategory!.add(parsedResponse);
+
+    appStore.setLoading(false);
+    return parsedResponse;
+  } catch (e) {
+    appStore.setLoading(false);
+    rethrow;
+  }
+}
+
+// Custom Edit Categories and Templates
+Future<CategoriesWithSubcategoriesResponse> getCustomEditCategories() async {
+  try {
+    final responseJson = await handleResponse(
+      await buildHttpResponse('custom-edit/categories', method: HttpMethodType.GET),
+    );
+
+    CategoriesWithSubcategoriesResponse parsedResponse;
+
+    if (responseJson is Map<String, dynamic> && responseJson.containsKey('data')) {
+      parsedResponse = CategoriesWithSubcategoriesResponse.fromJson(responseJson['data']);
+    } else if (responseJson is List) {
+      parsedResponse = CategoriesWithSubcategoriesResponse.fromJson(responseJson);
+    } else {
+      throw Exception('Unexpected response format');
+    }
+
+    appStore.setLoading(false);
+    return parsedResponse;
+  } catch (e) {
+    print('custom-edit/categories failed: $e, falling back to categories-with-subcategories');
+    try {
+      final fallbackJson = await handleResponse(
+        await buildHttpResponse('categories-with-subcategories', method: HttpMethodType.GET),
+      );
+      final parsedResponse = CategoriesWithSubcategoriesResponse.fromJson(fallbackJson);
+      appStore.setLoading(false);
+      return parsedResponse;
+    } catch (fallbackError) {
+      appStore.setLoading(false);
+      rethrow;
+    }
+  }
+}
+
+Future<CustomTemplateResponse> getCustomTemplates(int subcategoryId) async {
+  try {
+    appStore.setLoading(true);
+    final responseJson = await handleResponse(
+      await buildHttpResponse('custom-edit/templates/$subcategoryId', method: HttpMethodType.GET),
+    );
+
+    final parsedResponse = CustomTemplateResponse.fromJson(responseJson);
 
     appStore.setLoading(false);
     return parsedResponse;

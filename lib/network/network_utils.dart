@@ -165,7 +165,6 @@ Future handleResponse(http.Response response,
   } else if (response.statusCode == 429) {
     throw language.tooManyRequests;
   } else if (response.statusCode == 500) {
-    redirectToLogin();
     throw language.internalServerError;
   } else if (response.statusCode == 502) {
     throw language.badGateway;

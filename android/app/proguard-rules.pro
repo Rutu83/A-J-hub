@@ -39,3 +39,7 @@
 -keepattributes Signature
 -keepattributes SourceFile,LineNumberTable
 -keep public class * extends java.lang.Exception
+
+# Google ML Kit (Suppress warnings about missing optional language scripts)
+-dontwarn com.google.mlkit.vision.text.**
+-dontwarn com.google_mlkit_text_recognition.**

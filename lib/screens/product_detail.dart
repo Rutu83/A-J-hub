@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:html/parser.dart' show parse;
 
 class ProductDetailPage extends StatefulWidget {
   final Map<String, dynamic> product;
@@ -547,20 +548,30 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       //   ),
                       // ),
 
-                      Center(
+                      Align(
+                        alignment: Alignment.centerLeft,
                         child: Html(
                           data: cleanHtml(widget.product['description']),
                           style: {
+                            "body": Style(
+                              margin: Margins.all(16),
+                              padding: HtmlPaddings.zero,
+                              fontSize: FontSize(14.sp),
+                              fontFamily: GoogleFonts.poppins().fontFamily,
+                              color: Colors.black87,
+                              textAlign: TextAlign.start,
+                              lineHeight: LineHeight(1.6),
+                            ),
                             "p": Style(
                               fontSize: FontSize(14.sp),
                               fontFamily: GoogleFonts.poppins().fontFamily,
                               color: Colors.black87,
-                              fontWeight: FontWeight.w500,
-                              textAlign: TextAlign.center,
-                              margin: Margins.only(top: 8, bottom: 0),
+                              fontWeight: FontWeight.w400,
+                              textAlign: TextAlign.start,
+                              margin: Margins.only(bottom: 12),
                             ),
                             "strong": Style(
-                              fontSize: FontSize(16.sp),
+                              fontSize: FontSize(15.sp),
                               fontWeight: FontWeight.bold,
                               color: Colors.black,
                             ),
@@ -653,7 +664,21 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
   }
 
-  String cleanHtml(String html) {
-    return html.replaceAll(RegExp(r'(<br\s*/?>\s*)+'), '<br>').trim();
+  String cleanHtml(String? html) {
+    if (html == null || html.isEmpty) return "";
+
+    // 1. First, try to decode double-escaped HTML (e.g., &lt;p&gt; -> <p>)
+    // If the string contains &lt; but doesn't contain <, it's likely escaped tags.
+    String content = html;
+    if (content.contains('&lt;') && !content.contains('<')) {
+      content = parse(content).body?.text ?? content;
+    }
+
+    // 2. Clean up common messy patterns from backend
+    return content
+        .replaceAll(RegExp(r'(<br\s*/?>\s*)+'), '<br>')
+        .replaceAll('&nbsp;', ' ')
+        .replaceAll('=&nbsp;', ' ')
+        .trim();
   }
 }
