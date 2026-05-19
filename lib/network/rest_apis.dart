@@ -1118,18 +1118,8 @@ Future<CategoriesWithSubcategoriesResponse> getCustomEditCategories() async {
     appStore.setLoading(false);
     return parsedResponse;
   } catch (e) {
-    print('custom-edit/categories failed: $e, falling back to categories-with-subcategories');
-    try {
-      final fallbackJson = await handleResponse(
-        await buildHttpResponse('categories-with-subcategories', method: HttpMethodType.GET),
-      );
-      final parsedResponse = CategoriesWithSubcategoriesResponse.fromJson(fallbackJson);
-      appStore.setLoading(false);
-      return parsedResponse;
-    } catch (fallbackError) {
-      appStore.setLoading(false);
-      rethrow;
-    }
+    appStore.setLoading(false);
+    rethrow;
   }
 }
 

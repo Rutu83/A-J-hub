@@ -1,4 +1,3 @@
-import 'package:ajhub_app/screens/refer_earn.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -40,7 +39,7 @@ class ShortcutButtonsSection extends StatelessWidget {
     );
   }
 
-  _buildButton(BuildContext context, IconData icon, String label,
+  InkWell _buildButton(BuildContext context, IconData icon, String label,
       double buttonWidth, VoidCallback onPressed) {
     return InkWell(
       onTap: onPressed,

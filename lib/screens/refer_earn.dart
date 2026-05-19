@@ -23,6 +23,8 @@ const Color kBackgroundColor = Color(0xFFF4F6FA);
 const String _appPackageName = 'com.ajhubdesignapp.ajhub_app';
 
 class ReferEarn extends StatefulWidget {
+  const ReferEarn({super.key});
+
   @override
   State<ReferEarn> createState() => _ReferEarnState();
 }
@@ -105,7 +107,7 @@ class _ReferEarnState extends State<ReferEarn> {
     // Assuming 'referral_code', 'context', and '_appPackageName' are available in your class.
 
     // Your existing validation logic is good, let's keep it.
-    if (referral_code == null || referral_code.isEmpty) {
+    if (referral_code.isEmpty) {
       // Check for mounted context before showing a SnackBar in an async method.
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

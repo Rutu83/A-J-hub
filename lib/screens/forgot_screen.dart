@@ -246,10 +246,13 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       if (value == null || value.isEmpty) return "⚠️ Required";
                       if (isPassword) {
                         if (value.length < 8) return "⚠️ Min 8 chars";
-                        if (!RegExp(r'(?=.*[A-Z])').hasMatch(value))
+                        if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) {
                           return "⚠️ 1 Uppercase";
+                        }
                         if (!RegExp(r'(?=.*[!@#$%^&*()_+{}\[\]:;<>,.?~])')
-                            .hasMatch(value)) return "⚠️ 1 Special Char";
+                            .hasMatch(value)) {
+                          return "⚠️ 1 Special Char";
+                        }
                       }
                       if (label.contains("Confirm Password") &&
                           value != passwordController.text) {

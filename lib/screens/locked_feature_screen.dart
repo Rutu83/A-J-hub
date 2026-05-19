@@ -10,13 +10,13 @@ class LockedFeatureScreen extends StatelessWidget {
   final bool showAppBar;
 
   const LockedFeatureScreen({
-    Key? key,
+    super.key,
     required this.featureName,
     this.description =
         'Upgrade your plan to unlock this exclusive feature and take your business to the next level.',
     this.icon = Icons.star_rounded,
     this.showAppBar = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -2,6 +2,7 @@
 ///
 /// Replace these placeholder values with your actual Airpay merchant credentials
 /// obtained from your Airpay merchant dashboard.
+library;
 
 class AirpayConfig {
   // --- MERCHANT CREDENTIALS ---

@@ -18,7 +18,8 @@ class DynamicTemplateEditorScreen extends StatefulWidget {
   });
 
   @override
-  State<DynamicTemplateEditorScreen> createState() => _DynamicTemplateEditorScreenState();
+  State<DynamicTemplateEditorScreen> createState() =>
+      _DynamicTemplateEditorScreenState();
 }
 
 class _LayerData {
@@ -27,7 +28,7 @@ class _LayerData {
   double y;
   String text;
   String? colorHex;
-  double scale;
+  double scale = 1.0;
 
   _LayerData({
     required this.layer,
@@ -35,11 +36,11 @@ class _LayerData {
     required this.y,
     required this.text,
     this.colorHex,
-    this.scale = 1.0,
   });
 }
 
-class _DynamicTemplateEditorScreenState extends State<DynamicTemplateEditorScreen> {
+class _DynamicTemplateEditorScreenState
+    extends State<DynamicTemplateEditorScreen> {
   final GlobalKey _repaintKey = GlobalKey();
   List<_LayerData> _activeLayers = [];
   bool _isExporting = false;
@@ -57,7 +58,11 @@ class _DynamicTemplateEditorScreenState extends State<DynamicTemplateEditorScree
         layer: layer,
         x: layer.posX,
         y: layer.posY,
-        text: layer.layerType == 'text' ? (layer.layerName.isNotEmpty ? layer.layerName : 'Double tap to edit') : '',
+        text: layer.layerType == 'text'
+            ? (layer.layerName.isNotEmpty
+                ? layer.layerName
+                : 'Double tap to edit')
+            : '',
         colorHex: layer.colorHex,
       );
     }).toList();
@@ -84,7 +89,8 @@ class _DynamicTemplateEditorScreenState extends State<DynamicTemplateEditorScree
   Future<void> _exportImage() async {
     setState(() => _isExporting = true);
     try {
-      final boundary = _repaintKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary = _repaintKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary == null) throw Exception('Unable to capture frame.');
 
       final image = await boundary.toImage(pixelRatio: 3.0);
@@ -93,7 +99,8 @@ class _DynamicTemplateEditorScreenState extends State<DynamicTemplateEditorScree
 
       if (pngBytes != null) {
         final directory = await getTemporaryDirectory();
-        final filePath = '${directory.path}/custom_edit_${DateTime.now().millisecondsSinceEpoch}.png';
+        final filePath =
+            '${directory.path}/custom_edit_${DateTime.now().millisecondsSinceEpoch}.png';
         final file = File(filePath);
         await file.writeAsBytes(pngBytes);
 
@@ -101,14 +108,18 @@ class _DynamicTemplateEditorScreenState extends State<DynamicTemplateEditorScree
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Image Saved Successfully!'), backgroundColor: Colors.green),
+            const SnackBar(
+                content: Text('Image Saved Successfully!'),
+                backgroundColor: Colors.green),
           );
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error exporting: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Error exporting: $e'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -119,7 +130,8 @@ class _DynamicTemplateEditorScreenState extends State<DynamicTemplateEditorScree
   }
 
   void _editLayerText(_LayerData layerData) {
-    TextEditingController controller = TextEditingController(text: layerData.text);
+    TextEditingController controller =
+        TextEditingController(text: layerData.text);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -127,12 +139,16 @@ class _DynamicTemplateEditorScreenState extends State<DynamicTemplateEditorScree
         return Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16.w, right: 16.w, top: 16.h,
+            left: 16.w,
+            right: 16.w,
+            top: 16.h,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Edit Text', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
+              Text('Edit Text',
+                  style:
+                      TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold)),
               SizedBox(height: 16.h),
               TextField(
                 controller: controller,
@@ -179,120 +195,125 @@ class _DynamicTemplateEditorScreenState extends State<DynamicTemplateEditorScree
       ),
       body: Center(
         child: AspectRatio(
-          aspectRatio: widget.template.canvasHeight > 0 
-              ? widget.template.canvasWidth / widget.template.canvasHeight 
+          aspectRatio: widget.template.canvasHeight > 0
+              ? widget.template.canvasWidth / widget.template.canvasHeight
               : 1.0,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return RepaintBoundary(
-                key: _repaintKey,
-                child: Stack(
-                  children: [
-                    // Background Image
-                    Positioned.fill(
-                      child: CachedNetworkImage(
-                        imageUrl: widget.template.backgroundImageUrl,
-                        fit: BoxFit.cover,
-                        errorWidget: (context, url, err) => Container(color: Colors.grey),
-                      ),
+          child: LayoutBuilder(builder: (context, constraints) {
+            return RepaintBoundary(
+              key: _repaintKey,
+              child: Stack(
+                children: [
+                  // Background Image
+                  Positioned.fill(
+                    child: CachedNetworkImage(
+                      imageUrl: widget.template.backgroundImageUrl,
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, err) =>
+                          Container(color: Colors.grey),
                     ),
-                    
-                    // Dynamic Layers
-                    ..._activeLayers.map((layerData) {
-                      if (layerData.layer.layerType == 'text') {
-                        return Positioned(
-                          left: layerData.x,
-                          top: layerData.y,
-                          child: GestureDetector(
-                            onPanUpdate: (details) {
-                              setState(() {
-                                layerData.x += details.delta.dx;
-                                layerData.y += details.delta.dy;
-                              });
-                            },
-                            onDoubleTap: () => _editLayerText(layerData),
-                            onScaleStart: (details) {
-                              _baseScale = layerData.scale;
-                            },
-                            onScaleUpdate: (details) {
-                              setState(() {
-                                // Use focalPointDelta for pan (drag) movement
-                                layerData.x += details.focalPointDelta.dx;
-                                layerData.y += details.focalPointDelta.dy;
-                                // Use scale for pinch-to-zoom
-                                if (details.scale != 1.0) {
-                                  layerData.scale = (_baseScale * details.scale).clamp(0.5, 3.0);
-                                }
-                              });
-                            },
-                            child: Transform.scale(
-                              scale: layerData.scale,
-                              child: Container(
-                                padding: EdgeInsets.all(4.w),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.transparent),
-                                ),
-                                child: Text(
-                                  layerData.text,
-                                  textAlign: _getTextAlign(layerData.layer.textAlign),
-                                  style: TextStyle(
-                                    color: _hexToColor(layerData.colorHex),
-                                    fontSize: layerData.layer.fontSize ?? 20.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                  ),
+
+                  // Dynamic Layers
+                  ..._activeLayers.map((layerData) {
+                    if (layerData.layer.layerType == 'text') {
+                      return Positioned(
+                        left: layerData.x,
+                        top: layerData.y,
+                        child: GestureDetector(
+                          onPanUpdate: (details) {
+                            setState(() {
+                              layerData.x += details.delta.dx;
+                              layerData.y += details.delta.dy;
+                            });
+                          },
+                          onDoubleTap: () => _editLayerText(layerData),
+                          onScaleStart: (details) {
+                            _baseScale = layerData.scale;
+                          },
+                          onScaleUpdate: (details) {
+                            setState(() {
+                              // Use focalPointDelta for pan (drag) movement
+                              layerData.x += details.focalPointDelta.dx;
+                              layerData.y += details.focalPointDelta.dy;
+                              // Use scale for pinch-to-zoom
+                              if (details.scale != 1.0) {
+                                layerData.scale = (_baseScale * details.scale)
+                                    .clamp(0.5, 3.0);
+                              }
+                            });
+                          },
+                          child: Transform.scale(
+                            scale: layerData.scale,
+                            child: Container(
+                              padding: EdgeInsets.all(4.w),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.transparent),
+                              ),
+                              child: Text(
+                                layerData.text,
+                                textAlign:
+                                    _getTextAlign(layerData.layer.textAlign),
+                                style: TextStyle(
+                                  color: _hexToColor(layerData.colorHex),
+                                  fontSize: layerData.layer.fontSize ?? 20.sp,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
                           ),
-                        );
-                      }
-                      // Image layer
-                      if (layerData.layer.layerType == 'image' &&
-                          layerData.layer.imageUrl != null &&
-                          layerData.layer.imageUrl!.isNotEmpty) {
-                        final imgW = (layerData.layer.width ?? 200) * layerData.scale;
-                        final imgH = (layerData.layer.height ?? 200) * layerData.scale;
-                        return Positioned(
-                          left: layerData.x - imgW / 2,
-                          top: layerData.y - imgH / 2,
-                          child: GestureDetector(
-                            onPanUpdate: (details) {
-                              setState(() {
-                                layerData.x += details.delta.dx;
-                                layerData.y += details.delta.dy;
-                              });
-                            },
-                            onScaleStart: (details) {
-                              _baseScale = layerData.scale;
-                            },
-                            onScaleUpdate: (details) {
-                              setState(() {
-                                layerData.x += details.focalPointDelta.dx;
-                                layerData.y += details.focalPointDelta.dy;
-                                if (details.scale != 1.0) {
-                                  layerData.scale = (_baseScale * details.scale).clamp(0.1, 5.0);
-                                }
-                              });
-                            },
-                            child: CachedNetworkImage(
-                              imageUrl: layerData.layer.imageUrl!,
-                              width: imgW,
-                              height: imgH,
-                              fit: BoxFit.contain,
-                              errorWidget: (context, url, err) =>
-                                  Container(width: imgW, height: imgH, color: Colors.transparent),
-                            ),
+                        ),
+                      );
+                    }
+                    // Image layer
+                    if (layerData.layer.layerType == 'image' &&
+                        layerData.layer.imageUrl != null &&
+                        layerData.layer.imageUrl!.isNotEmpty) {
+                      final imgW =
+                          (layerData.layer.width ?? 200) * layerData.scale;
+                      final imgH =
+                          (layerData.layer.height ?? 200) * layerData.scale;
+                      return Positioned(
+                        left: layerData.x - imgW / 2,
+                        top: layerData.y - imgH / 2,
+                        child: GestureDetector(
+                          onPanUpdate: (details) {
+                            setState(() {
+                              layerData.x += details.delta.dx;
+                              layerData.y += details.delta.dy;
+                            });
+                          },
+                          onScaleStart: (details) {
+                            _baseScale = layerData.scale;
+                          },
+                          onScaleUpdate: (details) {
+                            setState(() {
+                              layerData.x += details.focalPointDelta.dx;
+                              layerData.y += details.focalPointDelta.dy;
+                              if (details.scale != 1.0) {
+                                layerData.scale = (_baseScale * details.scale)
+                                    .clamp(0.1, 5.0);
+                              }
+                            });
+                          },
+                          child: CachedNetworkImage(
+                            imageUrl: layerData.layer.imageUrl!,
+                            width: imgW,
+                            height: imgH,
+                            fit: BoxFit.contain,
+                            errorWidget: (context, url, err) => Container(
+                                width: imgW,
+                                height: imgH,
+                                color: Colors.transparent),
                           ),
-                        );
-                      }
-                      return const SizedBox.shrink();
-
-                    }),
-                  ],
-                ),
-              );
-            }
-          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  }),
+                ],
+              ),
+            );
+          }),
         ),
       ),
     );

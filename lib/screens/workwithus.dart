@@ -373,7 +373,7 @@ class _FranchiseCard extends StatelessWidget {
           SizedBox(height: 10.h),
           ...benefits
               .map((benefit) => _buildCardBenefitItem(benefit, context))
-              .toList(),
+              ,
         ],
       ),
     );

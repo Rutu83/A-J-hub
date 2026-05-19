@@ -618,7 +618,7 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
     return Column(
       children: [
         DropdownButtonFormField<MeetingPlatform>(
-          value: _meetingPlatform,
+          initialValue: _meetingPlatform,
           decoration: _inputDecoration(
               label: 'Platform', icon: Icons.people_alt_outlined),
           items: MeetingPlatform.values
@@ -721,7 +721,7 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
     }
 
     // Handles the tap on a medicine chip
-    Future<void> _handleMedicineChipTap(MedicineSchedule schedule) async {
+    Future<void> handleMedicineChipTap(MedicineSchedule schedule) async {
       final bool isCurrentlySelected =
           _selectedMedicineSchedules.containsKey(schedule);
 
@@ -765,7 +765,7 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
           final selectedTime = _selectedMedicineSchedules[schedule];
 
           return GestureDetector(
-            onTap: () => _handleMedicineChipTap(schedule),
+            onTap: () => handleMedicineChipTap(schedule),
             child: Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
@@ -897,7 +897,7 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
     };
 
     return DropdownButtonFormField<int>(
-      value: _waterIntervalMinutes,
+      initialValue: _waterIntervalMinutes,
       validator: (value) => value == null ? 'Please select an interval' : null,
       decoration:
           _inputDecoration(label: 'Remind me...', icon: Icons.timer_outlined),
@@ -1014,7 +1014,7 @@ class _AddPlanScreenState extends State<AddPlanScreen> {
       '1 week before'
     ];
     return DropdownButtonFormField<String>(
-      value: _selectedReminder,
+      initialValue: _selectedReminder,
       validator: (v) => v == null ? 'Please select a reminder' : null,
       decoration:
           _inputDecoration(label: 'Set Reminder', icon: Icons.notifications),

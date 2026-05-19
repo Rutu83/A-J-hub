@@ -5,7 +5,7 @@
 /// A package provides an easy way to add shimmer effect to Flutter application
 ///
 
-library shimmer;
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';

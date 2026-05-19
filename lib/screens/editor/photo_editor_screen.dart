@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
@@ -68,7 +67,9 @@ class _PhotoEditorScreenState extends State<PhotoEditorScreen> {
 
   @override
   void dispose() {
-    for (final n in _imageLayerNotifiers) n.dispose();
+    for (final n in _imageLayerNotifiers) {
+      n.dispose();
+    }
     super.dispose();
   }
 

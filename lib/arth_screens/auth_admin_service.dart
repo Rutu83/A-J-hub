@@ -34,7 +34,7 @@ void saveDataToAdminPreferenceMobile(BuildContext context,
   }
 }
 
-saveDataToregisterPreferenceMobile(context,
+Future<void> saveDataToregisterPreferenceMobile(context,
     {required LoginResponse loginResponse,
     required UserData parentUserData,
     bool isSocialLogin = false,

@@ -28,13 +28,14 @@ class UserData {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (this.id != null) data['id'] = this.id;
-    if (this.username != null) data['username'] = this.username;
-    if (this.email != null) data['email'] = this.email;
-    if (this.role != null) data['role'] = this.role;
-    if (this.status != null) data['status'] = this.status;
-    if (this.subscriptionPlanId != null)
-      data['subscription_plan_id'] = this.subscriptionPlanId;
+    if (id != null) data['id'] = id;
+    if (username != null) data['username'] = username;
+    if (email != null) data['email'] = email;
+    if (role != null) data['role'] = role;
+    if (status != null) data['status'] = status;
+    if (subscriptionPlanId != null) {
+      data['subscription_plan_id'] = subscriptionPlanId;
+    }
 
     return data;
   }

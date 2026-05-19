@@ -33,9 +33,9 @@ class SubscriptionSuccessPopup extends StatelessWidget {
   final VoidCallback onActionPressed;
 
   const SubscriptionSuccessPopup({
-    Key? key,
+    super.key,
     required this.onActionPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -528,21 +528,6 @@ class _HomeScreenState extends State<HomeScreen>
       sliver: SliverToBoxAdapter(
         child: FeatureGate(
           feature: 'locker_doc_save',
-          child: InkWell(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => DocumentLockerScreen()),
-              );
-            },
-            child: Container(
-              height: 110,
-              decoration: BoxDecoration(
-                image: DecorationImage(image: AssetImage(imagePath), fit: fit),
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
           customLockWidget: InkWell(
             onTap: () {
               Navigator.push(
@@ -553,6 +538,21 @@ class _HomeScreenState extends State<HomeScreen>
                     icon: Icons.document_scanner,
                   ),
                 ),
+              );
+            },
+            child: Container(
+              height: 110,
+              decoration: BoxDecoration(
+                image: DecorationImage(image: AssetImage(imagePath), fit: fit),
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DocumentLockerScreen()),
               );
             },
             child: Container(

@@ -1058,20 +1058,20 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
   }
 
   Widget _buildCollage() {
-    final _gap = _currentGap;
+    final gap = _currentGap;
     switch (_layout) {
       // ─── 2 images ───────────────────────────────────────────────────────────
       case _Layout.twoPort:
         return Row(children: [
           Expanded(child: _slot(0)),
-          SizedBox(width: _gap),
+          SizedBox(width: gap),
           Expanded(child: _slot(1)),
         ]);
 
       case _Layout.twoLand:
         return Column(children: [
           Expanded(child: _slot(0)),
-          SizedBox(height: _gap),
+          SizedBox(height: gap),
           Expanded(child: _slot(1)),
         ]);
 
@@ -1079,11 +1079,11 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
       case _Layout.threeLeft:
         return Row(children: [
           Expanded(flex: 2, child: _slot(0)),
-          SizedBox(width: _gap),
+          SizedBox(width: gap),
           Expanded(
             child: Column(children: [
               Expanded(child: _slot(1)),
-              SizedBox(height: _gap),
+              SizedBox(height: gap),
               Expanded(child: _slot(2)),
             ]),
           ),
@@ -1094,11 +1094,11 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
           Expanded(
             child: Column(children: [
               Expanded(child: _slot(0)),
-              SizedBox(height: _gap),
+              SizedBox(height: gap),
               Expanded(child: _slot(1)),
             ]),
           ),
-          SizedBox(width: _gap),
+          SizedBox(width: gap),
           Expanded(flex: 2, child: _slot(2)),
         ]);
 
@@ -1106,11 +1106,11 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
       case _Layout.threeLandTop:
         return Column(children: [
           Expanded(flex: 2, child: _slot(0)),
-          SizedBox(height: _gap),
+          SizedBox(height: gap),
           Expanded(
             child: Row(children: [
               Expanded(child: _slot(1)),
-              SizedBox(width: _gap),
+              SizedBox(width: gap),
               Expanded(child: _slot(2)),
             ]),
           ),
@@ -1122,11 +1122,11 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
           Expanded(
             child: Row(children: [
               Expanded(child: _slot(0)),
-              SizedBox(width: _gap),
+              SizedBox(width: gap),
               Expanded(child: _slot(1)),
             ]),
           ),
-          SizedBox(height: _gap),
+          SizedBox(height: gap),
           Expanded(flex: 2, child: _slot(2)),
         ]);
 
@@ -1135,13 +1135,13 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
         return Column(children: [
           Expanded(child: Row(children: [
             Expanded(child: _slot(0)),
-            SizedBox(width: _gap),
+            SizedBox(width: gap),
             Expanded(child: _slot(1)),
           ])),
-          SizedBox(height: _gap),
+          SizedBox(height: gap),
           Expanded(child: Row(children: [
             Expanded(child: _slot(2)),
-            SizedBox(width: _gap),
+            SizedBox(width: gap),
             Expanded(child: _slot(3)),
           ])),
         ]);
@@ -1150,15 +1150,15 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
       case _Layout.fourGridRightSplit:
         return Row(children: [
           Expanded(child: _slot(0)),
-          SizedBox(width: _gap),
+          SizedBox(width: gap),
           Expanded(
             child: Column(children: [
               Expanded(child: _slot(1)),
-              SizedBox(height: _gap),
+              SizedBox(height: gap),
               Expanded(
                 child: Row(children: [
                   Expanded(child: _slot(2)),
-                  SizedBox(width: _gap),
+                  SizedBox(width: gap),
                   Expanded(child: _slot(3)),
                 ]),
               ),
@@ -1171,18 +1171,18 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
       case _Layout.fiveGrid:
         return Row(children: [
           Expanded(flex: 2, child: _slot(0)),
-          SizedBox(width: _gap),
+          SizedBox(width: gap),
           Expanded(
             child: Column(children: [
               Expanded(child: Row(children: [
                 Expanded(child: _slot(1)),
-                SizedBox(width: _gap),
+                SizedBox(width: gap),
                 Expanded(child: _slot(2)),
               ])),
-              SizedBox(height: _gap),
+              SizedBox(height: gap),
               Expanded(child: Row(children: [
                 Expanded(child: _slot(3)),
-                SizedBox(width: _gap),
+                SizedBox(width: gap),
                 Expanded(child: _slot(4)),
               ])),
             ]),
@@ -1191,11 +1191,11 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
 
       case _Layout.fiveGridCenterTall:
         return Row(children: [
-          Expanded(child: Column(children: [ Expanded(child: _slot(0)), SizedBox(height: _gap), Expanded(child: _slot(1)) ])),
-          SizedBox(width: _gap),
+          Expanded(child: Column(children: [ Expanded(child: _slot(0)), SizedBox(height: gap), Expanded(child: _slot(1)) ])),
+          SizedBox(width: gap),
           Expanded(child: _slot(2)),
-          SizedBox(width: _gap),
-          Expanded(child: Column(children: [ Expanded(child: _slot(3)), SizedBox(height: _gap), Expanded(child: _slot(4)) ])),
+          SizedBox(width: gap),
+          Expanded(child: Column(children: [ Expanded(child: _slot(3)), SizedBox(height: gap), Expanded(child: _slot(4)) ])),
         ]);
 
       // ─── 6 images ───────────────────────────────────────────────────────────
@@ -1203,28 +1203,28 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
         return Column(children: [
           Expanded(child: Row(children: [
             Expanded(child: _slot(0)),
-            SizedBox(width: _gap),
+            SizedBox(width: gap),
             Expanded(child: _slot(1)),
-            SizedBox(width: _gap),
+            SizedBox(width: gap),
             Expanded(child: _slot(2)),
           ])),
-          SizedBox(height: _gap),
+          SizedBox(height: gap),
           Expanded(child: Row(children: [
             Expanded(child: _slot(3)),
-            SizedBox(width: _gap),
+            SizedBox(width: gap),
             Expanded(child: _slot(4)),
-            SizedBox(width: _gap),
+            SizedBox(width: gap),
             Expanded(child: _slot(5)),
           ])),
         ]);
 
       case _Layout.sixGridVertical:
         return Column(children: [
-          Expanded(child: Row(children: [ Expanded(child: _slot(0)), SizedBox(width:_gap), Expanded(child: _slot(1)) ])),
-          SizedBox(height: _gap),
-          Expanded(child: Row(children: [ Expanded(child: _slot(2)), SizedBox(width:_gap), Expanded(child: _slot(3)) ])),
-          SizedBox(height: _gap),
-          Expanded(child: Row(children: [ Expanded(child: _slot(4)), SizedBox(width:_gap), Expanded(child: _slot(5)) ])),
+          Expanded(child: Row(children: [ Expanded(child: _slot(0)), SizedBox(width:gap), Expanded(child: _slot(1)) ])),
+          SizedBox(height: gap),
+          Expanded(child: Row(children: [ Expanded(child: _slot(2)), SizedBox(width:gap), Expanded(child: _slot(3)) ])),
+          SizedBox(height: gap),
+          Expanded(child: Row(children: [ Expanded(child: _slot(4)), SizedBox(width:gap), Expanded(child: _slot(5)) ])),
         ]);
 
       case _Layout.sixGridLargeTopLeft:
@@ -1233,25 +1233,25 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
             flex: 2,
             child: Row(children: [
               Expanded(flex: 2, child: _slot(0)),
-              SizedBox(width: _gap),
+              SizedBox(width: gap),
               Expanded(
                 flex: 1,
                 child: Column(children: [
                   Expanded(child: _slot(1)),
-                  SizedBox(height: _gap),
+                  SizedBox(height: gap),
                   Expanded(child: _slot(2)),
                 ]),
               ),
             ]),
           ),
-          SizedBox(height: _gap),
+          SizedBox(height: gap),
           Expanded(
             flex: 1,
             child: Row(children: [
               Expanded(child: _slot(3)),
-              SizedBox(width: _gap),
+              SizedBox(width: gap),
               Expanded(child: _slot(4)),
-              SizedBox(width: _gap),
+              SizedBox(width: gap),
               Expanded(child: _slot(5)),
             ]),
           ),
@@ -1259,20 +1259,20 @@ class _CollageMakerScreenState extends State<CollageMakerScreen> {
 
       case _Layout.heartsSix:
         return Column(children: [
-          Expanded(child: Row(children: [ Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(0))), SizedBox(width:_gap), Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(1))) ])),
-          SizedBox(height: _gap),
-          Expanded(child: Row(children: [ Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(2))), SizedBox(width:_gap), Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(3))) ])),
-          SizedBox(height: _gap),
-          Expanded(child: Row(children: [ Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(4))), SizedBox(width:_gap), Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(5))) ])),
+          Expanded(child: Row(children: [ Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(0))), SizedBox(width:gap), Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(1))) ])),
+          SizedBox(height: gap),
+          Expanded(child: Row(children: [ Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(2))), SizedBox(width:gap), Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(3))) ])),
+          SizedBox(height: gap),
+          Expanded(child: Row(children: [ Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(4))), SizedBox(width:gap), Expanded(child: ClipPath(clipper: _HeartClipper(), child: _slotFill(5))) ])),
         ]);
 
       case _Layout.ovalsSix:
         return Column(children: [
-          Expanded(child: Row(children: [ Expanded(child: ClipOval(child: _slotFill(0))), SizedBox(width:_gap), Expanded(child: ClipOval(child: _slotFill(1))) ])),
-          SizedBox(height: _gap),
-          Expanded(child: Row(children: [ Expanded(child: ClipOval(child: _slotFill(2))), SizedBox(width:_gap), Expanded(child: ClipOval(child: _slotFill(3))) ])),
-          SizedBox(height: _gap),
-          Expanded(child: Row(children: [ Expanded(child: ClipOval(child: _slotFill(4))), SizedBox(width:_gap), Expanded(child: ClipOval(child: _slotFill(5))) ])),
+          Expanded(child: Row(children: [ Expanded(child: ClipOval(child: _slotFill(0))), SizedBox(width:gap), Expanded(child: ClipOval(child: _slotFill(1))) ])),
+          SizedBox(height: gap),
+          Expanded(child: Row(children: [ Expanded(child: ClipOval(child: _slotFill(2))), SizedBox(width:gap), Expanded(child: ClipOval(child: _slotFill(3))) ])),
+          SizedBox(height: gap),
+          Expanded(child: Row(children: [ Expanded(child: ClipOval(child: _slotFill(4))), SizedBox(width:gap), Expanded(child: ClipOval(child: _slotFill(5))) ])),
         ]);
 
       case _Layout.diamondFive:

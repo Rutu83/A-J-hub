@@ -74,8 +74,6 @@ class _UpcomingCategorySectionState extends State<UpcomingCategorySection>
         final dateA = a.event_date;
         final dateB = b.event_date;
         if (dateA == null && dateB == null) return 0;
-        if (dateA == null) return 1;
-        if (dateB == null) return -1;
         return dateA.compareTo(dateB);
       });
 
@@ -257,29 +255,28 @@ class _UpcomingCategorySectionState extends State<UpcomingCategorySection>
               ),
             ),
             // Your unique Date Tag design is preserved
-            if (date != null)
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 14,
-                child: ClipPath(
-                  clipper: DateTagClipper(),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 1.h),
-                    color: Colors.red,
-                    child: Center(
-                      child: Text(
-                        formatDisplayDate(date),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 11.sp,
-                        ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 14,
+              child: ClipPath(
+                clipper: DateTagClipper(),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 1.h),
+                  color: Colors.red,
+                  child: Center(
+                    child: Text(
+                      formatDisplayDate(date),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11.sp,
                       ),
                     ),
                   ),
                 ),
               ),
+            ),
           ],
         ),
       ),
