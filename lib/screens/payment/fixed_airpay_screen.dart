@@ -456,8 +456,9 @@ class _FixedAirpayScreenState extends State<FixedAirpayScreen> {
                               final userDetail = await getUserDetail();
                               final planId = userDetail['subscription_plan_id'];
                               final status = userDetail['status'] as String?;
-                              if (status != null)
+                              if (status != null) {
                                 await appStore.setStatus(status);
+                              }
                               await fetchAndStorePlanLimits(
                                   userPlanId: planId is int ? planId : null);
                             } catch (_) {}

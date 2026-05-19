@@ -52,7 +52,7 @@ class NotificationService {
       styleInformation: BigTextStyleInformation(
         'Thank you for joining our community. We are excited to have you on board! Explore the app now.',
         htmlFormatBigText: true,
-        contentTitle: '<b>${title}</b>', // Use the dynamic title
+        contentTitle: '<b>$title</b>', // Use the dynamic title
         htmlFormatContentTitle: true,
       ),
     );

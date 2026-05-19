@@ -57,8 +57,8 @@ class _PersonalCardPageState extends State<PersonalCardPage> {
 
   bool isProcessing = false;
   final GlobalKey _repaintKey = GlobalKey();
-  bool _isProcessing = false; // Duplicate flag, keeping for minimal diff
-  String _progressMessage = "";
+  final bool _isProcessing = false; // Duplicate flag, keeping for minimal diff
+  final String _progressMessage = "";
 
   bool isLoading = true;
   String? _error;

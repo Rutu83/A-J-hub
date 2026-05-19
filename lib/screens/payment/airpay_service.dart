@@ -48,7 +48,7 @@ class AirpayService {
   static String _generateRandomIV() {
     // Generate 16 random digits
     var random =
-        DateTime.now().millisecondsSinceEpoch.toString() + "1234567890123456";
+        "${DateTime.now().millisecondsSinceEpoch}1234567890123456";
     return random.substring(random.length - 16);
   }
 
@@ -110,7 +110,7 @@ class AirpayService {
 
     // 3. Final Checksum = SHA256(sKey + "@" + allData)
     final checksum =
-        sha256.convert(utf8.encode(sKey + '@' + allData)).toString();
+        sha256.convert(utf8.encode('$sKey@$allData')).toString();
     print(">>> [Checksum] Final: $checksum");
     return checksum;
   }

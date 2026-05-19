@@ -296,10 +296,12 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Please enter your mobile number';
-                  if (value.length != 10)
+                  }
+                  if (value.length != 10) {
                     return 'Please enter a valid 10-digit mobile number';
+                  }
                   return null;
                 },
               ),
@@ -312,12 +314,14 @@ class _EditBusinessFormState extends State<EditBusinessForm> {
                 icon: Icons.email,
                 keyboardType: TextInputType.emailAddress,
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return 'Please enter your email ID';
+                  }
                   final emailRegex = RegExp(
                       r"^[a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
-                  if (!emailRegex.hasMatch(value))
+                  if (!emailRegex.hasMatch(value)) {
                     return 'Please enter a valid email ID';
+                  }
                   return null;
                 },
               ),

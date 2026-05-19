@@ -25,7 +25,6 @@ import 'package:ajhub_app/utils/feature_gate_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
@@ -536,14 +535,13 @@ class _ProfileScreenState extends State<ProfileScreen>
                       color: Colors.white.withOpacity(0.9),
                     ),
                   ),
-                  if (endDate != null)
-                    Text(
-                      'Until ${endDate.day}/${endDate.month}/${endDate.year}',
-                      style: GoogleFonts.poppins(
-                        fontSize: 11.sp,
-                        color: Colors.white.withOpacity(0.75),
-                      ),
+                  Text(
+                    'Until ${endDate.day}/${endDate.month}/${endDate.year}',
+                    style: GoogleFonts.poppins(
+                      fontSize: 11.sp,
+                      color: Colors.white.withOpacity(0.75),
                     ),
+                  ),
                 ],
               ),
             ],

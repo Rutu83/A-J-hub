@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
-import 'dart:ui';
 
 import 'package:ajhub_app/dynamic_fram/fram_6.dart';
 import 'package:ajhub_app/network/rest_apis.dart';

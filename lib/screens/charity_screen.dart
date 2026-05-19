@@ -607,10 +607,10 @@ class CharityScreenState extends State<CharityScreen> {
 // --- WIDGET FOR EXPANDABLE TEXT ---
 class ExpandableText extends StatefulWidget {
   const ExpandableText({
-    Key? key,
+    super.key,
     required this.text,
     this.trimLines = 3,
-  }) : super(key: key);
+  });
 
   final String text;
   final int trimLines;

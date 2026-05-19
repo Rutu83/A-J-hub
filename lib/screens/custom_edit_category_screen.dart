@@ -6,6 +6,7 @@ import 'package:ajhub_app/screens/blank_template_editor_screen.dart';
 import 'package:ajhub_app/screens/category_see_all_screen.dart';
 import 'package:ajhub_app/screens/collage_maker_screen.dart';
 import 'package:ajhub_app/screens/editor/photo_editor_screen.dart';
+import 'package:ajhub_app/screens/custom_template_gallery_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -56,7 +57,14 @@ class _CustomEditCategoryScreenState extends State<CustomEditCategoryScreen> wit
     _categoriesFuture = getCustomEditCategories();
   }
 
-  void _onTrendingTap(int index) {
+  void _refresh() {
+    setState(() {
+      _templateFutureCache.clear();
+      _categoriesFuture = getCustomEditCategories();
+    });
+  }
+
+  void _onTrendingTap(int index) async {
     switch (index) {
       case 0:
         Navigator.push(
@@ -76,18 +84,78 @@ class _CustomEditCategoryScreenState extends State<CustomEditCategoryScreen> wit
           MaterialPageRoute(builder: (_) => const AiImageGeneratorScreen()),
         );
         break;
-      default:
-        // Coming soon items – show a brief snackbar
+      case 3:
+      case 4:
+      case 5:
         final labels = ['Digital Business Card', 'Frame Store', 'Visiting Card'];
-        final label = labels[index - 3];
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('🚀 $label – Coming Soon!'),
-            backgroundColor: Colors.redAccent,
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
+        final targetName = labels[index - 3];
+
+        // Show loading indicator
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(
+            child: CircularProgressIndicator(color: Colors.red),
           ),
         );
+
+        try {
+          // Wait for categories to load if they haven't already
+          final data = await _categoriesFuture;
+          if (!mounted) return;
+          Navigator.pop(context); // Hide loader
+
+          bool found = false;
+
+          // Search in categories and subcategories by name
+          for (final cat in data.categories) {
+            if (cat.name.toLowerCase() == targetName.toLowerCase()) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => CategorySeeAllScreen(category: cat)),
+              );
+              found = true;
+              break;
+            }
+            for (final sub in cat.subcategories) {
+              if (sub.name.toLowerCase() == targetName.toLowerCase()) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CustomTemplateGalleryScreen(
+                      subcategoryId: sub.id,
+                      subcategoryName: sub.name,
+                    ),
+                  ),
+                );
+                found = true;
+                break;
+              }
+            }
+            if (found) break;
+          }
+
+          if (!found) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$targetName templates are not available yet.'),
+                backgroundColor: Colors.black87,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        } catch (e) {
+          if (!mounted) return;
+          Navigator.pop(context); // Hide loader
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to load categories.'),
+              backgroundColor: Colors.redAccent,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        break;
     }
   }
 
@@ -108,6 +176,11 @@ class _CustomEditCategoryScreenState extends State<CustomEditCategoryScreen> wit
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
+            onPressed: _refresh,
+          ),
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () async {

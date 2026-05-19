@@ -446,19 +446,19 @@ class KycScreenState extends State<KycScreen> {
                 onPressed: _updateKycData,
                 style: ButtonStyle(
                   backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.red.shade400),
-                  padding: MaterialStateProperty.all<EdgeInsets>(
+                      WidgetStateProperty.all<Color>(Colors.red.shade400),
+                  padding: WidgetStateProperty.all<EdgeInsets>(
                     const EdgeInsets.symmetric(vertical: 18, horizontal: 40),
                   ),
                   minimumSize:
-                      MaterialStateProperty.all<Size>(const Size(400, 60)),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      WidgetStateProperty.all<Size>(const Size(400, 60)),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                     RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
                           30.0), // More pronounced rounded corners
                     ),
                   ),
-                  elevation: MaterialStateProperty.all(
+                  elevation: WidgetStateProperty.all(
                       5), // Adding elevation for shadow effect
                 ),
                 child: _isLoading

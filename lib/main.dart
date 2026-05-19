@@ -29,7 +29,6 @@ import 'package:nb_utils/nb_utils.dart';
 import 'package:open_filex/open_filex.dart';
 
 import 'model/devotation_model.dart';
-import 'model/devotation_model.dart';
 import 'model/temple_model.dart';
 import 'model/upcoming_model.dart';
 
@@ -109,10 +108,8 @@ Future<void> main() async {
   await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
     onDidReceiveNotificationResponse: (payload) {
-      if (payload != null) {
-        OpenFilex.open(payload as String); // Open the PDF file
-      }
-    },
+      OpenFilex.open(payload as String); // Open the PDF file
+        },
   );
   await NotificationService().init(); // <-- INITIALIZE NOTIFICATION SERVICE
 
@@ -240,7 +237,6 @@ class MyApp extends StatelessWidget {
             primarySwatch: Colors.red,
             scaffoldBackgroundColor: Colors.white,
             cardColor: Colors.white,
-            dialogBackgroundColor: Colors.white,
             popupMenuTheme: const PopupMenuThemeData(
               color: Colors.white,
             ),
@@ -255,7 +251,7 @@ class MyApp extends StatelessWidget {
                 statusBarIconBrightness: Brightness.dark,
                 statusBarBrightness: Brightness.light,
               ),
-            ),
+            ), dialogTheme: DialogThemeData(backgroundColor: Colors.white),
           ),
           home: const SplashScreen(),
         );

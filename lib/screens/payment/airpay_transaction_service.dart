@@ -61,8 +61,8 @@ class AirpayTransactionService {
     Map<String, dynamic>? airpayResponse,
   }) async {
     try {
-      final String? authToken = appStore.token;
-      if (authToken == null || authToken.isEmpty) {
+      final String authToken = appStore.token;
+      if (authToken.isEmpty) {
         print('⚠️ Auth token is missing, skipping transaction post');
         return null;
       }
